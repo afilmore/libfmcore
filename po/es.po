@@ -1,0 +1,828 @@
+# Spanish (Castilian) translation for libfm package.
+# Copyright (C) 2010 the LXDE team
+# This file is distributed under the same license as the libfm package.
+# Hugo Florentino <sysadmin@cips.cu>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: libfm 0.1.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-08-09 21:06+0200\n"
+"PO-Revision-Date: 2011-06-14 03:03+0200\n"
+"Last-Translator: Hugo <sysadmin@cips.cu>\n"
+"Language-Team: Spanish (Castilian) <translation@mailinglist.lxde.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Pootle 2.0.5\n"
+
+#: ../data/ui/app-chooser.glade.h:1
+msgid "<b>Command line to execute:</b>"
+msgstr "<b>Línea de comandos a ejecutar:</b>"
+
+#: ../data/ui/app-chooser.glade.h:2
+msgid "<b>File Type To be Opened:</b>"
+msgstr "<b>Tipo de archivo a abrir:</b>"
+
+#: ../data/ui/app-chooser.glade.h:4
+#, no-c-format
+msgid ""
+"<b>These special codes can be used in the command line:</b>\n"
+"  <b>%f</b>: Represents a single file name\n"
+"  <b>%F</b>: Represents multiple file names\n"
+"  <b>%u</b>: Represents a single URI of the file\n"
+"  <b>%U</b>: Represents multiple URIs"
+msgstr ""
+"<b>En la línea de comandos pueden utilizarse estos códigos especiales:</b>\n"
+"  <b>%f</b>: Representa el nombre de un solo archivo\n"
+"  <b>%F</b>: Representa múltiples nombres de archivos\n"
+"  <b>%u</b>: Representa un solo URI del archivo\n"
+"  <b>%U</b>: Representa múltiples URIs"
+
+#: ../data/ui/app-chooser.glade.h:9
+msgid "Choose An Application"
+msgstr "Seleccione una aplicación"
+
+#: ../data/ui/app-chooser.glade.h:10
+msgid "Custom Command Line"
+msgstr "Línea de comandos personalizada"
+
+#: ../data/ui/app-chooser.glade.h:11
+msgid "Execute in terminal emulator"
+msgstr "Ejecutar en el emulador de terminal"
+
+#: ../data/ui/app-chooser.glade.h:12
+msgid "Installed Application"
+msgstr "Aplicación instalada"
+
+#: ../data/ui/app-chooser.glade.h:13
+msgid "Set selected application as default action of this file type"
+msgstr ""
+"Establecer la aplicación seleccionada como predeterminada para abrir los "
+"archivos de este tipo"
+
+#: ../data/ui/app-chooser.glade.h:14
+msgid "_Browse"
+msgstr "_Explorar"
+
+#: ../data/ui/ask-rename.glade.h:1
+msgid ""
+"<b>There is already a file with the same name in this location.</b>\n"
+"\n"
+"Do you want to replace the existing file"
+msgstr ""
+"<b>En esta ubicación ya existe un archivo con el mismo nombre.</b>\n"
+"\n"
+"¿Desea reemplazar el archivo existente"
+
+#: ../data/ui/ask-rename.glade.h:4
+msgid "Apply this option to all existing files"
+msgstr "Aplicar esta opción a todos los archivos existentes"
+
+#: ../data/ui/ask-rename.glade.h:5
+msgid "Confirm to replace files"
+msgstr "Confirmar el reemplazo de archivos"
+
+#: ../data/ui/ask-rename.glade.h:6
+msgid "File Name:"
+msgstr "Nombre del archivo:"
+
+#: ../data/ui/ask-rename.glade.h:7
+msgid "_Overwrite"
+msgstr "_Sobreescribir"
+
+#: ../data/ui/ask-rename.glade.h:8
+msgid "_Rename"
+msgstr "_Renombrar"
+
+#: ../data/ui/ask-rename.glade.h:9
+msgid "_Skip"
+msgstr "_Omitir"
+
+#: ../data/ui/ask-rename.glade.h:10
+msgid "with the following file?"
+msgstr "con el siguiente archivo?"
+
+#: ../data/ui/file-prop.glade.h:1
+msgid "---"
+msgstr "---"
+
+#: ../data/ui/file-prop.glade.h:2
+msgid "<b>Access Control</b>"
+msgstr "<b>Control de accesso</b>"
+
+#: ../data/ui/file-prop.glade.h:3
+msgid "<b>File Type:</b>"
+msgstr "<b>Tipo de archivo:</b>"
+
+#: ../data/ui/file-prop.glade.h:4
+msgid "<b>Group:</b>"
+msgstr "<b>Grupo:</b>"
+
+#: ../data/ui/file-prop.glade.h:5
+msgid "<b>Last Access:</b>"
+msgstr "<b>Último acceso:</b>"
+
+#: ../data/ui/file-prop.glade.h:6
+msgid "<b>Last Modification:</b>"
+msgstr "<b>Última modificación:</b>"
+
+#: ../data/ui/file-prop.glade.h:7
+msgid "<b>Location:</b>"
+msgstr "<b>Ubicación:</b>"
+
+#: ../data/ui/file-prop.glade.h:8
+msgid "<b>Open _with:</b>"
+msgstr "<b>Abrir _con:</b>"
+
+#: ../data/ui/file-prop.glade.h:9
+msgid "<b>Other:</b>"
+msgstr "<b>Otro:</b>"
+
+#: ../data/ui/file-prop.glade.h:10
+msgid "<b>Owner:</b>"
+msgstr "<b>Propietario:</b>"
+
+#: ../data/ui/file-prop.glade.h:11
+msgid "<b>Size on Disk:</b>"
+msgstr "<b>Tamaño en disco:</b>"
+
+#: ../data/ui/file-prop.glade.h:12
+msgid "<b>Target:</b>"
+msgstr "<b>Destino:</b>"
+
+#: ../data/ui/file-prop.glade.h:13
+msgid "<b>Total Size of Files:</b>"
+msgstr "<b>Tamaño total de los archivos:</b>"
+
+#: ../data/ui/file-prop.glade.h:14
+msgid "<b>_Group:</b>"
+msgstr "<b>_Grupo:</b>"
+
+#: ../data/ui/file-prop.glade.h:15
+msgid "<b>_Owner:</b>"
+msgstr "<b>_Propietario:</b>"
+
+#: ../data/ui/file-prop.glade.h:16
+msgid "File Properties"
+msgstr "Propiedades del archivo"
+
+#: ../data/ui/file-prop.glade.h:17
+msgid "Make the file executable"
+msgstr "Hacer el fichero ejecutable"
+
+#: ../data/ui/file-prop.glade.h:18
+msgid "None"
+msgstr "Ninguna"
+
+#: ../data/ui/file-prop.glade.h:19
+msgid "Operations that all other users can do"
+msgstr "Operaciones permitidas al resto de los usuarios"
+
+#: ../data/ui/file-prop.glade.h:20
+msgid "Operations that the owner of the file can do"
+msgstr "Operaciones permitidas al propietario del archivo"
+
+#: ../data/ui/file-prop.glade.h:21
+msgid "Operations that users in the same group as the owner of the file can do"
+msgstr ""
+"Operaciones permitidas a los usuarios del mismo grupo que el propietario del "
+"archivo"
+
+#: ../data/ui/file-prop.glade.h:22
+msgid "Read and Write"
+msgstr "Lectura y escritura"
+
+#: ../data/ui/file-prop.glade.h:23
+msgid "Read only"
+msgstr "Sólo lectura"
+
+#: ../data/ui/file-prop.glade.h:24
+msgid "Select the application used to open files of this type "
+msgstr ""
+"Seleccione la aplicación utilizada para abrir los archivos de este tipo "
+
+#: ../data/ui/file-prop.glade.h:25
+msgid "Write only"
+msgstr "Sólo escritura"
+
+#: ../data/ui/file-prop.glade.h:26
+msgid "_General"
+msgstr "_General"
+
+#: ../data/ui/file-prop.glade.h:27
+msgid "_Permissions"
+msgstr "_Permisos"
+
+#. Processing: <Name of currently proccesed file>
+#: ../data/ui/progress.glade.h:2
+msgid "<b>Processing:</b>"
+msgstr "<b>Procesando:</b>"
+
+#: ../data/ui/progress.glade.h:3
+msgid "<b>Progress:</b>"
+msgstr "<b>Progreso:</b>"
+
+#: ../data/ui/progress.glade.h:4
+msgid "<b>Some errors occurred:</b>"
+msgstr "<b>Ocurrieron algunos errores:</b>"
+
+#: ../data/ui/progress.glade.h:5
+msgid "<b>Time remaining:</b>"
+msgstr "<b>Tiempo restante:</b>"
+
+#. To: <Destination folder> ex. Copy file to..., Move file to...etc.
+#: ../data/ui/progress.glade.h:7
+msgid "<b>To:</b>"
+msgstr "<b>Hacia:</b>"
+
+#. Preparing to do some file operation (Copy, Move, Delete...)
+#: ../data/ui/progress.glade.h:9
+msgid "Preparing..."
+msgstr "Preparando..."
+
+#: ../data/ui/preferred-apps.glade.h:1
+msgid "<b>Mail client</b>"
+msgstr "<b>Cliente de correo</b>"
+
+#: ../data/ui/preferred-apps.glade.h:2
+msgid "<b>Terminal Emulator</b>"
+msgstr "<b>Emulador de terminal</b>"
+
+#: ../data/ui/preferred-apps.glade.h:3
+msgid "<b>Web Browser</b>"
+msgstr "<b>Navegador web</b>"
+
+#: ../data/ui/preferred-apps.glade.h:4
+msgid "Command line:"
+msgstr "Línea de comandos:"
+
+#: ../data/ui/preferred-apps.glade.h:5
+msgid "File Associations"
+msgstr "Asociaciones de archivos"
+
+#: ../data/ui/preferred-apps.glade.h:6 ../data/libfm-pref-apps.desktop.in.h:1
+msgid "Preferred Applications"
+msgstr "Aplicaciones preferidas"
+
+#: ../data/ui/preferred-apps.glade.h:7
+msgid "System Applications"
+msgstr "Aplicaciones del sistema"
+
+#: ../data/ui/preferred-apps.glade.h:8
+msgid ""
+"The preferred Mail Client will be used to compose emails when you click on E-"
+"mail addresses."
+msgstr ""
+"El cliente de correo preferido se utilizará para redactar los mensajes "
+"cuando haga clic en las direcciones de correo."
+
+#: ../data/ui/preferred-apps.glade.h:9
+msgid "The preferred Web Browser will be used to open hyperlinks."
+msgstr "El navegador web preferido se utilizará para abrir los hipervínculos."
+
+#: ../data/ui/exec-file.glade.h:1
+msgid "Execute File"
+msgstr "Ejecutar archivo"
+
+#: ../data/ui/exec-file.glade.h:2
+msgid "Execute in _Terminal"
+msgstr "Ejecutar en la _terminal"
+
+#: ../src/base/fm-utils.c:55 ../src/base/fm-utils.c:84
+#, c-format
+msgid "%u byte"
+msgid_plural "%u bytes"
+msgstr[0] "%u byte"
+msgstr[1] "%u bytes"
+
+#: ../src/base/fm-utils.c:62
+msgid "KB"
+msgstr "KB"
+
+#: ../src/base/fm-utils.c:67
+msgid "MB"
+msgstr "MB"
+
+#: ../src/base/fm-utils.c:72
+msgid "GB"
+msgstr "GB"
+
+#: ../src/base/fm-utils.c:77
+msgid "TB"
+msgstr "TB"
+
+#: ../src/base/fm-utils.c:91
+msgid "KiB"
+msgstr "KiB"
+
+#: ../src/base/fm-utils.c:96
+msgid "MiB"
+msgstr "MiB"
+
+#: ../src/base/fm-utils.c:101
+msgid "GiB"
+msgstr "GiB"
+
+#: ../src/base/fm-utils.c:106
+msgid "TiB"
+msgstr "TiB"
+
+#: ../src/base/fm-file-info.c:53
+msgid "Shortcuts"
+msgstr "Atajos"
+
+#: ../src/base/fm-file-info.c:56
+msgid "Mount Point"
+msgstr "Punto de montaje"
+
+#: ../src/base/fm-path.c:729
+msgid "Trash Can"
+msgstr "Papelera"
+
+#: ../src/base/fm-path.c:731
+msgid "My Computer"
+msgstr "Mi PC"
+
+#: ../src/base/fm-path.c:739 ../src/gtk/fm-places-model.c:524
+msgid "Applications"
+msgstr "Aplicaciones"
+
+#: ../src/base/fm-path.c:742
+msgid "Network"
+msgstr "Red"
+
+#: ../src/gtk/fm-progress-dlg.c:151
+msgid ": "
+msgstr ": "
+
+#: ../src/gtk/fm-progress-dlg.c:214 ../src/gtk/fm-progress-dlg.c:233
+#, c-format
+msgid ""
+"Type: %s\n"
+"Size: %s\n"
+"Modified: %s"
+msgstr ""
+"Tipo: %s\n"
+"Tamaño: %s\n"
+"Modificado: %s"
+
+#: ../src/gtk/fm-progress-dlg.c:221 ../src/gtk/fm-progress-dlg.c:240
+#, c-format
+msgid ""
+"Type: %s\n"
+"Modified: %s"
+msgstr ""
+"Tipo: %s\n"
+"Modificado: %s"
+
+#: ../src/gtk/fm-progress-dlg.c:312
+msgid "The file operation is cancelled and there are some errors."
+msgstr "La operación de archivos se ha cancelado y hay algunos errores."
+
+#: ../src/gtk/fm-progress-dlg.c:314
+msgid "Cancelled"
+msgstr "Cancelado"
+
+#: ../src/gtk/fm-progress-dlg.c:318
+msgid "The file operation is finished, but there are some errors."
+msgstr "La operación sobre archivos ha finalizado, pero hay algunos errores."
+
+#: ../src/gtk/fm-progress-dlg.c:320
+msgid "Finished"
+msgstr "Finalizado"
+
+#: ../src/gtk/fm-progress-dlg.c:339
+msgid ""
+"Some files cannot be moved to trash can because the underlying file systems "
+"don't support this operation.\n"
+"Do you want to delete them instead?"
+msgstr ""
+"Algunos archivos no pueden moverse a la papelera porque el subsistema de "
+"archivos no permite esta operación.\n"
+"¿Desea eliminarlos en su lugar?"
+
+#: ../src/gtk/fm-progress-dlg.c:433
+msgid ", "
+msgstr ", "
+
+#: ../src/gtk/fm-progress-dlg.c:448
+msgid "Moving files"
+msgstr "Moviendo archivos"
+
+#: ../src/gtk/fm-progress-dlg.c:451
+msgid "Copying files"
+msgstr "Copiando archivos"
+
+#: ../src/gtk/fm-progress-dlg.c:454
+msgid "Trashing files"
+msgstr "Enviando archivos a la papelera"
+
+#: ../src/gtk/fm-progress-dlg.c:457
+msgid "Deleting files"
+msgstr "Eliminando archivos"
+
+#: ../src/gtk/fm-progress-dlg.c:460
+msgid "Creating symlinks"
+msgstr "Creando enlaces simbólicos"
+
+#: ../src/gtk/fm-progress-dlg.c:463
+msgid "Changing file attributes"
+msgstr "Cambiando atributos de archivo"
+
+#: ../src/gtk/fm-file-properties.c:117 ../src/gtk/fm-file-properties.c:122
+msgid "byte"
+msgid_plural "bytes"
+msgstr[0] "byte"
+msgstr[1] "bytes"
+
+#: ../src/gtk/fm-file-properties.c:176
+msgid "Please enter a valid user name or numeric id."
+msgstr "Por favor, introduzca un nombre de usuario o id. numérica válida."
+
+#: ../src/gtk/fm-file-properties.c:208
+msgid "Please enter a valid group name or numeric id."
+msgstr "Por favor, introduzca un nombre de grupo o id. numérica válida."
+
+#: ../src/gtk/fm-file-properties.c:356
+msgid ""
+"Do you want to recursively apply these changes to all files and sub-folders?"
+msgstr ""
+"¿Desea aplicar recursivamente estos cambios a todos los archivos y "
+"subcarpetas?"
+
+#: ../src/gtk/fm-file-properties.c:630
+msgid "Files of different types"
+msgstr "Archivos de tipos diferentes"
+
+#: ../src/gtk/fm-file-properties.c:664
+msgid "Multiple Files"
+msgstr "Múltiples archivos"
+
+#: ../src/gtk/fm-places-view.c:81
+msgid "Mount Volume"
+msgstr "Montar volumen"
+
+#: ../src/gtk/fm-places-view.c:82
+msgid "Unmount Volume"
+msgstr "Desmontar volumen"
+
+#: ../src/gtk/fm-places-view.c:83
+msgid "Eject Removable Media"
+msgstr "Expulsar medio extraíble"
+
+#. FIXME: we need to set a proper parent window for the dialog
+#: ../src/gtk/fm-places-view.c:96 ../src/gtk/fm-places-view.c:720
+msgid "Rename Bookmark Item"
+msgstr "Renombrar marcador"
+
+#: ../src/gtk/fm-places-view.c:97
+msgid "Remove from Bookmark"
+msgstr "Quitar de los marcadores"
+
+#: ../src/gtk/fm-places-view.c:109
+msgid "Empty Trash"
+msgstr "Vaciar papelera"
+
+#: ../src/gtk/fm-places-view.c:721
+msgid "Enter a new name:"
+msgstr "Introduzca un nuevo nombre:"
+
+#: ../src/gtk/fm-side-pane.c:49 ../src/gtk/fm-side-pane.c:297
+msgid "Places"
+msgstr "Lugares"
+
+#: ../src/gtk/fm-side-pane.c:50 ../src/gtk/fm-side-pane.c:307
+msgid "Directory Tree"
+msgstr "Árbol de directorio"
+
+#: ../src/gtk/fm-side-pane.c:51
+msgid "Remote"
+msgstr "Remoto"
+
+#: ../src/gtk/fm-file-menu.c:86 ../src/gtk/fm-file-menu.c:87
+msgid "Open With..."
+msgstr "Abrir con..."
+
+#: ../src/gtk/fm-file-menu.c:92
+msgid "Rename"
+msgstr "Renombrar"
+
+#: ../src/gtk/fm-file-menu.c:93
+msgid "Create Symlink"
+msgstr "Crear enlace simbólico"
+
+#: ../src/gtk/fm-file-menu.c:94
+msgid "Send To"
+msgstr "Enviar a"
+
+#: ../src/gtk/fm-file-menu.c:95
+msgid "Compress..."
+msgstr "Comprimir..."
+
+#: ../src/gtk/fm-file-menu.c:96
+msgid "Extract Here"
+msgstr "Extraer aquí"
+
+#: ../src/gtk/fm-file-menu.c:97
+msgid "Extract To..."
+msgstr "Extraer a..."
+
+#: ../src/gtk/fm-file-menu.c:258
+msgid "_Restore"
+msgstr "_Restaurar"
+
+#: ../src/gtk/fm-file-menu.c:259
+msgid "Restore trashed files to original paths"
+msgstr "Restaura los archivos de la papelera a su ubicación original"
+
+#: ../src/gtk/fm-dnd-dest.c:387
+msgid "XDirectSave failed."
+msgstr "XDirectSave ha fallado."
+
+#: ../src/gtk/fm-app-chooser-dlg.c:96
+msgid "Use selected application to open files"
+msgstr "Utilizar la aplicación seleccionada para abrir los archivos"
+
+#: ../src/gtk/fm-app-chooser-dlg.c:103
+msgid "Execute custom command line to open files"
+msgstr "Ejecutar una línea de comandos personalizada para abrir los archivos"
+
+#: ../src/gtk/fm-app-chooser-combo-box.c:185
+msgid "Customize"
+msgstr "Personalizar"
+
+#: ../src/gtk/fm-folder-view.c:588
+msgid "Name"
+msgstr "Nombre"
+
+#: ../src/gtk/fm-folder-view.c:607
+msgid "Description"
+msgstr "Descripción"
+
+#: ../src/gtk/fm-folder-view.c:614
+msgid "Size"
+msgstr "Tamaño"
+
+#: ../src/gtk/fm-folder-view.c:620
+msgid "Modified"
+msgstr "Modificado"
+
+#: ../src/gtk/fm-app-menu-view.c:157
+msgid "Installed Applications"
+msgstr "Aplicaciones instaladas"
+
+#: ../src/gtk/fm-gtk-utils.c:45
+msgid "Error"
+msgstr "Error"
+
+#: ../src/gtk/fm-gtk-utils.c:55 ../src/gtk/fm-gtk-utils.c:67
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: ../src/gtk/fm-gtk-utils.c:106
+msgid "Question"
+msgstr "Pregunta"
+
+#: ../src/gtk/fm-gtk-utils.c:282
+msgid "Please select a folder"
+msgstr "Por favor, seleccione una carpeta"
+
+#: ../src/gtk/fm-gtk-utils.c:452
+msgid "Only system administrators have the permission to do this."
+msgstr "Sólo el administrador del sistema tiene el permiso para hacer esto."
+
+#: ../src/gtk/fm-gtk-utils.c:531
+msgid "Do you want to move the selected files to trash can?"
+msgstr "¿Desea mover los archivos seleccionados a la papelera?"
+
+#: ../src/gtk/fm-gtk-utils.c:552
+msgid "Do you want to delete the selected files?"
+msgstr "¿Desea eliminar los archivos seleccionados?"
+
+#: ../src/gtk/fm-gtk-utils.c:598
+msgid "Rename File"
+msgstr "Renombrar archivo"
+
+#: ../src/gtk/fm-gtk-utils.c:598
+msgid "Please enter a new name:"
+msgstr "Por favor, introduzca un nuevo nombre:"
+
+#: ../src/gtk/fm-gtk-utils.c:620
+msgid "Are you sure you want to empty the trash can?"
+msgstr "¿Está seguro que desea vaciar la papelera?"
+
+#: ../src/gtk/fm-gtk-file-launcher.c:115
+#, c-format
+msgid ""
+"This text file '%s' seems to be an executable script.\n"
+"What do you want to do with it?"
+msgstr ""
+"Este archivo de texto '%s' parece ser un script ejecutable.\n"
+"¿Qué desea hacer con él?"
+
+#: ../src/gtk/fm-gtk-file-launcher.c:122
+#, c-format
+msgid "This file '%s' is executable. Do you want to execute it?"
+msgstr "Este archivo '%s' es ejecutable. ¿Desea ejecutarlo?"
+
+#: ../src/gtk/fm-dir-tree-model.c:353
+msgid "<No Sub Folder>"
+msgstr "<Sin subcarpetas>"
+
+#: ../src/gtk/fm-dir-tree-model.c:355
+msgid "Loading..."
+msgstr "Cargando..."
+
+#: ../src/job/fm-dir-list-job.c:231 ../src/job/fm-dir-list-job.c:240
+#: ../src/job/fm-dir-list-job.c:337
+#, c-format
+msgid "The specified directory is not valid"
+msgstr "El directorio especificado no es válido"
+
+#: ../src/job/fm-file-ops-job-xfer.c:53
+msgid "Source and destination are the same."
+msgstr "El origen y el destino son iguales."
+
+#: ../src/job/fm-file-ops-job-xfer.c:60
+msgid "Cannot move a folder into its sub folder"
+msgstr "Imposible mover una carpeta hacia su subcarpeta"
+
+#: ../src/job/fm-file-ops-job-xfer.c:62
+msgid "Cannot copy a folder into its sub folder"
+msgstr "Imposible copiar una carpeta en su subcarpeta"
+
+#: ../src/job/fm-file-ops-job-xfer.c:64
+msgid "Destination is a sub folder of source"
+msgstr "El destino es una subcarpeta del origen"
+
+#: ../src/gtk/fm-places-model.c:451
+msgid "Trash"
+msgstr "Papelera"
+
+#: ../src/gtk/fm-places-model.c:509
+msgid "Desktop"
+msgstr "Escritorio"
+
+#. Translator: The word "blank" is used as an adjective, e.g. we are decsribing discs that are already blank
+#: ../src/udisks/g-udisks-device.c:41
+msgid "CD-ROM Disc"
+msgstr "Disco CD-ROM"
+
+#: ../src/udisks/g-udisks-device.c:41
+msgid "Blank CD-ROM Disc"
+msgstr "Disco CD-ROM en blanco"
+
+#: ../src/udisks/g-udisks-device.c:42
+msgid "CD-R Disc"
+msgstr "Disco CD-R"
+
+#: ../src/udisks/g-udisks-device.c:42
+msgid "Blank CD-R Disc"
+msgstr "Disco CD-R en blanco"
+
+#: ../src/udisks/g-udisks-device.c:43
+msgid "CD-RW Disc"
+msgstr "Disco CD-RW"
+
+#: ../src/udisks/g-udisks-device.c:43
+msgid "Blank CD-RW Disc"
+msgstr "Disco CD-RW en blanco"
+
+#: ../src/udisks/g-udisks-device.c:44 ../src/udisks/g-udisks-device.c:45
+msgid "DVD-ROM Disc"
+msgstr "Disco DVD-ROM"
+
+#: ../src/udisks/g-udisks-device.c:44 ../src/udisks/g-udisks-device.c:45
+msgid "Blank DVD-ROM Disc"
+msgstr "Disco DVD-ROM en blanco"
+
+#: ../src/udisks/g-udisks-device.c:46
+msgid "DVD-RW Disc"
+msgstr "Disco DVD-RW"
+
+#: ../src/udisks/g-udisks-device.c:46
+msgid "Blank DVD-RW Disc"
+msgstr "Disco DVD-RW en blanco"
+
+#: ../src/udisks/g-udisks-device.c:47
+msgid "DVD-RAM Disc"
+msgstr "Disco DVD-RAM"
+
+#: ../src/udisks/g-udisks-device.c:47
+msgid "Blank DVD-RAM Disc"
+msgstr "Disco DVD-RAM en blanco"
+
+#: ../src/udisks/g-udisks-device.c:48
+msgid "DVD+R Disc"
+msgstr "Disco DVD+R"
+
+#: ../src/udisks/g-udisks-device.c:48
+msgid "Blank DVD+R Disc"
+msgstr "Disco DVD+R en blanco"
+
+#: ../src/udisks/g-udisks-device.c:49
+msgid "DVD+RW Disc"
+msgstr "Disco DVD+RW"
+
+#: ../src/udisks/g-udisks-device.c:49
+msgid "Blank DVD+RW Disc"
+msgstr "Disco DVD+RW en blanco"
+
+#: ../src/udisks/g-udisks-device.c:50
+msgid "DVD+R DL Disc"
+msgstr "Disco DVD+R DL"
+
+#: ../src/udisks/g-udisks-device.c:50
+msgid "Blank DVD+R DL Disc"
+msgstr "Disco DVD+R DL en blanco"
+
+#: ../src/udisks/g-udisks-device.c:51
+msgid "DVD+RW DL Disc"
+msgstr "Disco DVD+RW DL"
+
+#: ../src/udisks/g-udisks-device.c:51
+msgid "Blank DVD+RW DL Disc"
+msgstr "Disco DVD+RW DL en blanco"
+
+#: ../src/udisks/g-udisks-device.c:52
+msgid "Blu-Ray Disc"
+msgstr "Disco Blu-Ray"
+
+#: ../src/udisks/g-udisks-device.c:52
+msgid "Blank Blu-Ray Disc"
+msgstr "Disco Blu-Ray en blanco"
+
+#: ../src/udisks/g-udisks-device.c:53
+msgid "Blu-Ray R Disc"
+msgstr "Disco Blu-Ray R"
+
+#: ../src/udisks/g-udisks-device.c:53
+msgid "Blank Blu-Ray R Disc"
+msgstr "Disco Blu-Ray R en blanco"
+
+#: ../src/udisks/g-udisks-device.c:54
+msgid "Blu-Ray RW Disc"
+msgstr "Disco Blu-Ray RW"
+
+#: ../src/udisks/g-udisks-device.c:54
+msgid "Blank Blu-Ray RW Disc"
+msgstr "Disco Blu-Ray RW en blanco"
+
+#: ../src/udisks/g-udisks-device.c:55
+msgid "HD DVD Disc"
+msgstr "Disco HD DVD"
+
+#: ../src/udisks/g-udisks-device.c:55
+msgid "Blank HD DVD Disc"
+msgstr "Disco HD DVD en blanco"
+
+#: ../src/udisks/g-udisks-device.c:56
+msgid "HD DVD-R Disc"
+msgstr "Disco HD DVD-R"
+
+#: ../src/udisks/g-udisks-device.c:56
+msgid "Blank HD DVD-R Disc"
+msgstr "Disco HD DVD-R en blanco"
+
+#: ../src/udisks/g-udisks-device.c:57
+msgid "HD DVD-RW Disc"
+msgstr "Disco HD DVD-RW"
+
+#: ../src/udisks/g-udisks-device.c:57
+msgid "Blank HD DVD-RW Disc"
+msgstr "Disco HD DVD-RW en blanco"
+
+#: ../src/udisks/g-udisks-device.c:58
+msgid "MO Disc"
+msgstr "Disco MO"
+
+#: ../src/udisks/g-udisks-device.c:58
+msgid "Blank MO Disc"
+msgstr "Disco MO en blanco"
+
+#: ../src/udisks/g-udisks-device.c:59
+msgid "MRW Disc"
+msgstr "Disco MRW"
+
+#: ../src/udisks/g-udisks-device.c:59
+msgid "Blank MRW Disc"
+msgstr "Disco MRW en blanco"
+
+#: ../src/udisks/g-udisks-device.c:60
+msgid "MRW/W Disc"
+msgstr "Disco MRW/W"
+
+#: ../src/udisks/g-udisks-device.c:60
+msgid "Blank MRW/W Disc"
+msgstr "Disco MRW/W en blanco"
+
+#: ../src/udisks/g-udisks-device.c:299
+msgid "Blank Optical Disc"
+msgstr "Disco óptico en blanco"
+
+#: ../src/udisks/g-udisks-device.c:301
+msgid "Optical Disc"
+msgstr "Disco óptico"

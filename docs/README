@@ -1,0 +1,41 @@
+
+
+
+
+Detailled folder view :
+
+FmFolderView is a GtkScrolledWindow :
+struct _FmFolderView
+{
+    GtkScrolledWindow parent;
+
+    FmFolderViewMode mode;
+    GtkSelectionMode sel_mode;
+    GtkSortType sort_type;
+    int sort_by;
+
+    gboolean show_hidden;
+
+    GtkWidget* view;
+    FmFolder* folder;
+    GtkTreeModel* model;
+    GtkCellRenderer* renderer_pixbuf;
+    guint icon_size_changed_handler;
+
+    FmPath* cwd;
+    FmDndSrc* dnd_src; /* dnd source manager */
+    FmDndDest* dnd_dest; /* dnd dest manager */
+
+    /* wordarounds to fix new gtk+ bug introduced in gtk+ 2.20: #612802 */
+    GtkTreeRowReference* activated_row_ref; /* for row-activated handler */
+    guint row_activated_idle;
+};
+
+The view mode is represented by FmFolderViewMode, 4 modes are supported,
+icon, thumnails, compac and detailled list view.
+
+The "view" member is an ExoTreeView.
+
+
+The create_list_view function creates the detailled listview.
+static inline void create_list_view(FmFolderView* fv, GList* sels)

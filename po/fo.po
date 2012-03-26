@@ -1,0 +1,826 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-08-09 21:06+0200\n"
+"PO-Revision-Date: 2010-06-07 16:07+0200\n"
+"Last-Translator: Gunleif <gunleif@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Pootle 2.0.1\n"
+
+#: ../data/ui/app-chooser.glade.h:1
+msgid "<b>Command line to execute:</b>"
+msgstr "<b>Stýriboðslinja at inna::</b>"
+
+#: ../data/ui/app-chooser.glade.h:2
+msgid "<b>File Type To be Opened:</b>"
+msgstr "<b>Fíluslag ið skal latast upp:</b>"
+
+#: ../data/ui/app-chooser.glade.h:4
+#, no-c-format
+msgid ""
+"<b>These special codes can be used in the command line:</b>\n"
+"  <b>%f</b>: Represents a single file name\n"
+"  <b>%F</b>: Represents multiple file names\n"
+"  <b>%u</b>: Represents a single URI of the file\n"
+"  <b>%U</b>: Represents multiple URIs"
+msgstr ""
+"<b>Hesa serligu kotur, kunnu nýtast á stýriboðslinjuni:</b>\n"
+"  <b>%f</b>: Merkir eitt einstakt fílunavn\n"
+"  <b>%F</b>: Merkir fleiri fílunøvn\n"
+"  <b>%u</b>: Merkir ein einstøk URI av fílunavninum\n"
+"  <b>%U</b>: Merkir fleir URI"
+
+#: ../data/ui/app-chooser.glade.h:9
+msgid "Choose An Application"
+msgstr "Vel eina nýtsluskipan"
+
+#: ../data/ui/app-chooser.glade.h:10
+msgid "Custom Command Line"
+msgstr "Tilsniða stýriboðslinja"
+
+#: ../data/ui/app-chooser.glade.h:11
+msgid "Execute in terminal emulator"
+msgstr "Koyr í útstøðarhermara"
+
+#: ../data/ui/app-chooser.glade.h:12
+msgid "Installed Application"
+msgstr "Innløgd nýtsluskipan"
+
+#: ../data/ui/app-chooser.glade.h:13
+msgid "Set selected application as default action of this file type"
+msgstr ""
+"Set tað valdu nýtsluskipaninna at verða forsett atgerð fyri hesum fíluslag"
+
+#: ../data/ui/app-chooser.glade.h:14
+msgid "_Browse"
+msgstr "_Kaga"
+
+#: ../data/ui/ask-rename.glade.h:1
+msgid ""
+"<b>There is already a file with the same name in this location.</b>\n"
+"\n"
+"Do you want to replace the existing file"
+msgstr ""
+"<b>Har finnst longu ein fíla við sama navni, á hesum staði.</b>\n"
+"\n"
+"Vil tú seta eina aðra fílu í staðin"
+
+#: ../data/ui/ask-rename.glade.h:4
+msgid "Apply this option to all existing files"
+msgstr "Nýt hendan kostin til allar fílur"
+
+#: ../data/ui/ask-rename.glade.h:5
+msgid "Confirm to replace files"
+msgstr "Vátta at skriva omaná fílur"
+
+#: ../data/ui/ask-rename.glade.h:6
+msgid "File Name:"
+msgstr "Fílunavn:"
+
+#: ../data/ui/ask-rename.glade.h:7
+msgid "_Overwrite"
+msgstr "_Skriva omaná"
+
+#: ../data/ui/ask-rename.glade.h:8
+msgid "_Rename"
+msgstr "_Endurnevn"
+
+#: ../data/ui/ask-rename.glade.h:9
+msgid "_Skip"
+msgstr "_Leyp um"
+
+#: ../data/ui/ask-rename.glade.h:10
+msgid "with the following file?"
+msgstr "við hesari fílu?"
+
+#: ../data/ui/file-prop.glade.h:1
+msgid "---"
+msgstr "---"
+
+#: ../data/ui/file-prop.glade.h:2
+msgid "<b>Access Control</b>"
+msgstr "<b>Atgongu eftirlit</b>"
+
+#: ../data/ui/file-prop.glade.h:3
+msgid "<b>File Type:</b>"
+msgstr "<b>Fíluslag:</b>"
+
+#: ../data/ui/file-prop.glade.h:4
+msgid "<b>Group:</b>"
+msgstr "<b>Bólkur:</b>"
+
+#: ../data/ui/file-prop.glade.h:5
+msgid "<b>Last Access:</b>"
+msgstr "<b>Seinast atgingin:</b>"
+
+#: ../data/ui/file-prop.glade.h:6
+msgid "<b>Last Modification:</b>"
+msgstr "<b>Broytt seinast:</b>"
+
+#: ../data/ui/file-prop.glade.h:7
+msgid "<b>Location:</b>"
+msgstr "<b>Lega:</b>"
+
+#: ../data/ui/file-prop.glade.h:8
+msgid "<b>Open _with:</b>"
+msgstr "<b>Lat upp _við:</b>"
+
+#: ../data/ui/file-prop.glade.h:9
+msgid "<b>Other:</b>"
+msgstr "<b>Onnur:</b>"
+
+#: ../data/ui/file-prop.glade.h:10
+msgid "<b>Owner:</b>"
+msgstr "<b>Eigari:</b>"
+
+#: ../data/ui/file-prop.glade.h:11
+msgid "<b>Size on Disk:</b>"
+msgstr "<b>Stødd á harðdiski:</b>"
+
+#: ../data/ui/file-prop.glade.h:12
+msgid "<b>Target:</b>"
+msgstr "<b>Mál:</b>"
+
+#: ../data/ui/file-prop.glade.h:13
+msgid "<b>Total Size of Files:</b>"
+msgstr "<b>Samlað stødd á fílum:</b>"
+
+#: ../data/ui/file-prop.glade.h:14
+msgid "<b>_Group:</b>"
+msgstr "<b>_Bólkar:</b>"
+
+#: ../data/ui/file-prop.glade.h:15
+msgid "<b>_Owner:</b>"
+msgstr "<b>_Eigari:</b>"
+
+#: ../data/ui/file-prop.glade.h:16
+msgid "File Properties"
+msgstr "Fílueginleikar"
+
+#: ../data/ui/file-prop.glade.h:17
+msgid "Make the file executable"
+msgstr "Gerð fíluna inningarføra"
+
+#: ../data/ui/file-prop.glade.h:18
+msgid "None"
+msgstr "Eingi"
+
+#: ../data/ui/file-prop.glade.h:19
+msgid "Operations that all other users can do"
+msgstr "Atgerðir ið allir brúkarir kunnu gerða"
+
+#: ../data/ui/file-prop.glade.h:20
+msgid "Operations that the owner of the file can do"
+msgstr "Atgerðir ið eigarin av fíluni kann gerða"
+
+#: ../data/ui/file-prop.glade.h:21
+msgid "Operations that users in the same group as the owner of the file can do"
+msgstr "Atgerðir ið brúkarir í sama bólki sum eigarin, kunnu gerða"
+
+#: ../data/ui/file-prop.glade.h:22
+msgid "Read and Write"
+msgstr "Les og skriva"
+
+#: ../data/ui/file-prop.glade.h:23
+msgid "Read only"
+msgstr "Einans lesa"
+
+#: ../data/ui/file-prop.glade.h:24
+msgid "Select the application used to open files of this type "
+msgstr ""
+"Vel nýtsluskipanina ið nýtast skal til at lata upp fílur av hesum slag "
+
+#: ../data/ui/file-prop.glade.h:25
+msgid "Write only"
+msgstr "Einans skriva"
+
+#: ../data/ui/file-prop.glade.h:26
+msgid "_General"
+msgstr "_Alment"
+
+#: ../data/ui/file-prop.glade.h:27
+msgid "_Permissions"
+msgstr "_Loyvi"
+
+#. Processing: <Name of currently proccesed file>
+#: ../data/ui/progress.glade.h:2
+msgid "<b>Processing:</b>"
+msgstr "<b>Tilgangi:</b>"
+
+#: ../data/ui/progress.glade.h:3
+msgid "<b>Progress:</b>"
+msgstr "<b>Støða:</b>"
+
+#: ../data/ui/progress.glade.h:4
+msgid "<b>Some errors occurred:</b>"
+msgstr "<b>Nakrar villur fyrikomu:</b>"
+
+#: ../data/ui/progress.glade.h:5
+msgid "<b>Time remaining:</b>"
+msgstr "<b>Tíð eftir:</b>"
+
+#. To: <Destination folder> ex. Copy file to..., Move file to...etc.
+#: ../data/ui/progress.glade.h:7
+msgid "<b>To:</b>"
+msgstr "<b>Til:</b>"
+
+#. Preparing to do some file operation (Copy, Move, Delete...)
+#: ../data/ui/progress.glade.h:9
+msgid "Preparing..."
+msgstr "Fyrireiki..."
+
+#: ../data/ui/preferred-apps.glade.h:1
+msgid "<b>Mail client</b>"
+msgstr "<b>Postviðskiftarit</b>"
+
+#: ../data/ui/preferred-apps.glade.h:2
+msgid "<b>Terminal Emulator</b>"
+msgstr "<b>Útstøðarhermari</b>"
+
+#: ../data/ui/preferred-apps.glade.h:3
+msgid "<b>Web Browser</b>"
+msgstr "<b>Net kagari</b>"
+
+#: ../data/ui/preferred-apps.glade.h:4
+msgid "Command line:"
+msgstr "Stýriboðaslinja:"
+
+#: ../data/ui/preferred-apps.glade.h:5
+msgid "File Associations"
+msgstr "Fílusambindingar"
+
+#: ../data/ui/preferred-apps.glade.h:6 ../data/libfm-pref-apps.desktop.in.h:1
+msgid "Preferred Applications"
+msgstr "Framumtiknar nýtsluskipanir"
+
+#: ../data/ui/preferred-apps.glade.h:7
+msgid "System Applications"
+msgstr "Kervis-nýtsluskipanir"
+
+#: ../data/ui/preferred-apps.glade.h:8
+msgid ""
+"The preferred Mail Client will be used to compose emails when you click on E-"
+"mail addresses."
+msgstr ""
+"Tann framumtikni postviðskiftarin, verður nýttur at skriva t-post tá ið tú "
+"trýstur á t-post bústaðir."
+
+#: ../data/ui/preferred-apps.glade.h:9
+msgid "The preferred Web Browser will be used to open hyperlinks."
+msgstr "Framumtikni vevkagarin verður nýttur at lata upp alnetsbústaðir við."
+
+#: ../data/ui/exec-file.glade.h:1
+msgid "Execute File"
+msgstr "Inna fílu"
+
+#: ../data/ui/exec-file.glade.h:2
+msgid "Execute in _Terminal"
+msgstr "Inna í ú_tstøð"
+
+#: ../src/base/fm-utils.c:55 ../src/base/fm-utils.c:84
+#, c-format
+msgid "%u byte"
+msgid_plural "%u bytes"
+msgstr[0] "%u být"
+msgstr[1] "%u být"
+
+#: ../src/base/fm-utils.c:62
+msgid "KB"
+msgstr "KB"
+
+#: ../src/base/fm-utils.c:67
+msgid "MB"
+msgstr "MB"
+
+#: ../src/base/fm-utils.c:72
+msgid "GB"
+msgstr "GB"
+
+#: ../src/base/fm-utils.c:77
+msgid "TB"
+msgstr "TB"
+
+#: ../src/base/fm-utils.c:91
+msgid "KiB"
+msgstr "KiB"
+
+#: ../src/base/fm-utils.c:96
+msgid "MiB"
+msgstr "MiB"
+
+#: ../src/base/fm-utils.c:101
+msgid "GiB"
+msgstr "GiB"
+
+#: ../src/base/fm-utils.c:106
+msgid "TiB"
+msgstr "TiB"
+
+#: ../src/base/fm-file-info.c:53
+msgid "Shortcuts"
+msgstr "Snarvegir"
+
+#: ../src/base/fm-file-info.c:56
+msgid "Mount Point"
+msgstr "Ísetingarstað"
+
+#: ../src/base/fm-path.c:729
+msgid "Trash Can"
+msgstr "Ruskspann"
+
+#: ../src/base/fm-path.c:731
+msgid "My Computer"
+msgstr "Mín telda"
+
+#: ../src/base/fm-path.c:739 ../src/gtk/fm-places-model.c:524
+msgid "Applications"
+msgstr "Nýtsluskipanir"
+
+#: ../src/base/fm-path.c:742
+msgid "Network"
+msgstr "Net"
+
+#: ../src/gtk/fm-progress-dlg.c:151
+msgid ": "
+msgstr ": "
+
+#: ../src/gtk/fm-progress-dlg.c:214 ../src/gtk/fm-progress-dlg.c:233
+#, c-format
+msgid ""
+"Type: %s\n"
+"Size: %s\n"
+"Modified: %s"
+msgstr ""
+"Slag: %s\n"
+"Stødd: %s\n"
+"Broytt: %s"
+
+#: ../src/gtk/fm-progress-dlg.c:221 ../src/gtk/fm-progress-dlg.c:240
+#, c-format
+msgid ""
+"Type: %s\n"
+"Modified: %s"
+msgstr ""
+"Slag: %s\n"
+"Broytt: %s"
+
+#: ../src/gtk/fm-progress-dlg.c:312
+msgid "The file operation is cancelled and there are some errors."
+msgstr "Fíluatgerðin er avbrotin, og har eru nøkur brek."
+
+#: ../src/gtk/fm-progress-dlg.c:314
+msgid "Cancelled"
+msgstr "Avbrotið"
+
+#: ../src/gtk/fm-progress-dlg.c:318
+msgid "The file operation is finished, but there are some errors."
+msgstr "Fíluatgerðin er liðug, men har eru nakrar villur."
+
+#: ../src/gtk/fm-progress-dlg.c:320
+msgid "Finished"
+msgstr "Liðugt"
+
+#: ../src/gtk/fm-progress-dlg.c:339
+msgid ""
+"Some files cannot be moved to trash can because the underlying file systems "
+"don't support this operation.\n"
+"Do you want to delete them instead?"
+msgstr ""
+"Summar fílur kunnu ikki flytast til ruskspannina, tí at tað undirliggjandi "
+"kervið ikki stuðlar hesari atgerð.\n"
+"Vil tú strika tær í staðin?"
+
+#: ../src/gtk/fm-progress-dlg.c:433
+msgid ", "
+msgstr ", "
+
+#: ../src/gtk/fm-progress-dlg.c:448
+msgid "Moving files"
+msgstr "Flyti fílur"
+
+#: ../src/gtk/fm-progress-dlg.c:451
+msgid "Copying files"
+msgstr "Avriti fílur"
+
+#: ../src/gtk/fm-progress-dlg.c:454
+msgid "Trashing files"
+msgstr "Tveiti fílur út"
+
+#: ../src/gtk/fm-progress-dlg.c:457
+msgid "Deleting files"
+msgstr "Striki fílur"
+
+#: ../src/gtk/fm-progress-dlg.c:460
+msgid "Creating symlinks"
+msgstr "Stovni tykisligar leinkjur"
+
+#: ../src/gtk/fm-progress-dlg.c:463
+msgid "Changing file attributes"
+msgstr "Broyti fílueginleikar"
+
+#: ../src/gtk/fm-file-properties.c:117 ../src/gtk/fm-file-properties.c:122
+msgid "byte"
+msgid_plural "bytes"
+msgstr[0] "%u být"
+msgstr[1] "%u být"
+
+#: ../src/gtk/fm-file-properties.c:176
+msgid "Please enter a valid user name or numeric id."
+msgstr "Vinarliga skriva inn eitt lógligt brúkaranavn ella talsamleika."
+
+#: ../src/gtk/fm-file-properties.c:208
+msgid "Please enter a valid group name or numeric id."
+msgstr "Vinarliga skriva inn eitt lógligt bólkanavn ella talsamleika."
+
+#: ../src/gtk/fm-file-properties.c:356
+msgid ""
+"Do you want to recursively apply these changes to all files and sub-folders?"
+msgstr ""
+"Vil tú endurkvæmiliga nýta hesar broytingar til allar fílur og undirskjáttur?"
+
+#: ../src/gtk/fm-file-properties.c:630
+msgid "Files of different types"
+msgstr "Fílur av ymsum slagi"
+
+#: ../src/gtk/fm-file-properties.c:664
+msgid "Multiple Files"
+msgstr "Fleiri fílur"
+
+# Enskt volume, danskt arkiv
+#: ../src/gtk/fm-places-view.c:81
+msgid "Mount Volume"
+msgstr "Íset skjalasavn"
+
+#: ../src/gtk/fm-places-view.c:82
+msgid "Unmount Volume"
+msgstr "Úrset skjalasavn"
+
+#: ../src/gtk/fm-places-view.c:83
+msgid "Eject Removable Media"
+msgstr "Skumpa leysamiðil út"
+
+#. FIXME: we need to set a proper parent window for the dialog
+#: ../src/gtk/fm-places-view.c:96 ../src/gtk/fm-places-view.c:720
+msgid "Rename Bookmark Item"
+msgstr "Nýnevn bókamerkisliðin"
+
+#: ../src/gtk/fm-places-view.c:97
+msgid "Remove from Bookmark"
+msgstr "Tak burtur úr bókamerkjum"
+
+#: ../src/gtk/fm-places-view.c:109
+msgid "Empty Trash"
+msgstr "Tøm ruskspannina"
+
+#: ../src/gtk/fm-places-view.c:721
+msgid "Enter a new name:"
+msgstr "Skriva eitt nýtt navn:"
+
+#: ../src/gtk/fm-side-pane.c:49 ../src/gtk/fm-side-pane.c:297
+msgid "Places"
+msgstr ""
+
+#: ../src/gtk/fm-side-pane.c:50 ../src/gtk/fm-side-pane.c:307
+msgid "Directory Tree"
+msgstr ""
+
+#: ../src/gtk/fm-side-pane.c:51
+msgid "Remote"
+msgstr ""
+
+#: ../src/gtk/fm-file-menu.c:86 ../src/gtk/fm-file-menu.c:87
+msgid "Open With..."
+msgstr "Lat upp við..."
+
+#: ../src/gtk/fm-file-menu.c:92
+msgid "Rename"
+msgstr "Nýnevn"
+
+# symlink kann eita tykislig leinkja
+#: ../src/gtk/fm-file-menu.c:93
+msgid "Create Symlink"
+msgstr "Stovna symlink"
+
+#: ../src/gtk/fm-file-menu.c:94
+msgid "Send To"
+msgstr "Send til"
+
+#: ../src/gtk/fm-file-menu.c:95
+msgid "Compress..."
+msgstr "Stappa..."
+
+#: ../src/gtk/fm-file-menu.c:96
+msgid "Extract Here"
+msgstr "Pakka út her"
+
+#: ../src/gtk/fm-file-menu.c:97
+msgid "Extract To..."
+msgstr "Pakka út til..."
+
+#: ../src/gtk/fm-file-menu.c:258
+msgid "_Restore"
+msgstr "_Endurstovna"
+
+#: ../src/gtk/fm-file-menu.c:259
+msgid "Restore trashed files to original paths"
+msgstr "Endurstovna strikaðar fílur til teirra upprunaligu leið"
+
+#: ../src/gtk/fm-dnd-dest.c:387
+msgid "XDirectSave failed."
+msgstr "XDirectSave miseydnaðist."
+
+#: ../src/gtk/fm-app-chooser-dlg.c:96
+msgid "Use selected application to open files"
+msgstr "Nýt tað valdu nýtsluskipaninna at lata fílur við"
+
+#: ../src/gtk/fm-app-chooser-dlg.c:103
+msgid "Execute custom command line to open files"
+msgstr "Koyr tilgjørdu stýriboðsregluna til at lata upp fílur við"
+
+#: ../src/gtk/fm-app-chooser-combo-box.c:185
+msgid "Customize"
+msgstr "Tilsniða"
+
+#: ../src/gtk/fm-folder-view.c:588
+msgid "Name"
+msgstr "Navn"
+
+#: ../src/gtk/fm-folder-view.c:607
+msgid "Description"
+msgstr "Frágreiðing"
+
+#: ../src/gtk/fm-folder-view.c:614
+msgid "Size"
+msgstr "Stødd"
+
+#: ../src/gtk/fm-folder-view.c:620
+msgid "Modified"
+msgstr "Broytt"
+
+#: ../src/gtk/fm-app-menu-view.c:157
+msgid "Installed Applications"
+msgstr "Innlagdar nýtsluskipanir"
+
+#: ../src/gtk/fm-gtk-utils.c:45
+msgid "Error"
+msgstr "Brek"
+
+#: ../src/gtk/fm-gtk-utils.c:55 ../src/gtk/fm-gtk-utils.c:67
+msgid "Confirm"
+msgstr ""
+
+#: ../src/gtk/fm-gtk-utils.c:106
+#, fuzzy
+msgid "Question"
+msgstr "Frágreiðing"
+
+#: ../src/gtk/fm-gtk-utils.c:282
+msgid "Please select a folder"
+msgstr "Vinarliga vel eina skjáttu"
+
+#: ../src/gtk/fm-gtk-utils.c:452
+msgid "Only system administrators have the permission to do this."
+msgstr "Einans kervisfyrisitarir hava rættindi til at gerða hetta."
+
+#: ../src/gtk/fm-gtk-utils.c:531
+msgid "Do you want to move the selected files to trash can?"
+msgstr "Vil tú flyta tær valdu fílurnar í ruskspannina?"
+
+#: ../src/gtk/fm-gtk-utils.c:552
+msgid "Do you want to delete the selected files?"
+msgstr "Vil tú strika tær valdu fíurnar?"
+
+#: ../src/gtk/fm-gtk-utils.c:598
+msgid "Rename File"
+msgstr "Nýnevn fílu"
+
+#: ../src/gtk/fm-gtk-utils.c:598
+msgid "Please enter a new name:"
+msgstr "Vinarliga skriva eitt nýtt navn:"
+
+#: ../src/gtk/fm-gtk-utils.c:620
+msgid "Are you sure you want to empty the trash can?"
+msgstr "Er tú viss/ur í at tøma ruskspannina?"
+
+#: ../src/gtk/fm-gtk-file-launcher.c:115
+#, c-format
+msgid ""
+"This text file '%s' seems to be an executable script.\n"
+"What do you want to do with it?"
+msgstr ""
+
+#: ../src/gtk/fm-gtk-file-launcher.c:122
+#, c-format
+msgid "This file '%s' is executable. Do you want to execute it?"
+msgstr "Hendan fílan '%s' er inningarfør. Vil tú inna hana?"
+
+#: ../src/gtk/fm-dir-tree-model.c:353
+msgid "<No Sub Folder>"
+msgstr ""
+
+#: ../src/gtk/fm-dir-tree-model.c:355
+#, fuzzy
+msgid "Loading..."
+msgstr "Fyrireiki..."
+
+#: ../src/job/fm-dir-list-job.c:231 ../src/job/fm-dir-list-job.c:240
+#: ../src/job/fm-dir-list-job.c:337
+#, c-format
+msgid "The specified directory is not valid"
+msgstr "Tann tilskilaða skjáttan er ikki lóglig"
+
+#: ../src/job/fm-file-ops-job-xfer.c:53
+msgid "Source and destination are the same."
+msgstr "Kelda og mál eru tey somu"
+
+#: ../src/job/fm-file-ops-job-xfer.c:60
+msgid "Cannot move a folder into its sub folder"
+msgstr "Kann ikki flyta ein faldara í sín egna undirfaldara"
+
+#: ../src/job/fm-file-ops-job-xfer.c:62
+msgid "Cannot copy a folder into its sub folder"
+msgstr "Kann ikki avrita ein faldara til sín egna undirfaldara"
+
+#: ../src/job/fm-file-ops-job-xfer.c:64
+msgid "Destination is a sub folder of source"
+msgstr "Máli er ein undirfaldar av kelduni"
+
+#: ../src/gtk/fm-places-model.c:451
+msgid "Trash"
+msgstr "Ruskspann"
+
+#: ../src/gtk/fm-places-model.c:509
+msgid "Desktop"
+msgstr "Skriviborð"
+
+#. Translator: The word "blank" is used as an adjective, e.g. we are decsribing discs that are already blank
+#: ../src/udisks/g-udisks-device.c:41
+msgid "CD-ROM Disc"
+msgstr "CD-ROM diskur"
+
+#: ../src/udisks/g-udisks-device.c:41
+msgid "Blank CD-ROM Disc"
+msgstr "Blank CD-ROM dirkur"
+
+#: ../src/udisks/g-udisks-device.c:42
+msgid "CD-R Disc"
+msgstr "CD-R diskur"
+
+#: ../src/udisks/g-udisks-device.c:42
+msgid "Blank CD-R Disc"
+msgstr "Blankur CD-R diskur"
+
+#: ../src/udisks/g-udisks-device.c:43
+msgid "CD-RW Disc"
+msgstr "CD-RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:43
+msgid "Blank CD-RW Disc"
+msgstr "Blankur CD-RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:44 ../src/udisks/g-udisks-device.c:45
+msgid "DVD-ROM Disc"
+msgstr "DVD-ROM diskur"
+
+#: ../src/udisks/g-udisks-device.c:44 ../src/udisks/g-udisks-device.c:45
+msgid "Blank DVD-ROM Disc"
+msgstr "Blankur DVD-ROM diskur"
+
+#: ../src/udisks/g-udisks-device.c:46
+msgid "DVD-RW Disc"
+msgstr "DVD-RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:46
+msgid "Blank DVD-RW Disc"
+msgstr "Blankur DVD-RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:47
+msgid "DVD-RAM Disc"
+msgstr "DVD-RAM diskur"
+
+#: ../src/udisks/g-udisks-device.c:47
+msgid "Blank DVD-RAM Disc"
+msgstr "Blankur DVD-RAM diskur"
+
+#: ../src/udisks/g-udisks-device.c:48
+msgid "DVD+R Disc"
+msgstr "DVD+R diskur"
+
+#: ../src/udisks/g-udisks-device.c:48
+msgid "Blank DVD+R Disc"
+msgstr "Blankur DVD+R diskur"
+
+#: ../src/udisks/g-udisks-device.c:49
+msgid "DVD+RW Disc"
+msgstr "DVD+RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:49
+msgid "Blank DVD+RW Disc"
+msgstr "Blankur DVD+RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:50
+msgid "DVD+R DL Disc"
+msgstr "DVD+R DL diskur"
+
+#: ../src/udisks/g-udisks-device.c:50
+msgid "Blank DVD+R DL Disc"
+msgstr "Blankur DVD+R DL diskur"
+
+#: ../src/udisks/g-udisks-device.c:51
+msgid "DVD+RW DL Disc"
+msgstr "DVD+RW DL diskur"
+
+#: ../src/udisks/g-udisks-device.c:51
+msgid "Blank DVD+RW DL Disc"
+msgstr "Blankur DVD+RW DL diskur"
+
+#: ../src/udisks/g-udisks-device.c:52
+msgid "Blu-Ray Disc"
+msgstr "Blu-Ray diskur"
+
+#: ../src/udisks/g-udisks-device.c:52
+msgid "Blank Blu-Ray Disc"
+msgstr "Blankur Blu-Ray diskur"
+
+#: ../src/udisks/g-udisks-device.c:53
+msgid "Blu-Ray R Disc"
+msgstr "Blu-Ray R diskur"
+
+#: ../src/udisks/g-udisks-device.c:53
+msgid "Blank Blu-Ray R Disc"
+msgstr "Blankur Blu-Ray R diskur"
+
+#: ../src/udisks/g-udisks-device.c:54
+msgid "Blu-Ray RW Disc"
+msgstr "Blu-Ray RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:54
+msgid "Blank Blu-Ray RW Disc"
+msgstr "Blankur Blu-Ray diskur"
+
+#: ../src/udisks/g-udisks-device.c:55
+msgid "HD DVD Disc"
+msgstr "HD DVD diskur"
+
+#: ../src/udisks/g-udisks-device.c:55
+msgid "Blank HD DVD Disc"
+msgstr "Blankur HD DVD diskur"
+
+#: ../src/udisks/g-udisks-device.c:56
+msgid "HD DVD-R Disc"
+msgstr "HD DVD-R diskur"
+
+#: ../src/udisks/g-udisks-device.c:56
+msgid "Blank HD DVD-R Disc"
+msgstr "Blankur HD DVD-R diskur"
+
+#: ../src/udisks/g-udisks-device.c:57
+msgid "HD DVD-RW Disc"
+msgstr "HD DVD-RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:57
+msgid "Blank HD DVD-RW Disc"
+msgstr "Blankur HD DVD-RW diskur"
+
+#: ../src/udisks/g-udisks-device.c:58
+msgid "MO Disc"
+msgstr "MO diskur"
+
+#: ../src/udisks/g-udisks-device.c:58
+msgid "Blank MO Disc"
+msgstr "Blankur MO diskur"
+
+#: ../src/udisks/g-udisks-device.c:59
+msgid "MRW Disc"
+msgstr "MRV diskur"
+
+#: ../src/udisks/g-udisks-device.c:59
+msgid "Blank MRW Disc"
+msgstr "Blankur MRV diskur"
+
+#: ../src/udisks/g-udisks-device.c:60
+msgid "MRW/W Disc"
+msgstr "MRV/W diskur"
+
+#: ../src/udisks/g-udisks-device.c:60
+msgid "Blank MRW/W Disc"
+msgstr "Blankur MRV/W diskur"
+
+#: ../src/udisks/g-udisks-device.c:299
+msgid "Blank Optical Disc"
+msgstr "Blankur optiskur diskur"
+
+#: ../src/udisks/g-udisks-device.c:301
+msgid "Optical Disc"
+msgstr "Optiskur diskur"
