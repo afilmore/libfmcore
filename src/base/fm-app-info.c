@@ -148,10 +148,12 @@ static char* expand_terminal(char* cmd)
     char* ret;
     /* add terminal emulator command */
     /* FIXME: this is very unsafe */
-    //~ if(strstr(fm_config->terminal, "%s"))
-        //~ ret = g_strdup_printf(fm_config->terminal, cmd);
-    //~ else /* if %s is not found, fallback to -e */
-        //~ ret = g_strdup_printf("%s -e %s", fm_config->terminal, cmd);
+#if 0    
+    if(strstr(fm_config->terminal, "%s"))
+        ret = g_strdup_printf(fm_config->terminal, cmd);
+    else /* if %s is not found, fallback to -e */
+        ret = g_strdup_printf("%s -e %s", fm_config->terminal, cmd);
+#endif
     return ret;
 }
 

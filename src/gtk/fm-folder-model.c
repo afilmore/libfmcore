@@ -144,10 +144,11 @@ void fm_folder_model_init(FmFolderModel* model)
 
     model->theme_change_handler = g_signal_connect(gtk_icon_theme_get_default(), "changed",
                                                    G_CALLBACK(on_icon_theme_changed), model);
-    //~ g_signal_connect(fm_config, "changed::show_thumbnail", G_CALLBACK(on_show_thumbnail_changed), model);
-    //~ g_signal_connect(fm_config, "changed::thumbnail_local", G_CALLBACK(on_thumbnail_local_changed), model);
-    //~ g_signal_connect(fm_config, "changed::thumbnail_max", G_CALLBACK(on_thumbnail_max_changed), model);
-
+#if 0
+    g_signal_connect(fm_config, "changed::show_thumbnail", G_CALLBACK(on_show_thumbnail_changed), model);
+    g_signal_connect(fm_config, "changed::thumbnail_local", G_CALLBACK(on_thumbnail_local_changed), model);
+    g_signal_connect(fm_config, "changed::thumbnail_max", G_CALLBACK(on_thumbnail_max_changed), model);
+#endif
     //model->thumbnail_max = fm_config->thumbnail_max << 10;
 }
 
@@ -229,11 +230,11 @@ void fm_folder_model_finalize(GObject *object)
     fm_folder_model_set_folder(model, NULL);
     g_signal_handler_disconnect(gtk_icon_theme_get_default(),
                                 model->theme_change_handler);
-
-    //~ g_signal_handlers_disconnect_by_func(fm_config, on_show_thumbnail_changed, model);
-    //~ g_signal_handlers_disconnect_by_func(fm_config, on_thumbnail_local_changed, model);
-    //~ g_signal_handlers_disconnect_by_func(fm_config, on_thumbnail_max_changed, model);
-
+#if 0
+    g_signal_handlers_disconnect_by_func(fm_config, on_show_thumbnail_changed, model);
+    g_signal_handlers_disconnect_by_func(fm_config, on_thumbnail_local_changed, model);
+    g_signal_handlers_disconnect_by_func(fm_config, on_thumbnail_max_changed, model);
+#endif
     g_list_foreach(model->thumbnail_requests, (GFunc)fm_thumbnail_request_cancel, NULL);
     g_list_free(model->thumbnail_requests);
 
@@ -475,12 +476,14 @@ void fm_folder_model_get_value(GtkTreeModel *tree_model,
             {
                 if(fm_file_info_can_thumbnail(item->inf))
                 {
-                    //~ if(item->inf->size > 0 && item->inf->size <= (fm_config->thumbnail_max << 10))
-                    //~ {
-                        //~ FmThumbnailRequest* req = fm_thumbnail_request(item->inf, model->icon_size, on_thumbnail_loaded, model);
-                        //~ model->thumbnail_requests = g_list_prepend(model->thumbnail_requests, req);
-                        //~ item->thumbnail_loading = TRUE;
-                    //~ }
+#if 0
+                    if(item->inf->size > 0 && item->inf->size <= (fm_config->thumbnail_max << 10))
+                    {
+                        FmThumbnailRequest* req = fm_thumbnail_request(item->inf, model->icon_size, on_thumbnail_loaded, model);
+                        model->thumbnail_requests = g_list_prepend(model->thumbnail_requests, req);
+                        item->thumbnail_loading = TRUE;
+                    }
+#endif
                 }
                 else
                 {
@@ -1202,70 +1205,71 @@ void on_thumbnail_local_changed(gpointer user_data)
 /* FIXME: how about hidden files? */
 void on_thumbnail_max_changed(gpointer user_data)
 {
-    
-    //~ FmFolderModel* model = (FmFolderModel*)user_data;
-    //~ FmThumbnailRequest* req;
-    //~ GList* new_reqs = NULL, *l;
-    //~ GSequenceIter* seq_it;
-    //~ FmFileInfo* fi;
-    //~ guint thumbnail_max_bytes = fm_config->thumbnail_max << 10;
-//~ 
-    //~ if(cfg->thumbnail_max)
-    //~ {
-         //~ /* remove files which are too big from thumbnail requests */
-        //~ for(l = model->thumbnail_requests; l; )
-        //~ {
-            //~ GList* next = l->next;
-            //~ req = (FmThumbnailRequest*)l->data;
-            //~ fi = fm_thumbnail_request_get_file_info(req);
-            //~ if(fi->size > (cfg->thumbnail_max << 10))
-            //~ {
-                //~ fm_thumbnail_request_cancel(req);
-                //~ model->thumbnail_requests = g_list_delete_link(model->thumbnail_requests, l);
-            //~ }
-            //~ l = next;
-        //~ }
-    //~ }
-    //~ seq_it = g_sequence_get_begin_iter(model->items);
-    //~ while( !g_sequence_iter_is_end(seq_it) )
-    //~ {
-        //~ FmFolderItem* item = (FmFolderItem*)g_sequence_get(seq_it);
-        //~ fi = item->inf;
-        //~ if(cfg->thumbnail_max)
-        //~ {
-            //~ if(thumbnail_max_bytes > model->thumbnail_max)
-            //~ {
-                //~ if(fi->size < thumbnail_max_bytes && fi->size > model->thumbnail_max )
-                //~ {
-                    //~ if(!item->thumbnail_failed && fm_file_info_can_thumbnail(fi))
-                    //~ {
-                        //~ req = fm_thumbnail_request(fi, model->icon_size, on_thumbnail_loaded, model);
-                        //~ new_reqs = g_list_append(new_reqs, req);
-                    //~ }
-                //~ }
-            //~ }
-            //~ else
-            //~ {
-                //~ if(fi->size > thumbnail_max_bytes)
-                    //~ reload_thumbnail(model, seq_it, item);
-            //~ }
-        //~ }
-        //~ else /* no limit, all files can be added */
-        //~ {
-            //~ /* add all files to thumbnail requests */
-            //~ if(!item->is_thumbnail && !item->thumbnail_loading && !item->thumbnail_failed && fm_file_info_can_thumbnail(fi))
-            //~ {
-                //~ GList* l = find_in_pending_thumbnail_requests(model, fi);
-                //~ if(!l)
-                //~ {
-                    //~ req = fm_thumbnail_request(fi, model->icon_size, on_thumbnail_loaded, model);
-                    //~ new_reqs = g_list_append(new_reqs, req);
-                //~ }
-            //~ }
-        //~ }
-        //~ seq_it = g_sequence_iter_next(seq_it);
-    //~ }
-    //~ if(new_reqs)
-        //~ model->thumbnail_requests = g_list_concat(model->thumbnail_requests, new_reqs);
-    //~ model->thumbnail_max = thumbnail_max_bytes;
+#if 0    
+    FmFolderModel* model = (FmFolderModel*)user_data;
+    FmThumbnailRequest* req;
+    GList* new_reqs = NULL, *l;
+    GSequenceIter* seq_it;
+    FmFileInfo* fi;
+    guint thumbnail_max_bytes = fm_config->thumbnail_max << 10;
+
+    if(cfg->thumbnail_max)
+    {
+         /* remove files which are too big from thumbnail requests */
+        for(l = model->thumbnail_requests; l; )
+        {
+            GList* next = l->next;
+            req = (FmThumbnailRequest*)l->data;
+            fi = fm_thumbnail_request_get_file_info(req);
+            if(fi->size > (cfg->thumbnail_max << 10))
+            {
+                fm_thumbnail_request_cancel(req);
+                model->thumbnail_requests = g_list_delete_link(model->thumbnail_requests, l);
+            }
+            l = next;
+        }
+    }
+    seq_it = g_sequence_get_begin_iter(model->items);
+    while( !g_sequence_iter_is_end(seq_it) )
+    {
+        FmFolderItem* item = (FmFolderItem*)g_sequence_get(seq_it);
+        fi = item->inf;
+        if(cfg->thumbnail_max)
+        {
+            if(thumbnail_max_bytes > model->thumbnail_max)
+            {
+                if(fi->size < thumbnail_max_bytes && fi->size > model->thumbnail_max )
+                {
+                    if(!item->thumbnail_failed && fm_file_info_can_thumbnail(fi))
+                    {
+                        req = fm_thumbnail_request(fi, model->icon_size, on_thumbnail_loaded, model);
+                        new_reqs = g_list_append(new_reqs, req);
+                    }
+                }
+            }
+            else
+            {
+                if(fi->size > thumbnail_max_bytes)
+                    reload_thumbnail(model, seq_it, item);
+            }
+        }
+        else /* no limit, all files can be added */
+        {
+            /* add all files to thumbnail requests */
+            if(!item->is_thumbnail && !item->thumbnail_loading && !item->thumbnail_failed && fm_file_info_can_thumbnail(fi))
+            {
+                GList* l = find_in_pending_thumbnail_requests(model, fi);
+                if(!l)
+                {
+                    req = fm_thumbnail_request(fi, model->icon_size, on_thumbnail_loaded, model);
+                    new_reqs = g_list_append(new_reqs, req);
+                }
+            }
+        }
+        seq_it = g_sequence_iter_next(seq_it);
+    }
+    if(new_reqs)
+        model->thumbnail_requests = g_list_concat(model->thumbnail_requests, new_reqs);
+    model->thumbnail_max = thumbnail_max_bytes;
+#endif
 }
