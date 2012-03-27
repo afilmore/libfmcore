@@ -99,8 +99,10 @@ void _fm_monitor_init()
 
 void _fm_monitor_finalize()
 {
-    g_hash_table_destroy(hash);
-    g_hash_table_destroy(dummy_hash);
+    if (hash)
+        g_hash_table_destroy(hash);
+    if (dummy_hash)
+        g_hash_table_destroy(dummy_hash);
     hash = NULL;
     dummy_hash = NULL;
 }

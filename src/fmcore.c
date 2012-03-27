@@ -60,7 +60,7 @@ gboolean fm_init ()
 
     _fm_path_init();
     _fm_icon_init();
-    //_fm_monitor_init();
+    _fm_monitor_init();
     _fm_file_info_init();
     //_fm_archiver_init();
 

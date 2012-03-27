@@ -35,7 +35,8 @@ void _fm_icon_init()
 
 void _fm_icon_finalize()
 {
-    g_hash_table_destroy(hash);
+    if (hash)
+        g_hash_table_destroy(hash);
     hash = NULL;
 }
 

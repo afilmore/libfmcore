@@ -58,7 +58,8 @@ void fm_mime_type_init()
 
 void fm_mime_type_finalize()
 {
-    g_hash_table_destroy( mime_hash );
+    if (mime_hash)
+        g_hash_table_destroy( mime_hash );
 }
 
 FmMimeType* fm_mime_type_get_for_file_name( const char* ufile_name )

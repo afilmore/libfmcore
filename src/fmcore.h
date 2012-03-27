@@ -84,6 +84,15 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+    FM_WP_COLOR,
+    FM_WP_STRETCH,
+    FM_WP_FIT,
+    FM_WP_CENTER,
+    FM_WP_TILE
+}FmWallpaperMode;
+
 extern GQuark fm_qdata_id; /* a quark value used to associate data with objects */
 
 gboolean fm_init();
@@ -92,3 +101,4 @@ void fm_finalize();
 G_END_DECLS
 
 #endif
+
