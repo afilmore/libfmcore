@@ -42,6 +42,7 @@ base_SOURCES = \
 	gtk/fm-dnd-src.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-auto-scroll.c \
+	gtk/fm-gtk-marshal.c \
 	$(NULL)
 
 job_SOURCES = \
