@@ -1,10 +1,1 @@
-on fm_finalize ()....
-(lxdesktop:12406): GLib-CRITICAL **: g_hash_table_destroy: assertion `hash_table != NULL' failed
 
-(lxdesktop:12406): GLib-CRITICAL **: g_hash_table_destroy: assertion `hash_table != NULL' failed
-
-
-Fm.Folder? folder = Fm.Folder.get (path);
-(lxdesktop:12636): GLib-CRITICAL **: g_hash_table_lookup: assertion `hash_table != NULL' failed
-
-(lxdesktop:12636): GLib-CRITICAL **: g_hash_table_insert_internal: assertion `hash_table != NULL' failed

@@ -39,6 +39,9 @@ base_SOURCES = \
 	gtk/fm-thumbnail.c \
 	gtk/fm-gtk-utils.c \
 	gtk/fm-gtk-file-launcher.c \
+	gtk/fm-dnd-src.c \
+	gtk/fm-dnd-dest.c \
+	gtk/fm-dnd-auto-scroll.c \
 	$(NULL)
 
 job_SOURCES = \
@@ -94,6 +97,9 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \
 	gtk/fm-thumbnail.h \
+	gtk/fm-dnd-src.h \
+	gtk/fm-dnd-dest.h \
+	gtk/fm-dnd-auto-scroll.h \
 	$(NULL)
 
 pkginclude_HEADERS = \
