@@ -18,6 +18,7 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 base_SOURCES = \
+	base/fm-config.c \
 	base/fm-list.c \
 	base/fm-path.c \
 	base/fm-folder.c \
@@ -69,6 +70,7 @@ libfmcoreincludedir = $(includedir)/libfmcore
 libfmcoreinclude_HEADERS = \
 	fmcore.h \
 	base/fm-app-info.h \
+	base/fm-config.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
 	base/fm-file-launcher.h \

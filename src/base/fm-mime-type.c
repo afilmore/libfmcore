@@ -58,7 +58,6 @@ void fm_mime_type_init()
 
 void fm_mime_type_finalize()
 {
-    if (mime_hash)
         g_hash_table_destroy( mime_hash );
 }
 

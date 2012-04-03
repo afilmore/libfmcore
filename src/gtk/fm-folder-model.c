@@ -756,7 +756,6 @@ void fm_folder_model_sort(FmFolderModel* model)
         new_order[i] = (guint)g_hash_table_lookup(old_order, items_it);
         items_it = g_sequence_iter_next(items_it);
     }
-    if (old_order)
         g_hash_table_destroy(old_order);
     path = gtk_tree_path_new();
     gtk_tree_model_rows_reordered(GTK_TREE_MODEL(model),
