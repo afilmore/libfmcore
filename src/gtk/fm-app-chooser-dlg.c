@@ -25,7 +25,7 @@
 #include <glib/gi18n-lib.h>
 #include <string.h>
 #include <unistd.h>
-#include "fmcore.h"
+#include "fm.h"
 #include "fm-app-chooser-dlg.h"
 #include "fm-app-menu-view.h"
 #include <menu-cache.h>

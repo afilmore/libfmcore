@@ -26,7 +26,7 @@
 #include <glib/gi18n-lib.h>
 #include "fm-app-chooser-combo-box.h"
 #include "fm-app-chooser-dlg.h"
-#include "fmcore.h"
+#include "fm.h"
 
 typedef struct _FmAppChooserComboBoxData FmAppChooserComboBoxData;
 struct _FmAppChooserComboBoxData
