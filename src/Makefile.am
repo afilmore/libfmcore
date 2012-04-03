@@ -34,15 +34,17 @@ base_SOURCES = \
 	gtk/fm-app-chooser-dlg.c \
 	gtk/fm-app-chooser-combo-box.c \
 	gtk/fm-cell-renderer-pixbuf.c \
-	gtk/fm-icon-pixbuf.c \
-	gtk/fm-folder-model.c \
-	gtk/fm-thumbnail.c \
-	gtk/fm-gtk-utils.c \
-	gtk/fm-gtk-file-launcher.c \
-	gtk/fm-dnd-src.c \
-	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-auto-scroll.c \
+	gtk/fm-dnd-dest.c \
+	gtk/fm-dnd-src.c \
+	gtk/fm-folder-model.c \
+	gtk/fm-gtk-file-launcher.c \
 	gtk/fm-gtk-marshal.c \
+	gtk/fm-gtk-utils.c \
+	gtk/fm-icon-pixbuf.c \
+	gtk/fm-thumbnail.c \
+	gtk/fm-progress-dlg.c \
+	gtk/fm-path-entry.c \
 	$(NULL)
 
 job_SOURCES = \
@@ -101,6 +103,8 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-dnd-src.h \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-auto-scroll.h \
+	gtk/fm-progress-dlg.h \
+	gtk/fm-path-entry.h \
 	$(NULL)
 
 pkginclude_HEADERS = \
