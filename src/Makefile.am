@@ -69,6 +69,7 @@ libfmcore_SOURCES = \
 libfmcoreincludedir = $(includedir)/libfmcore
 libfmcoreinclude_HEADERS = \
 	fmcore.h \
+	fm.h \
 	base/fm-app-info.h \
 	base/fm-config.h \
 	base/fm-dummy-monitor.h \
