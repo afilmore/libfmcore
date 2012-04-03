@@ -36,7 +36,7 @@ enum
 /* global config object */
 FmConfig* fm_config = NULL;
 
-static guint signals[N_SIGNALS];
+//static guint signals[N_SIGNALS];
 
 static void fm_config_finalize              (GObject *object);
 
@@ -50,7 +50,7 @@ static void fm_config_class_init(FmConfigClass *klass)
     g_object_class = G_OBJECT_CLASS(klass);
     g_object_class->finalize = fm_config_finalize;
 
-    /* when a config key is changed, the signal can be emitted with detail. */
+    /* when a config key is changed, the signal can be emitted with detail. 
     signals[CHANGED]=
         g_signal_new("changed",
                      G_TYPE_FROM_CLASS(klass),
@@ -58,7 +58,7 @@ static void fm_config_class_init(FmConfigClass *klass)
                      G_STRUCT_OFFSET(FmConfigClass, changed),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__VOID,
-                     G_TYPE_NONE, 0);
+                     G_TYPE_NONE, 0);*/
 
 }
 
@@ -96,6 +96,7 @@ FmConfig *fm_config_new(void)
     return (FmConfig*)g_object_new(FM_CONFIG_TYPE, NULL);
 }
 
+#if 0
 void fm_config_emit_changed(FmConfig* cfg, const char* changed_key)
 {
     GQuark detail = changed_key ? g_quark_from_string(changed_key) : 0;
@@ -201,4 +202,4 @@ void fm_config_save(FmConfig* cfg, const char* name)
     g_free(dir_path);
     g_free(path);
 }
-
+#endif

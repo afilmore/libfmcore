@@ -44,12 +44,12 @@ typedef struct _FmConfigClass       FmConfigClass;
 #define     FM_CONFIG_DEFAULT_USE_TRASH         TRUE
 #define     FM_CONFIG_DEFAULT_CONFIRM_DEL       TRUE
 
-#define     FM_CONFIG_DEFAULT_BIG_ICON_SIZE     48
+#define     FM_CONFIG_DEFAULT_BIG_ICON_SIZE     36
 #define     FM_CONFIG_DEFAULT_SMALL_ICON_SIZE   16
 #define     FM_CONFIG_DEFAULT_PANE_ICON_SIZE    16
 #define     FM_CONFIG_DEFAULT_THUMBNAIL_SIZE    128
 
-#define     FM_CONFIG_DEFAULT_SHOW_THUMBNAIL    TRUE
+#define     FM_CONFIG_DEFAULT_SHOW_THUMBNAIL    FALSE
 #define     FM_CONFIG_DEFAULT_THUMBNAIL_LOCAL   TRUE
 #define     FM_CONFIG_DEFAULT_THUMBNAIL_MAX     2048
 
@@ -90,6 +90,7 @@ extern FmConfig* fm_config;
 GType       fm_config_get_type      (void);
 FmConfig*   fm_config_new           (void);
 
+#if 0
 void fm_config_load_from_file(FmConfig* cfg, const char* name);
 
 void fm_config_load_from_key_file(FmConfig* cfg, GKeyFile* kf);
@@ -97,6 +98,7 @@ void fm_config_load_from_key_file(FmConfig* cfg, GKeyFile* kf);
 void fm_config_save(FmConfig* cfg, const char* name);
 
 void fm_config_emit_changed(FmConfig* cfg, const char* changed_key);
+#endif
 
 G_END_DECLS
 

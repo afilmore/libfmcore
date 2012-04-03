@@ -124,11 +124,11 @@ static void on_icon_theme_changed(GtkIconTheme* theme, FmFolderModel* model);
 
 static void on_thumbnail_loaded(FmThumbnailRequest* req, gpointer user_data);
 
-static void on_show_thumbnail_changed(gpointer user_data);
+static void on_show_thumbnail_changed(FmConfig* cfg, gpointer user_data);
 
-static void on_thumbnail_local_changed(gpointer user_data);
+static void on_thumbnail_local_changed(FmConfig* cfg, gpointer user_data);
 
-static void on_thumbnail_max_changed(gpointer user_data);
+static void on_thumbnail_max_changed(FmConfig* cfg, gpointer user_data);
 
 static void reload_icons(FmFolderModel* model, enum ReloadFlags flags);
 
@@ -470,20 +470,18 @@ void fm_folder_model_get_value(GtkTreeModel *tree_model,
 
         /* if we want to show a thumbnail */
         /* if we're on local filesystem or thumbnailing for remote files is allowed */
-        if(FALSE && (fm_path_is_local(item->inf->path) /*|| !fm_config->thumbnail_local*/))
+        if(fm_config->show_thumbnail && (fm_path_is_local(item->inf->path) || !fm_config->thumbnail_local))
         {
             if(!item->is_thumbnail && !item->thumbnail_failed && !item->thumbnail_loading)
             {
                 if(fm_file_info_can_thumbnail(item->inf))
                 {
-#if 0
                     if(item->inf->size > 0 && item->inf->size <= (fm_config->thumbnail_max << 10))
                     {
                         FmThumbnailRequest* req = fm_thumbnail_request(item->inf, model->icon_size, on_thumbnail_loaded, model);
                         model->thumbnail_requests = g_list_prepend(model->thumbnail_requests, req);
                         item->thumbnail_loading = TRUE;
                     }
-#endif
                 }
                 else
                 {
@@ -1114,7 +1112,7 @@ guint fm_folder_model_get_icon_size(FmFolderModel* model)
     return model->icon_size;
 }
 
-void on_show_thumbnail_changed(gpointer user_data)
+void on_show_thumbnail_changed(FmConfig* cfg, gpointer user_data)
 {
     FmFolderModel* model = (FmFolderModel*)user_data;
     reload_icons(model, RELOAD_THUMBNAILS);
@@ -1150,7 +1148,7 @@ static void reload_thumbnail(FmFolderModel* model, GSequenceIter* seq_it, FmFold
 }
 
 /* FIXME: how about hidden files? */
-void on_thumbnail_local_changed(gpointer user_data)
+void on_thumbnail_local_changed(FmConfig* cfg, gpointer user_data)
 {
     FmFolderModel* model = (FmFolderModel*)user_data;
     FmThumbnailRequest* req;
@@ -1158,7 +1156,7 @@ void on_thumbnail_local_changed(gpointer user_data)
     GSequenceIter* seq_it;
     FmFileInfo* fi;
 
-    if(FALSE)
+    if(cfg->thumbnail_local)
     {
         GList* l; /* remove non-local files from thumbnail requests */
         for(l = model->thumbnail_requests; l; )
@@ -1180,7 +1178,7 @@ void on_thumbnail_local_changed(gpointer user_data)
     {
         FmFolderItem* item = (FmFolderItem*)g_sequence_get(seq_it);
         fi = item->inf;
-        if(FALSE)
+        if(cfg->thumbnail_local)
         {
             /* add all non-local files to thumbnail requests */
             if(!fm_path_is_local(fi->path))
@@ -1202,9 +1200,8 @@ void on_thumbnail_local_changed(gpointer user_data)
 }
 
 /* FIXME: how about hidden files? */
-void on_thumbnail_max_changed(gpointer user_data)
+void on_thumbnail_max_changed(FmConfig* cfg, gpointer user_data)
 {
-#if 0    
     FmFolderModel* model = (FmFolderModel*)user_data;
     FmThumbnailRequest* req;
     GList* new_reqs = NULL, *l;
@@ -1270,5 +1267,4 @@ void on_thumbnail_max_changed(gpointer user_data)
     if(new_reqs)
         model->thumbnail_requests = g_list_concat(model->thumbnail_requests, new_reqs);
     model->thumbnail_max = thumbnail_max_bytes;
-#endif
 }
