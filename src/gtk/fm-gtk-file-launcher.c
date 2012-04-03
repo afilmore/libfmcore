@@ -29,7 +29,7 @@
 #include "fm-gtk-utils.h"
 #include "fm-app-chooser-dlg.h"
 
-//#include "fm-config.h"
+#include "fm-config.h"
 
 /* for open() */
 #include <sys/types.h>

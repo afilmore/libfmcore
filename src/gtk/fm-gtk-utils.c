@@ -28,11 +28,11 @@
 
 #include "fm-gtk-utils.h"
 #include "fm-file-ops-job.h"
-//#include "fm-progress-dlg.h"
-//#include "fm-path-entry.h"
+#include "fm-progress-dlg.h"
+#include "fm-path-entry.h"
 #include "fm-app-chooser-dlg.h"
 
-//#include "fm-config.h"
+#include "fm-config.h"
 
 static GtkDialog*   _fm_get_user_input_dialog   (GtkWindow* parent, const char* title, const char* msg);
 static gchar*       _fm_user_input_dialog_run   (GtkDialog* dlg, GtkEntry *entry);

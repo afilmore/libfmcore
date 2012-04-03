@@ -18,7 +18,7 @@
 //      MA 02110-1301, USA.
 
 #include "fm-app-info.h"
-//#include "fm-config.h"
+#include "fm-config.h"
 #include <string.h>
 #include <gio/gdesktopappinfo.h>
 

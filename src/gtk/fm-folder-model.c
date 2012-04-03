@@ -19,7 +19,7 @@
  *      MA 02110-1301, USA.
  */
 
-//#include "fm-config.h"
+#include "fm-config.h"
 #include "fm-folder-model.h"
 #include "fm-file-info.h"
 #include "fm-icon-pixbuf.h"
