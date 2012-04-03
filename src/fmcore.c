@@ -33,7 +33,7 @@
 
 GQuark fm_qdata_id = 0;
 
-gboolean fm_init ()
+gboolean fm_init (FmConfig* config)
 {
     char* path;
 
@@ -47,16 +47,15 @@ gboolean fm_init ()
     g_thread_init (NULL);
     g_thread_pool_set_max_idle_time (10000); /* is 10 sec enough? */
 
-    /*
     if(config)
         fm_config = (FmConfig*)g_object_ref(config);
     else
     {
         // create default config object
         fm_config = fm_config_new();
-        fm_config_load_from_file(fm_config, NULL);
+//        fm_config_init(fm_config); // needed ????
+        //fm_config_load_from_file(fm_config, NULL);
     }
-    */
 
     _fm_path_init();
     _fm_icon_init();
@@ -103,10 +102,8 @@ void fm_finalize()
     _fm_udisks_finalize();
 #endif
 
-    /*
-    fm_config_save(fm_config, NULL);
+    //fm_config_save(fm_config, NULL);
     g_object_unref(fm_config);
     fm_config = NULL;
-    */
 }
 

@@ -27,7 +27,7 @@
 #include "fm-app-info.h"
 //#include "fm-archiver.h"
 //#include "fm-bookmarks.h"
-//#include "fm-config.h"
+#include "fm-config.h"
 #include "fm-dummy-monitor.h"
 #include "fm-file-info.h"
 //#include "fm-file-launcher.h"
@@ -95,7 +95,7 @@ typedef enum
 
 extern GQuark fm_qdata_id; /* a quark value used to associate data with objects */
 
-gboolean fm_init();
+gboolean fm_init(FmConfig* config);
 void fm_finalize();
 
 G_END_DECLS
