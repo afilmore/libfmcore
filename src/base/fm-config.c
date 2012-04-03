@@ -93,7 +93,7 @@ static void fm_config_init(FmConfig *self)
 
 FmConfig *fm_config_new(void)
 {
-    return (FmConfig*)g_object_new(FM_CONFIG_TYPE, NULL);
+    return (FmConfig*)g_object_new(FM_TYPE_CONFIG, NULL);
 }
 
 #if 0

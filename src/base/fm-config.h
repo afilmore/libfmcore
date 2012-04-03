@@ -27,15 +27,15 @@
 
 G_BEGIN_DECLS
 
-#define FM_CONFIG_TYPE              (fm_config_get_type())
+#define FM_TYPE_CONFIG              (fm_config_get_type())
 #define FM_CONFIG(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj),\
-            FM_CONFIG_TYPE, FmConfig))
+            FM_TYPE_CONFIG, FmConfig))
 #define FM_CONFIG_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass),\
-            FM_CONFIG_TYPE, FmConfigClass))
+            FM_TYPE_CONFIG, FmConfigClass))
 #define IS_FM_CONFIG(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj),\
-            FM_CONFIG_TYPE))
+            FM_TYPE_CONFIG))
 #define IS_FM_CONFIG_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE((klass),\
-            FM_CONFIG_TYPE))
+            FM_TYPE_CONFIG))
 
 typedef struct _FmConfig            FmConfig;
 typedef struct _FmConfigClass       FmConfigClass;
