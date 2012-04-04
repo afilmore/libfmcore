@@ -149,7 +149,7 @@ void fm_folder_model_init(FmFolderModel* model)
     g_signal_connect(fm_config, "changed::thumbnail_local", G_CALLBACK(on_thumbnail_local_changed), model);
     g_signal_connect(fm_config, "changed::thumbnail_max", G_CALLBACK(on_thumbnail_max_changed), model);
 #endif
-    //model->thumbnail_max = fm_config->thumbnail_max << 10;
+    model->thumbnail_max = fm_config->thumbnail_max << 10;
 }
 
 void fm_folder_model_class_init(FmFolderModelClass *klass)

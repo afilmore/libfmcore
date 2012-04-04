@@ -18,34 +18,38 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 base_SOURCES = \
-	base/fm-config.c \
-	base/fm-list.c \
-	base/fm-path.c \
-	base/fm-folder.c \
-	base/fm-file-info.c \
-	base/fm-mime-type.c \
-	base/fm-utils.c \
-	base/fm-file-launcher.c \
-	base/fm-icon.c \
-	base/fm-monitor.c \
-	base/fm-dummy-monitor.c \
 	base/fm-app-info.c \
+	base/fm-archiver.c \
+	base/fm-config.c \
+	base/fm-dummy-monitor.c \
+	base/fm-file-info.c \
+	base/fm-file-launcher.c \
+	base/fm-folder.c \
+	base/fm-icon.c \
+	base/fm-list.c \
 	base/fm-marshal.c \
-	gtk/fm-app-menu-view.c \
-	gtk/fm-app-chooser-dlg.c \
+	base/fm-mime-type.c \
+	base/fm-monitor.c \
+	base/fm-path.c \
+	base/fm-utils.c \
 	gtk/fm-app-chooser-combo-box.c \
+	gtk/fm-app-chooser-dlg.c \
+	gtk/fm-app-menu-view.c \
 	gtk/fm-cell-renderer-pixbuf.c \
+	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
+	gtk/fm-file-menu.c \
+	gtk/fm-file-properties.c \
 	gtk/fm-folder-model.c \
 	gtk/fm-gtk-file-launcher.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-gtk-utils.c \
 	gtk/fm-icon-pixbuf.c \
-	gtk/fm-thumbnail.c \
-	gtk/fm-progress-dlg.c \
 	gtk/fm-path-entry.c \
+	gtk/fm-progress-dlg.c \
+	gtk/fm-thumbnail.c \
 	$(NULL)
 
 job_SOURCES = \
@@ -70,7 +74,9 @@ libfmcoreincludedir = $(includedir)/libfmcore
 libfmcoreinclude_HEADERS = \
 	fmcore.h \
 	fm.h \
+	gtk-compat.h \
 	base/fm-app-info.h \
+	base/fm-archiver.h \
 	base/fm-config.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
@@ -96,18 +102,20 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-app-chooser-dlg.h \
 	gtk/fm-app-menu-view.h \
 	gtk/fm-cell-renderer-pixbuf.h \
+	gtk/fm-clipboard.h \
+	gtk/fm-dnd-auto-scroll.h \
+	gtk/fm-dnd-dest.h \
+	gtk/fm-dnd-src.h \
 	gtk/fm-file-menu.h \
+	gtk/fm-file-properties.h \
 	gtk/fm-folder-model.h \
 	gtk/fm-gtk-file-launcher.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \
-	gtk/fm-thumbnail.h \
-	gtk/fm-dnd-src.h \
-	gtk/fm-dnd-dest.h \
-	gtk/fm-dnd-auto-scroll.h \
-	gtk/fm-progress-dlg.h \
 	gtk/fm-path-entry.h \
+	gtk/fm-progress-dlg.h \
+	gtk/fm-thumbnail.h \
 	$(NULL)
 
 pkginclude_HEADERS = \

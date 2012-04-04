@@ -41,7 +41,7 @@
 #include "fm-app-info.h"
 #include "fm-gtk-file-launcher.h"
 
-#include "fm-actions.h"
+//#include "fm-actions.h"
 
 static void on_open(GtkAction* action, gpointer user_data);
 static void on_open_with_app(GtkAction* action, gpointer user_data);
@@ -132,7 +132,8 @@ FmFileMenu* fm_file_menu_new_for_file(GtkWindow* parent, FmFileInfo* fi, FmPath*
 
 static void on_custom_action(GtkAction* act, FmFileMenu* data)
 {
-	FmFileActionItem* item = FM_FILE_ACTION_ITEM(g_object_get_qdata(act, fm_qdata_id));
+#if 0
+    FmFileActionItem* item = FM_FILE_ACTION_ITEM(g_object_get_qdata(act, fm_qdata_id));
     GdkAppLaunchContext* ctx = gdk_app_launch_context_new();
     GList* files = fm_list_peek_head_link(data->file_infos);
     char** output = NULL;
@@ -148,8 +149,9 @@ static void on_custom_action(GtkAction* act, FmFileMenu* data)
 		fm_show_error(NULL, "output", output);
 		g_free(output);
 	}
+#endif
 }
-
+#if 0
 static void add_custom_action_item(FmFileMenu* data, GString* xml, FmFileActionItem* item)
 {
 	GtkAction* act;
@@ -198,9 +200,11 @@ static void add_custom_action_item(FmFileMenu* data, GString* xml, FmFileActionI
 							   fm_file_action_item_get_id(item));
 	}
 }
+#endif
 
 static void fm_file_menu_add_custom_actions(FmFileMenu* data, GString* xml, FmFileInfoList* files)
 {
+#if 0
 	GList* files_list = fm_list_peek_head_link(files);
 	GList* items = fm_get_actions_for_files(files_list);
 
@@ -217,6 +221,7 @@ static void fm_file_menu_add_custom_actions(FmFileMenu* data, GString* xml, FmFi
     }
 	g_list_foreach(items, (GSourceFunc)fm_file_action_item_unref, NULL);
 	g_list_free(items);
+#endif
 }
 
 FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files, FmPath* cwd, gboolean auto_destroy)
@@ -241,6 +246,12 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
     /* check if the files are on the same filesystem */
     data->same_fs = fm_file_info_list_is_same_fs(files);
 
+    if (fi == NULL || fi->path == NULL)
+    {
+        printf ("null\n");
+        return NULL;
+    }
+    
     data->all_virtual = data->same_fs && fm_path_is_virtual(fi->path);
     data->all_trash = data->same_fs && fm_path_is_trash(fi->path);
 

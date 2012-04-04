@@ -516,58 +516,45 @@ void fm_copy_files(GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
 {
     FmJob* job = fm_file_ops_job_new(FM_FILE_OP_COPY, files);
     fm_file_ops_job_set_dest(FM_FILE_OPS_JOB(job), dest_dir);
-#if 0
     fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
-#endif
 }
 
 void fm_move_files(GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
 {
     FmJob* job = fm_file_ops_job_new(FM_FILE_OP_MOVE, files);
     fm_file_ops_job_set_dest(FM_FILE_OPS_JOB(job), dest_dir);
-#if 0
     fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
-#endif
 }
 
 void fm_trash_files(GtkWindow* parent, FmPathList* files)
 {
-#if 0
     if(!fm_config->confirm_del || fm_yes_no(parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
     {
         FmJob* job = fm_file_ops_job_new(FM_FILE_OP_TRASH, files);
         fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
     }
-#endif
 }
 
 void fm_untrash_files(GtkWindow* parent, FmPathList* files)
 {
     FmJob* job = fm_file_ops_job_new(FM_FILE_OP_UNTRASH, files);
-#if 0
     fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
-#endif
 }
 
 static void fm_delete_files_internal(GtkWindow* parent, FmPathList* files)
 {
     FmJob* job = fm_file_ops_job_new(FM_FILE_OP_DELETE, files);
-#if 0
     fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
-#endif
 }
 
 void fm_delete_files(GtkWindow* parent, FmPathList* files)
 {
-#if 0
     if(!fm_config->confirm_del || fm_yes_no(parent, NULL, _("Do you want to delete the selected files?"), TRUE))
         fm_delete_files_internal(parent, files);
-#endif
 }
 
 void fm_trash_or_delete_files(GtkWindow* parent, FmPathList* files)
 {
-#if 0
     if( !fm_list_is_empty(files) )
     {
         gboolean all_in_trash = TRUE;
@@ -588,7 +575,6 @@ void fm_trash_or_delete_files(GtkWindow* parent, FmPathList* files)
         else
             fm_delete_files(parent, files);
     }
-#endif
 }
 
 void fm_move_or_copy_files_to(GtkWindow* parent, FmPathList* files, gboolean is_move)

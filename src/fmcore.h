@@ -25,7 +25,7 @@
 
 // Fm Base.
 #include "fm-app-info.h"
-//#include "fm-archiver.h"
+#include "fm-archiver.h"
 //#include "fm-bookmarks.h"
 #include "fm-config.h"
 #include "fm-dummy-monitor.h"

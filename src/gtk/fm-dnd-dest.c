@@ -154,8 +154,7 @@ gboolean fm_dnd_dest_files_dropped(FmDndDest* dd, int x, int y, GdkDragAction ac
     dest = fm_dnd_dest_get_dest_path(dd);
     if(!dest)
         return FALSE;
-    
-    printf ("%d files-dropped!, info_type: %d, action: %d", fm_list_get_length(files), info_type, action);
+    g_debug("%d files-dropped!, info_type: %d", fm_list_get_length(files), info_type);
 
     if(fm_list_is_file_info_list(files))
         files = fm_path_list_new_from_file_info_list(files);
@@ -166,13 +165,10 @@ gboolean fm_dnd_dest_files_dropped(FmDndDest* dd, int x, int y, GdkDragAction ac
     switch(action)
     {
     case GDK_ACTION_MOVE:
-        printf ("move\n");
         if(fm_path_is_trash_root(fm_dnd_dest_get_dest_path(dd)))
             fm_trash_files(GTK_WINDOW(parent), files);
-        else {
-            printf ("move files !!!!\n");
+        else
             fm_move_files(GTK_WINDOW(parent), files, fm_dnd_dest_get_dest_path(dd));
-        }
         break;
     case GDK_ACTION_COPY:
         fm_copy_files(GTK_WINDOW(parent), files, fm_dnd_dest_get_dest_path(dd));
