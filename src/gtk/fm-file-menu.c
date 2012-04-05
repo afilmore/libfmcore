@@ -232,9 +232,6 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
     FmFileMenu* data = g_slice_new0(FmFileMenu);
     GString* xml;
 
-    g_return_if_fail (parent != NULL);
-    g_return_if_fail (GTK_IS_WINDOW (parent));
-
     data->parent = g_object_ref(parent); /* FIXME: is this really needed? */
     /* FIXME: should we connect to "destroy" signal of parent and set data->parent to NULL when
      * it's detroyed? */
@@ -246,12 +243,6 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
     /* check if the files are on the same filesystem */
     data->same_fs = fm_file_info_list_is_same_fs(files);
 
-    if (fi == NULL || fi->path == NULL)
-    {
-        printf ("null\n");
-        return NULL;
-    }
-    
     data->all_virtual = data->same_fs && fm_path_is_virtual(fi->path);
     data->all_trash = data->same_fs && fm_path_is_trash(fi->path);
 
@@ -323,6 +314,7 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
 #if 0
 	/* add custom file actions */
 	fm_file_menu_add_custom_actions(data, xml, files);
+#endif
 
     /* archiver integration */
     if(!data->all_virtual)
@@ -400,12 +392,12 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
         gtk_action_set_visible(act, FALSE);
     }
     g_string_append(xml, "</placeholder></popup>");
-#endif
     gtk_ui_manager_add_ui_from_string(ui, xml->str, xml->len, NULL);
 
-    printf ("%s\n", xml->str);
+    //printf ("%s\n", xml->str);
     
     g_string_free(xml, TRUE);
+
     return data;
 }
 
@@ -430,8 +422,6 @@ GtkMenu* fm_file_menu_get_menu(FmFileMenu* menu)
     if( ! menu->menu )
     {
         menu->menu = gtk_ui_manager_get_widget(menu->ui, "/popup");
-        if (menu->menu == NULL)
-            return NULL;
         gtk_menu_attach_to_widget(GTK_MENU(menu->menu), GTK_WIDGET(menu->parent), NULL);
 
         if(menu->auto_destroy)

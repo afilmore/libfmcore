@@ -18,14 +18,9 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=3
+current_page=1
 FILE_NAME_0=1416;Make;0;16;1;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/Makefile.am;0;4
-FILE_NAME_1=2814;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-config.c;0;4
-FILE_NAME_2=978;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-config.h;0;4
-FILE_NAME_3=4559;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.c;0;4
-FILE_NAME_4=4629;Diff;0;16;0;1;0;/home/hotnuma/Bureau/Projets/15-popup.diff;0;4
-FILE_NAME_5=1507;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/fm.c;0;4
-FILE_NAME_6=1186;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/fm.h;0;4
+FILE_NAME_1=15299;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.c;0;4
 
 [VTE]
 last_dir=/home/hotnuma/Bureau/Projets/libfmcore
