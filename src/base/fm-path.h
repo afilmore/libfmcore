@@ -62,7 +62,7 @@ struct _FmPath
 void _fm_path_init();
 
 /* fm_path_new is deprecated. Use fm_path_new_for_str */
-#define fm_path_new(path)   fm_path_new_for_str(path)
+FmPath*	fm_path_new(const char* path);
 
 FmPath* fm_path_new_for_path(const char* path_name);
 FmPath* fm_path_new_for_uri(const char* uri);

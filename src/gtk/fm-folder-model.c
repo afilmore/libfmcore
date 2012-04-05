@@ -1061,6 +1061,22 @@ gboolean fm_folder_model_find_iter_by_filename(FmFolderModel* model, GtkTreeIter
     return FALSE;
 }
 
+static gboolean fm_folder_model_find_iter_by_fileinfo(FmFolderModel* model, GtkTreeIter* it, FmFileInfo* fi)
+{
+    GSequenceIter *item_it = g_sequence_get_begin_iter(model->items);
+    for( ; !g_sequence_iter_is_end(item_it); item_it = g_sequence_iter_next(item_it) )
+    {
+        FmFolderItem* item = (FmFolderItem*)g_sequence_get(item_it);
+        if (item->inf == fi)
+        {
+            it->stamp = model->stamp;
+            it->user_data  = item_it;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 void on_thumbnail_loaded(FmThumbnailRequest* req, gpointer user_data)
 {
     FmFolderModel* model = (FmFolderModel*)user_data;
@@ -1075,8 +1091,7 @@ void on_thumbnail_loaded(FmThumbnailRequest* req, gpointer user_data)
     /* remove the request from list */
     model->thumbnail_requests = g_list_remove(model->thumbnail_requests, req);
 
-    /* FIXME: it's better to find iter by file_info */
-    if(fm_folder_model_find_iter_by_filename(model, &it, fi->path->name))
+    if (fm_folder_model_find_iter_by_fileinfo(model, &it, fi))
     {
         FmFolderItem* item;
         seq_it = (GSequenceIter*)it.user_data;

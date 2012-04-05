@@ -67,7 +67,7 @@ typedef struct
     GCancellable* cancellable;
 }ListSubDirNames;
 
-static void      fm_path_entry_activate(GtkEntry *entry, gpointer user_data);
+//void      fm_path_entry_activate(GtkEntry *entry, gpointer user_data);
 static gboolean  fm_path_entry_key_press(GtkWidget   *widget, GdkEventKey *event, gpointer user_data);
 static void      fm_path_entry_class_init(FmPathEntryClass *klass);
 static void  fm_path_entry_editable_init(GtkEditableClass *iface);
@@ -155,7 +155,7 @@ static gboolean fm_path_entry_key_press(GtkWidget   *widget, GdkEventKey *event,
     return FALSE;
 }
 
-static void  fm_path_entry_activate(GtkEntry *entry, gpointer user_data)
+void  fm_path_entry_activate(GtkEntry *entry, gpointer user_data)
 {
     FmPathEntryPrivate *priv  = FM_PATH_ENTRY_GET_PRIVATE(entry);
     const char* full_path;

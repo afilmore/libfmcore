@@ -29,6 +29,10 @@
 #include <limits.h>
 #include <glib/gi18n-lib.h>
 
+static FmPath* root = NULL;
+static FmPath* home = NULL;
+static FmPath* trash_root = NULL;
+
 static FmPath* root_path = NULL;
 
 static char* home_dir = NULL;
@@ -228,6 +232,87 @@ static inline FmPath* _fm_path_reuse_existing_paths(FmPath* parent, const char* 
     return NULL;
 }
 #endif
+
+/**
+ * fm_path_new
+ * DEPRECATED function
+ */
+
+FmPath* fm_path_new(const char* path)
+{
+    /* FIXME: need to canonicalize paths */
+
+    if( path[0] == '/' ) /* if this is a absolute native path */
+    {
+        if (path[1])
+            return fm_path_new_relative(root, path + 1);
+        else
+            /* special case: handle root dir */
+            return fm_path_ref( root );
+    }
+    else if ( path[0] == '~' && (path[1] == '\0' || path[1]=='/') ) /* home dir */
+    {
+        ++path;
+        return *path ? fm_path_new_relative(home, path) : fm_path_ref(home);
+    }
+    else /* then this should be a URL */
+    {
+        FmPath* parent, *ret;
+        char* colon = strchr(path, ':');
+        char* hier_part;
+        char* rest;
+        int root_len;
+
+        /* return root instead of NULL for invalid URIs. fix #2988010. */
+        if( !colon ) /* this shouldn't happen */
+            return fm_path_ref(root); /* invalid path FIXME: should we treat it as relative path? */
+
+        /* FIXME: convert file:/// to local native path */
+        hier_part = colon+1;
+        if( hier_part[0] == '/' )
+        {
+            if(hier_part[1] == '/') /* this is a scheme:// form URI */
+                rest = hier_part + 2;
+            else /* a malformed URI */
+                rest = hier_part + 1;
+
+            if(*rest == '/') /* :/// means there is no authoraty part */
+                ++rest;
+            else /* we are now at autority part, something like <username>@domain/ */
+            {
+                while( *rest && *rest != '/' )
+                    ++rest;
+                if(*rest == '/')
+                    ++rest;
+            }
+
+            if( strncmp(path, "trash:", 6) == 0 ) /* in trash:// */
+            {
+                if(*rest)
+                    return fm_path_new_relative(trash_root, rest);
+                else
+                    return fm_path_ref(trash_root);
+            }
+            /* other URIs which requires special handling, like computer:/// */
+        }
+        else /* this URI doesn't have //, like mailto: */
+        {
+            /* FIXME: is this useful to file managers? */
+            rest = colon + 1;
+        }
+        root_len = (rest - path);
+        parent = fm_path_new_child_len(NULL, path, root_len);
+        if(*rest)
+        {
+            ret = fm_path_new_relative(parent, rest);
+            fm_path_unref(parent);
+        }
+        else
+            ret = parent;
+        return ret;
+    }
+    return fm_path_new_relative(NULL, path);
+}
 
 /**
  * fm_path_new_child_len

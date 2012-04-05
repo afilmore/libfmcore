@@ -516,7 +516,7 @@ ThumbnailTask* find_queued_task(GQueue* queue, FmFileInfo* fi)
     for( l = queue->head; l; l=l->next )
     {
         ThumbnailTask* task = (ThumbnailTask*)l->data;
-        if(G_UNLIKELY(task->fi == fi || fm_path_equal(task->fi->path, fi->path)))
+        if (G_UNLIKELY(task->fi == fi))
             return task;
     }
     return NULL;
