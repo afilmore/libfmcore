@@ -130,9 +130,9 @@ FmFileMenu* fm_file_menu_new_for_file(GtkWindow* parent, FmFileInfo* fi, FmPath*
     return menu;
 }
 
+#if 0
 static void on_custom_action(GtkAction* act, FmFileMenu* data)
 {
-#if 0
     FmFileActionItem* item = FM_FILE_ACTION_ITEM(g_object_get_qdata(act, fm_qdata_id));
     GdkAppLaunchContext* ctx = gdk_app_launch_context_new();
     GList* files = fm_list_peek_head_link(data->file_infos);
@@ -149,9 +149,8 @@ static void on_custom_action(GtkAction* act, FmFileMenu* data)
 		fm_show_error(NULL, "output", output);
 		g_free(output);
 	}
-#endif
 }
-#if 0
+
 static void add_custom_action_item(FmFileMenu* data, GString* xml, FmFileActionItem* item)
 {
 	GtkAction* act;
@@ -200,11 +199,9 @@ static void add_custom_action_item(FmFileMenu* data, GString* xml, FmFileActionI
 							   fm_file_action_item_get_id(item));
 	}
 }
-#endif
 
 static void fm_file_menu_add_custom_actions(FmFileMenu* data, GString* xml, FmFileInfoList* files)
 {
-#if 0
 	GList* files_list = fm_list_peek_head_link(files);
 	GList* items = fm_get_actions_for_files(files_list);
 
@@ -221,8 +218,8 @@ static void fm_file_menu_add_custom_actions(FmFileMenu* data, GString* xml, FmFi
     }
 	g_list_foreach(items, (GSourceFunc)fm_file_action_item_unref, NULL);
 	g_list_free(items);
-#endif
 }
+#endif
 
 FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files, FmPath* cwd, gboolean auto_destroy)
 {
@@ -234,6 +231,9 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
     FmFileInfo* fi = (FmFileInfo*)fm_list_peek_head(files);
     FmFileMenu* data = g_slice_new0(FmFileMenu);
     GString* xml;
+
+    g_return_if_fail (parent != NULL);
+    g_return_if_fail (GTK_IS_WINDOW (parent));
 
     data->parent = g_object_ref(parent); /* FIXME: is this really needed? */
     /* FIXME: should we connect to "destroy" signal of parent and set data->parent to NULL when
@@ -309,6 +309,7 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
         g_string_append(xml, "<menuitem action='OpenWith'/>");
     g_string_append(xml, "</placeholder></popup>");
 
+#if 0
 	/* add custom file actions */
 	fm_file_menu_add_custom_actions(data, xml, files);
 
@@ -388,9 +389,11 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
         gtk_action_set_visible(act, FALSE);
     }
     g_string_append(xml, "</placeholder></popup>");
-
+#endif
     gtk_ui_manager_add_ui_from_string(ui, xml->str, xml->len, NULL);
 
+    printf ("%s\n", xml->str);
+    
     g_string_free(xml, TRUE);
     return data;
 }
@@ -416,6 +419,8 @@ GtkMenu* fm_file_menu_get_menu(FmFileMenu* menu)
     if( ! menu->menu )
     {
         menu->menu = gtk_ui_manager_get_widget(menu->ui, "/popup");
+        if (menu->menu == NULL)
+            return NULL;
         gtk_menu_attach_to_widget(GTK_MENU(menu->menu), GTK_WIDGET(menu->parent), NULL);
 
         if(menu->auto_destroy)

@@ -65,14 +65,13 @@ job_SOURCES = \
 	$(NULL)
 
 libfmcore_SOURCES = \
-	fmcore.c \
+	fm.c \
 	$(base_SOURCES) \
 	$(job_SOURCES) \
 	$(NULL)
 
 libfmcoreincludedir = $(includedir)/libfmcore
 libfmcoreinclude_HEADERS = \
-	fmcore.h \
 	fm.h \
 	gtk-compat.h \
 	base/fm-app-info.h \
