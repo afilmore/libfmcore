@@ -31,6 +31,8 @@
 #include <menu-cache.h>
 #include <gio/gdesktopappinfo.h>
 
+extern const char APP_CHOOSER_DLG[];
+
 typedef struct _AppChooserData AppChooserData;
 struct _AppChooserData
 {
@@ -133,10 +135,7 @@ GtkWidget *fm_app_chooser_dlg_new(FmMimeType* mime_type, gboolean can_set_defaul
 
     gtk_builder_set_translation_domain(builder, GETTEXT_PACKAGE);
 
-
-//    gtk_builder_add_from_file(builder, PACKAGE_UI_DIR "/app-chooser.ui", NULL);
-
-
+    gtk_builder_add_from_string(builder, APP_CHOOSER_DLG, -1, NULL);
 
     data->dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
     data->notebook = (GtkWidget*)gtk_builder_get_object(builder, "notebook");

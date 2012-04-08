@@ -39,7 +39,7 @@
 /* for read() */
 #include <unistd.h>
 
-#include "exec-file-ui.c"
+extern const char EXEC_FILE_DLG[];
 
 typedef struct _LaunchData LaunchData;
 struct _LaunchData
@@ -107,7 +107,7 @@ static FmFileLauncherExecAction on_exec_file(FmFileInfo* file, gpointer user_dat
     char* msg_str;
     int res;
     gtk_builder_set_translation_domain(b, GETTEXT_PACKAGE);
-    gtk_builder_add_from_string(b, exec_file_ui, -1, NULL);
+    gtk_builder_add_from_string(b, EXEC_FILE_DLG, -1, NULL);
     dlg = gtk_builder_get_object(b, "dlg");
     msg = gtk_builder_get_object(b, "msg");
     icon = gtk_builder_get_object(b, "icon");

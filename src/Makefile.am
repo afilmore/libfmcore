@@ -5,14 +5,16 @@ NULL=
 
 # current dir needs to be built before tests
 SUBDIRS= \
+	fmvala \
 	. \
 	$(NULL)
 
 AM_CPPFLAGS = \
 	-I$(srcdir) \
+	-I$(srcdir)/fmvala \
 	-I$(srcdir)/base \
-	-I$(srcdir)/job \
 	-I$(srcdir)/gtk \
+	-I$(srcdir)/job \
 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
@@ -20,7 +22,6 @@ AM_CPPFLAGS = \
 base_SOURCES = \
 	base/fm-app-info.c \
 	base/fm-archiver.c \
-	base/fm-config.c \
 	base/fm-dummy-monitor.c \
 	base/fm-file-info.c \
 	base/fm-file-launcher.c \
@@ -32,6 +33,7 @@ base_SOURCES = \
 	base/fm-monitor.c \
 	base/fm-path.c \
 	base/fm-utils.c \
+	gtk/app-global-ui.c \
 	gtk/fm-app-chooser-combo-box.c \
 	gtk/fm-app-chooser-dlg.c \
 	gtk/fm-app-menu-view.c \
@@ -74,9 +76,9 @@ libfmcoreincludedir = $(includedir)/libfmcore
 libfmcoreinclude_HEADERS = \
 	fm.h \
 	gtk-compat.h \
+	fmvala/fm-config.h \
 	base/fm-app-info.h \
 	base/fm-archiver.h \
-	base/fm-config.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
 	base/fm-file-launcher.h \
@@ -141,6 +143,7 @@ libfmcore_la_LIBADD = \
 	$(PANGO_LIBS) \
 	$(MENU_CACHE_LIBS) \
 	$(DBUS_LIBS) \
+	$(srcdir)/fmvala/libfmvala.la \
 	$(INTLLIBS) \
 	$(NULL)
 

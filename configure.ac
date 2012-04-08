@@ -152,6 +152,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
+    src/fmvala/Makefile
     libfmcore.pc
 ])
 

@@ -44,8 +44,9 @@
 
 #include "fm-app-chooser-combo-box.h"
 
-#define     UI_FILE             PACKAGE_UI_DIR"/file-prop.ui"
 #define     GET_WIDGET(name)    data->name = (GtkWidget*)gtk_builder_get_object(builder, #name);
+
+extern const char PROPERTIES_DLG[];
 
 enum {
     READ_WRITE,
@@ -708,16 +709,18 @@ GtkWidget* fm_file_properties_widget_new(FmFileInfoList* files, gboolean topleve
 
     if(toplevel)
     {
-        //~ gtk_builder_add_from_file(builder, UI_FILE, NULL);
-        //~ GET_WIDGET(dlg);
-        //~ gtk_dialog_set_alternative_button_order(GTK_DIALOG(data->dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
+        gtk_builder_add_from_string(builder, PROPERTIES_DLG, -1, NULL);
+        GET_WIDGET(dlg);
+        gtk_dialog_set_alternative_button_order(GTK_DIALOG(data->dlg), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
     }
     else
     {
-        //~ /* FIXME: is this really useful? */
-        //~ const char *names[]={"notebook", NULL};
-        //~ gtk_builder_add_objects_from_file(builder, UI_FILE, names, NULL);
-        //~ data->dlg = (GtkWidget*)gtk_builder_get_object(builder, "notebook");
+        #if 0
+        /* FIXME: is this really useful? */
+        const char *names[]={"notebook", NULL};
+        gtk_builder_add_objects_from_file(builder, UI_FILE, names, NULL);
+        data->dlg = (GtkWidget*)gtk_builder_get_object(builder, "notebook");
+        #endif
     }
 
     dlg = data->dlg;
