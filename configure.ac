@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([libfmcore], [0.1.99], [http://pcmanfm.sorceforge.net/])
+AC_INIT([libfmcore], [0.1.99], [https://github.com/afilmore/libfmcore])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADERS([config.h])
@@ -159,7 +159,7 @@ AC_CONFIG_FILES([
 AC_OUTPUT
 
 echo
-echo "Libfm $VERSION Configuration Summary:"
+echo "Libfmcore $VERSION Configuration Summary:"
 echo
 echo "prefix:                                                 $prefix"
 echo "sysconfdir:                                             $sysconfdir"
@@ -172,16 +172,7 @@ echo "GIO module for preferred apps (for glib < 2.28 only):   $giomodulesdir";
 else
 echo "GIO module for preferred apps (for glib < 2.28 only):   not required";
 fi
-echo "Build API doc with gtk-doc (required for make dist):    $enable_gtk_doc"
+echo "Build API doc with gtk-doc:                             $enable_gtk_doc"
 echo
 echo
 
-if test x"$sysconfdir" != x'/etc'; then
-    echo
-    echo
-    echo 'Error: sysconfdir is not /etc.'
-    echo 'Please consider passing --sysconfdir=/etc to configure.';
-    echo 'Otherwise default config files will be installed to wrong place.'
-    echo
-    echo
-fi
