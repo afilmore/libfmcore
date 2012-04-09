@@ -1,18 +1,20 @@
 
 
+
+
 * base/fm-archiver.c
     - Read archiver list from Gsettings instead of Text File...
-    
-* gtk/fm-file-properties.c
-    - add file properties dialog...
     
 * gtk/fm-folder-model.c
     - enable thumbnails...
     
-* gtk/fm-app-chooser-dlg.c
+* [DONE] gtk/fm-file-properties.c
+    - add file properties dialog...
+    
+* [DONE] gtk/fm-app-chooser-dlg.c
     - add app chooser dialog...
     
-* gtk/fm-progress-dlg.c
+* [DONE] gtk/fm-progress-dlg.c
     - add progress and rename dialogs...
     
 

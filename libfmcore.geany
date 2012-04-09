@@ -18,9 +18,16 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=1
-FILE_NAME_0=1467;Make;0;16;1;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/Makefile.am;0;4
-FILE_NAME_1=14146;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.c;0;4
+current_page=8
+FILE_NAME_0=2184;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-file-info.c;0;4
+FILE_NAME_1=4934;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-file-info.h;0;4
+FILE_NAME_2=16991;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.c;0;4
+FILE_NAME_3=3247;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-path.h;0;4
+FILE_NAME_4=1585;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-list.h;0;4
+FILE_NAME_5=23721;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-properties.c;0;4
+FILE_NAME_6=6696;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/demo/main-win.c;0;4
+FILE_NAME_7=5585;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-gtk-file-launcher.c;0;4
+FILE_NAME_8=5160;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-file-launcher.c;0;4
 
 [VTE]
 last_dir=/home/hotnuma/Bureau/Projets/libfmcore

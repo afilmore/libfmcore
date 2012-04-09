@@ -116,7 +116,7 @@ AM_CONDITIONAL(ENABLE_DEMO, test x"$enable_demo" = x"yes")
 
 AC_ARG_ENABLE(debug,
     [AC_HELP_STRING([--enable-debug],
-        [build libfm with debug support @<:@default=no@:>@])],
+        [build libfmcore with debug support @<:@default=no@:>@])],
     [enable_debug="${enableval}"],
     [enable_debug=no]
 )

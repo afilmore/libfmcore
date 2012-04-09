@@ -30,24 +30,24 @@
 #include <glib/gi18n-lib.h>
 
 static FmPath* root = NULL;
-static FmPath* home = NULL;
-static FmPath* trash_root = NULL;
-
 static FmPath* root_path = NULL;
 
+static FmPath* home = NULL;
 static char* home_dir = NULL;
 static int home_len = 0;
 static FmPath* home_path = NULL;
 
-static FmPath* desktop_path = NULL;
 static char* desktop_dir = NULL;
 static int desktop_len = 0;
+static FmPath* desktop_path = NULL;
 
+static FmPath* trash_root = NULL;
 static FmPath* trash_root_path = NULL;
-/*defined but not used
-static FmPath* network_root = NULL;*/
 
 static FmPath* apps_root_path = NULL;
+
+/*static FmPath* network_root = NULL;*/
+
 
 static FmPath* _fm_path_alloc(FmPath* parent, int name_len, int flags)
 {
@@ -233,11 +233,11 @@ static inline FmPath* _fm_path_reuse_existing_paths(FmPath* parent, const char* 
 }
 #endif
 
-/**
+#if 0
+/*
  * fm_path_new
  * DEPRECATED function
  */
-
 FmPath* fm_path_new(const char* path)
 {
     /* FIXME: need to canonicalize paths */
@@ -313,6 +313,7 @@ FmPath* fm_path_new(const char* path)
     }
     return fm_path_new_relative(NULL, path);
 }
+#endif
 
 /**
  * fm_path_new_child_len
@@ -918,7 +919,7 @@ void _fm_path_init()
         name = sep + 1;
     }
     desktop_path = _fm_path_new_internal(parent, name, strlen(name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-
+//    printf ("Desktop Dir: parent = %s, name = %s\n", parent->name, name);
     /* build path object for trash can */
     /* FIXME: currently there are problems with URIs. using trash:/ here will cause problems. */
     trash_root_path = _fm_path_new_internal(NULL, "trash:///", 9, FM_PATH_IS_TRASH|FM_PATH_IS_VIRTUAL|FM_PATH_IS_LOCAL);

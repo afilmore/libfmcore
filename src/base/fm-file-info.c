@@ -58,13 +58,60 @@ void _fm_file_info_init()
 
 void _fm_file_info_finalize()
 {
-
+    /* FIXME: FmMimeTypes ar not freed, is it normal ? */
 }
 
+/* TODO this function should be private... fm-file-info-job.c and fm-dir-list-job.c use it... */
 FmFileInfo* fm_file_info_new ()
 {
     FmFileInfo * fi = g_slice_new0( FmFileInfo );
     fi->n_ref = 1;
+    return fi;
+}
+
+FmFileInfo* fm_file_info_new_computer ()
+{
+    FmFileInfo *fi = fm_file_info_new ();
+    
+    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
+    fm_file_info_set_path (fi, path);
+    
+    fm_path_unref(path);
+    
+    return fi;
+}
+
+FmFileInfo* fm_file_info_new_trash_can ()
+{
+    FmFileInfo *fi = fm_file_info_new ();
+    
+    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
+    fm_file_info_set_path (fi, path);
+    path->flags |= FM_PATH_IS_TRASH;
+    fm_path_unref(path);
+    
+    return fi;
+}
+
+FmFileInfo* fm_file_info_new_user_special_dir (GUserDirectory directory)
+{
+    gchar *path_name = g_get_user_special_dir (directory);
+    GFile *file = g_file_new_for_path (path_name);
+    if (!file)
+        return NULL;
+    
+    GFileInfo *ginfo = g_file_query_info (file,
+                                          "standard::*,unix::*,time::*,access::*,id::filesystem",
+                                          G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
+                                          NULL,
+                                          NULL);
+
+    FmPath *path = fm_path_new_for_path (path_name);
+    FmFileInfo* fi = fm_file_info_new_from_gfileinfo(path, ginfo);
+    
+    g_object_unref (ginfo);
+    g_object_unref (file);
+    
     return fi;
 }
 
@@ -423,6 +470,10 @@ mode_t fm_file_info_get_mode( FmFileInfo* fi )
 
 gboolean fm_file_info_is_dir( FmFileInfo* fi )
 {
+    //~ if (fi && fi->type)
+        //~ printf ("%s type: %s mode: %u\n", fi->disp_name, fi->type->type, fi->mode);
+    
+    
     return (S_ISDIR( fi->mode ) ||
         (S_ISLNK( fi->mode ) && (0 == strcmp( fi->type->type, "inode/directory" ))));
 }
@@ -465,6 +516,8 @@ gboolean fm_file_info_is_desktop_entry( FmFileInfo* fi )
 
 gboolean fm_file_info_is_unknown_type( FmFileInfo* fi )
 {
+    if (!fi->type)
+        return TRUE;
     return g_content_type_is_unknown(fi->type->type);
 }
 
@@ -615,3 +668,33 @@ gboolean fm_file_info_list_is_same_fs(FmFileInfoList* list)
     }
     return TRUE;
 }
+
+uint fm_file_info_list_get_flags(FmFileInfoList* list)
+{
+    uint flags = FM_PATH_NONE;
+    
+    if (fm_list_is_empty(list))
+        return flags;
+    
+    GList* l;
+    for (l = fm_list_peek_head_link(list); l; l=l->next)
+    {
+        FmFileInfo* fi = (FmFileInfo*)l->data;
+        
+        //printf ("fm_file_info_list_get_flags: path name = %s\n", fi->path->name);
+        
+        if (fm_path_is_trash_root(fi->path))
+        {
+            flags |= FM_PATH_IS_TRASH_CAN;
+            flags |= FM_PATH_IS_VIRTUAL;
+        }
+        else if (fm_path_is_virtual (fi->path))
+        {
+            flags |= FM_PATH_IS_VIRTUAL;
+        }
+    }
+    return flags;
+}
+
+
+

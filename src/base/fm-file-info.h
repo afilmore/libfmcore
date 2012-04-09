@@ -36,19 +36,6 @@
 
 G_BEGIN_DECLS
 
-/* Some flags are defined for future use and are not supported now */
-enum _FmFileInfoFlag
-{
-    FM_FILE_INFO_NONE = 0,
-    FM_FILE_INFO_HOME_DIR = (1 << 0),
-    FM_FILE_INFO_DESKTOP_DIR = (1 << 1),
-    FM_FILE_INFO_DESKTOP_ENTRY = (1 << 2),
-    FM_FILE_INFO_MOUNT_POINT = (1 << 3),
-    FM_FILE_INFO_REMOTE = (1 << 4),
-    FM_FILE_INFO_VIRTUAL = (1 << 5)
-};
-typedef enum _FmFileInfoFlag FmFileInfoFlag;
-
 typedef struct _FmFileInfo FmFileInfo;
 typedef FmList FmFileInfoList;
 
@@ -92,14 +79,22 @@ struct _FmFileInfo
 void _fm_file_info_init();
 void _fm_file_info_finalize();
 
-FmFileInfo* fm_file_info_new();
-FmFileInfo* fm_file_info_new_from_gfileinfo(FmPath* path, GFileInfo* inf);
-void fm_file_info_set_from_gfileinfo(FmFileInfo* fi, GFileInfo* inf);
+/* TODO this function should be private...
+ * fm-file-info.c, fm-file-info-job.c and fm-dir-list-job.c use it... */
+FmFileInfo* fm_file_info_new(); 
 
 FmFileInfo* fm_file_info_ref( FmFileInfo* fi );
 void fm_file_info_unref( FmFileInfo* fi );
-
 void fm_file_info_copy(FmFileInfo* fi, FmFileInfo* src);
+
+
+FmFileInfo* fm_file_info_new_computer ();
+FmFileInfo* fm_file_info_new_trash_can ();
+FmFileInfo* fm_file_info_new_user_special_dir (GUserDirectory directory);
+
+FmFileInfo* fm_file_info_new_from_gfileinfo(FmPath* path, GFileInfo* inf);
+
+void fm_file_info_set_from_gfileinfo(FmFileInfo* fi, GFileInfo* inf);
 
 FmPath* fm_file_info_get_path( FmFileInfo* fi );
 const char* fm_file_info_get_name( FmFileInfo* fi );
@@ -159,6 +154,8 @@ gboolean fm_file_info_list_is_same_type(FmFileInfoList* list);
 
 /* return TRUE if all files in the list are on the same fs */
 gboolean fm_file_info_list_is_same_fs(FmFileInfoList* list);
+
+uint fm_file_info_list_get_flags(FmFileInfoList* list);
 
 #define FM_FILE_INFO(ptr)    ((FmFileInfo*)ptr)
 

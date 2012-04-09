@@ -151,10 +151,27 @@ gboolean fm_launch_files(GAppLaunchContext* ctx, GList* file_infos, FmFileLaunch
     {
         GList* fis;
         fi = (FmFileInfo*)l->data;
-        if (launcher->open_folder && fm_file_info_is_dir(fi))
-            folders = g_list_prepend(folders, fi);
+        
+        if (fm_file_info_is_unknown_type (fi))
+        {
+//            printf ("is_unknown_type !!!!!\n");
+            continue;
+        }
+        if (fm_file_info_is_dir(fi))
+        {
+            if (launcher->open_folder)
+            {
+                folders = g_list_prepend(folders, fi);
+//                printf ("folder added: %s\n", fi->disp_name);
+            }
+            else
+            {
+//                printf ("open_folder = (null)\n");
+            }
+        }
         else
         {
+//            printf ("not a folder: %s\n", fi->disp_name);
             /* FIXME: handle shortcuts, such as the items in menu:// */
             if(fm_path_is_native(fi->path))
             {
@@ -284,6 +301,10 @@ gboolean fm_launch_files(GAppLaunchContext* ctx, GList* file_infos, FmFileLaunch
                 g_error_free(err);
                 err = NULL;
             }
+        }
+        else
+        {
+//            printf ("no openfolder functions....\n");
         }
         g_list_free(folders);
     }

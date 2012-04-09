@@ -30,39 +30,62 @@
 
 G_BEGIN_DECLS
 
-#define FM_PATH(path)   ((FmPath*)path)
+#define FM_PATH(path)           ((FmPath*)path)
+#define FM_PATH_URI_COMPUTER    "computer:///"
+#define FM_PATH_URI_TRASH_CAN   "trash:///"
 
 typedef struct _FmPath FmPath;
 typedef FmList FmPathList;
 
+
+/***********************************************************************************************************************
+ * File Info Flags
+ * 
+ * 
+ * 
+ * 
+ **********************************************************************************************************************/
+#if 0
+enum _FmFileInfoFlag
+{
+    FM_FILE_INFO_NONE = 0,
+    FM_FILE_INFO_HOME_DIR = (1 << 0),
+    FM_FILE_INFO_DESKTOP_DIR = (1 << 1),
+    FM_FILE_INFO_DESKTOP_ENTRY = (1 << 2),
+    FM_FILE_INFO_MOUNT_POINT = (1 << 3),
+    FM_FILE_INFO_REMOTE = (1 << 4),
+    FM_FILE_INFO_VIRTUAL = (1 << 5),
+    FM_FILE_INFO_TRASH_CAN = (1 << 6)
+};
+typedef enum _FmFileInfoFlag FmFileInfoFlag;
+#endif
+
 enum _FmPathFlags
 {
-    FM_PATH_NONE = 0,
-    FM_PATH_IS_NATIVE = 1<<0, /* This is a native path to UNIX, like /home */
-    FM_PATH_IS_LOCAL = 1<<1, /* This path refers  to a file on local filesystem */
-    FM_PATH_IS_VIRTUAL = 1<<2, /* This path is virtual and it doesn't exist on real filesystem */
-    FM_PATH_IS_TRASH = 1<<3, /* This path is under trash:/// */
-    FM_PATH_IS_XDG_MENU = 1<<4, /* This path is under menu:/// */
-
-    /* reserved for future use */
-    FM_PATH_IS_RESERVED1 = 1<<5,
-    FM_PATH_IS_RESERVED2 = 1<<6,
-    FM_PATH_IS_RESERVED3 = 1<<7,
+    FM_PATH_NONE            = 0,
+    FM_PATH_IS_NATIVE       = 1<<0,     /* This is a native path to UNIX, like /home */
+    FM_PATH_IS_LOCAL        = 1<<1,     /* This path refers  to a file on local filesystem */
+    FM_PATH_IS_VIRTUAL      = 1<<2,     /* This path is virtual and it doesn't exist on real filesystem */
+    FM_PATH_IS_TRASH        = 1<<3,     /* This path is under trash:/// */
+    FM_PATH_IS_XDG_MENU     = 1<<4,     /* This path is under menu:/// */
+    FM_PATH_IS_TRASH_CAN    = 1<<5,     /* Trash Can Virtual Path */
+    FM_PATH_IS_RESERVED2    = 1<<6,
+    FM_PATH_IS_RESERVED3    = 1<<7,
 };
 typedef enum _FmPathFlags FmPathFlags;
 
 struct _FmPath
 {
-    gint n_ref;
+    gint    n_ref;
     FmPath* parent;
-    guchar flags; /* FmPathFlags flags : 8; */
-    char name[1];
+    uint    flags;       /* FmPathFlags flags : 32; */
+    char    name[1];
 };
 
 void _fm_path_init();
 
-/* fm_path_new is deprecated. Use fm_path_new_for_str */
-FmPath*	fm_path_new(const char* path);
+/* fm_path_new is deprecated. Use fm_path_new_for_str 
+FmPath*	fm_path_new(const char* path);*/
 
 FmPath* fm_path_new_for_path(const char* path_name);
 FmPath* fm_path_new_for_uri(const char* uri);
