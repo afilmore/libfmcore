@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gsettings-desktop-schemas">
+  <schema path="/desktop/" id="desktop">
+    <key type="s" name="default">
+      <default>'noname'</default>
+      <summary>Default Desktop</summary>
+      <description>Default Desktop</description>
+    </key>
+    <key type="s" name="current">
+      <default>'noname'</default>
+      <summary>Default Desktop</summary>
+      <description>Default Desktop</description>
+    </key>
+    <child schema="desktop.noname.applications" name="applications"/>
+  </schema>
+  <schema path="/desktop/noname/applications/" id="desktop.noname.applications">
+    <child schema="desktop.noname.applications.terminal" name="terminal"/>
+    <child schema="desktop.noname.applications.run" name="run"/>
+    <child schema="desktop.noname.applications.panel" name="panel"/>
+    <child schema="desktop.noname.applications.filemanager" name="filemanager"/>
+  </schema>
+  <schema path="/desktop/noname/applications/terminal/" id="desktop.noname.applications.terminal">
+    <key type="s" name="default">
+      <default>'lxterminal'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="exec">
+      <default>'x-terminal-emulator'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+  </schema>
+  <schema path="/desktop/noname/applications/run/" id="desktop.noname.applications.run">
+    <key type="s" name="default">
+      <default>'gtkrun'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="exec">
+      <default>'gtkrun'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+  </schema>
+  <schema path="/desktop/noname/applications/taskmanager/" id="desktop.noname.applications.taskmanager">
+    <key type="s" name="default">
+      <default>'lxtask'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="exec">
+      <default>'lxtask'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+  </schema>
+  <schema path="/desktop/noname/applications/panel/" id="desktop.noname.applications.panel">
+    <key type="s" name="default">
+      <default>'simple-panel'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="exec">
+      <default>'simple-panel'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+  </schema>
+  <schema path="/desktop/noname/applications/filemanager/" id="desktop.noname.applications.filemanager">
+    <key type="s" name="default">
+      <default>'pcmanfm'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="exec">
+      <default>'pcmanfm'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="b" name="needs-term">
+      <default>false</default>
+      <summary>needs terminal</summary>
+      <description>Whether the application needs a terminal to run.</description>
+    </key>
+  </schema>
+  <schema path="/desktop/noname/applications/archiver/" id="desktop.noname.applications.archiver">
+    <key type="s" name="default">
+      <default>'file-roller'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <child schema="desktop.noname.applications.archiver.file-roller" name="file-roller"/>
+  </schema>
+  <schema path="/desktop/noname/applications/archiver/file-roller/" id="desktop.noname.applications.archiver.file-roller">
+    <key type="s" name="create">
+      <default>'file-roller --add %U'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="extract">
+      <default>'file-roller --extract %U'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="extract-to">
+      <default>'file-roller --extract-to %d %U'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="s" name="mime-types">
+      <default>'application/x-7z-compressed;application/x-7z-compressed-tar;application/x-ace;application/x-alz;application/x-ar;application/x-arj;application/x-bzip;application/x-bzip-compressed-tar;application/x-bzip1;application/x-bzip1-compressed-tar;application/x-cabinet;application/x-cbr;application/x-cbz;application/x-cd-image;application/x-compress;application/x-compressed-tar;application/x-cpio;application/x-deb;application/x-ear;application/x-ms-dos-executable;application/x-gtar;application/x-gzip;application/x-gzpostscript;application/x-java-archive;application/x-lha;application/x-lhz;application/x-lzip;application/x-lzip-compressed-tar;application/x-lzma;application/x-lzma-compressed-tar;application/x-lzop;application/x-lzop-compressed-tar;application/x-rar;application/x-rar-compressed;application/x-rpm;application/x-rzip;application/x-tar;application/x-tarz;application/x-stuffit;application/x-war;application/x-xz;application/x-xz-compressed-tar;application/x-zip;application/x-zip-compressed;application/x-zoo;application/zip;multipart/x-zip;'</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+    <key type="b" name="supports-uris">
+      <default>true</default>
+      <summary>Default</summary>
+      <description>Default</description>
+    </key>
+  </schema>
+</schemalist>
