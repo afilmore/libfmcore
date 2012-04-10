@@ -39,8 +39,6 @@
 /* for read() */
 #include <unistd.h>
 
-extern const char EXEC_FILE_DLG[];
-
 typedef struct _LaunchData LaunchData;
 struct _LaunchData
 {
@@ -66,7 +64,7 @@ static gboolean on_open_folder(GAppLaunchContext* ctx, GList* folder_infos, gpoi
 {
     LaunchData* data = (LaunchData*)user_data;
     if (data->folder_func)
-    return data->folder_func(ctx, folder_infos, data->user_data, err);
+        return data->folder_func(ctx, folder_infos, data->user_data, err);
     else
         return FALSE;
 }
@@ -107,7 +105,7 @@ static FmFileLauncherExecAction on_exec_file(FmFileInfo* file, gpointer user_dat
     char* msg_str;
     int res;
     gtk_builder_set_translation_domain(b, GETTEXT_PACKAGE);
-    gtk_builder_add_from_string(b, EXEC_FILE_DLG, -1, NULL);
+    gtk_builder_add_from_file(b, PACKAGE_UI_DIR "/exec-file.ui", NULL);
     dlg = gtk_builder_get_object(b, "dlg");
     msg = gtk_builder_get_object(b, "msg");
     icon = gtk_builder_get_object(b, "icon");

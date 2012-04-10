@@ -39,7 +39,7 @@
 #include "fm-app-chooser-dlg.h"
 #include "fm-archiver.h"
 #include "fm-app-info.h"
-#include "fm-gtk-file-launcher.h"
+#include "fm-gtk-launcher.h"
 
 //#include "fm-actions.h"
 
@@ -496,9 +496,36 @@ GtkMenu* fm_file_menu_get_menu(FmFileMenu* menu)
 void on_open(GtkAction* action, gpointer user_data)
 {
     FmFileMenu* data = (FmFileMenu*)user_data;
-    GList* l = fm_list_peek_head_link(data->file_infos);
+    
+    g_return_if_fail (data || data->file_infos);
+    
+    //printf ("fm-file-menu.c:on_open\n");
+    
+    GList* l;
+    for (l = fm_list_peek_head_link(data->file_infos); l; l=l->next)
+    {
+        FmFileInfo *fi = (FmFileInfo*) l->data;
+        //printf ("fm-file-menu.c:on_open file = %s\n", fm_file_info_get_disp_name (fi));
+    }
+    
+    
+    //GList* l = fm_list_peek_head_link(data->file_infos);
     GError* err = NULL;
-    fm_launch_files_simple(data->parent, NULL, l, data->folder_func, data->folder_func_data);
+    
+    if (!data->folder_func_data)
+        printf ("fm-file-menu.c:on_open:503 data->folder_func_data == NULL\n");
+    
+    /* gboolean fm_launch_files_simple(GtkWindow* parent,
+     *                                 GAppLaunchContext* ctx,
+     *                                 GList* file_infos,
+     *                                 FmLaunchFolderFunc func,
+     *                                 gpointer user_data)
+     **/
+    fm_launch_files_simple (data->parent,
+                            NULL,
+                            fm_list_peek_head_link(data->file_infos),
+                            data->folder_func,
+                            data->folder_func_data);
 }
 
 static void open_with_app(FmFileMenu* data, GAppInfo* app)

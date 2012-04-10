@@ -24,7 +24,6 @@ base_SOURCES = \
 	base/fm-archiver.c \
 	base/fm-dummy-monitor.c \
 	base/fm-file-info.c \
-	base/fm-file-launcher.c \
 	base/fm-folder.c \
 	base/fm-icon.c \
 	base/fm-list.c \
@@ -45,7 +44,7 @@ base_SOURCES = \
 	gtk/fm-file-menu.c \
 	gtk/fm-file-properties.c \
 	gtk/fm-folder-model.c \
-	gtk/fm-gtk-file-launcher.c \
+	gtk/fm-gtk-launcher.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-gtk-utils.c \
 	gtk/fm-icon-pixbuf.c \
@@ -81,7 +80,6 @@ libfmcoreinclude_HEADERS = \
 	base/fm-archiver.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
-	base/fm-file-launcher.h \
 	base/fm-folder.h \
 	base/fm-icon.h \
 	base/fm-list.h \
@@ -110,7 +108,7 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-file-menu.h \
 	gtk/fm-file-properties.h \
 	gtk/fm-folder-model.h \
-	gtk/fm-gtk-file-launcher.h \
+	gtk/fm-gtk-launcher.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \

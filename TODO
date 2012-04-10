@@ -1,6 +1,7 @@
 
+* add /docs/docs-file-info.c
 
-
+* add /data/shemas
 
 * base/fm-archiver.c
     - Read archiver list from Gsettings instead of Text File...

@@ -51,7 +51,7 @@
 #include "fm-cell-renderer-pixbuf.h"
 #include "fm-file-menu.h"
 #include "fm-folder-model.h"
-#include "fm-gtk-file-launcher.h"
+#include "fm-gtk-launcher.h"
 #include "fm-gtk-marshal.h"
 #include "fm-gtk-utils.h"
 #include "fm-icon-pixbuf.h"
