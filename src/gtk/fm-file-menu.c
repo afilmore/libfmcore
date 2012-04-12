@@ -435,6 +435,12 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
     
     //printf ("%s\n", xml->str);
     
+    if (!trash_can)
+    {
+        act = gtk_ui_manager_get_action(ui, "/popup/EmptyTrash");
+        gtk_action_set_visible(act, FALSE);
+    }
+    
     if (data->all_virtual || trash_can)
     {
         act = gtk_ui_manager_get_action(ui, "/popup/Cut");
@@ -448,11 +454,6 @@ FmFileMenu* fm_file_menu_new_for_files(GtkWindow* parent, FmFileInfoList* files,
         act = gtk_ui_manager_get_action(ui, "/popup/Rename");
         gtk_action_set_visible(act, FALSE);
         
-        if (!trash_can)
-        {
-            act = gtk_ui_manager_get_action(ui, "/popup/EmptyTrash");
-            gtk_action_set_visible(act, FALSE);
-        }
     }
     gtk_ui_manager_add_ui_from_string(ui, xml->str, xml->len, NULL);
 

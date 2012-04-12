@@ -29,6 +29,10 @@
 
 #define SHOW_DLG_DELAY  1000
 
+// Dialog Xml String Definition (gtk/app-global-ui.c)
+extern const char RENAME_DLG[];
+extern const char PROGRESS_DLG[];
+
 enum
 {
     RESPONSE_OVERWRITE = 1,
@@ -197,7 +201,7 @@ static gint on_ask_rename(FmFileOpsJob* job, FmFileInfo* src, FmFileInfo* dest, 
     gtk_builder_set_translation_domain(builder, GETTEXT_PACKAGE);
     ensure_dlg(data);
 
-    gtk_builder_add_from_file(builder, /*PACKAGE_UI_DIR*/ "/ask-rename.ui", NULL);
+    gtk_builder_add_from_string (builder, RENAME_DLG, -1, NULL);
     dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
     src_icon = (GtkWidget*)gtk_builder_get_object(builder, "src_icon");
     src_fi = (GtkWidget*)gtk_builder_get_object(builder, "src_fi");
@@ -387,7 +391,7 @@ static gboolean on_show_dlg(FmProgressDisplay* data)
     GtkTextTagTable* tag_table = gtk_text_tag_table_new();
 
     gtk_builder_set_translation_domain(builder, GETTEXT_PACKAGE);
-    gtk_builder_add_from_file(builder, /*PACKAGE_UI_DIR*/ "/progress.ui", NULL);
+    gtk_builder_add_from_string (builder, PROGRESS_DLG, -1, NULL);
 
     data->dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
 

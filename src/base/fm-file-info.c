@@ -72,10 +72,12 @@ FmFileInfo* fm_file_info_new ()
 FmFileInfo* fm_file_info_new_computer ()
 {
     FmFileInfo *fi = fm_file_info_new ();
-    
     FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
     fm_file_info_set_path (fi, path);
     
+    // ensures that it's set as virtual...
+    path->flags |= FM_PATH_IS_VIRTUAL;
+
     fm_path_unref(path);
     
     return fi;
@@ -84,10 +86,14 @@ FmFileInfo* fm_file_info_new_computer ()
 FmFileInfo* fm_file_info_new_trash_can ()
 {
     FmFileInfo *fi = fm_file_info_new ();
-    
     FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
     fm_file_info_set_path (fi, path);
+
+    // fm_path_new_for_uri may also define FM_PATH_IS_LOCAL
+    path->flags |= FM_PATH_IS_VIRTUAL;
     path->flags |= FM_PATH_IS_TRASH;
+    path->flags |= FM_PATH_IS_TRASH_CAN;
+    
     fm_path_unref(path);
     
     return fi;
@@ -108,6 +114,12 @@ FmFileInfo* fm_file_info_new_user_special_dir (GUserDirectory directory)
 
     FmPath *path = fm_path_new_for_path (path_name);
     FmFileInfo* fi = fm_file_info_new_from_gfileinfo(path, ginfo);
+    
+    
+    
+    // TODO: must set some path flags here.....
+    
+    
     
     g_object_unref (ginfo);
     g_object_unref (file);

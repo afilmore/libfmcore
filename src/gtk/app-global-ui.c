@@ -8,11 +8,12 @@
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
  * Purpose: LibFm's UI definitions.
- *          - exec-file.ui
- *          - app-chooser.ui
- *          - ask-rename.ui
- *          - progress.ui
- *          - file-prop.ui 
+ *          - EXEC_FILE_DLG     replaces exec-file.ui
+ *          - APP_CHOOSER_DLG   replaces app-chooser.ui
+ *          - RENAME_DLG        replaces ask-rename.ui
+ *          - PROPERTIES_DLG    replaces file-prop.ui
+ *          - APPLICATIONS_DLG  replaces 
+ *          - PROGRESS_DLG      replaces progress.ui
  * 
  * Joke: In a lifter there's a fireman, Santa Claus, an intelligent woman and a dog, the dog is killed.
  * Who killed the dog ?

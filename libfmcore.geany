@@ -18,19 +18,19 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=8
-FILE_NAME_0=27392;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-path.c;0;4
-FILE_NAME_1=2778;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-path.h;0;4
-FILE_NAME_2=18552;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-file-info.c;0;4
-FILE_NAME_3=1130;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-file-info.h;0;4
-FILE_NAME_4=22540;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.c;0;4
-FILE_NAME_5=4373;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/docs/docs-fileinfo.c;0;4
-FILE_NAME_6=6290;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/job/fm-file-info-job.c;0;4
-FILE_NAME_7=7285;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/job/fm-file-ops-job.c;0;4
-FILE_NAME_8=7024;Diff;0;16;0;1;0;/home/hotnuma/Bureau/Projets/18-desktop-items.diff;0;4
+current_page=4
+FILE_NAME_0=991;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.h;0;4
+FILE_NAME_1=20603;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-file-menu.c;0;4
+FILE_NAME_2=139;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-gtk-launcher.h;0;4
+FILE_NAME_3=15902;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-gtk-launcher.c;0;4
+FILE_NAME_4=3728;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-path.h;0;4
+FILE_NAME_5=4092;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-file-info.c;0;4
+FILE_NAME_6=1108;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/base/fm-app-info.h;0;4
+FILE_NAME_7=16027;Diff;0;16;0;1;0;/home/hotnuma/Bureau/Projets/20-cleanup.diff;0;4
+FILE_NAME_8=893;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-folder-model.c;0;4
 
 [VTE]
-last_dir=/home/hotnuma/Bureau/Projets/libfmcore
+last_dir=/home/hotnuma/Bureau/Projets/libfmcore/src
 
 [build-menu]
 EX_00_LB=_Exécuter
