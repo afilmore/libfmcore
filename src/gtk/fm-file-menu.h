@@ -33,11 +33,13 @@ typedef struct _FmFileMenu FmFileMenu;
 struct _FmFileMenu
 {
     FmFileInfoList* file_infos;
+    
     gboolean same_type : 1;
     gboolean same_fs : 1;
     gboolean all_virtual : 1;
     gboolean all_trash : 1;
     gboolean auto_destroy : 1; // private
+    
     GtkUIManager* ui;
     GtkActionGroup* act_grp;
     GtkWidget* menu;

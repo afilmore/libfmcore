@@ -44,6 +44,11 @@ struct _LaunchData
     gpointer user_data;
 };
 
+static gboolean _fm_launch_files (GAppLaunchContext* ctx,
+                                 GList* file_infos,
+                                 FmFileLauncher* launcher,
+                                 gpointer user_data);
+
 static GAppInfo* choose_app (GList* file_infos, FmMimeType* mime_type, gpointer user_data, GError** err)
 {
     LaunchData* data = (LaunchData*)user_data;
@@ -166,7 +171,7 @@ gboolean fm_launch_paths (GAppLaunchContext* ctx, GList* paths, FmFileLauncher* 
     {
         GList* file_infos = fm_list_peek_head_link (FM_FILE_INFO_JOB (job)->file_infos);
         if (file_infos)
-            ret = fm_launch_files (ctx, file_infos, launcher, user_data);
+            ret = _fm_launch_files (ctx, file_infos, launcher, user_data);
         else
             ret = FALSE;
     }
@@ -283,7 +288,7 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
     return ret;
 }
 
-gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLauncher* launcher, gpointer user_data)
+static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLauncher* launcher, gpointer user_data)
 {
     GHashTable* hash = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
     
@@ -298,36 +303,19 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
         GList* fis;
         fi = (FmFileInfo*) l->data;
         
-        // TODO: define a way to open special files, for exemple desktop items, My Computer, Trash Can... etc....
-        if (fm_file_info_is_unknown_type (fi))
-        {
-            printf ("base/fm-file-launcher.c:fm_launch_files: UNKNOWN TYPE !!!!! path flags = %u\n", fi->path->flags);
-            printf ("FM_PATH_NONE = %s\n", (fi->path->flags & FM_PATH_NONE) ? "true" : "false");
-            printf ("FM_PATH_IS_NATIVE = %s\n", (fi->path->flags & FM_PATH_IS_NATIVE) ? "true" : "false");
-            printf ("FM_PATH_IS_LOCAL = %s\n", (fi->path->flags & FM_PATH_IS_LOCAL) ? "true" : "false");
-            printf ("FM_PATH_IS_VIRTUAL = %s\n", (fi->path->flags & FM_PATH_IS_VIRTUAL) ? "true" : "false");
-            printf ("FM_PATH_IS_TRASH = %s\n", (fi->path->flags & FM_PATH_IS_TRASH) ? "true" : "false");
-            printf ("FM_PATH_IS_XDG_MENU = %s\n", (fi->path->flags & FM_PATH_IS_XDG_MENU) ? "true" : "false");
-            printf ("FM_PATH_IS_TRASH_CAN = %s\n", (fi->path->flags & FM_PATH_IS_TRASH_CAN) ? "true" : "false");
-            continue;
-        }
-        
         // Add Folders to a FileInfoList...
-        if (fm_file_info_is_dir (fi))
+        if (fm_file_info_is_dir (fi)
+        || (fi->path && fm_path_is_trash_root(fi->path)))
         {
             if (!launcher->open_folder)
                 continue;
 
             folders = g_list_prepend (folders, fi);
-            
-            //printf ("base/fm-file-launcher.c:fm_launch_files: add %s folder\n", fi->disp_name);
         }
         
         // Other files...
         else
         {
-            //printf ("base/fm-file-launcher.c:fm_launch_files: %s is not a folder...\n", fi->disp_name);
-            
             /* FIXME: handle shortcuts, such as the items in menu:// */
             
             if (fm_path_is_native (fi->path))
@@ -341,8 +329,6 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
                     fm_launch_desktop_entry (ctx, filename, NULL, launcher, user_data);
                     continue;
                 }
-                
-                
                 else if (fm_file_info_is_executable_type (fi))
                 {
                     filename = fm_path_to_str (fi->path);
@@ -390,8 +376,6 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
                     g_free (filename);
                 }
             }
-            
-            
             // Not A Native Path...
             else if (fm_file_info_is_shortcut (fi)
                      && !fm_file_info_is_dir (fi)
@@ -401,9 +385,7 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
                 fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME: shortcuts handling...
                 continue;
             }
-
-            
-            // What is the purpose of the hash table ???? Store URIs ????
+            // Add URI to a hash table...
             if (fi->type && fi->type->type)
             {
                 fis = g_hash_table_lookup (hash, fi->type->type);
@@ -413,7 +395,6 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
         }
     }
 
-    
     // Launch URIs...
     if (g_hash_table_size (hash) > 0)
     {
@@ -425,14 +406,12 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
         while (g_hash_table_iter_next (&it, &type, &fis))
         {
             GAppInfo* app = g_app_info_get_default_for_type (type, FALSE);
-            if (!app)
+            if (!app && launcher->get_app)
             {
-                if (launcher->get_app)
-                {
-                    FmMimeType* mime_type = ( (FmFileInfo*)fis->data)->type;
-                    app = launcher->get_app (fis, mime_type, user_data, NULL);
-                }
+                FmMimeType* mime_type = ((FmFileInfo*)fis->data)->type;
+                app = launcher->get_app (fis, mime_type, user_data, NULL);
             }
+            
             if (app)
             {
                 for (l=fis; l; l=l->next)
@@ -444,6 +423,7 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
                 }
                 fis = g_list_reverse (fis);
                 
+                printf ("fm-gtk-launcher.c:_fm_launch_files (): launch URIs...\n");
                 fm_app_info_launch_uris (app, fis, ctx, err);
                 
                 /* free URI strings */
@@ -455,7 +435,6 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
     }
     g_hash_table_destroy (hash);
 
-    
     // Open Folders from their FileInfoList...
     if (folders)
     {
@@ -477,24 +456,24 @@ gboolean fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLaunc
     return TRUE;
 }
 
-gboolean fm_launch_file_simple (GtkWindow *parent,
-                                GAppLaunchContext *ctx,
-                                FmFileInfo *file_info,
-                                FmLaunchFolderFunc func,
-                                gpointer user_data)
+gboolean fm_launch_file (GtkWindow *parent,
+                         GAppLaunchContext *ctx,
+                         FmFileInfo *file_info,
+                         FmLaunchFolderFunc func,
+                         gpointer user_data)
 {
     gboolean ret;
     GList* files = g_list_prepend (NULL, file_info);
-    ret = fm_launch_files_simple (parent, ctx, files, func, user_data);
+    ret = fm_launch_multiple_files (parent, ctx, files, func, user_data);
     g_list_free (files);
     return ret;
 }
 
-gboolean fm_launch_files_simple (GtkWindow* parent,
-                                 GAppLaunchContext* ctx,
-                                 GList* file_infos,
-                                 FmLaunchFolderFunc func,
-                                 gpointer user_data)
+gboolean fm_launch_multiple_files (GtkWindow* parent,
+                                   GAppLaunchContext* ctx,
+                                   GList* file_infos,
+                                   FmLaunchFolderFunc func,
+                                   gpointer user_data)
 {
     FmFileLauncher launcher = {
         choose_app,
@@ -503,6 +482,7 @@ gboolean fm_launch_files_simple (GtkWindow* parent,
         on_launch_error,
         on_launch_ask
     };
+    
     LaunchData data = {parent, func, user_data};
     
     GAppLaunchContext *_ctx = NULL;
@@ -517,12 +497,13 @@ gboolean fm_launch_files_simple (GtkWindow* parent,
                                            parent ?
                                            gtk_widget_get_screen (GTK_WIDGET (parent))
                                            : gdk_screen_get_default ());
+        
         gdk_app_launch_context_set_timestamp (GDK_APP_LAUNCH_CONTEXT (_ctx), gtk_get_current_event_time ());
         // how to handle gdk_app_launch_context_set_icon ?
         ctx = _ctx;
     }
     
-    gboolean ret = fm_launch_files (ctx, file_infos, &launcher, &data);
+    gboolean ret = _fm_launch_files (ctx, file_infos, &launcher, &data);
     
     if (_ctx)
         g_object_unref (_ctx);
