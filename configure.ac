@@ -153,6 +153,7 @@ AC_CONFIG_FILES([
     Makefile
     src/Makefile
     src/fmvala/Makefile
+    vapi/Makefile
     libfmcore.pc
 ])
 

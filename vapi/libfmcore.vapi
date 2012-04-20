@@ -78,51 +78,54 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public Path ();
 		
-        public Path.for_path (string path_name);
-		public static unowned Fm.Path get_desktop ();
-        
+        [CCode (has_construct_function = false)]
         public Path.child (Fm.Path parent, string basename);
-		
+        
         [CCode (has_construct_function = false)]
 		public Path.child_len (Fm.Path parent, string basename, int name_len);
-		public int depth ();
-		
-        public unowned string display_basename ();
-		public unowned string display_name (bool human_readable);
-		public bool equal (Fm.Path p2);
-		public bool equal_str (string str, int n);
-		
+        
         [CCode (has_construct_function = false)]
 		public Path.for_commandline_arg (string arg);
-		
+        
         [CCode (has_construct_function = false)]
 		public Path.for_display_name (string path_name);
-		
+        
         [CCode (has_construct_function = false)]
 		public Path.for_gfile (GLib.File gf);
 		
         [CCode (has_construct_function = false)]
+        public Path.for_path (string path_name);
+        
+        [CCode (has_construct_function = false)]
 		public Path.for_str (string path_str);
-		
+        
         [CCode (has_construct_function = false)]
 		public Path.for_uri (string uri);
 		
-        public static unowned Fm.Path get_apps_menu ();
-		public unowned string get_basename ();
-		public int get_flags ();
-		public static unowned Fm.Path get_home ();
-		public unowned Fm.Path get_parent ();
-		public static unowned Fm.Path get_root ();
-		public static unowned Fm.Path get_trash ();
-		public bool has_prefix (Fm.Path prefix);
-		public uint hash ();
-		
         [CCode (has_construct_function = false)]
 		public Path.relative (Fm.Path parent, string relative_path);
-		public unowned GLib.File to_gfile ();
-		public unowned string to_str ();
-		public unowned string to_uri ();
+		
+        public unowned string display_basename ();
+		public unowned string display_name (bool human_readable);
+		public unowned string get_basename ();
+		
+        public unowned GLib.File    to_gfile ();
+		public unowned string       to_str ();
+		public unowned string       to_uri ();
 
+        public unowned          Fm.Path get_parent ();
+		public static unowned   Fm.Path get_home ();
+		public static unowned   Fm.Path get_desktop ();
+		public static unowned   Fm.Path get_root ();
+		public static unowned   Fm.Path get_trash ();
+        public static unowned   Fm.Path get_apps_menu ();
+
+        public bool equal (Fm.Path p2);
+		public bool equal_str (string str, int n);
+        public int depth ();
+		public uint hash ();
+		public bool has_prefix (Fm.Path prefix);
+		public int get_flags ();
         public inline bool is_virtual ();
         public inline bool is_trash_root ();
         public inline bool is_trash ();
@@ -248,6 +251,46 @@ namespace Fm {
 		public bool is_same_type ();
 	}
 
+	[CCode (cheader_filename = "fm.h")]
+	public class Job : GLib.Object {
+		[CCode (has_construct_function = false)]
+		protected Job ();
+		public int ask (string question);
+		public int ask_valist (string question, void* options);
+		public int askv (string question, out unowned string options);
+//		public void* call_main_thread (Fm.JobCallMainThreadFunc func);
+		public virtual void cancel ();
+		public void emit_cancelled ();
+		public int emit_error (GLib.Error err, int severity);
+		public void emit_finished ();
+		public void finish ();
+		public unowned GLib.Cancellable get_cancellable ();
+		public void init_cancellable ();
+		public bool is_cancelled ();
+		public bool is_running ();
+		[NoWrapper]
+		public virtual bool run ();
+		public virtual bool run_async ();
+		public bool run_sync ();
+		public bool run_sync_with_mainloop ();
+		public void set_cancellable (GLib.Cancellable cancellable);
+		public virtual signal int ask2 (void* question, void* options);
+		public virtual signal void cancelled ();
+		public virtual signal int error (void* err, int severity);
+		public virtual signal void finished ();
+	}
+	
+    [CCode (cheader_filename = "fm.h")]
+	public class FileInfoJob : Fm.Job {
+//~ 		public weak Fm.Path current;
+		public weak Fm.FileInfoList file_infos;
+//~ 		public int flags;
+		[CCode (has_construct_function = false, type = "FmJob*")]
+		public FileInfoJob (Fm.PathList files_to_query, int flags);
+		public void add (Fm.Path path);
+		public void add_gfile (GLib.File gf);
+		public unowned Fm.Path get_current ();
+	}
     
     /*******************************************************************************************************************
      * A generic list container supporting reference counting.
@@ -269,8 +312,10 @@ namespace Fm {
 		public bool is_path_list ();
 		public static void remove (void* list, void* data);
 		public static void remove_all (void* list, void* data);
+        [CCode (cprefix = "fm_", cheader_filename = "fm-list.h")]
+        public inline unowned GLib.List? peek_head_link ();
 	}
-	
+
     [CCode (cheader_filename = "fm-list.h")]
 	[Compact]
 	public class ListFuncs {
