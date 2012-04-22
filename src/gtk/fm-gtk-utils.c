@@ -29,7 +29,7 @@
 #include "fm-gtk-utils.h"
 #include "fm-file-ops-job.h"
 #include "fm-progress-dlg.h"
-#include "fm-path-entry.h"
+//#include "fm-path-entry.h"
 #include "fm-app-chooser-dlg.h"
 
 #include "fm-config.h"

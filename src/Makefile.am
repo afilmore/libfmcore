@@ -48,7 +48,6 @@ base_SOURCES = \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-gtk-utils.c \
 	gtk/fm-icon-pixbuf.c \
-	gtk/fm-path-entry.c \
 	gtk/fm-progress-dlg.c \
 	gtk/fm-thumbnail.c \
 	$(NULL)
@@ -112,7 +111,6 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \
-	gtk/fm-path-entry.h \
 	gtk/fm-progress-dlg.h \
 	gtk/fm-thumbnail.h \
 	$(NULL)
