@@ -9,7 +9,7 @@
  * 
  * Purpose: Binding file for libfmcore.
  * 
- * Version: 0.2
+ * Version: 0.3
  * 
  * 
  **********************************************************************************************************************/
@@ -325,14 +325,21 @@ namespace Fm {
 		public virtual signal int error (void* err, int severity);
 		public virtual signal void finished ();
 	}
-	
+
+    [CCode (cheader_filename = "fm.h", cprefix = "FM_FILE_INFO_JOB_")]
+    public enum FileInfoJobFlags {
+        NONE = 0,
+        FOLLOW_SYMLINK = 1 << 0,        /* FIXME: not yet implemented */
+        EMIT_FOR_EACH_FILE = 1 << 1     /* FIXME: not yet implemented */
+    }
+
     [CCode (cheader_filename = "fm.h")]
 	public class FileInfoJob : Fm.Job {
         
 		public weak Fm.FileInfoList file_infos;                         /* FIXME: avoid direct member access... */
 
 		[CCode (has_construct_function = false, type = "FmJob*")]
-		public FileInfoJob (Fm.PathList files_to_query, int flags);
+		public FileInfoJob (Fm.PathList files_to_query, FileInfoJobFlags flags);
 		
         public void add (Fm.Path path);
 		public void add_gfile (GLib.File gf);
