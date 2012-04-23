@@ -646,6 +646,27 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
+	[CCode (cheader_filename = "fm.h")]
+	public class CellRendererPixbuf : Gtk.CellRendererPixbuf {
+//~ 		public weak Fm.FileInfo fi;
+//~ 		public int fixed_h;
+//~ 		public int fixed_w;
+		
+        [CCode (has_construct_function = false, type = "GtkCellRenderer*")]
+		public CellRendererPixbuf ();
+		
+        public void set_fixed_size (int w, int h);
+		
+        [NoAccessorMethod]
+		public void* info { get; set; }
+	}
+
+
+    /*************************************************************************************
+     * Misc Usefull Functions and Dialogs...
+     * 
+     * 
+     ************************************************************************************/
     [CCode (cheader_filename = "fm.h")]
     public static string? get_user_input (Gtk.Window parent, string title, string msg, string default_text);
 
