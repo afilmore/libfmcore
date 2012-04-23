@@ -54,10 +54,27 @@ struct _FmCellRendererPixbufClass
 	GtkCellRendererPixbufClass parent_class;
 };
 
-GType		fm_cell_renderer_pixbuf_get_type		(void);
-GtkCellRenderer*	fm_cell_renderer_pixbuf_new			(void);
+GtkCellRenderer *fm_cell_renderer_pixbuf_new (void);
+GType fm_cell_renderer_pixbuf_get_type (void);
 
-void fm_cell_renderer_pixbuf_set_fixed_size(FmCellRendererPixbuf* render, gint w, gint h);
+void fm_cell_renderer_pixbuf_set_fixed_size (FmCellRendererPixbuf* render, gint w, gint h);
+
+#if GTK_CHECK_VERSION (3, 0, 8)
+void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
+                                     cairo_t *cr,
+                                     GtkWidget *widget,
+                                     GdkRectangle *background_area,
+                                     GdkRectangle *cell_area,
+                                     GtkCellRendererState flags);
+#else
+void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
+                                     GdkWindow *window,
+                                     GtkWidget *widget,
+                                     GdkRectangle *background_area,
+                                     GdkRectangle *cell_area,
+                                     GdkRectangle *expose_area,
+                                     GtkCellRendererState flags);
+#endif
 
 G_END_DECLS
 

@@ -41,19 +41,29 @@ static gboolean on_auto_scroll(FmDndAutoScroll* as)
     GtkAdjustment* ha = as->hadj;
     GtkWidget* widget = as->widget;
 
-    gdk_window_get_pointer(widget->window, &x, &y, NULL);
+#if !GTK_CHECK_VERSION (3, 0, 8)
+    gdk_window_get_pointer (gtk_widget_get_window (widget), &x, &y, NULL);
 
     /*
        HACK.
        Sometimes we do not get drag-leave signal. (Why?)
        This check prevents infinite scrolling.
     */
-    if (y < 0 || y > widget->allocation.height ||
-        x < 0 || x > widget->allocation.width)
+
+    GtkAllocation allocation = {0};
+    gtk_widget_get_allocation (widget, &allocation);
+    if (y < 0 || y > allocation.height ||
+        x < 0 || x > allocation.width)
     {
         as->timeout = 0;
         return FALSE;
     }
+    //~ if (y < 0 || y > widget->allocation.height ||
+        //~ x < 0 || x > widget->allocation.width)
+    //~ {
+        //~ as->timeout = 0;
+        //~ return FALSE;
+    //~ }
 
     if(va)
     {
@@ -102,6 +112,7 @@ static gboolean on_auto_scroll(FmDndAutoScroll* as)
         }
         gtk_adjustment_value_changed(ha);
     }
+#endif
     return TRUE;
 }
 
