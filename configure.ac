@@ -41,11 +41,25 @@ fi
 # intltool
 #~ IT_PROG_INTLTOOL([0.40.0])
 
-# modules required
-pkg_modules="gtk+-2.0 >= 2.16.0"
+
+##########################################################################################
+# Configure With Gtk2 > 2.24.0 or Gtk3 > 3.0.8
+#
+##########################################################################################
+AC_ARG_ENABLE([gtk3],
+ [AS_HELP_STRING([--enable-gtk3], [Use GTK3 instead of GTK2])],
+ [use_gtk3=$enableval], [use_gtk3=no])
+
+pkg_modules="gtk+-2.0 >= 2.24.0"
+
+if test $use_gtk3 == yes ; then
+    pkg_modules="gtk+-3.0 >= 3.0.8"
+fi
+
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
+
 
 glib_modules="glib-2.0 >= 2.24.0 gobject-2.0 >= 2.26.0"
 PKG_CHECK_MODULES(GLIB, [$glib_modules])
