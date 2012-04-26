@@ -1,3 +1,9 @@
+<!--
+
+compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas"
+
+
+-->
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gsettings-desktop-schemas">
   <schema path="/desktop/" id="desktop">

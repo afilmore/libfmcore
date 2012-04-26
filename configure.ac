@@ -164,10 +164,11 @@ AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
 AC_CONFIG_FILES([
-    Makefile
-    src/Makefile
+    data/Makefile
     src/fmvala/Makefile
+    src/Makefile
     vapi/Makefile
+    Makefile
     libfmcore.pc
 ])
 

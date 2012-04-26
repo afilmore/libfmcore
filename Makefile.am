@@ -2,7 +2,7 @@
 
 NULL=
 
-SUBDIRS=src vapi
+SUBDIRS=data src vapi
 
 EXTRA_DIST = \
 	libfmcore.pc.in \
