@@ -74,7 +74,7 @@ const char filefolder_popup_xml[] =
   "<separator/>"
   "<placeholder name='ph3'/>"
   "<separator/>"
-  "<menuitem action='Prop'/>"
+  "<menuitem action='Properties'/>"
 "</popup>";
 
 
