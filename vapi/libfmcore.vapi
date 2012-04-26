@@ -148,7 +148,7 @@ namespace Fm {
         ***/
 	}
 
-	[CCode (cheader_filename = "libfm.h")]
+	[CCode (cheader_filename = "fm.h")]
 	[Compact]
 	public class PathList {
 		
@@ -672,15 +672,14 @@ namespace Fm {
 
     namespace Clipboard {
         
-        /*** Define these macros...
-        #define fm_clipboard_cut_files(src_widget, files)	\
-        fm_clipboard_cut_or_copy_files(src_widget, files, TRUE)
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
+        public inline bool cut_files (Gtk.Widget src_widget, Fm.PathList files);
         
-        #define fm_clipboard_copy_files(src_widget, files)	\
-        fm_clipboard_cut_or_copy_files(src_widget, files, FALSE)
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
+        public inline bool copy_files (Gtk.Widget src_widget, Fm.PathList files);
         
-        gboolean fm_clipboard_cut_or_copy_files(GtkWidget* src_widget, FmPathList* files, gboolean _is_cut);
-        ***/
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
+        public bool cut_or_copy_files (Gtk.Widget src_widget, Fm.PathList files, bool _is_cut);
         
         [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
         public bool paste_files (Gtk.Widget dest_widget, Fm.Path dest_dir);
@@ -691,6 +690,26 @@ namespace Fm {
 
 	[CCode (cheader_filename = "fm-gtk-utils.h")]
 	public static void copy_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
+
+	[CCode (cheader_filename = "fm-gtk-utils.h")]
+	public static void move_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
+	
+    //#define fm_move_files_to(parent, files)   fm_move_or_copy_files_to(parent, files, TRUE)
+    [CCode (cheader_filename = "fm-gtk-utils.h")]
+	public inline void move_files_to (Gtk.Window parent, Fm.PathList files);
+	
+    //#define fm_copy_files_to(parent, files)   fm_move_or_copy_files_to(parent, files, FALSE)
+    [CCode (cheader_filename = "fm-gtk-utils.h")]
+	public inline void copy_files_to (Gtk.Window parent, Fm.PathList files);
+
+	[CCode (cheader_filename = "fm-gtk-utils.h")]
+	public static void rename_file (Gtk.Window parent, Fm.Path file);
+
+	[CCode (cheader_filename = "fm-gtk-utils.h")]
+	public static void trash_files (Gtk.Window parent, Fm.PathList files);
+	
+    [CCode (cheader_filename = "fm-gtk-utils.h")]
+	public static void trash_or_delete_files (Gtk.Window parent, Fm.PathList files);
 
 }
 

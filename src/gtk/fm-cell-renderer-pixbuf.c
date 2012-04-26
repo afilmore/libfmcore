@@ -272,6 +272,7 @@ void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
             pix_rect.height = gdk_pixbuf_get_height (pix);
             
             //cairo_t *cr = gdk_cairo_create (window);
+            
             gdk_cairo_set_source_pixbuf (cr, link_icon, x, y);
             gdk_cairo_rectangle (cr, &pix_rect);
             cairo_fill (cr);

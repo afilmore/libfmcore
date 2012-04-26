@@ -44,6 +44,30 @@ struct _LaunchData
     gpointer user_data;
 };
 
+static gboolean default_open_folder_func (GAppLaunchContext* ctx, GList* folder_infos, gpointer user_data, GError** err)
+{
+    
+    g_return_val_if_fail (folder_infos, FALSE);
+    printf ("default open folder func !!!!\n");
+    
+    GList* l = folder_infos;
+    for (; l; l=l->next)
+    {
+        FmFileInfo* fi = (FmFileInfo*) l->data;
+        if (fm_config->filemanager)
+        {
+            gchar *cmd = g_strdup_printf ("%s %s", fm_config->filemanager, fi->path); 
+            printf ("%s\n", cmd);
+
+            g_spawn_command_line_async (cmd, NULL);
+            
+            g_free (cmd); 
+        }
+            
+    }
+    return TRUE;
+}
+
 static gboolean _fm_launch_files (GAppLaunchContext* ctx,
                                  GList* file_infos,
                                  FmFileLauncher* launcher,
@@ -53,6 +77,18 @@ static GAppInfo* choose_app (GList* file_infos, FmMimeType* mime_type, gpointer 
 {
     LaunchData* data = (LaunchData*)user_data;
     return fm_choose_app_for_mime_type (data->parent, mime_type, mime_type != NULL);
+}
+
+static gboolean on_open_folder (GAppLaunchContext* ctx, GList* folder_infos, gpointer user_data, GError** err)
+{
+    LaunchData* data = (LaunchData*) user_data;
+    
+    g_return_val_if_fail (data, FALSE);
+    
+    if (data->folder_func)
+        return data->folder_func (ctx, folder_infos, data->user_data, err);
+    else
+        return default_open_folder_func (ctx, folder_infos, data->user_data, err);
 }
 
 static gboolean file_is_executable_script (FmFileInfo* file)
@@ -284,7 +320,7 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
     GHashTable* hash = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
     
     GList* l;
-    //GList* folders = NULL;
+    GList* folders = NULL;
     FmFileInfo* fi;
     GError* err = NULL;
     GAppInfo* app;
@@ -294,80 +330,95 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
         GList* fis;
         fi = (FmFileInfo*) l->data;
         
-        /* FIXME: handle shortcuts, such as the items in menu:// */
-        if (fm_path_is_native (fi->path))
+        // Add Folders to a FileInfoList...
+        /*if (fm_file_info_is_dir (fi)
+        || (fi->path && fm_path_is_trash_root(fi->path)))
         {
-            char* filename;
+            //~ if (!launcher->open_folder)
+                //~ continue;
+
+            folders = g_list_prepend (folders, fi);
+        }
+        
+        // Other files...
+        else*/
+        {
+            /* FIXME: handle shortcuts, such as the items in menu:// */
             
-            // Open Desktop Entries...
-            if (fm_file_info_is_desktop_entry (fi))
+            if (fm_path_is_native (fi->path))
             {
-                filename = fm_path_to_str (fi->path);
-                fm_launch_desktop_entry (ctx, filename, NULL, launcher, user_data);
-                continue;
-            }
-            else if (fm_file_info_is_executable_type (fi))
-            {
-                filename = fm_path_to_str (fi->path);
+                char* filename;
                 
-                if (g_file_test (filename, G_FILE_TEST_IS_EXECUTABLE)) // FIXME: use eaccess/euidaccess...
+                // Open Desktop Entries...
+                if (fm_file_info_is_desktop_entry (fi))
                 {
-                    if (launcher->exec_file)
+                    filename = fm_path_to_str (fi->path);
+                    fm_launch_desktop_entry (ctx, filename, NULL, launcher, user_data);
+                    continue;
+                }
+                else if (fm_file_info_is_executable_type (fi))
+                {
+                    filename = fm_path_to_str (fi->path);
+                    
+                    if (g_file_test (filename, G_FILE_TEST_IS_EXECUTABLE)) // FIXME: use eaccess/euidaccess...
                     {
-                        FmFileLauncherExecAction act = launcher->exec_file (fi, user_data);
-                        GAppInfoCreateFlags flags = 0;
-                        
-                        switch (act)
+                        if (launcher->exec_file)
                         {
-                            case FM_FILE_LAUNCHER_EXEC_IN_TERMINAL:
-                                flags |= G_APP_INFO_CREATE_NEEDS_TERMINAL;
-                            case FM_FILE_LAUNCHER_EXEC:
+                            FmFileLauncherExecAction act = launcher->exec_file (fi, user_data);
+                            GAppInfoCreateFlags flags = 0;
+                            
+                            switch (act)
                             {
-                                /* filename may contain spaces. Fix #3143296 */
-                                char* quoted = g_shell_quote (filename);
-                                app = fm_app_info_create_from_commandline (quoted, NULL, flags, NULL);
-                                g_free (quoted);
-                                if (app)
+                                case FM_FILE_LAUNCHER_EXEC_IN_TERMINAL:
+                                    flags |= G_APP_INFO_CREATE_NEEDS_TERMINAL;
+                                case FM_FILE_LAUNCHER_EXEC:
                                 {
-                                    if (!fm_app_info_launch (app, NULL, ctx, &err))
+                                    /* filename may contain spaces. Fix #3143296 */
+                                    char* quoted = g_shell_quote (filename);
+                                    app = fm_app_info_create_from_commandline (quoted, NULL, flags, NULL);
+                                    g_free (quoted);
+                                    if (app)
                                     {
-                                        if (launcher->error)
-                                            launcher->error (ctx, err, user_data);
-                                        g_error_free (err);
-                                        err = NULL;
+                                        if (!fm_app_info_launch (app, NULL, ctx, &err))
+                                        {
+                                            if (launcher->error)
+                                                launcher->error (ctx, err, user_data);
+                                            g_error_free (err);
+                                            err = NULL;
+                                        }
+                                        g_object_unref (app);
+                                        continue;
                                     }
-                                    g_object_unref (app);
-                                    continue;
+                                break;
                                 }
-                            break;
+                                
+                                case FM_FILE_LAUNCHER_EXEC_OPEN:
+                                break;
+                                
+                                case FM_FILE_LAUNCHER_EXEC_CANCEL:
+                                continue;
                             }
-                            
-                            case FM_FILE_LAUNCHER_EXEC_OPEN:
-                            break;
-                            
-                            case FM_FILE_LAUNCHER_EXEC_CANCEL:
-                            continue;
                         }
                     }
+                    g_free (filename);
                 }
-                g_free (filename);
             }
-        }
-        // Not A Native Path...
-        else if (fm_file_info_is_shortcut (fi)
-                 && !fm_file_info_is_dir (fi)
-                 && fm_path_is_xdg_menu (fi->path)
-                 && fi->target)
-        {
-            fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME: shortcuts handling...
-            continue;
-        }
-        // Add URI to a hash table...
-        if (fi->type && fi->type->type)
-        {
-            fis = g_hash_table_lookup (hash, fi->type->type);
-            fis = g_list_prepend (fis, fi);
-            g_hash_table_insert (hash, fi->type->type, fis);
+            // Not A Native Path...
+            else if (fm_file_info_is_shortcut (fi)
+                     && !fm_file_info_is_dir (fi)
+                     && fm_path_is_xdg_menu (fi->path)
+                     && fi->target)
+            {
+                fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME: shortcuts handling...
+                continue;
+            }
+            // Add URI to a hash table...
+            if (fi->type && fi->type->type)
+            {
+                fis = g_hash_table_lookup (hash, fi->type->type);
+                fis = g_list_prepend (fis, fi);
+                g_hash_table_insert (hash, fi->type->type, fis);
+            }
         }
     }
 
@@ -411,6 +462,24 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
     }
     g_hash_table_destroy (hash);
 
+    // Open Folders from their FileInfoList...
+    if (folders)
+    {
+        folders = g_list_reverse (folders);
+        
+        // Call the open folder function...
+        launcher->open_folder (ctx, folders, user_data, &err);
+        
+        if (err)
+        {
+            if (launcher->error)
+                launcher->error (ctx, err, user_data);
+            g_error_free (err);
+            err = NULL;
+        }
+
+        g_list_free (folders);
+    }
     return TRUE;
 }
 
@@ -435,7 +504,7 @@ gboolean fm_launch_multiple_files (GtkWindow* parent,
 {
     FmFileLauncher launcher = {
         choose_app,
-        NULL,
+        on_open_folder,
         on_exec_file,
         on_launch_error,
         on_launch_ask
@@ -444,6 +513,9 @@ gboolean fm_launch_multiple_files (GtkWindow* parent,
     LaunchData data = {parent, func, user_data};
     
     GAppLaunchContext *_ctx = NULL;
+
+    if (!func)
+        launcher.open_folder = default_open_folder_func;
 
     if (ctx == NULL)
     {

@@ -43,6 +43,9 @@ struct _FmFileLauncher
     GAppInfo*                   (*get_app)
                                 (GList* file_infos, FmMimeType* mime_type, gpointer user_data, GError** err);
     
+    /*** gboolean               (*before_open)
+                                (GAppLaunchContext* ctx, GList* folder_infos, gpointer user_data); ***/
+    
     gboolean                    (*open_folder)
                                 (GAppLaunchContext* ctx, GList* folder_infos, gpointer user_data, GError** err);
     
