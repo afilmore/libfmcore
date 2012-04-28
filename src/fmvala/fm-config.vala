@@ -22,13 +22,13 @@ namespace Fm {
     public class Config : Object {
 
         // Icons Sizes...
-        public uint small_icon_size         = 16;       // size of small icons
-        public uint big_icon_size           = 36;       // size of big icons
         public uint pane_icon_size          = 16;       // size of side pane icons
+        public uint big_icon_size           = 36;       // size of big icons
+        public uint small_icon_size         = 16;       // size of small icons
 
         // Trash Can Settings...
-        public bool use_trash               = true;     // delete file to trash can
-        public bool confirm_del             = true;     // ask before deleting files
+        public bool use_trash_can           = true;     // delete file to trash can
+        public bool confirm_delete          = true;     // ask before deleting files
         
         // Show Internal Volumes...
         public bool show_internal_volumes   = false;    // show system internal volumes in side pane. (udisks-only)
@@ -44,7 +44,6 @@ namespace Fm {
 
         // Default Applications...
         public string terminal;
-        public string filemanager;
         public string panel;
         public string run;
         public string taskmanager;
@@ -53,16 +52,12 @@ namespace Fm {
         // SI Prefix...
         public bool si_unit;                            // use SI prefix for file sizes
 
-        
         construct {
             
             Settings settings;
             
             settings = new Settings ("desktop.noname.applications.terminal");
             this.terminal = settings.get_string ("default");
-            
-            settings = new Settings ("desktop.noname.applications.filemanager");
-            this.filemanager = settings.get_string ("default");
             
             settings = new Settings ("desktop.noname.applications.panel");
             this.panel = settings.get_string ("default");
@@ -79,4 +74,5 @@ namespace Fm {
         }
     }
 }
+
 

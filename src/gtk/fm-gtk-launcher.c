@@ -362,7 +362,8 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
             fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME: shortcuts handling...
             continue;
         }
-        // Add URI to a hash table...
+        
+        // Add to the hash table...
         if (fi->type && fi->type->type)
         {
             fis = g_hash_table_lookup (hash, fi->type->type);
@@ -371,7 +372,7 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
         }
     }
 
-    // Launch URIs...
+    // Launch from the hash table...
     if (g_hash_table_size (hash) > 0)
     {
         GHashTableIter it;
@@ -396,10 +397,11 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
                     fi = (FmFileInfo*)l->data;
                     uri = fm_path_to_uri (fi->path);
                     l->data = uri;
+                    printf ("fm-gtk-launcher.c: _fm_launch_files (%s)\n", uri);
                 }
                 fis = g_list_reverse (fis);
                 
-                printf ("fm-gtk-launcher.c:_fm_launch_files (): launch URIs...\n");
+                
                 fm_app_info_launch_uris (app, fis, ctx, err);
                 
                 /* free URI strings */

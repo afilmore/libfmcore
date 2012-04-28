@@ -47,8 +47,8 @@ namespace Fm {
         public weak string archiver;
         public weak string terminal;
 		
-		public bool use_trash;
-        public bool confirm_del;
+		public bool use_trash_can;
+        public bool confirm_delete;
 		
         public bool si_unit;
 		

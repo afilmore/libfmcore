@@ -256,6 +256,7 @@ void fm_dnd_dest_set_dest_file(FmDndDest* dd, FmFileInfo* dest_file)
 gboolean fm_dnd_dest_drag_data_received(FmDndDest* dd, GdkDragContext *drag_context,
              gint x, gint y, GtkSelectionData *sel_data, guint info, guint time)
 {
+#if !GTK_CHECK_VERSION (3, 0, 8)
     FmList* files = NULL;
     GtkWidget *dest_widget = dd->widget;
 
@@ -331,11 +332,13 @@ gboolean fm_dnd_dest_drag_data_received(FmDndDest* dd, GdkDragContext *drag_cont
     dd->src_files = files;
     dd->waiting_data = FALSE;
     dd->info_type = info;
+#endif
     return TRUE;
 }
 
 GdkAtom fm_dnd_dest_find_target(FmDndDest* dd, GdkDragContext *drag_context)
 {
+#if !GTK_CHECK_VERSION (3, 0, 8)
     int i;
     for(i = 0; i < G_N_ELEMENTS(fm_default_dnd_dest_targets); ++i)
     {
@@ -343,6 +346,7 @@ GdkAtom fm_dnd_dest_find_target(FmDndDest* dd, GdkDragContext *drag_context)
         if(fm_drag_context_has_target(drag_context, target))
             return target;
     }
+#endif
     return GDK_NONE;
 }
 
@@ -366,6 +370,9 @@ gboolean fm_dnd_dest_is_target_supported(FmDndDest* dd, GdkAtom target)
 gboolean fm_dnd_dest_drag_drop(FmDndDest* dd, GdkDragContext *drag_context,
                                GdkAtom target, int x, int y, guint time)
 {
+#if GTK_CHECK_VERSION (3, 0, 8)
+    return FALSE;
+#else
     gboolean ret = FALSE;
     GtkWidget* dest_widget = dd->widget;
     int i;
@@ -434,6 +441,7 @@ gboolean fm_dnd_dest_drag_drop(FmDndDest* dd, GdkDragContext *drag_context,
         gtk_drag_finish(drag_context, ret, FALSE, time);
     }
     return ret;
+#endif
 }
 
 /**
@@ -446,8 +454,11 @@ gboolean fm_dnd_dest_drag_drop(FmDndDest* dd, GdkDragContext *drag_context,
  */
 GdkDragAction fm_dnd_dest_get_default_action(FmDndDest* dd,
                                              GdkDragContext* drag_context,
-                                             GdkTarget target)
+                                             GdkAtom target)
 {
+#if GTK_CHECK_VERSION (3, 0, 8)
+    return 0;
+#else
     GFile* gdest = NULL;
     GFileInfo * gfileinfo = NULL;
 
@@ -528,6 +539,7 @@ out:
         g_object_unref(G_OBJECT(gfileinfo));
 
     return action;
+#endif
 }
 
 void fm_dnd_dest_drag_leave(FmDndDest* dd, GdkDragContext* drag_context, guint time)

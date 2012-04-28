@@ -154,6 +154,7 @@ on_drag_data_get ( GtkWidget *src_widget,
                    guint time,
                    FmDndSrc* ds )
 {
+#if !GTK_CHECK_VERSION (3, 0, 8)
     GdkAtom type;
 
     /*  Don't call the default handler  */
@@ -191,6 +192,7 @@ on_drag_data_get ( GtkWidget *src_widget,
         }
         break;
     }
+#endif
 }
 
 static void

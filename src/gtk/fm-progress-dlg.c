@@ -156,9 +156,10 @@ static FmJobErrorAction on_error(FmFileOpsJob* job, GError* err, FmJobErrorSever
     gtk_text_buffer_insert(data->error_buf, &it, err->message, -1);
     gtk_text_buffer_insert(data->error_buf, &it, "\n", 1);
 
+#if !GTK_CHECK_VERSION (3, 0, 8)
     if(!GTK_WIDGET_VISIBLE(data->error_pane))
         gtk_widget_show(data->error_pane);
-
+#endif
     if(data->timer)
         g_timer_continue(data->timer);
     return FM_JOB_CONTINUE;

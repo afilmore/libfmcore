@@ -1,9 +1,9 @@
 <!--
 
-compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas"
-
+    compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas"
 
 -->
+
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="gsettings-desktop-schemas">
   <schema path="/desktop/" id="desktop">
@@ -23,7 +23,6 @@ compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas"
     <child schema="desktop.noname.applications.terminal" name="terminal"/>
     <child schema="desktop.noname.applications.run" name="run"/>
     <child schema="desktop.noname.applications.panel" name="panel"/>
-    <child schema="desktop.noname.applications.filemanager" name="filemanager"/>
   </schema>
   <schema path="/desktop/noname/applications/terminal/" id="desktop.noname.applications.terminal">
     <key type="s" name="default">
@@ -71,23 +70,6 @@ compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas"
       <default>'simple-panel'</default>
       <summary>Default</summary>
       <description>Default</description>
-    </key>
-  </schema>
-  <schema path="/desktop/noname/applications/filemanager/" id="desktop.noname.applications.filemanager">
-    <key type="s" name="default">
-      <default>'pcmanfm'</default>
-      <summary>Default</summary>
-      <description>Default</description>
-    </key>
-    <key type="s" name="exec">
-      <default>'pcmanfm'</default>
-      <summary>Default</summary>
-      <description>Default</description>
-    </key>
-    <key type="b" name="needs-term">
-      <default>false</default>
-      <summary>needs terminal</summary>
-      <description>Whether the application needs a terminal to run.</description>
     </key>
   </schema>
   <schema path="/desktop/noname/applications/archiver/" id="desktop.noname.applications.archiver">

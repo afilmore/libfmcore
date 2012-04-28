@@ -228,6 +228,7 @@ gchar* fm_get_user_input_rename(GtkWindow* parent, const char* title, const char
 
 static GtkDialog* _fm_get_user_input_dialog(GtkWindow* parent, const char* title, const char* msg)
 {
+#if !GTK_CHECK_VERSION (3, 0, 8)
     GtkWidget* dlg = gtk_dialog_new_with_buttons(title, parent, GTK_DIALOG_NO_SEPARATOR,
                                 GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                 GTK_STOCK_OK, GTK_RESPONSE_OK, NULL);
@@ -244,10 +245,14 @@ static GtkDialog* _fm_get_user_input_dialog(GtkWindow* parent, const char* title
     gtk_window_set_default_size(GTK_WINDOW(dlg), 480, -1);
 
     return dlg;
+#else
+    return NULL;
+#endif
 }
 
 static gchar* _fm_user_input_dialog_run( GtkDialog* dlg, GtkEntry *entry)
 {
+#if !GTK_CHECK_VERSION (3, 0, 8)
     char* str = NULL;
     int sel_start, sel_end;
     gboolean has_sel;
@@ -272,6 +277,9 @@ static gchar* _fm_user_input_dialog_run( GtkDialog* dlg, GtkEntry *entry)
     }
     gtk_widget_destroy(GTK_WIDGET(dlg));
     return str;
+#else
+    return NULL;
+#endif
 }
 
 FmPath* fm_select_folder(GtkWindow* parent, const char* title)
@@ -528,7 +536,7 @@ void fm_move_files(GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
 
 void fm_trash_files(GtkWindow* parent, FmPathList* files)
 {
-    if(!fm_config->confirm_del || fm_yes_no(parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
+    if(!fm_config->confirm_delete || fm_yes_no(parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
     {
         FmJob* job = fm_file_ops_job_new(FM_FILE_OP_TRASH, files);
         fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
@@ -549,7 +557,7 @@ static void fm_delete_files_internal(GtkWindow* parent, FmPathList* files)
 
 void fm_delete_files(GtkWindow* parent, FmPathList* files)
 {
-    if(!fm_config->confirm_del || fm_yes_no(parent, NULL, _("Do you want to delete the selected files?"), TRUE))
+    if(!fm_config->confirm_delete || fm_yes_no(parent, NULL, _("Do you want to delete the selected files?"), TRUE))
         fm_delete_files_internal(parent, files);
 }
 
@@ -558,7 +566,7 @@ void fm_trash_or_delete_files(GtkWindow* parent, FmPathList* files)
     if( !fm_list_is_empty(files) )
     {
         gboolean all_in_trash = TRUE;
-        if(fm_config->use_trash)
+        if(fm_config->use_trash_can)
         {
             GList* l = fm_list_peek_head_link(files);
             for(;l;l=l->next)
@@ -570,7 +578,7 @@ void fm_trash_or_delete_files(GtkWindow* parent, FmPathList* files)
         }
 
         /* files already in trash:/// should only be deleted and cannot be trashed again. */
-        if(fm_config->use_trash && !all_in_trash)
+        if(fm_config->use_trash_can && !all_in_trash)
             fm_trash_files(parent, files);
         else
             fm_delete_files(parent, files);

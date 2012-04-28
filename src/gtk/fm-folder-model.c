@@ -106,6 +106,7 @@ static gboolean fm_folder_model_get_sort_column_id(GtkTreeSortable* sortable,
 static void fm_folder_model_set_sort_column_id(GtkTreeSortable* sortable,
                                                gint sort_column_id,
                                                GtkSortType order);
+#if !GTK_CHECK_VERSION (3, 0, 8)
 static void fm_folder_model_set_sort_func(GtkTreeSortable *sortable,
                                           gint sort_column_id,
                                           GtkTreeIterCompareFunc sort_func,
@@ -115,6 +116,7 @@ static void fm_folder_model_set_default_sort_func(GtkTreeSortable *sortable,
                                                   GtkTreeIterCompareFunc sort_func,
                                                   gpointer user_data,
                                                   GtkDestroyNotify destroy);
+#endif
 static void fm_folder_model_sort(FmFolderModel* model);
 
 /* signal handlers */
@@ -203,8 +205,10 @@ void fm_folder_model_tree_sortable_init(GtkTreeSortableIface *iface)
     /* iface->sort_column_changed = fm_folder_model_sort_column_changed; */
     iface->get_sort_column_id = fm_folder_model_get_sort_column_id;
     iface->set_sort_column_id = fm_folder_model_set_sort_column_id;
+#if !GTK_CHECK_VERSION (3, 0, 8)
     iface->set_sort_func = fm_folder_model_set_sort_func;
     iface->set_default_sort_func = fm_folder_model_set_default_sort_func;
+#endif
     iface->has_default_sort_func = ( gboolean (*)(GtkTreeSortable *) )gtk_false;
 }
 
@@ -647,6 +651,7 @@ void fm_folder_model_set_sort_column_id(GtkTreeSortable* sortable,
     fm_folder_model_sort(model);
 }
 
+#if !GTK_CHECK_VERSION (3, 0, 8)
 void fm_folder_model_set_sort_func(GtkTreeSortable *sortable,
                                    gint sort_column_id,
                                    GtkTreeIterCompareFunc sort_func,
@@ -663,6 +668,7 @@ void fm_folder_model_set_default_sort_func(GtkTreeSortable *sortable,
 {
     g_warning("fm_folder_model_set_default_sort_func: Not supported\n");
 }
+#endif
 
 static gint fm_folder_model_compare(FmFolderItem* item1,
                                     FmFolderItem* item2,
