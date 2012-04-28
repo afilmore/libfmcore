@@ -67,7 +67,7 @@ gboolean fm_eject_volume (GtkWindow* parent, GVolume* vol, gboolean interactive)
 void fm_copy_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir);
 void fm_move_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir);
 
-#define fm_copy_file (parent, file, dest_dir) \
+#define fm_copy_file(parent, file, dest_dir) \
     G_STMT_START {    \
         FmPathList* files = fm_path_list_new (); \
         fm_list_push_tail (files, file); \
@@ -75,7 +75,7 @@ void fm_move_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir);
         fm_list_unref (files);   \
     } G_STMT_END
 
-#define fm_move_file (parent, file, dest_dir) \
+#define fm_move_file(parent, file, dest_dir) \
     G_STMT_START {    \
     FmPathList* files = fm_path_list_new (); \
     fm_list_push_tail (files, file); \
@@ -84,8 +84,8 @@ void fm_move_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir);
     } G_STMT_END
 
 void fm_move_or_copy_files_to (GtkWindow* parent, FmPathList* files, gboolean is_move);
-#define fm_move_files_to (parent, files)   fm_move_or_copy_files_to (parent, files, TRUE)
-#define fm_copy_files_to (parent, files)   fm_move_or_copy_files_to (parent, files, FALSE)
+#define fm_move_files_to(parent, files) fm_move_or_copy_files_to (parent, files, TRUE)
+#define fm_copy_files_to(parent, files) fm_move_or_copy_files_to (parent, files, FALSE)
 
 void fm_trash_files (GtkWindow* parent, FmPathList* files);
 void fm_delete_files (GtkWindow* parent, FmPathList* files);
