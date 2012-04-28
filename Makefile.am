@@ -5,11 +5,11 @@ NULL=
 SUBDIRS=data src vapi
 
 EXTRA_DIST = \
-	libfmcore.pc.in \
+	libfmcore-$(LIBFMCORE_API_VERSION).pc.in \
 	$(NULL)
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = \
-	libfmcore.pc \
+	libfmcore-$(LIBFMCORE_API_VERSION).pc \
 	$(NULL)
 

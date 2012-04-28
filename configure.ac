@@ -12,7 +12,7 @@ AC_PROG_CC
 AM_PROG_LIBTOOL
 
 # Vala
-AM_PROG_VALAC([0.13.0])
+AM_PROG_VALAC([0.16.0])
 
 # Checks for libraries.
 
@@ -47,14 +47,26 @@ fi
 #
 ##########################################################################################
 AC_ARG_ENABLE([gtk3],
- [AS_HELP_STRING([--enable-gtk3], [Use GTK3 instead of GTK2])],
+ [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
  [use_gtk3=$enableval], [use_gtk3=no])
 
 pkg_modules="gtk+-2.0 >= 2.24.0"
 
+#LIBFMCORE_VERSION="libfmcore"
+
 if test $use_gtk3 == yes ; then
     pkg_modules="gtk+-3.0 >= 3.0.8"
+    CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
+#    LIBFMCORE_VERSION="libfmcore-3.0"
+    AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
+    AC_SUBST([LIBFMCORE_API_VERSION], [3.0])
+    AC_SUBST([LIBFMCORE_SO_VERSION], [3:0:0])
+else
+    AC_SUBST([LIBFMCORE_API_VERSION], [2.0])
+    AC_SUBST([LIBFMCORE_SO_VERSION], [2:0:0])
 fi
+
+#AC_SUBST(LIBFMCORE_VERSION)
 
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
 AC_SUBST(GTK_CFLAGS)
@@ -101,7 +113,7 @@ fi
 
 AC_ARG_ENABLE(udisks,
     [AC_HELP_STRING([--enable-udisks],
-        [build libfm with udisks support (Linux only) @<:@default=yes@:>@])],
+        [build libfmcore with udisks support (Linux only) @<:@default=yes@:>@])],
     [enable_udisks="${enableval}"],
     [enable_udisks=no]
 )
@@ -169,7 +181,7 @@ AC_CONFIG_FILES([
     src/Makefile
     vapi/Makefile
     Makefile
-    libfmcore.pc
+    libfmcore-${LIBFMCORE_API_VERSION}.pc
 ])
 
 AC_OUTPUT
@@ -177,6 +189,7 @@ AC_OUTPUT
 echo
 echo "Libfmcore $VERSION Configuration Summary:"
 echo
+echo "libfmcore:                                              $LIBFMCORE_VERSION"
 echo "prefix:                                                 $prefix"
 echo "sysconfdir:                                             $sysconfdir"
 echo "Enable compiler flags and other support for debugging:  $enable_debug"

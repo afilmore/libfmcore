@@ -59,7 +59,7 @@ GType fm_cell_renderer_pixbuf_get_type (void);
 
 void fm_cell_renderer_pixbuf_set_fixed_size (FmCellRendererPixbuf* render, gint w, gint h);
 
-#if GTK_CHECK_VERSION (3, 0, 8)
+#if ENABLE_GTK3
 void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
                                      cairo_t *cr,
                                      GtkWidget *widget,

@@ -44,7 +44,7 @@ static void get_data(GtkClipboard *clip, GtkSelectionData *sel, guint info, gpoi
     FmPathList* files = (FmPathList*)user_data;
     GString* uri_list;
 
-#if !GTK_CHECK_VERSION (3, 0, 8)
+#if !ENABLE_GTK3
     if(info == KDE_CUT_SEL)
     {
         /* set application/kde-cutselection data */
@@ -74,7 +74,7 @@ static void get_data(GtkClipboard *clip, GtkSelectionData *sel, guint info, gpoi
     {
         fm_path_list_write_uri_list(files, uri_list);
     }
-#if !GTK_CHECK_VERSION (3, 0, 8)
+#if !ENABLE_GTK3
     gtk_selection_data_set(sel, sel->target, 8, uri_list->str, uri_list->len + 1);
 #endif
     g_string_free(uri_list, TRUE);
@@ -97,7 +97,7 @@ gboolean fm_clipboard_cut_or_copy_files(GtkWidget* src_widget, FmPathList* files
     return ret;
 }
 
-#if !GTK_CHECK_VERSION (3, 0, 8)
+#if !ENABLE_GTK3
 gboolean check_kde_curselection(GtkClipboard* clip)
 {
     /* Check application/x-kde-cutselection:
@@ -171,7 +171,7 @@ gboolean fm_clipboard_paste_files(GtkWidget* dest_widget, FmPath* dest_dir)
 
     if( type )
     {
-#if !GTK_CHECK_VERSION (3, 0, 8)
+#if !ENABLE_GTK3
         GtkSelectionData* data = gtk_clipboard_wait_for_contents(clip, atom);
         char* pdata = (char*)data->data;
         /* FIXME: is it safe to assume the clipboard data is null-terminalted?

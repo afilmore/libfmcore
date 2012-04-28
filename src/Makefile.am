@@ -15,7 +15,7 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
 	-I$(srcdir)/job \
-	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore"\" \
+	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
 
@@ -70,7 +70,7 @@ libfmcore_SOURCES = \
 	$(job_SOURCES) \
 	$(NULL)
 
-libfmcoreincludedir = $(includedir)/libfmcore
+libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
 	gtk-compat.h \
@@ -119,12 +119,16 @@ pkginclude_HEADERS = \
 	$(LIBFMCORE_INCLUDES) \
 	$(NULL)
 
-lib_LTLIBRARIES = libfmcore.la
-libfmcore_la_SOURCES = \
+
+##LIBFMCORE_VERSION="libfmcore"
+
+lib_LTLIBRARIES = libfmcore-@LIBFMCORE_API_VERSION@.la
+
+libfmcore_@LIBFMCORE_API_VERSION@_la_SOURCES = \
 	$(libfmcore_SOURCES) \
 	$(NULL)
 
-libfmcore_la_CFLAGS = \
+libfmcore_@LIBFMCORE_API_VERSION@_la_CFLAGS = \
 	$(GTK_CFLAGS) \
 	$(GIO_CFLAGS) \
 	$(PANGO_CFLAGS) \
@@ -133,7 +137,7 @@ libfmcore_la_CFLAGS = \
 	-Werror-implicit-function-declaration \
 	$(NULL)
 
-libfmcore_la_LIBADD = \
+libfmcore_@LIBFMCORE_API_VERSION@_la_LIBADD = \
 	$(GTK_LIBS) \
 	$(GIO_LIBS) \
 	$(PANGO_LIBS) \
@@ -143,7 +147,7 @@ libfmcore_la_LIBADD = \
 	$(INTLLIBS) \
 	$(NULL)
 
-libfmcore_la_LDFLAGS = \
+libfmcore_@LIBFMCORE_API_VERSION@_la_LDFLAGS = \
 	-no-undefined \
 	-export-symbols-regex ^fm \
 	-version-info $(ABI_VERSION) \

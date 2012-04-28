@@ -41,7 +41,7 @@ static gboolean on_auto_scroll(FmDndAutoScroll* as)
     GtkAdjustment* ha = as->hadj;
     GtkWidget* widget = as->widget;
 
-#if !GTK_CHECK_VERSION (3, 0, 8)
+#if !ENABLE_GTK3
     gdk_window_get_pointer (gtk_widget_get_window (widget), &x, &y, NULL);
 
     /*
