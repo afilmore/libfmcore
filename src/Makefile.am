@@ -73,7 +73,7 @@ libfmcore_SOURCES = \
 libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
-	gtk-compat.h \
+	gtk3-migration.h \
 	fmvala/fm-config.h \
 	base/fm-app-info.h \
 	base/fm-archiver.h \
@@ -119,8 +119,6 @@ pkginclude_HEADERS = \
 	$(LIBFMCORE_INCLUDES) \
 	$(NULL)
 
-
-##LIBFMCORE_VERSION="libfmcore"
 
 lib_LTLIBRARIES = libfmcore-@LIBFMCORE_API_VERSION@.la
 

@@ -3,7 +3,7 @@ NULL=
 AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(srcdir)../ \
-	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore"\" \
+	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
 
@@ -19,11 +19,11 @@ libfmvala_la_CFLAGS = \
 	$(NULL)
 
 VALAFLAGS = \
-	--pkg gtk+-2.0 \
+	--pkg $(GTK_PKG) \
     --header fm-config.h \
 	$(NULL)
 
-libfmvalaincludedir = $(includedir)/libfmcore
+libfmvalaincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmvalainclude_HEADERS = \
 	fm-config.h \
 	$(NULL)

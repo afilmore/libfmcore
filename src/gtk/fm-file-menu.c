@@ -25,7 +25,7 @@
 #endif
 
 #include <glib/gi18n-lib.h>
-#include "../gtk-compat.h"
+#include "../gtk3-migration.h"
 
 #include "fm.h"
 #include "fm-config.h"
@@ -691,7 +691,7 @@ void on_compress (GtkAction* action, gpointer user_data)
     FmArchiver* archiver = fm_archiver_get_default ();
     if (archiver)
     {
-        GAppLaunchContext* ctx = gdk_display_get_app_launch_context(gdk_display_get_default ());
+        GAppLaunchContext* ctx = gdk_display_get_app_launch_context (gdk_display_get_default ());
         files = fm_path_list_new_from_file_info_list (data->file_infos);
         fm_archiver_create_archive (archiver, ctx, files);
         fm_list_unref (files);
