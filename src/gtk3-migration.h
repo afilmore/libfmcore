@@ -33,7 +33,7 @@ G_BEGIN_DECLS
     /*** Change GtkEditable typedef from GtkEditableClass to GtkEditabeInterface
     http://mail.gnome.org/archives/commits-list/2010-September/msg07032.html ***/
     
-    #define GtkEditableInterface GtkEditableClass;
+    #define GtkEditableInterface GtkEditableClass
 
     /***
      * Replace GDK_<keyname> with GDK_KEY_<keyname>
