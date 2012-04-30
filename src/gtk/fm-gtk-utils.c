@@ -41,7 +41,7 @@ void fm_show_error (GtkWindow* parent, const char* title, const char* msg)
 {
     GtkWidget* dlg = gtk_message_dialog_new (parent, 0,
                                             GTK_MESSAGE_ERROR,
-                                            GTK_BUTTONS_OK, msg);
+                                            GTK_BUTTONS_OK, "%s", msg);
     gtk_window_set_title ( (GtkWindow*)dlg, title ? title : _ ("Error"));
     gtk_dialog_run ( (GtkDialog*)dlg);
     gtk_widget_destroy (dlg);
@@ -51,7 +51,7 @@ gboolean fm_yes_no (GtkWindow* parent, const char* title, const char* question, 
 {
     int ret;
     GtkWidget* dlg = gtk_message_dialog_new_with_markup (parent, 0,
-                                GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, question);
+                                GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dlg), title ? title : _ ("Confirm"));
     gtk_dialog_set_default_response (GTK_DIALOG (dlg), default_yes ? GTK_RESPONSE_YES : GTK_RESPONSE_NO);
     ret = gtk_dialog_run ( (GtkDialog*)dlg);
@@ -63,7 +63,7 @@ gboolean fm_ok_cancel (GtkWindow* parent, const char* title, const char* questio
 {
     int ret;
     GtkWidget* dlg = gtk_message_dialog_new_with_markup (parent, 0,
-                                GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, question);
+                                GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dlg), title ? title : _ ("Confirm"));
     gtk_dialog_set_default_response (GTK_DIALOG (dlg), default_ok ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL);
     ret = gtk_dialog_run ( (GtkDialog*)dlg);
@@ -102,7 +102,7 @@ int fm_askv (GtkWindow* parent, const char* title, const char* question, const c
     int ret;
     guint id = 1;
     GtkWidget* dlg = gtk_message_dialog_new_with_markup (parent, 0,
-                                GTK_MESSAGE_QUESTION, 0, question);
+                                GTK_MESSAGE_QUESTION, 0, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dlg), title ? title : _ ("Question"));
     /* FIXME: need to handle defualt button and alternative button
      * order problems. */
@@ -244,7 +244,7 @@ static GtkDialog* _fm_get_user_input_dialog (GtkWindow* parent, const char* titl
     gtk_dialog_set_default_response (GTK_DIALOG (dlg), GTK_RESPONSE_OK);
     gtk_window_set_default_size (GTK_WINDOW (dlg), 480, -1);
 
-    return dlg;
+    return (GtkDialog*) dlg;
 #else
     return NULL;
 #endif

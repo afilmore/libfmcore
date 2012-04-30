@@ -84,7 +84,7 @@ static void fm_dnd_dest_class_init (FmDndDestClass *klass)
     g_object_class->finalize = fm_dnd_dest_finalize;
 
     dnd_dest_class = FM_DND_DEST_CLASS(klass);
-    dnd_dest_class->files_dropped = fm_dnd_dest_files_dropped;
+    dnd_dest_class->files_dropped = (void*) fm_dnd_dest_files_dropped;
 
     /* emitted when files are dropped on dest widget. */
     signals[ FILES_DROPPED ] =

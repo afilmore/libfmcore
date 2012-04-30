@@ -185,9 +185,9 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
 
     /* Let GDesktopAppInfo try first. */
     if (is_absolute_path)
-        app = g_desktop_app_info_new_from_filename (file_or_id);
+        app = (GAppInfo*) g_desktop_app_info_new_from_filename (file_or_id);
     else
-        app = g_desktop_app_info_new (file_or_id);
+        app = (GAppInfo*) g_desktop_app_info_new (file_or_id);
 
     if (!app) /* gio failed loading it. Let's see what's going on */
     {

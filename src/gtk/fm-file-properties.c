@@ -108,7 +108,7 @@ struct _FmFilePropData
 static gboolean on_timeout (FmFilePropData* data)
 {
     char size_str[128];
-    FmDeepCountJob* dc = data->dc_job;
+    FmDeepCountJob* dc = (FmDeepCountJob*) data->dc_job;
 
     //gdk_threads_enter ();
 
@@ -343,7 +343,7 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
         if (new_mode_mask || data->uid != -1 || data->gid != -1)
         {
             FmPathList* paths = fm_path_list_new_from_file_info_list (data->files);
-            FmFileOpsJob* job = fm_file_ops_job_new (FM_FILE_OP_CHANGE_ATTR, paths);
+            FmFileOpsJob* job = (FmFileOpsJob*) fm_file_ops_job_new (FM_FILE_OP_CHANGE_ATTR, paths);
 
             /* need to chown */
             if (data->uid != -1 || data->gid != -1)

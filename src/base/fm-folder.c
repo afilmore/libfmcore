@@ -576,7 +576,7 @@ void fm_folder_reload (FmFolder* folder)
         g_signal_emit (folder, signals[CONTENT_CHANGED], 0);
     }
 
-    folder->job = (FmJob*) fm_dir_list_job_new (folder->dir_path, FALSE);
+    folder->job = (FmDirListJob*) fm_dir_list_job_new (folder->dir_path, FALSE);
     g_signal_connect (folder->job, "finished", G_CALLBACK (on_job_finished), folder);
     g_signal_connect (folder->job, "error", G_CALLBACK (on_job_err), folder);
     fm_job_run_async (FM_JOB (folder->job));

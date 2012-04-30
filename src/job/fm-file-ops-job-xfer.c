@@ -635,7 +635,7 @@ gboolean _fm_file_ops_job_copy_run(FmFileOpsJob* job)
     GList* l;
     FmJob* fmjob = FM_JOB(job);
     /* prepare the job, count total work needed with FmDeepCountJob */
-    FmDeepCountJob* dc = fm_deep_count_job_new(job->srcs, FM_DC_JOB_DEFAULT);
+    FmDeepCountJob* dc = (FmDeepCountJob*) fm_deep_count_job_new(job->srcs, FM_DC_JOB_DEFAULT);
     /* let the deep count job share the same cancellable object. */
     fm_job_set_cancellable(FM_JOB(dc), fm_job_get_cancellable(fmjob));
     /* FIXME: there is no way to cancel the deep count job here. */
@@ -725,7 +725,7 @@ _retry_query_dest_info:
     }
 
     /* prepare the job, count total work needed with FmDeepCountJob */
-    dc = fm_deep_count_job_new(job->srcs, FM_DC_JOB_PREPARE_MOVE);
+    dc = (FmDeepCountJob*) fm_deep_count_job_new(job->srcs, FM_DC_JOB_PREPARE_MOVE);
     fm_deep_count_job_set_dest(dc, dest_dev, job->dest_fs_id);
     fm_job_run_sync(FM_JOB(dc));
     job->total = dc->total_size;

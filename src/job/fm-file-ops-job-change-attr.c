@@ -210,7 +210,7 @@ gboolean _fm_file_ops_job_change_attr_run(FmFileOpsJob* job)
 	/* prepare the job, count total work needed with FmDeepCountJob */
     if(job->recursive)
     {
-        FmDeepCountJob* dc = fm_deep_count_job_new(job->srcs, FM_DC_JOB_DEFAULT);
+        FmDeepCountJob* dc = (FmDeepCountJob*) fm_deep_count_job_new(job->srcs, FM_DC_JOB_DEFAULT);
         fm_job_run_sync(FM_JOB(dc));
         job->total = dc->count;
         g_object_unref(dc);

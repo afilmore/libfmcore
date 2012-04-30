@@ -207,7 +207,7 @@ gboolean _fm_file_ops_job_delete_run(FmFileOpsJob* job)
     GList* l;
     gboolean ret = TRUE;
     /* prepare the job, count total work needed with FmDeepCountJob */
-    FmDeepCountJob* dc = fm_deep_count_job_new(job->srcs, FM_DC_JOB_PREPARE_DELETE);
+    FmDeepCountJob* dc = (FmDeepCountJob*) fm_deep_count_job_new(job->srcs, FM_DC_JOB_PREPARE_DELETE);
     /* let the deep count job share the same cancellable */
     fm_job_set_cancellable(FM_JOB(dc), fm_job_get_cancellable(FM_JOB(job)));
     fm_job_run_sync(FM_JOB(dc));

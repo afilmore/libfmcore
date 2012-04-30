@@ -819,7 +819,7 @@ char* fm_path_display_basename (FmPath* path)
             {
                 /* FIXME: this should be more flexible */
                 const char* p = path->name + 5;
-                while (p == '/')
+                while (p[0] == '/')
                     ++p;
                 if (g_str_has_prefix (p, "applications.menu"))
                     return g_strdup (_ ("Applications"));
@@ -876,7 +876,7 @@ void _fm_path_init ()
 
     /* path object of root_path dir */
     root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-    home_dir = g_get_home_dir ();
+    home_dir = (char*) g_get_home_dir ();
     home_len = strlen (home_dir);
     while (home_dir[home_len - 1] == '/')
         --home_len;
@@ -898,7 +898,7 @@ void _fm_path_init ()
     }
     home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
 
-    desktop_dir = g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+    desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
     desktop_len = strlen (desktop_dir);
     while (desktop_dir[desktop_len - 1] == '/')
         --desktop_len;
@@ -1002,11 +1002,7 @@ int fm_path_depth (FmPath* path)
 
 /* path list */
 
-static FmListFuncs funcs =
-{
-    fm_path_ref,
-    fm_path_unref
-};
+static FmListFuncs funcs = {fm_path_ref, fm_path_unref};
 
 FmPathList* fm_path_list_new ()
 {

@@ -387,7 +387,7 @@ void fm_file_menu_destroy (FmFileMenu* menu)
         g_object_unref (menu->parent);
 
     if (menu->menu)
-        gtk_widget_destroy (menu->menu);
+        gtk_widget_destroy ((GtkWidget*) menu->menu);
 
     if (menu->file_infos)
         fm_list_unref (menu->file_infos);
@@ -510,7 +510,7 @@ GtkMenu* fm_file_menu_get_menu (FmFileMenu* menu)
 {
     if ( ! menu->menu )
     {
-        menu->menu = gtk_ui_manager_get_widget (menu->ui, "/popup");
+        menu->menu = (GtkMenu*) gtk_ui_manager_get_widget (menu->ui, "/popup");
         gtk_menu_attach_to_widget (GTK_MENU (menu->menu), GTK_WIDGET (menu->parent), NULL);
 
         if (menu->auto_destroy)
@@ -581,7 +581,7 @@ static void open_with_app (FmFileMenu* data, GAppInfo* app)
     uris = g_list_reverse (uris);
 
     ctx = gdk_app_launch_context_new ();
-    gdk_app_launch_context_set_screen (ctx, gtk_widget_get_screen (data->menu));
+    gdk_app_launch_context_set_screen (ctx, gtk_widget_get_screen ((GtkWidget*) data->menu));
     gdk_app_launch_context_set_icon (ctx, g_app_info_get_icon (app));
     gdk_app_launch_context_set_timestamp (ctx, gtk_get_current_event_time ());
 
@@ -691,7 +691,7 @@ void on_compress (GtkAction* action, gpointer user_data)
     FmArchiver* archiver = fm_archiver_get_default ();
     if (archiver)
     {
-        GAppLaunchContext* ctx = gdk_display_get_app_launch_context (gdk_display_get_default ());
+        GAppLaunchContext* ctx = (GAppLaunchContext*) gdk_display_get_app_launch_context (gdk_display_get_default ());
         files = fm_path_list_new_from_file_info_list (data->file_infos);
         fm_archiver_create_archive (archiver, ctx, files);
         fm_list_unref (files);
@@ -706,7 +706,7 @@ void on_extract_here (GtkAction* action, gpointer user_data)
     FmArchiver* archiver = fm_archiver_get_default ();
     if (archiver)
     {
-        GAppLaunchContext* ctx = gdk_display_get_app_launch_context (gdk_display_get_default ());
+        GAppLaunchContext* ctx = (GAppLaunchContext*) gdk_display_get_app_launch_context (gdk_display_get_default ());
         files = fm_path_list_new_from_file_info_list (data->file_infos);
         fm_archiver_extract_archives_to (archiver, ctx, files, data->cwd);
         fm_list_unref (files);
@@ -721,7 +721,7 @@ void on_extract_to (GtkAction* action, gpointer user_data)
     FmArchiver* archiver = fm_archiver_get_default ();
     if (archiver)
     {
-        GAppLaunchContext* ctx = gdk_display_get_app_launch_context (gdk_display_get_default ());
+        GAppLaunchContext* ctx = (GAppLaunchContext*) gdk_display_get_app_launch_context (gdk_display_get_default ());
         files = fm_path_list_new_from_file_info_list (data->file_infos);
         fm_archiver_extract_archives (archiver, ctx, files);
         fm_list_unref (files);

@@ -47,7 +47,7 @@ static void fm_dir_list_job_class_init (FmDirListJobClass *klass)
 	g_object_class = G_OBJECT_CLASS (klass);
 	g_object_class->finalize = fm_dir_list_job_finalize;
 
-	job_class->run = fm_dir_list_job_run;
+	job_class->run = (void*) fm_dir_list_job_run;
 }
 
 
@@ -59,18 +59,18 @@ static void fm_dir_list_job_init (FmDirListJob *self)
 
 FmJob* fm_dir_list_job_new (FmPath* path, gboolean dir_only)
 {
-	FmDirListJob* job =  (FmJob*)g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
+	FmDirListJob* job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	job->dir_path = fm_path_ref (path);
     job->dir_only = dir_only;
 	job->files = fm_file_info_list_new ();
-	return  (FmJob*)job;
+	return  (FmJob*) job;
 }
 
 FmJob* fm_dir_list_job_new_for_gfile (GFile* gf)
 {
 	/* FIXME: should we cache this with hash table? Or, the cache
 	 * should be done at the level of FmFolder instead? */
-	FmDirListJob* job =  (FmJob*)g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
+	FmDirListJob* job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	job->dir_path = fm_path_new_for_gfile (gf);
 	return  (FmJob*)job;
 }
@@ -180,7 +180,7 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
     if (dir)
     {
         job->dir_fi = _fm_file_info_new_from_menu_cache_item (job->dir_path, (MenuCacheItem*) dir);
-        for (l=menu_cache_dir_get_children (dir);l;l=l->next)
+        for (l = (GList*) menu_cache_dir_get_children (dir); l; l=l->next)
         {
             MenuCacheItem* item = MENU_CACHE_ITEM (l->data);
             FmPath* item_path;
@@ -256,7 +256,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             g_string_append_c (fpath, '/');
             ++dir_len;
         }
-        while ( ! fm_job_is_cancelled (FM_JOB (job)) &&  (name = g_dir_read_name (dir)) )
+        while ( ! fm_job_is_cancelled (FM_JOB (job)) &&  (name = (char*) g_dir_read_name (dir)) )
         {
             g_string_truncate (fpath, dir_len);
             g_string_append (fpath, name);

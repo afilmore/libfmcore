@@ -143,7 +143,7 @@ _retry_stat:
     }
     else
     {
-        GError* err = g_error_new(G_IO_ERROR, g_io_error_from_errno(errno), g_strerror(errno));
+        GError* err = g_error_new(G_IO_ERROR, g_io_error_from_errno(errno), "%s", g_strerror(errno));
         FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
         g_error_free(err);
         err = NULL;

@@ -83,7 +83,7 @@ static GAppInfo* app_info_create_from_commandline (const char *commandline,
         g_free (filename);
     }
     g_free (dirname);
-    return app;
+    return (GAppInfo*) app;
 }
 
 static void on_dlg_destroy (AppChooserData* data, GObject* dlg)
@@ -235,7 +235,7 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
                         char* bin2 = get_binary (cmd, NULL);
                         if (g_strcmp0 (bin1, bin2) == 0)
                         {
-                            app = (GAppInfo*)g_object_ref (app2);
+                            app = (GDesktopAppInfo*) g_object_ref (app2);
                             g_debug ("found in app list");
                             g_free (bin2);
                             break;
@@ -280,7 +280,7 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
                 }
 
                 /* FIXME: g_app_info_create_from_commandline force the use of %f or %u, so this is not we need */
-                app = app_info_create_from_commandline (cmdline, bin1, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (data->use_terminal)));
+                app = (GDesktopAppInfo*) app_info_create_from_commandline (cmdline, bin1, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (data->use_terminal)));
             _out:
                 g_free (bin1);
                 g_free (_cmdline);
@@ -291,7 +291,7 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
 
     if (set_default)
         *set_default = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (data->set_default));
-    return app;
+    return (GAppInfo*) app;
 }
 
 GAppInfo* fm_choose_app_for_mime_type (GtkWindow* parent, FmMimeType* mime_type, gboolean can_set_default)
