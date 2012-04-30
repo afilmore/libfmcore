@@ -339,7 +339,7 @@ namespace Fm {
 		public weak Fm.FileInfoList file_infos;                         /* FIXME: avoid direct member access... */
 
 		[CCode (has_construct_function = false, type = "FmJob*")]
-		public FileInfoJob (Fm.PathList files_to_query, FileInfoJobFlags flags);
+		public FileInfoJob (Fm.PathList? files_to_query, FileInfoJobFlags flags);
 		
         public void add (Fm.Path path);
 		public void add_gfile (GLib.File gf);
@@ -413,9 +413,9 @@ namespace Fm {
 
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
 	public static bool launch_file (Gtk.Window parent,
-                                           GLib.AppLaunchContext ctx,
+                                           GLib.AppLaunchContext? ctx,
                                            Fm.FileInfo file_info,
-                                           Fm.LaunchFolderFunc func);
+                                           Fm.LaunchFolderFunc? func);
 
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
 	public static bool launch_multiple_files (Gtk.Window parent,
