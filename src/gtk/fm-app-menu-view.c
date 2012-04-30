@@ -142,7 +142,7 @@ GtkWidget *fm_app_menu_view_new(void)
         if(menu_cache)
         {
             MenuCacheDir* dir = menu_cache_get_root_dir(menu_cache);
-            menu_cache_reload_notify = menu_cache_add_reload_notify(menu_cache, on_menu_cache_reload, NULL);
+            menu_cache_reload_notify = menu_cache_add_reload_notify(menu_cache, (GFunc) on_menu_cache_reload, NULL);
             if(dir) /* content of menu is already loaded */
                 add_menu_items(NULL, dir);
         }
@@ -168,7 +168,7 @@ GtkWidget *fm_app_menu_view_new(void)
     return view;
 }
 
-GAppInfo* fm_app_menu_view_get_selected_app(GtkTreeView* view)
+GDesktopAppInfo* fm_app_menu_view_get_selected_app(GtkTreeView* view)
 {
     char* id = fm_app_menu_view_get_selected_app_desktop_id(view);
     if(id)

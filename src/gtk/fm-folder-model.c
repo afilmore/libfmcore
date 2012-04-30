@@ -749,7 +749,7 @@ void fm_folder_model_sort (FmFolderModel* model)
     }
 
     /* sort the list */
-    g_sequence_sort (model->items, fm_folder_model_compare, model);
+    g_sequence_sort (model->items, (GCompareDataFunc) fm_folder_model_compare, model);
 
     /* save new order */
     new_order = g_new ( int, g_sequence_get_length (model->items) );
@@ -784,7 +784,7 @@ void _fm_folder_model_insert_item (FmFolder* dir,
     FmFolderItem* item;
     FmFileInfo* file = new_item->inf;
 
-    GSequenceIter *item_it = g_sequence_insert_sorted (model->items, new_item, fm_folder_model_compare, model);
+    GSequenceIter *item_it = g_sequence_insert_sorted (model->items, new_item, (GCompareDataFunc) fm_folder_model_compare, model);
 
     it.stamp = model->stamp;
     it.user_data  = item_it;
@@ -915,7 +915,7 @@ void fm_folder_model_set_show_hidden (FmFolderModel* model, gboolean show_hidden
             GtkTreeIter it;
             GSequenceIter *next_hidden_it;
             GSequenceIter *insert_item_it = g_sequence_search (model->items, g_sequence_get (hidden_it),
-                                                              fm_folder_model_compare, model);
+                                                              (GCompareDataFunc) fm_folder_model_compare, model);
             next_hidden_it = g_sequence_iter_next (hidden_it);
             item =  (FmFolderItem*)g_sequence_get (hidden_it);
             it.stamp = model->stamp;

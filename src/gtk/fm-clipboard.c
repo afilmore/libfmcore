@@ -209,7 +209,7 @@ gboolean fm_clipboard_paste_files(GtkWidget* dest_widget, FmPath* dest_dir)
         {
             GtkWindow* parent;
             if(dest_widget)
-                parent = gtk_widget_get_toplevel(GTK_WIDGET(dest_widget));
+                parent = (GtkWindow*) gtk_widget_get_toplevel(GTK_WIDGET(dest_widget));
             else
                 parent = NULL;
 

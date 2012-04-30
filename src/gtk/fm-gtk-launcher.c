@@ -380,7 +380,7 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
         GList* fis;
         g_hash_table_iter_init (&it, hash);
         
-        while (g_hash_table_iter_next (&it, &type, &fis))
+        while (g_hash_table_iter_next (&it, (void**) &type, (void**) &fis))
         {
             GAppInfo* app = g_app_info_get_default_for_type (type, FALSE);
             if (!app && launcher->get_app)
@@ -402,7 +402,7 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
                 fis = g_list_reverse (fis);
                 
                 
-                fm_app_info_launch_uris (app, fis, ctx, err);
+                fm_app_info_launch_uris (app, fis, ctx, &err);
                 
                 /* free URI strings */
                 g_list_foreach (fis, (GFunc)g_free, NULL);

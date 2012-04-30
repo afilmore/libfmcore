@@ -189,7 +189,7 @@ void fm_dnd_set_dest_auto_scroll(GtkWidget* drag_dest_widget,
     as->hadj = hadj ? GTK_ADJUSTMENT(g_object_ref(hadj)) : NULL;
     as->vadj = vadj ? GTK_ADJUSTMENT(g_object_ref(vadj)) : NULL;
 
-    g_object_set_qdata_full(drag_dest_widget, data_id,
+    g_object_set_qdata_full((GObject*) drag_dest_widget, data_id,
             as, (GDestroyNotify)fm_dnd_auto_scroll_free);
 
     g_signal_connect(drag_dest_widget, "drag-motion",

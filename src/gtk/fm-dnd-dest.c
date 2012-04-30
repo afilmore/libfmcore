@@ -143,7 +143,7 @@ void fm_dnd_dest_set_widget (FmDndDest* dd, GtkWidget* w)
         return;
     dd->widget = w;
     if ( w )
-        g_object_add_weak_pointer (G_OBJECT (w), &dd->widget);
+        g_object_add_weak_pointer (G_OBJECT (w), (void**) &dd->widget);
 }
 
 gboolean fm_dnd_dest_files_dropped (FmDndDest* dd, int x, int y, GdkDragAction action,
@@ -411,7 +411,7 @@ gboolean fm_dnd_dest_drag_drop (FmDndDest* dd, GdkDragContext *drag_context,
             }
             else
             {
-                fm_show_error (gtk_widget_get_toplevel (dest_widget), NULL,
+                fm_show_error ((GtkWindow*) gtk_widget_get_toplevel (dest_widget), NULL,
                               _ ("XDirectSave failed."));
                 gdk_property_change (GDK_DRAWABLE (drag_context->source_window), xds_target_atom,
                                    text_atom, 8, GDK_PROP_MODE_REPLACE,  (const guchar *)"", 0);
@@ -471,7 +471,7 @@ GdkDragAction fm_dnd_dest_get_default_action (FmDndDest* dd,
         if (!dd->waiting_data) /* we're still waiting for "drag-data-received" signal */
         {
             /* retrieve the source files */
-            gtk_drag_get_data (dd->widget, drag_context, target, time);
+            gtk_drag_get_data (dd->widget, drag_context, target, (guint32) time);
             dd->waiting_data = TRUE;
         }
     }

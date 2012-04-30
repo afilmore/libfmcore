@@ -369,7 +369,7 @@ _retry_query_src_info:
         flags = G_FILE_COPY_ALL_METADATA|G_FILE_COPY_NOFOLLOW_SYMLINKS;
     _retry_copy:
         if( !g_file_copy(src, dest, flags, fm_job_get_cancellable(fmjob),
-                         progress_cb, fmjob, &err) )
+                         (GFileProgressCallback) progress_cb, fmjob, &err) )
         {
             flags &= ~G_FILE_COPY_OVERWRITE;
 
@@ -490,7 +490,7 @@ _retry_query_src_info:
         /* showing currently processed file. */
         fm_file_ops_job_emit_cur_file(job, g_file_info_get_display_name(inf));
         _retry_move:
-        if( !g_file_move(src, dest, flags, fm_job_get_cancellable(fmjob), progress_cb, job, &err))
+        if( !g_file_move(src, dest, flags, fm_job_get_cancellable(fmjob), (GFileProgressCallback) progress_cb, job, &err))
         {
             flags &= ~G_FILE_COPY_OVERWRITE;
             if(err->domain == G_IO_ERROR && err->code == G_IO_ERROR_EXISTS)

@@ -127,7 +127,7 @@ void fm_dnd_src_set_widget (FmDndSrc* ds, GtkWidget* w)
     ds->widget = w;
     if ( w )
     {
-        g_object_add_weak_pointer (G_OBJECT (w), &ds->widget);
+        g_object_add_weak_pointer (G_OBJECT (w), (void**) &ds->widget);
         g_signal_connect (w, "drag-data-get", G_CALLBACK (on_drag_data_get), ds);
         g_signal_connect_after (w, "drag-begin", G_CALLBACK (on_drag_begin), ds);
         g_signal_connect_after (w, "drag-end", G_CALLBACK (on_drag_end), ds);
@@ -168,7 +168,7 @@ on_drag_data_get  ( GtkWidget *src_widget,
         /* just store the pointer in GtkSelection since this is used
          * within the same app. */
         gtk_selection_data_set (sel_data, type, 8,
-                                &ds->files, sizeof (gpointer));
+                                (guchar*) &ds->files, sizeof (gpointer));
         break;
     case FM_DND_SRC_TARGET_URI_LIST:
         {

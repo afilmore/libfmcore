@@ -101,7 +101,7 @@ FmFileInfo* fm_file_info_new_trash_can ()
 
 FmFileInfo* fm_file_info_new_user_special_dir (GUserDirectory directory)
 {
-    gchar *path_name = g_get_user_special_dir (directory);
+    const gchar *path_name = g_get_user_special_dir (directory);
     GFile *file = g_file_new_for_path (path_name);
     if (!file)
         return NULL;
@@ -613,11 +613,7 @@ time_t* fm_file_info_get_atime (FmFileInfo* fi)
     return &fi->atime;
 }
 
-static FmListFuncs fm_list_funcs =
-{
-    fm_file_info_ref,
-    fm_file_info_unref
-};
+static FmListFuncs fm_list_funcs = {fm_file_info_ref, fm_file_info_unref};
 
 FmFileInfoList* fm_file_info_list_new ()
 {

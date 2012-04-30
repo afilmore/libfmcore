@@ -43,7 +43,7 @@ struct _FmFileMenu
     
     GtkUIManager* ui;
     GtkActionGroup* act_grp;
-    GtkWidget* menu;
+    GtkMenu* menu;
     GtkWindow* parent;
 
     FmLaunchFolderFunc folder_func;

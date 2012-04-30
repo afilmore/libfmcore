@@ -140,7 +140,7 @@ int fm_ask_valist (GtkWindow* parent, const char* title, const char* question, v
         g_array_append_val (opts, opt);
         opt = va_arg  (options, const char *);
     }
-    ret = fm_askv (parent, title, question, opts->data);
+    ret = fm_askv (parent, title, question, (const char**) opts->data);
     g_array_free (opts, TRUE);
     return ret;
 }

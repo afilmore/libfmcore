@@ -586,7 +586,7 @@ static void open_with_app (FmFileMenu* data, GAppInfo* app)
     gdk_app_launch_context_set_timestamp (ctx, gtk_get_current_event_time ());
 
     /* FIXME: error handling. */
-    fm_app_info_launch_uris (app, uris, ctx, NULL);
+    fm_app_info_launch_uris (app, uris, (GAppLaunchContext*) ctx, NULL);
     g_object_unref (ctx);
 
     g_list_foreach (uris, (GFunc)g_free, NULL);
@@ -632,7 +632,7 @@ void on_cut (GtkAction* action, gpointer user_data)
     FmFileMenu* data = (FmFileMenu*)user_data;
     FmPathList* files;
     files = fm_path_list_new_from_file_info_list (data->file_infos);
-    fm_clipboard_cut_files (data->parent, files);
+    fm_clipboard_cut_files ((GtkWidget*) data->parent, files);
     fm_list_unref (files);
 }
 
@@ -641,7 +641,7 @@ void on_copy (GtkAction* action, gpointer user_data)
     FmFileMenu* data = (FmFileMenu*)user_data;
     FmPathList* files;
     files = fm_path_list_new_from_file_info_list (data->file_infos);
-    fm_clipboard_copy_files (data->parent, files);
+    fm_clipboard_copy_files ((GtkWidget*) data->parent, files);
     fm_list_unref (files);
 }
 

@@ -211,7 +211,7 @@ static gint on_ask_rename (FmFileOpsJob* job, FmFileInfo* src, FmFileInfo* dest,
     dest_fi =  (GtkWidget*)gtk_builder_get_object (builder, "dest_fi");
     filename =  (GtkWidget*)gtk_builder_get_object (builder, "filename");
     apply_all =  (GtkWidget*)gtk_builder_get_object (builder, "apply_all");
-    gtk_window_set_transient_for (GTK_WINDOW (dlg), data->dlg);
+    gtk_window_set_transient_for (GTK_WINDOW (dlg), (GtkWindow*) data->dlg);
 
     gtk_image_set_from_gicon (GTK_IMAGE (src_icon), src->icon->gicon, GTK_ICON_SIZE_DIALOG);
     disp_size = fm_file_info_get_disp_size (src);
@@ -255,7 +255,7 @@ static gint on_ask_rename (FmFileOpsJob* job, FmFileInfo* src, FmFileInfo* dest,
     gtk_entry_set_text (GTK_ENTRY (filename), tmp);
     g_free (tmp);
     g_object_set_data (G_OBJECT (filename), "old_name", dest->disp_name);
-    g_signal_connect (filename, "changed", on_filename_changed, gtk_builder_get_object (builder, "rename"));
+    g_signal_connect (filename, "changed", (GCallback) on_filename_changed, gtk_builder_get_object (builder, "rename"));
 
     g_object_unref (builder);
 
@@ -347,7 +347,7 @@ static void on_finished (FmFileOpsJob* job, FmProgressDisplay* data)
                         "Do you want to delete them instead?"), TRUE))
             {
                 FmJob* job = fm_file_ops_job_new (FM_FILE_OP_DELETE, unsupported);
-                fm_file_ops_job_run_with_progress (GTK_WINDOW (data->parent), job);
+                fm_file_ops_job_run_with_progress (GTK_WINDOW (data->parent), (FmFileOpsJob*) job);
             }
         }
     }
@@ -397,7 +397,7 @@ static gboolean on_show_dlg (FmProgressDisplay* data)
 
     data->dlg =  (GtkWidget*)gtk_builder_get_object (builder, "dlg");
 
-    g_signal_connect (data->dlg, "response", on_response, data);
+    g_signal_connect (data->dlg, "response", (GCallback) on_response, data);
 
     to_label =  (GtkWidget*)gtk_builder_get_object (builder, "to_label");
     to =  (GtkWidget*)gtk_builder_get_object (builder, "dest");
