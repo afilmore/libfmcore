@@ -156,10 +156,8 @@ static FmJobErrorAction on_error (FmFileOpsJob* job, GError* err, FmJobErrorSeve
     gtk_text_buffer_insert (data->error_buf, &it, err->message, -1);
     gtk_text_buffer_insert (data->error_buf, &it, "\n", 1);
 
-#if !ENABLE_GTK3
-    if (!GTK_WIDGET_VISIBLE (data->error_pane))
+    if (!gtk_widget_get_visible (data->error_pane))
         gtk_widget_show (data->error_pane);
-#endif
 
     if (data->timer)
         g_timer_continue (data->timer);

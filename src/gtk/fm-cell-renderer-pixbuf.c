@@ -208,31 +208,6 @@ void fm_cell_renderer_pixbuf_get_size (GtkCellRenderer *cell,
     }
 }
 
-/***
- * In Gtk3 the GdkWindow is replaced by a Cairo context...
- * 
- * 
-    http://developer.gnome.org/gtk/2.24/GtkCellRenderer.html#gtk-cell-renderer-render
-*       http://developer.gnome.org/gtk3/stable/GtkCellRenderer.html#gtk-cell-renderer-render
-
-void                gtk_cell_renderer_render            (GtkCellRenderer *cell,
-                                                     GdkWindow *window,
-                                                     GtkWidget *widget,
-                                                     const GdkRectangle *background_area,
-                                                     const GdkRectangle *cell_area,
-                                                     const GdkRectangle *expose_area,
-                                                     GtkCellRendererState flags);
-
-
-void                gtk_cell_renderer_render            (GtkCellRenderer *cell,
-                                                     cairo_t *cr,
-                                                     GtkWidget *widget,
-                                                     const GdkRectangle *background_area,
-                                                     const GdkRectangle *cell_area,
-                                                     GtkCellRendererState flags);
-***/
-
-#if ENABLE_GTK3
 void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
 						             cairo_t *cr,
 						             GtkWidget *widget,
@@ -241,18 +216,18 @@ void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
 						             GtkCellRendererState flags)
 {
     
-    FmCellRendererPixbuf* render =  (FmCellRendererPixbuf*)cell;
+    FmCellRendererPixbuf *render = (FmCellRendererPixbuf*) cell;
     
     /* we don't need to follow state for prelit items */
     if (flags & GTK_CELL_RENDERER_PRELIT)
         flags &= ~GTK_CELL_RENDERER_PRELIT;
     
-    GTK_CELL_RENDERER_CLASS (fm_cell_renderer_pixbuf_parent_class)->render (cell,
-                                                                            cr,
-                                                                            widget,
-                                                                            background_area,
-                                                                            cell_area,
-                                                                            flags);
+    GTK_CELL_RENDERER_CLASS(fm_cell_renderer_pixbuf_parent_class)->render (cell,
+                                                                           cr,
+                                                                           widget,
+                                                                           background_area,
+                                                                           cell_area,
+                                                                           flags);
 
     if (render->fi && G_UNLIKELY (fm_file_info_is_symlink (render->fi)))
     {
@@ -285,65 +260,7 @@ void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
             g_object_unref (pix);
         }
     }
-
-#else
-void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
-						             GdkWindow *window,
-						             GtkWidget *widget,
-						             GdkRectangle *background_area,
-						             GdkRectangle *cell_area,
-						             GdkRectangle *expose_area,
-						             GtkCellRendererState flags)
-{
-    
-    FmCellRendererPixbuf* render =  (FmCellRendererPixbuf*)cell;
-    
-    /* we don't need to follow state for prelit items */
-    if (flags & GTK_CELL_RENDERER_PRELIT)
-        flags &= ~GTK_CELL_RENDERER_PRELIT;
-    
-    GTK_CELL_RENDERER_CLASS (fm_cell_renderer_pixbuf_parent_class)->render (cell,
-                                                                            window,
-                                                                            widget,
-                                                                            background_area,
-                                                                            cell_area,
-                                                                            expose_area,
-                                                                            flags);
-
-    if (render->fi && G_UNLIKELY (fm_file_info_is_symlink (render->fi)))
-    {
-        GdkRectangle pix_rect;
-        GdkPixbuf* pix;
-        
-        g_object_get (render, "pixbuf", &pix, NULL);
-        
-        if (pix)
-        {
-            //~ int x = cell_area->x +  (cell_area->width - gdk_pixbuf_get_width (pix))/2;
-            //~ int y = cell_area->y +  (cell_area->height - gdk_pixbuf_get_height (pix))/2;
-            
-            int x = cell_area->x;
-            int y = (cell_area->y +  (cell_area->height - gdk_pixbuf_get_height (pix))/2) + gdk_pixbuf_get_height (pix) -10;
-            
-            pix_rect.x = x;
-            pix_rect.y = y;
-            pix_rect.width = gdk_pixbuf_get_width (pix);
-            pix_rect.height = gdk_pixbuf_get_height (pix);
-            
-            cairo_t *cr = gdk_cairo_create (window);
-            gdk_cairo_set_source_pixbuf (cr, link_icon, x, y);
-            gdk_cairo_rectangle (cr, &pix_rect);
-            cairo_fill (cr);
-            
-            cairo_destroy (cr);
-            
-            //~ gdk_draw_pixbuf (GDK_DRAWABLE (window), NULL, link_icon, 0, 0,
-                              //~ x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
-            
-            g_object_unref (pix);
-        }
-    }
-#endif
 }
+
 
 

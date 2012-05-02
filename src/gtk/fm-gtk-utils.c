@@ -633,3 +633,5 @@ void fm_empty_trash (GtkWindow* parent)
         fm_list_unref (paths);
     }
 }
+
+

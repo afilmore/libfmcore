@@ -146,20 +146,21 @@ void fm_dnd_src_set_file (FmDndSrc* ds, FmFileInfo* file)
     ds->files = files;
 }
 
-static void
-on_drag_data_get  ( GtkWidget *src_widget,
-                   GdkDragContext *drag_context,
-                   GtkSelectionData *sel_data,
-                   guint info,
-                   guint time,
-                   FmDndSrc* ds )
+static void on_drag_data_get (GtkWidget *src_widget,
+                              GdkDragContext *drag_context,
+                              GtkSelectionData *sel_data,
+                              guint info,
+                              guint time,
+                              FmDndSrc *ds)
 {
-#if !ENABLE_GTK3
     GdkAtom type;
 
     /*  Don't call the default handler  */
     g_signal_stop_emission_by_name ( src_widget, "drag-data-get" );
+    
+#if !ENABLE_GTK3
     drag_context->actions = GDK_ACTION_MOVE | GDK_ACTION_COPY | GDK_ACTION_LINK;
+#endif
 
     type = gdk_atom_intern_static_string (fm_default_dnd_src_targets[info].target);
     switch ( info )
@@ -192,7 +193,6 @@ on_drag_data_get  ( GtkWidget *src_widget,
         }
         break;
     }
-#endif
 }
 
 static void

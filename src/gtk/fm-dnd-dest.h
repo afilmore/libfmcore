@@ -68,7 +68,7 @@ FmFileInfo* fm_dnd_dest_get_dest_file (FmDndDest* dd);
 FmPath* fm_dnd_dest_get_dest_path (FmDndDest* dd);
 
 #define fm_drag_context_has_target(ctx, target) \
-    (g_list_find(ctx->targets, target) != NULL)
+    (g_list_find(gdk_drag_context_list_targets (ctx), target) != NULL)
 
 #define fm_drag_context_has_target_name(ctx, name)  \
     fm_drag_context_has_target(ctx, gdk_atom_intern_static_string (name))

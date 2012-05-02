@@ -580,7 +580,7 @@ static void open_with_app (FmFileMenu* data, GAppInfo* app)
     }
     uris = g_list_reverse (uris);
 
-    ctx = gdk_app_launch_context_new ();
+    ctx = gdk_display_get_app_launch_context (gtk_widget_get_display ((GtkWidget*) data->menu));
     gdk_app_launch_context_set_screen (ctx, gtk_widget_get_screen ((GtkWidget*) data->menu));
     gdk_app_launch_context_set_icon (ctx, g_app_info_get_icon (app));
     gdk_app_launch_context_set_timestamp (ctx, gtk_get_current_event_time ());

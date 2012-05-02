@@ -59,23 +59,15 @@ GType fm_cell_renderer_pixbuf_get_type (void);
 
 void fm_cell_renderer_pixbuf_set_fixed_size (FmCellRendererPixbuf* render, gint w, gint h);
 
-#if ENABLE_GTK3
 void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
                                      cairo_t *cr,
                                      GtkWidget *widget,
                                      GdkRectangle *background_area,
                                      GdkRectangle *cell_area,
                                      GtkCellRendererState flags);
-#else
-void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
-                                     GdkWindow *window,
-                                     GtkWidget *widget,
-                                     GdkRectangle *background_area,
-                                     GdkRectangle *cell_area,
-                                     GdkRectangle *expose_area,
-                                     GtkCellRendererState flags);
-#endif
 
 G_END_DECLS
 
 #endif /* __FM_CELL_RENDERER_PIXBUF_H__ */
+
+
