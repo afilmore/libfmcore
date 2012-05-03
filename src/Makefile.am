@@ -43,7 +43,6 @@ base_SOURCES = \
 	gtk/fm-dnd-src.c \
 	gtk/fm-file-menu.c \
 	gtk/fm-file-properties.c \
-	gtk/fm-folder-model.c \
 	gtk/fm-gtk-launcher.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-gtk-utils.c \
@@ -73,7 +72,6 @@ libfmcore_SOURCES = \
 libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
-	gtk3-migration.h \
 	fmvala/fm-config.h \
 	base/fm-app-info.h \
 	base/fm-archiver.h \
@@ -106,7 +104,6 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-dnd-src.h \
 	gtk/fm-file-menu.h \
 	gtk/fm-file-properties.h \
-	gtk/fm-folder-model.h \
 	gtk/fm-gtk-launcher.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-utils.h \

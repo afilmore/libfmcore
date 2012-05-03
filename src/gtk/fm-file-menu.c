@@ -25,7 +25,6 @@
 #endif
 
 #include <glib/gi18n-lib.h>
-#include "../gtk3-migration.h"
 
 #include "fm.h"
 #include "fm-config.h"

@@ -526,57 +526,6 @@ namespace Fm {
     
     
     /*************************************************************************************
-     * Gtk Folder Model.
-     * 
-     * 
-     ************************************************************************************/
-    [CCode (cheader_filename = "fm-folder.h", cprefix = "COL_FILE_")]
-    public enum FileColumn {
-        GICON = 0,
-        ICON,
-        NAME,
-        SIZE,
-        DESC,
-        PERM,
-        OWNER,
-        MTIME,
-        INFO,
-        [CCode (cheader_filename = "fm-folder.h", cprefix = "")]
-        N_FOLDER_MODEL_COLS
-    }
-
-    [CCode (cheader_filename = "fm-folder-model.h")]
-	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
-
-		public weak Fm.Folder dir;      /* FIXME: avoid direct member access... */
-
-		[CCode (has_construct_function = false)]
-		public FolderModel (Fm.Folder dir, bool show_hidden);
-		
-        public void set_folder (Fm.Folder dir);
-        
-		public void file_created (Fm.FileInfo file);
-		public void file_deleted (Fm.FileInfo file);
-        public void file_changed (Fm.FileInfo file);
-		
-        public bool find_iter_by_filename (Gtk.TreeIter it, string name);
-		
-        public void get_common_suffix_for_prefix (string prefix,
-                                                  GLib.Callback file_info_predicate,
-                                                  string common_suffix);
-		
-		public void set_icon_size (uint icon_size);
-        public uint get_icon_size ();
-		public void set_show_hidden (bool show_hidden);
-		public bool get_show_hidden ();
-		
-        public bool get_is_loaded ();
-		
-        public virtual signal void loaded ();
-	}
-    
-    
-    /*************************************************************************************
      * Drag And Drop...
      * 
      * 
