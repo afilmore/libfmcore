@@ -83,15 +83,10 @@ GdkAtom fm_dnd_dest_find_target (FmDndDest* dd, GdkDragContext *drag_context);
 gboolean fm_dnd_dest_drag_drop (FmDndDest* dd, GdkDragContext *drag_context,
                                GdkAtom target, int x, int y, guint time);
 
-#if ENABLE_GTK3
 GdkDragAction fm_dnd_dest_get_default_action (FmDndDest* dd,
                                              GdkDragContext* drag_context,
                                              GdkAtom target);
-#else
-GdkDragAction fm_dnd_dest_get_default_action (FmDndDest* dd,
-                                             GdkDragContext* drag_context,
-                                             GdkTarget target);
-#endif
+
 void fm_dnd_dest_drag_leave (FmDndDest* dd, GdkDragContext* drag_context, guint time);
 
 G_END_DECLS

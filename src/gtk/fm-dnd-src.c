@@ -36,22 +36,22 @@ enum
 static void fm_dnd_src_finalize              (GObject *object);
 
 static void
-on_drag_data_get  ( GtkWidget *src_widget,
+on_drag_data_get  (GtkWidget *src_widget,
                    GdkDragContext *drag_context,
                    GtkSelectionData *sel_data,
                    guint info,
                    guint time,
-                   FmDndSrc* ds );
+                   FmDndSrc* ds);
 
 static void
-on_drag_begin  ( GtkWidget *src_widget,
+on_drag_begin  (GtkWidget *src_widget,
                 GdkDragContext *drag_context,
-                FmDndSrc* ds );
+                FmDndSrc* ds);
 
 static void
-on_drag_end  ( GtkWidget *src_widget,
+on_drag_end  (GtkWidget *src_widget,
               GdkDragContext *drag_context,
-              FmDndSrc* ds );
+              FmDndSrc* ds);
 
 static guint signals[N_SIGNALS];
 
@@ -73,13 +73,13 @@ static void fm_dnd_src_class_init (FmDndSrcClass *klass)
      * call fm_dnd_source_set_files () in its callback to
      * provide info of dragged source files. */
     signals[ DATA_GET ] =
-        g_signal_new  ( "data-get",
-                       G_TYPE_FROM_CLASS ( klass ),
+        g_signal_new  ("data-get",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmDndSrcClass, data_get ),
+                       G_STRUCT_OFFSET  (FmDndSrcClass, data_get),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
-                       G_TYPE_NONE, 0 );
+                       G_TYPE_NONE, 0);
 }
 
 
@@ -125,7 +125,7 @@ void fm_dnd_src_set_widget (FmDndSrc* ds, GtkWidget* w)
         g_signal_handlers_disconnect_by_func (ds->widget, on_drag_end, ds);
     }
     ds->widget = w;
-    if ( w )
+    if (w)
     {
         g_object_add_weak_pointer (G_OBJECT (w), (void**) &ds->widget);
         g_signal_connect (w, "drag-data-get", G_CALLBACK (on_drag_data_get), ds);
@@ -156,14 +156,14 @@ static void on_drag_data_get (GtkWidget *src_widget,
     GdkAtom type;
 
     /*  Don't call the default handler  */
-    g_signal_stop_emission_by_name ( src_widget, "drag-data-get" );
+    g_signal_stop_emission_by_name (src_widget, "drag-data-get");
     
 #if !ENABLE_GTK3
     drag_context->actions = GDK_ACTION_MOVE | GDK_ACTION_COPY | GDK_ACTION_LINK;
 #endif
 
     type = gdk_atom_intern_static_string (fm_default_dnd_src_targets[info].target);
-    switch ( info )
+    switch (info)
     {
     case FM_DND_SRC_TARGET_FM_LIST:
         /* just store the pointer in GtkSelection since this is used
@@ -174,35 +174,35 @@ static void on_drag_data_get (GtkWidget *src_widget,
     case FM_DND_SRC_TARGET_URI_LIST:
         {
             gchar* uri;
-            GString* uri_list = g_string_sized_new ( 8192 );
+            GString* uri_list = g_string_sized_new (8192);
             GList* l;
             FmFileInfo* file;
             char* full_path;
 
-            for ( l = fm_list_peek_head_link (ds->files); l; l=l->next )
+            for (l = fm_list_peek_head_link (ds->files); l; l=l->next)
             {
                 file =  (FmFileInfo*)l->data;
                 uri = fm_path_to_uri (file->path);
-                g_string_append ( uri_list, uri );
-                g_free ( uri );
-                g_string_append ( uri_list, "\r\n" );
+                g_string_append (uri_list, uri);
+                g_free (uri);
+                g_string_append (uri_list, "\r\n");
             }
-            gtk_selection_data_set  ( sel_data, type, 8,
-                                      ( guchar* ) uri_list->str, uri_list->len + 1 );
-            g_string_free ( uri_list, TRUE );
+            gtk_selection_data_set  (sel_data, type, 8,
+                                      (guchar*) uri_list->str, uri_list->len + 1);
+            g_string_free (uri_list, TRUE);
         }
         break;
     }
 }
 
 static void
-on_drag_begin  ( GtkWidget *src_widget,
+on_drag_begin  (GtkWidget *src_widget,
                 GdkDragContext *drag_context,
-                FmDndSrc* ds )
+                FmDndSrc* ds)
 {
     /* block default handler */
 
-    gtk_drag_set_icon_default ( drag_context );
+    gtk_drag_set_icon_default (drag_context);
 
     /* FIXME: set the icon to file icon later */
     // gtk_drag_set_icon_pixbuf ();
@@ -212,9 +212,9 @@ on_drag_begin  ( GtkWidget *src_widget,
 }
 
 static void
-on_drag_end  ( GtkWidget *src_widget,
+on_drag_end  (GtkWidget *src_widget,
               GdkDragContext *drag_context,
-              FmDndSrc* ds )
+              FmDndSrc* ds)
 {
 
 }
