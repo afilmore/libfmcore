@@ -1,12 +1,10 @@
-<!--
-
-    compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas"
-
--->
-
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas" -->
+
 <schemalist gettext-domain="gsettings-desktop-schemas">
-  <schema path="/desktop/" id="desktop">
+  
+  <schema path="/desktop/noname/" id="desktop.noname">
     <key type="s" name="default">
       <default>'noname'</default>
       <summary>Default Desktop</summary>
@@ -19,11 +17,13 @@
     </key>
     <child schema="desktop.noname.applications" name="applications"/>
   </schema>
+  
   <schema path="/desktop/noname/applications/" id="desktop.noname.applications">
     <child schema="desktop.noname.applications.terminal" name="terminal"/>
     <child schema="desktop.noname.applications.run" name="run"/>
     <child schema="desktop.noname.applications.panel" name="panel"/>
   </schema>
+  
   <schema path="/desktop/noname/applications/terminal/" id="desktop.noname.applications.terminal">
     <key type="s" name="default">
       <default>'lxterminal'</default>
@@ -36,6 +36,7 @@
       <description>Default</description>
     </key>
   </schema>
+  
   <schema path="/desktop/noname/applications/run/" id="desktop.noname.applications.run">
     <key type="s" name="default">
       <default>'gtkrun'</default>
@@ -48,6 +49,7 @@
       <description>Default</description>
     </key>
   </schema>
+  
   <schema path="/desktop/noname/applications/taskmanager/" id="desktop.noname.applications.taskmanager">
     <key type="s" name="default">
       <default>'lxtask'</default>
@@ -60,6 +62,7 @@
       <description>Default</description>
     </key>
   </schema>
+  
   <schema path="/desktop/noname/applications/panel/" id="desktop.noname.applications.panel">
     <key type="s" name="default">
       <default>'simple-panel'</default>
@@ -72,6 +75,7 @@
       <description>Default</description>
     </key>
   </schema>
+  
   <schema path="/desktop/noname/applications/archiver/" id="desktop.noname.applications.archiver">
     <key type="s" name="default">
       <default>'file-roller'</default>
@@ -80,6 +84,7 @@
     </key>
     <child schema="desktop.noname.applications.archiver.file-roller" name="file-roller"/>
   </schema>
+  
   <schema path="/desktop/noname/applications/archiver/file-roller/" id="desktop.noname.applications.archiver.file-roller">
     <key type="s" name="create">
       <default>'file-roller --add %U'</default>
@@ -107,4 +112,7 @@
       <description>Default</description>
     </key>
   </schema>
+
 </schemalist>
+
+

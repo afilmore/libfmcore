@@ -11,3 +11,19 @@
  * 
  ******************************************************************************/
 
+ 1 - Backup Your Personal Data :-D
+ 
+ 2 - Install Needed Dev Packages (see configure.ac)
+ 
+ 3 - You Need Last Vala Release : http://ftp.gnome.org/pub/GNOME/sources/vala/0.17/vala-0.17.0.changes
+     If not available, patch your Vapi Files : http://bugzilla-attachments.gnome.org/attachment.cgi?id=210903
+ 
+ 3 - Build With : make clean;make distclean;./autogen.sh && ./configure --enable-debug=yes --prefix=/usr && make
+ 
+ 4 - Install : sudo make install
+ 
+ 5 - Compile DConf schema : sudo glib-compile-schemas /usr/share/glib-2.0/schemas
+ 
+ 6 - Pray That It Would Work And That It Won't Screw Up Your Files :-P
+ 
+ 7 - Enjoy :)

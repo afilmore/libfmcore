@@ -46,24 +46,24 @@ fi
 # Configure With Gtk2 > 2.24.0 or Gtk3 > 3.0.8
 #
 ##########################################################################################
-AC_ARG_ENABLE([gtk3],
- [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
- [use_gtk3=$enableval], [use_gtk3=no])
-
-pkg_modules="gtk+-2.0 >= 2.24.0"
-
-if test $use_gtk3 == yes ; then
+#~ AC_ARG_ENABLE([gtk3],
+ #~ [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
+ #~ [use_gtk3=$enableval], [use_gtk3=no])
+#~ 
+#~ pkg_modules="gtk+-2.0 >= 2.24.0"
+#~ 
+#~ if test $use_gtk3 == yes ; then
     pkg_modules="gtk+-3.0 >= 3.0.8"
     GTK_PKG="gtk+-3.0"
     CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
     AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
     AC_SUBST([LIBFMCORE_API_VERSION], [3.0])
     AC_SUBST([LIBFMCORE_SO_VERSION], [3:0:0])
-else
-    GTK_PKG="gtk+-2.0"
-    AC_SUBST([LIBFMCORE_API_VERSION], [2.0])
-    AC_SUBST([LIBFMCORE_SO_VERSION], [2:0:0])
-fi
+#~ else
+    #~ GTK_PKG="gtk+-2.0"
+    #~ AC_SUBST([LIBFMCORE_API_VERSION], [2.0])
+    #~ AC_SUBST([LIBFMCORE_SO_VERSION], [2:0:0])
+#~ fi
 AC_SUBST(GTK_PKG)
 
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
