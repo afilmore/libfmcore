@@ -32,9 +32,12 @@ typedef struct _FmIcon			FmIcon;
 struct _FmIcon
 {
     guint n_ref;
+    
     GIcon* gicon;
+    
     /* FIXME: should we utilize g_object_set_qdata to
               store those data in gicon object instead? */
+    
     gpointer user_data;
 };
 

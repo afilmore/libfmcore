@@ -194,6 +194,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo* fi, GFileInfo* inf)
     {
         gicon = g_file_info_get_icon (inf);
         fi->icon = fm_icon_from_gicon (gicon);
+        
         /* g_object_unref (gicon); this is not needed since
          * g_file_info_get_icon didn't increase ref_count.
          * the object returned by g_file_info_get_icon is

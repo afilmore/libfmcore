@@ -28,12 +28,15 @@ typedef struct _PixEntry
 {
     int size;
     GdkPixbuf* pix;
+    
 }PixEntry;
 
 static void destroy_pixbufs(GSList* pixs)
 {
     GSList* l;
+    
     gdk_threads_enter(); /* FIXME: is this needed? */
+    
     for(l = pixs; l; l=l->next)
     {
         PixEntry* ent = (PixEntry*)l->data;
@@ -41,7 +44,9 @@ static void destroy_pixbufs(GSList* pixs)
             g_object_unref(ent->pix);
         g_slice_free(PixEntry, ent);
     }
+    
     gdk_threads_leave();
+    
     g_slist_free(pixs);
 }
 

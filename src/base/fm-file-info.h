@@ -67,6 +67,7 @@ struct _FmFileInfo
     char* disp_size;  /* displayed human-readable file size */
     char* disp_mtime; /* displayed last modification time */
     FmMimeType* type;
+    
     FmIcon* icon;
 
     char* target; /* target of shortcut or mountable. */
