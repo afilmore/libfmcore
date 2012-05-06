@@ -46,6 +46,7 @@ static FmMimeType* mountable_type = NULL;
 void _fm_file_info_init ()
 {
     fm_mime_type_init ();
+    
     desktop_entry_type = fm_mime_type_get_for_type ("application/x-desktop");
 
     /* fake mime-types for mountable and shortcuts */
@@ -433,6 +434,7 @@ void fm_file_info_set_path (FmFileInfo* fi, FmPath* path)
     if (path)
     {
         fi->path = fm_path_ref (path);
+        
         /* FIXME: need to handle UTF-8 issue here */
         fi->disp_name = fi->path->name;
     }

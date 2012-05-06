@@ -81,10 +81,12 @@ FmJob* fm_file_info_job_new (FmPathList* files_to_query, FmFileInfoJobFlags flag
 		file_infos = job->file_infos;
 		for (l = fm_list_peek_head_link (files_to_query);l;l=l->next)
 		{
-			FmPath* path =  (FmPath*)l->data;
+			// fm_file_info_new_for_path ()
+            FmPath* path =  (FmPath*)l->data;
 			FmFileInfo* fi = fm_file_info_new ();
 			fi->path = fm_path_ref (path);
-			fm_list_push_tail_noref (file_infos, fi);
+			
+            fm_list_push_tail_noref (file_infos, fi);
 		}
 	}
 	return  (FmJob*)job;
@@ -189,17 +191,21 @@ gboolean fm_file_info_job_run (FmJob* fmjob)
 /* this can only be called before running the job. */
 void fm_file_info_job_add (FmFileInfoJob* job, FmPath* path)
 {
-	FmFileInfo* fi = fm_file_info_new ();
+	// fm_file_info_new_for_path ()
+    FmFileInfo* fi = fm_file_info_new ();
 	fi->path = fm_path_ref (path);
-	fm_list_push_tail_noref (job->file_infos, fi);
+	
+    fm_list_push_tail_noref (job->file_infos, fi);
 }
 
 void fm_file_info_job_add_gfile (FmFileInfoJob* job, GFile* gf)
 {
+	// fm_file_info_new_for_gfile ()
     FmPath* path = fm_path_new_for_gfile (gf);
 	FmFileInfo* fi = fm_file_info_new ();
 	fi->path = path;
-	fm_list_push_tail_noref (job->file_infos, fi);
+	
+    fm_list_push_tail_noref (job->file_infos, fi);
 }
 
 gboolean _fm_file_info_job_get_info_for_native_file (FmJob* job, FmFileInfo* fi, const char* path, GError** err)

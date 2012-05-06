@@ -221,8 +221,11 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
 
     dir_path = fm_path_to_str (job->dir_path);
 
+	// fm_file_info_new_for_path ()
     fi = fm_file_info_new ();
     fi->path = fm_path_ref (job->dir_path);
+    
+    
     if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), fi, dir_path, NULL) )
     {
         job->dir_fi = fi;
@@ -269,12 +272,14 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
                     continue;
             }
 
+            // fm_file_info_new_for_path ()
             fi = fm_file_info_new ();
             fi->path = fm_path_new_child (job->dir_path, name);
 
         _retry:
             if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), fi, fpath->str, &err) )
                 fm_list_push_tail_noref (job->files, fi);
+            
             else /* failed! */
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_MILD);
@@ -342,8 +347,9 @@ _retry:
         return FALSE;
     }
 
-    /* FIXME: should we use fm_file_info_new + fm_file_info_set_from_gfileinfo? */
+    /* FIXME: should we use fm_file_info_new_ + fm_file_info_set_from_gfileinfo? */
     job->dir_fi = fm_file_info_new_from_gfileinfo (job->dir_path, inf);
+    
     g_object_unref (inf);
 
     if (G_UNLIKELY (job->dir_only))
