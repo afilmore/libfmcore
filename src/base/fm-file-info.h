@@ -49,20 +49,21 @@ struct _FmFileInfo
      * File Path, that's the most important field of the FileInfo,
      * other ones are set from this path...
      * 
-     ***/
+     ****************************************************************/
     FmPath *path;
     
     // UTF-8 Displayed Name
     char *disp_name;
     
-    FmMimeType *type;
-    
+    // The GIcon Cache (see base/fm-icon.h)...
     FmIcon *icon;
 
+    FmMimeType *type;
+    
     // Target of shortcut or mountable...
     char *target;
 
-    
+    // FileSystem Informations...
     mode_t mode;
     union {
         const char *fs_id;
@@ -73,14 +74,9 @@ struct _FmFileInfo
     goffset size;
     time_t  mtime;
     time_t  atime;
-
     gulong  blksize;
     goffset blocks;
 
-    /* FIXME: caching the collate key can greatly speed up sorting.
-     *        However, memory usage is greatly increased!.
-     *        Is there a better alternative solution?
-     */
     char *collate_key;  // used to sort files by name
     char *disp_size;    // displayed human-readable file size
     char *disp_mtime;   // displayed last modification time
