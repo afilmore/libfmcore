@@ -72,7 +72,7 @@ FmMimeType *fm_mime_type_new (const char *type_name)
     
     // Handle Special Cases ????
     #if 0
-    if  (strcmp  (path, g_get_home_dir  ()) == 0)
+    if (strcmp  (path, g_get_home_dir  ()) == 0)
         type_icon = "user-home";
     else
         type_icon = "text-x-generic";
@@ -98,7 +98,7 @@ FmMimeType *fm_mime_type_ref (FmMimeType *mime_type)
 
 void fm_mime_type_unref (gpointer mime_type_)
 {
-    FmMimeType *mime_type =  (FmMimeType*) mime_type_;
+    FmMimeType *mime_type = (FmMimeType*) mime_type_;
     
     if (g_atomic_int_dec_and_test (&mime_type->n_ref))
     {
