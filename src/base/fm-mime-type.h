@@ -1,7 +1,9 @@
 /***********************************************************************************************************************
+ * 
  *      fm-mime-type.h
  *      
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *      
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -30,71 +32,42 @@
 
 G_BEGIN_DECLS
 
-
 // Mime Type Initialisation...
 void fm_mime_type_init ();
 void fm_mime_type_finalize ();
-
 
 typedef struct _FmMimeType FmMimeType;
 
 struct _FmMimeType
 {
-    char *type;         // Mime type name
-    char *description;  // Description of the mime type
+    char    *type;         // Mime type name
+    char    *description;  // Description of the mime type
 	
-    FmIcon *icon;
+    FmIcon  *icon;
 
-    int n_ref;
+    int     n_ref;
 };
 
-FmMimeType *fm_mime_type_new (const char *type_name);
+FmMimeType *fm_mime_type_new                    (const char *type_name);
 
 // file name used in this API should be encoded in UTF-8.
-FmMimeType *fm_mime_type_get_for_file_name (const char *ufile_name);
+FmMimeType *fm_mime_type_get_for_file_name      (const char *ufile_name);
+FmMimeType *fm_mime_type_get_for_type           (const char *type);
 
 // file_path should be on-disk encoding, base_name should be UTF-8, pstat can be null.
-FmMimeType *fm_mime_type_get_for_native_file (const char *file_path, const char *base_name, struct stat *pstat);
+FmMimeType *fm_mime_type_get_for_native_file    (const char *file_path, const char *base_name, struct stat *pstat);
 
-FmMimeType *fm_mime_type_get_for_type (const char *type);
-
-FmMimeType *fm_mime_type_ref (FmMimeType *mime_type);
-void fm_mime_type_unref (gpointer mime_type_);
+FmMimeType *fm_mime_type_ref                    (FmMimeType *mime_type);
+void fm_mime_type_unref                         (gpointer mime_type_);
 
 // Get The GIcon...
-FmIcon *fm_mime_type_get_icon (FmMimeType *mime_type);
+FmIcon *fm_mime_type_get_icon                   (FmMimeType *mime_type);
 
 // Get mime-type string...
-const char *fm_mime_type_get_type (FmMimeType *mime_type);
+const char *fm_mime_type_get_type               (FmMimeType *mime_type);
 
 // Get human-readable description of mime-type
-const char *fm_mime_type_get_desc (FmMimeType *mime_type);
-
-
-/*********************************************************************
- * Get available actions (applications) for this mime-type
- * returned vector should be freed with g_strfreev when not needed.
- * 
- * Note: This is also disabled in the original code, probably
- * replaced by something better...
- * 
- ********************************************************************/
-#if 0
-char **fm_mime_type_get_actions (FmMimeType *mime_type);
-
-// returned string should be freed with g_strfreev when not needed.
-char *fm_mime_type_get_default_action (FmMimeType *mime_type);
-
-void fm_mime_type_set_default_action (FmMimeType *mime_type, const char *desktop_id);
-
-// If user-custom desktop file is created, it's returned in custom_desktop.
-void fm_mime_type_add_action (FmMimeType *mime_type, const char *desktop_id, char **custom_desktop);
-
-char **fm_mime_type_get_all_known_apps ();
-char **fm_mime_type_join_actions (char **list1, gsize len1, char **list2, gsize len2);
-GList *fm_mime_type_add_reload_cb (GFreeFunc cb, gpointer user_data);
-void fm_mime_type_remove_reload_cb (GList *cb);
-#endif
+const char *fm_mime_type_get_desc               (FmMimeType *mime_type);
 
 G_END_DECLS
 #endif

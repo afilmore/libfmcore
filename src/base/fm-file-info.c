@@ -271,7 +271,9 @@ void _fm_file_info_set_from_menu_cache_item (FmFileInfo* fi, MenuCacheItem* item
                 }
             }
         }
+        
         fi->icon = fm_icon_from_name (icon_name);
+        
         if (G_UNLIKELY (tmp_name))
             g_free (tmp_name);
     }
@@ -485,8 +487,9 @@ mode_t fm_file_info_get_mode (FmFileInfo* fi)
 
 gboolean fm_file_info_is_dir (FmFileInfo* fi)
 {
-    return (S_ISDIR (fi->mode) ||
-        (S_ISLNK (fi->mode) && fi->type && (0 == strcmp (fi->type->type, "inode/directory"))));
+    return (S_ISDIR (fi->mode) || (S_ISLNK (fi->mode)
+                                   && fi->type
+                                   && (strcmp (fi->type->type, "inode/directory") == 0)));
 }
 
 gboolean fm_file_info_is_symlink (FmFileInfo* fi)

@@ -235,7 +235,9 @@ _retry:
             }
 
 			fi->type = fm_mime_type_get_for_native_file (path, fi->disp_name, &st);
-
+            g_return_val_if_fail (fi->type, FALSE);
+            
+            
             /* special handling for desktop entry files */
             if (G_UNLIKELY (fm_file_info_is_desktop_entry (fi)))
             {
@@ -267,6 +269,7 @@ _retry:
                     if (title)
                         fi->disp_name = title;
                 }
+                
                 if (icon)
                     fi->icon = icon;
                 else
