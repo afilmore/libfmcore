@@ -41,6 +41,7 @@ G_BEGIN_DECLS
 
 typedef struct _FmFileInfo FmFileInfo;
 typedef FmList FmFileInfoList;
+
 #define FM_FILE_INFO(ptr) ((FmFileInfo*) ptr)
 
 struct _FmFileInfo
@@ -56,10 +57,11 @@ struct _FmFileInfo
     // UTF-8 Displayed Name
     char *disp_name;
     
-    FmMimeType *type; // TODOaxl: rename to mime_type...
+    FmMimeType *type;   // TODOaxl: rename to mime_type...
     
     // The GIcon Cache (see base/fm-icon.h)...
-    FmIcon *icon;
+    
+    FmIcon *icon;       // TODOaxl: rename to fm_icon... avoid any direct member access...
 
     // Target of shortcut or mountable...
     char *target;
@@ -109,7 +111,11 @@ FmFileInfo *fm_file_info_new_trash_can ();
 FmFileInfo *fm_file_info_new_user_special_dir   (GUserDirectory directory);
 
 FmFileInfo *fm_file_info_new_from_gfileinfo     (FmPath *path, GFileInfo *inf);
+
 void fm_file_info_set_from_gfileinfo            (FmFileInfo *fi, GFileInfo *inf);
+void fm_file_info_set_from_desktop_entry        (FmFileInfo *file_info);
+void fm_file_info_set_fm_icon                   (FmFileInfo *file_info, FmIcon *fm_icon);
+GIcon *fm_file_info_get_gicon                   (FmFileInfo *file_info);
 
 FmFileInfo *fm_file_info_ref                    (FmFileInfo *fi);
 void fm_file_info_unref                         (FmFileInfo *fi);

@@ -593,8 +593,10 @@ static void update_ui (FmFilePropData* data)
         if ( data->single_file ) /* only one file is selected. */
         {
             FmFileInfo* fi =  (FmFileInfo*)fm_list_peek_head (data->files);
-            if (fi->icon)
-                icon = fi->icon->gicon;
+            // TODOaxl: test and remove...
+            //~ if (fi->icon)
+                //~ icon = fi->icon->gicon;
+            icon = fm_file_info_get_gicon (fi);
         }
 
         if (data->mime_type)

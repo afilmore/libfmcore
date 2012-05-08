@@ -248,6 +248,68 @@ FmFileInfo* fm_file_info_new_from_gfileinfo (FmPath* path, GFileInfo* inf)
     return fi;
 }
 
+void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
+{
+    // Special handling for desktop entries...
+    char *fpath = fm_path_to_str (file_info->path);
+    GKeyFile *kf = g_key_file_new ();
+    
+    FmIcon *icon = NULL;
+    if (g_key_file_load_from_file (kf, fpath, 0, NULL))
+    {
+        char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
+        char *title = g_key_file_get_locale_string (kf, "Desktop Entry", "Name", NULL, NULL);
+        
+        if (icon_name)
+        {
+            // This is an icon name, not a full path to icon file.
+            if (icon_name[0] != '/')
+            {
+                /* remove file extension */
+                char *dot = strrchr (icon_name, '.');
+                if (dot)
+                {
+                    ++dot;
+                    if (strcmp (dot, "png") == 0
+                        || strcmp (dot, "svg") == 0
+                        || strcmp (dot, "xpm") == 0)
+                    {
+                        *(dot-1) = '\0';
+                    }
+                }
+            }
+            
+            icon = fm_icon_from_name (icon_name);
+            g_free (icon_name);
+            
+        }
+        
+        if (title)
+            file_info->disp_name = title;
+    }
+    
+    if (icon)
+        file_info->icon = icon;
+    else
+        file_info->icon = file_info->type ? fm_icon_ref (file_info->type->icon) : NULL;
+    
+}
+
+void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
+{
+    // TODOaxl: test and remove...
+    //~ if (G_LIKELY(!fm_file_info_is_desktop_entry (file_info)))
+    //~ {
+        file_info->icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
+        //return TRUE;
+    //~ }
+}
+
+GIcon *fm_file_info_get_gicon (FmFileInfo *file_info)
+{
+    return file_info->icon ? file_info->icon->gicon : NULL;
+}
+
 void _fm_file_info_set_from_menu_cache_item (FmFileInfo* fi, MenuCacheItem* item)
 {
     const char* icon_name = menu_cache_item_get_icon (item);

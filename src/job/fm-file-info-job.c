@@ -254,17 +254,32 @@ _retry:
         file_info->target = g_file_read_link (path, NULL);
     }
 
-    file_info->type = fm_mime_type_get_for_native_file (path, file_info->disp_name, &st);
+    FmMimeType *mime_type = fm_mime_type_get_for_native_file (path, file_info->disp_name, &st);
     
-    g_return_val_if_fail (file_info->type, FALSE);
+    g_return_val_if_fail (mime_type, FALSE);
     
+    file_info->type = mime_type;
+    
+    
+    /* TODOaxl: Moved to FileInfo, test and remove...
     if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))
     {
-        file_info->icon = fm_icon_ref (file_info->type->icon);
+        file_info->icon = file_info->type ? fm_icon_ref (file_info->type->icon) : NULL;
         return TRUE;
     }
+    */
         
-    // Special handling for desktop entries...
+    if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))
+    {
+        fm_file_info_set_fm_icon (file_info, mime_type->icon);
+        return TRUE;
+    }
+    
+    fm_file_info_set_from_desktop_entry (file_info);
+    
+    /* TODOaxl: Moved to FileInfo, test and remove...
+     * 
+     * Special handling for desktop entries...
     char *fpath = fm_path_to_str (file_info->path);
     GKeyFile *kf = g_key_file_new ();
     
@@ -279,7 +294,7 @@ _retry:
             // This is an icon name, not a full path to icon file.
             if (icon_name[0] != '/')
             {
-                /* remove file extension */
+                // remove file extension
                 char *dot = strrchr (icon_name, '.');
                 if (dot)
                 {
@@ -306,7 +321,8 @@ _retry:
         file_info->icon = icon;
     else
         file_info->icon = fm_icon_ref (file_info->type->icon);
-	
+	*/
+    
     return TRUE;
 }
 

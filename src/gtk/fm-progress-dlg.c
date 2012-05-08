@@ -211,7 +211,10 @@ static gint on_ask_rename (FmFileOpsJob* job, FmFileInfo* src, FmFileInfo* dest,
     apply_all =  (GtkWidget*)gtk_builder_get_object (builder, "apply_all");
     gtk_window_set_transient_for (GTK_WINDOW (dlg), (GtkWindow*) data->dlg);
 
-    gtk_image_set_from_gicon (GTK_IMAGE (src_icon), src->icon->gicon, GTK_ICON_SIZE_DIALOG);
+    // TODOaxl: test and remove...
+    //gtk_image_set_from_gicon (GTK_IMAGE (src_icon), src->icon->gicon, GTK_ICON_SIZE_DIALOG);
+    
+    gtk_image_set_from_gicon (GTK_IMAGE (src_icon), fm_file_info_get_gicon (src), GTK_ICON_SIZE_DIALOG);
     disp_size = fm_file_info_get_disp_size (src);
     if (disp_size)
     {
@@ -230,7 +233,9 @@ static gint on_ask_rename (FmFileOpsJob* job, FmFileInfo* src, FmFileInfo* dest,
     gtk_label_set_text (GTK_LABEL (src_fi), tmp);
     g_free (tmp);
 
-    gtk_image_set_from_gicon (GTK_IMAGE (dest_icon), src->icon->gicon, GTK_ICON_SIZE_DIALOG);
+    // TODOaxl: test and remove...
+    //gtk_image_set_from_gicon (GTK_IMAGE (dest_icon), src->icon->gicon, GTK_ICON_SIZE_DIALOG);
+    gtk_image_set_from_gicon (GTK_IMAGE (dest_icon), fm_file_info_get_gicon (src), GTK_ICON_SIZE_DIALOG);
     disp_size = fm_file_info_get_disp_size (dest);
     if (disp_size)
     {
