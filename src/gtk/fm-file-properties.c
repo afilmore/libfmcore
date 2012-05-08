@@ -32,7 +32,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "fm-file-info.h"
+#include "fm-file-info-list.h"
 #include "fm-file-properties.h"
 #include "fm-deep-count-job.h"
 #include "fm-file-ops-job.h"

@@ -27,7 +27,7 @@
 #include <gio/gio.h>
 #include "fm-path-list.h"
 #include "fm-dir-list-job.h"
-#include "fm-file-info.h"
+#include "fm-file-info-list.h"
 #include "fm-job.h"
 #include "fm-file-info-job.h"
 

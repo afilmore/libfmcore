@@ -273,7 +273,7 @@ namespace Fm {
 		public bool is_text ();
 	}
     
-	[CCode (cheader_filename = "fm-file-info.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
+	[CCode (cheader_filename = "fm-file-info-list.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
 	[Compact]
 	public class FileInfoList<G> : Fm.List<G> {
 		

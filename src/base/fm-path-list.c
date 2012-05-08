@@ -27,7 +27,7 @@
 #endif
 
 #include "fm-path-list.h"
-#include "fm-file-info.h"
+#include "fm-file-info-list.h"
 
 #include <string.h>
 #include <limits.h>

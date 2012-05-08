@@ -24,6 +24,7 @@ base_SOURCES = \
 	base/fm-archiver.c \
 	base/fm-dummy-monitor.c \
 	base/fm-file-info.c \
+	base/fm-file-info-list.c \
 	base/fm-folder.c \
 	base/fm-icon.c \
 	base/fm-list.c \
@@ -78,6 +79,7 @@ libfmcoreinclude_HEADERS = \
 	base/fm-archiver.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
+	base/fm-file-info-list.h \
 	base/fm-folder.h \
 	base/fm-icon.h \
 	base/fm-list.h \
