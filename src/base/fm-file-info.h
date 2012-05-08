@@ -52,11 +52,11 @@ struct _FmFileInfo
      * other ones are set from this path...
      * 
      ****************************************************************/
-    FmPath          *path;
-    
     // UTF-8 Displayed Name
     char            *disp_name;
     char            *collate_key;   // Used to sort files by name
+    
+    FmPath          *path;
     
     FmMimeType      *type;          // TODOaxl: rename to mime_type...
     

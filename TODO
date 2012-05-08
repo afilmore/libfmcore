@@ -1,26 +1,9 @@
-* GTK3 Port :
-    ./gtk/fm-dnd-dest.h:90:#if GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-dnd-dest.c:259:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-dnd-dest.c:341:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-dnd-dest.c:373:#if GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-dnd-dest.c:459:#if GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-cell-renderer-pixbuf.h:62:#if GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-progress-dlg.c:159:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-folder-model.c:109:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-folder-model.c:208:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-folder-model.c:654:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-dnd-auto-scroll.c:44:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-dnd-src.c:157:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-clipboard.c:47:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-clipboard.c:77:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-clipboard.c:100:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-clipboard.c:174:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-cell-renderer-pixbuf.c:235:#if GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-gtk-utils.c:231:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk/fm-gtk-utils.c:255:#if !GTK_CHECK_VERSION (3, 0, 8)
-    ./gtk-compat.h:30:#if !GTK_CHECK_VERSION(3, 0, 0)
-    ./gtk-compat.h:34:#if !GTK_CHECK_VERSION(2, 21, 0)
+* fm_file_info_new....
 
+* create a /src/dialog subdirectory...
+
+* GTK3 Port :
+    ./gtk/fm-dnd-src.c:161:#if !ENABLE_GTK3
 
 * base/fm-archiver.c
     - Read archiver list from Gsettings instead of Text File...
