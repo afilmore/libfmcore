@@ -27,7 +27,7 @@
 
 #include <glib.h>
 #include <gio/gio.h>
-#include "fm-path.h"
+#include "fm-path-list.h"
 
 G_BEGIN_DECLS
 

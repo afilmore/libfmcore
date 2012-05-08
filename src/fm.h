@@ -36,6 +36,7 @@
 #include "fm-mime-type.h"
 #include "fm-monitor.h"
 #include "fm-path.h"
+#include "fm-path-list.h"
 #include "fm-utils.h"
 
 // Fm Job

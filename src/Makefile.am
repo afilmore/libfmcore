@@ -31,6 +31,7 @@ base_SOURCES = \
 	base/fm-mime-type.c \
 	base/fm-monitor.c \
 	base/fm-path.c \
+	base/fm-path-list.c \
 	base/fm-utils.c \
 	gtk/app-global-ui.c \
 	gtk/fm-app-chooser-combo-box.c \
@@ -84,6 +85,7 @@ libfmcoreinclude_HEADERS = \
 	base/fm-mime-type.h \
 	base/fm-monitor.h \
 	base/fm-path.h \
+	base/fm-path-list.h \
 	base/fm-utils.h \
 	job/fm-deep-count-job.h \
 	job/fm-dir-list-job.h \

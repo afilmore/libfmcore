@@ -113,7 +113,9 @@ FmFileInfo *fm_file_info_new_user_special_dir   (GUserDirectory directory);
 FmFileInfo *fm_file_info_new_from_gfileinfo     (FmPath *path, GFileInfo *inf);
 
 void fm_file_info_set_from_gfileinfo            (FmFileInfo *fi, GFileInfo *inf);
+
 void fm_file_info_set_from_desktop_entry        (FmFileInfo *file_info);
+
 void fm_file_info_set_fm_icon                   (FmFileInfo *file_info, FmIcon *fm_icon);
 GIcon *fm_file_info_get_gicon                   (FmFileInfo *file_info);
 

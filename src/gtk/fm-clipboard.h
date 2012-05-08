@@ -24,7 +24,7 @@
 #define __FM_CLIPBOARD_H__
 
 #include <gtk/gtk.h>
-#include "fm-path.h"
+#include "fm-path-list.h"
 
 G_BEGIN_DECLS
 
