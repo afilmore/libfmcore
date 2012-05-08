@@ -109,7 +109,7 @@ static FmFileLauncherExecAction on_exec_file(FmFileInfo* file, gpointer user_dat
     dlg = gtk_builder_get_object(b, "dlg");
     msg = gtk_builder_get_object(b, "msg");
     icon = gtk_builder_get_object(b, "icon");
-    gtk_image_set_from_gicon(GTK_IMAGE(icon), file->icon->gicon, GTK_ICON_SIZE_DIALOG);
+    gtk_image_set_from_gicon(GTK_IMAGE(icon), fm_file_info_get_gicon (file), GTK_ICON_SIZE_DIALOG);
     gtk_box_set_homogeneous(GTK_BOX(gtk_dialog_get_action_area(GTK_DIALOG(dlg))), FALSE);
 
     /* If it's a script, ask the user first. */

@@ -26,7 +26,7 @@
 /* TODO:
  * Thunar can directly load embedded thumbnail in jpeg files, we need that, too.
  * Need to support external thumbnailers.
- * */
+ **/
 
 #include "fm-thumbnail.h"
 #include <string.h>

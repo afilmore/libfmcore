@@ -1,7 +1,9 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-file-properties.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -17,8 +19,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #include <config.h>
 #include <glib/gi18n-lib.h>
 
@@ -59,62 +62,62 @@ enum {
 typedef struct _FmFilePropData FmFilePropData;
 struct _FmFilePropData
 {
-    GtkWidget* dlg;
+    GtkWidget *dlg;
 
-    /* General page */
-    GtkWidget* icon;
-    GtkWidget* name;
-    GtkWidget* dir;
-    GtkWidget* target;
-    GtkWidget* target_label;
-    GtkWidget* type;
-    GtkWidget* open_with_label;
-    GtkWidget* open_with;
-    GtkWidget* total_size;
-    GtkWidget* size_on_disk;
-    GtkWidget* mtime;
-    GtkWidget* atime;
+    // General page
+    GtkWidget *icon;
+    GtkWidget *name;
+    GtkWidget *dir;
+    GtkWidget *target;
+    GtkWidget *target_label;
+    GtkWidget *type;
+    GtkWidget *open_with_label;
+    GtkWidget *open_with;
+    GtkWidget *total_size;
+    GtkWidget *size_on_disk;
+    GtkWidget *mtime;
+    GtkWidget *atime;
 
-    /* Permissions page */
-    GtkWidget* owner;
-    char* orig_owner;
-    GtkWidget* group;
-    char* orig_group;
-    GtkWidget* owner_perm;
+    // Permissions page
+    GtkWidget *owner;
+    char *orig_owner;
+    GtkWidget *group;
+    char *orig_group;
+    GtkWidget *owner_perm;
     int owner_perm_sel;
-    GtkWidget* group_perm;
+    GtkWidget *group_perm;
     int group_perm_sel;
-    GtkWidget* other_perm;
+    GtkWidget *other_perm;
     int other_perm_sel;
-    GtkWidget* exec;
+    GtkWidget *exec;
     int exec_state;
 
-    FmFileInfoList* files;
-    FmFileInfo* fi;
+    FmFileInfoList *files;
+    FmFileInfo *fi;
     gboolean single_type;
     gboolean single_file;
     gboolean all_native;
     gboolean has_dir;
-    FmMimeType* mime_type;
+    FmMimeType *mime_type;
 
     uid_t uid;
     gid_t gid;
 
     guint timeout;
-    FmJob* dc_job;
+    FmJob *dc_job;
 };
 
 
-static gboolean on_timeout (FmFilePropData* data)
+static gboolean on_timeout (FmFilePropData *data)
 {
     char size_str[128];
-    FmDeepCountJob* dc = (FmDeepCountJob*) data->dc_job;
+    FmDeepCountJob *dc = (FmDeepCountJob*) data->dc_job;
 
     //gdk_threads_enter ();
 
     if (G_LIKELY (dc && !fm_job_is_cancelled (FM_JOB (dc))))
     {
-        char* str;
+        char *str;
         fm_file_size_to_str (size_str, dc->total_size, TRUE);
         str = g_strdup_printf ("%s  (%'llu %s)", size_str, dc->total_size, ngettext ("byte", "bytes", dc->total_size));
         gtk_label_set_text (GTK_LABEL (data->total_size), str);
@@ -129,9 +132,9 @@ static gboolean on_timeout (FmFilePropData* data)
     return TRUE;
 }
 
-static void on_finished (FmDeepCountJob* job, FmFilePropData* data)
+static void on_finished (FmDeepCountJob *job, FmFilePropData *data)
 {
-    on_timeout (data); /* update display */
+    on_timeout (data); // update display
     if (data->timeout)
     {
         g_source_remove (data->timeout);
@@ -140,30 +143,30 @@ static void on_finished (FmDeepCountJob* job, FmFilePropData* data)
     data->dc_job = NULL;
 }
 
-static void fm_file_prop_data_free (FmFilePropData* data)
+static void fm_file_prop_data_free (FmFilePropData *data)
 {
     g_free (data->orig_owner);
     g_free (data->orig_group);
 
     if (data->timeout)
         g_source_remove (data->timeout);
-    if (data->dc_job) /* FIXME: check if it's running */
+    if (data->dc_job) // FIXME: check if it's running
         fm_job_cancel (data->dc_job);
     fm_list_unref (data->files);
     g_slice_free (FmFilePropData, data);
 }
 
-static gboolean ensure_valid_owner (FmFilePropData* data)
+static gboolean ensure_valid_owner (FmFilePropData *data)
 {
     gboolean ret = TRUE;
-    const char* tmp = gtk_entry_get_text (GTK_ENTRY (data->owner));
+    const char *tmp = gtk_entry_get_text (GTK_ENTRY (data->owner));
 
     data->uid = -1;
     if (tmp && *tmp)
     {
-        if (data->all_native && !isdigit (tmp[0])) /* entering names instead of numbers is only allowed for local files. */
+        if (data->all_native && !isdigit (tmp[0])) // entering names instead of numbers is only allowed for local files.
         {
-            struct passwd* pw;
+            struct passwd *pw;
             if (!tmp || !*tmp || ! (pw = getpwnam (tmp)))
                 ret = FALSE;
             else
@@ -185,17 +188,17 @@ static gboolean ensure_valid_owner (FmFilePropData* data)
     return ret;
 }
 
-static gboolean ensure_valid_group (FmFilePropData* data)
+static gboolean ensure_valid_group (FmFilePropData *data)
 {
     gboolean ret = TRUE;
-    const char* tmp = gtk_entry_get_text (GTK_ENTRY (data->group));
+    const char *tmp = gtk_entry_get_text (GTK_ENTRY (data->group));
 
     data->gid = -1;
     if (tmp && *tmp)
     {
-        if (data->all_native && !isdigit (tmp[0])) /* entering names instead of numbers is only allowed for local files. */
+        if (data->all_native && !isdigit (tmp[0])) // entering names instead of numbers is only allowed for local files.
         {
-            struct group* gr;
+            struct group *gr;
             if (!tmp || !*tmp || ! (gr = getgrnam (tmp)))
                 ret = FALSE;
             else
@@ -217,13 +220,13 @@ static gboolean ensure_valid_group (FmFilePropData* data)
 }
 
 
-static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
+static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
 {
     if ( response == GTK_RESPONSE_OK )
     {
         int sel;
-        const char* new_owner = gtk_entry_get_text (GTK_ENTRY (data->owner));
-        const char* new_group = gtk_entry_get_text (GTK_ENTRY (data->group));
+        const char *new_owner = gtk_entry_get_text (GTK_ENTRY (data->owner));
+        const char *new_group = gtk_entry_get_text (GTK_ENTRY (data->group));
         guint32 uid = -1, gid = -1;
         mode_t new_mode = 0, new_mode_mask = 0;
 
@@ -238,7 +241,7 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
          * machine prior to chown. */
         if (new_owner && *new_owner && g_strcmp0 (data->orig_owner, new_owner))
         {
-            /* change owner */
+            // change owner
             g_debug ("change owner to: %d", data->uid);
         }
         else
@@ -246,17 +249,17 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
 
         if (new_group && *new_group && g_strcmp0 (data->orig_group, new_group))
         {
-            /* change group */
+            // change group
             g_debug ("change group to: %d", data->gid);
         }
         else
             data->gid = -1;
 
-        /* check if chmod is needed here. */
+        // check if chmod is needed here.
         sel = gtk_combo_box_get_active (GTK_COMBO_BOX (data->owner_perm));
-        if ( sel != NO_CHANGE ) /* need to change owner permission */
+        if ( sel != NO_CHANGE ) // need to change owner permission
         {
-            if (data->owner_perm_sel != sel) /* new value is different from original */
+            if (data->owner_perm_sel != sel) // new value is different from original
             {
                 new_mode_mask |= S_IRUSR|S_IWUSR;
                 data->owner_perm_sel = sel;
@@ -273,16 +276,16 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
                     break;
                 }
             }
-            else /* otherwise, no change */
+            else // otherwise, no change
                 data->owner_perm_sel = NO_CHANGE;
         }
         else
             data->owner_perm_sel = NO_CHANGE;
 
         sel = gtk_combo_box_get_active (GTK_COMBO_BOX (data->group_perm));
-        if ( sel != NO_CHANGE ) /* need to change group permission */
+        if ( sel != NO_CHANGE ) // need to change group permission
         {
-            if (data->group_perm_sel != sel) /* new value is different from original */
+            if (data->group_perm_sel != sel) // new value is different from original
             {
                 new_mode_mask |= S_IRGRP|S_IWGRP;
                 data->group_perm_sel = sel;
@@ -299,16 +302,16 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
                     break;
                 }
             }
-            else /* otherwise, no change */
+            else // otherwise, no change
                 data->group_perm_sel = NO_CHANGE;
         }
         else
             data->group_perm_sel = NO_CHANGE;
 
         sel = gtk_combo_box_get_active (GTK_COMBO_BOX (data->other_perm));
-        if ( sel != NO_CHANGE ) /* need to change other permission */
+        if ( sel != NO_CHANGE ) // need to change other permission
         {
-            if (data->other_perm_sel != sel) /* new value is different from original */
+            if (data->other_perm_sel != sel) // new value is different from original
             {
                 new_mode_mask |= S_IROTH|S_IWOTH;
                 switch (sel)
@@ -325,7 +328,7 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
                 }
                 data->other_perm_sel = sel;
             }
-            else /* otherwise, no change */
+            else // otherwise, no change
                 data->other_perm_sel = NO_CHANGE;
         }
         else
@@ -342,14 +345,14 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
 
         if (new_mode_mask || data->uid != -1 || data->gid != -1)
         {
-            FmPathList* paths = fm_path_list_new_from_file_info_list (data->files);
-            FmFileOpsJob* job = (FmFileOpsJob*) fm_file_ops_job_new (FM_FILE_OP_CHANGE_ATTR, paths);
+            FmPathList *paths = fm_path_list_new_from_file_info_list (data->files);
+            FmFileOpsJob *job = (FmFileOpsJob*) fm_file_ops_job_new (FM_FILE_OP_CHANGE_ATTR, paths);
 
-            /* need to chown */
+            // need to chown
             if (data->uid != -1 || data->gid != -1)
                 fm_file_ops_job_set_chown (job, data->uid, data->gid);
 
-            /* need to do chmod */
+            // need to do chmod
             if (new_mode_mask)
                 fm_file_ops_job_set_chmod (job, new_mode, new_mode_mask);
 
@@ -359,17 +362,17 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
                     fm_file_ops_job_set_recursive (job, TRUE);
             }
 
-            /* show progress dialog */
+            // show progress dialog
             fm_file_ops_job_run_with_progress (GTK_WINDOW (data->dlg), job);
             fm_list_unref (paths);
         }
 
-        /* change default application for the mime-type if needed */
+        // change default application for the mime-type if needed
         if (data->mime_type && data->mime_type->type && data->open_with)
         {
-            GAppInfo* app;
+            GAppInfo *app;
             gboolean default_app_changed = FALSE;
-            GError* err = NULL;
+            GError *err = NULL;
             app = fm_app_chooser_combo_box_get_selected (GTK_COMBO_BOX (data->open_with), &default_app_changed);
             if (app)
             {
@@ -386,21 +389,21 @@ static void on_response (GtkDialog* dlg, int response, FmFilePropData* data)
             }
         }
 
-        if (data->single_file) /* when only one file is shown */
+        if (data->single_file) // when only one file is shown
         {
-            /* if the user has changed its name */
+            // if the user has changed its name
             if ( g_strcmp0 (data->fi->disp_name, gtk_entry_get_text (GTK_ENTRY (data->name))) )
             {
-                /* FIXME: rename the file or set display name for it. */
+                // FIXME: rename the file or set display name for it.
             }
         }
     }
     gtk_widget_destroy (GTK_WIDGET (dlg));
 }
 
-static void on_exec_toggled (GtkToggleButton* btn, FmFilePropData* data)
+static void on_exec_toggled (GtkToggleButton *btn, FmFilePropData *data)
 {
-    /* Bypass the default handler */
+    // Bypass the default handler
     g_signal_stop_emission_by_name ( btn, "toggled" );
     /* Block this handler while we are changing the state of buttons,
       or this handler will be called recursively. */
@@ -421,28 +424,28 @@ static void on_exec_toggled (GtkToggleButton* btn, FmFilePropData* data)
                                        0, NULL, on_exec_toggled, NULL );
 }
 
-/* FIXME: this is too dirty. Need some refactor later. */
-static void update_permissions (FmFilePropData* data)
+// FIXME: this is too dirty. Need some refactor later.
+static void update_permissions (FmFilePropData *data)
 {
-    FmFileInfo* fi =  (FmFileInfo*)fm_list_peek_head (data->files);
+    FmFileInfo *fi =  (FmFileInfo*)fm_list_peek_head (data->files);
     GList *l;
     int sel;
-    char* tmp;
+    char *tmp;
     mode_t owner_perm =  (fi->mode & S_IRWXU);
     mode_t group_perm =  (fi->mode & S_IRWXG);
     mode_t other_perm =  (fi->mode & S_IRWXO);
     mode_t exec_perm =  (fi->mode &  (S_IXUSR|S_IXGRP|S_IXOTH));
     uid_t uid = fi->uid;
     gid_t gid = fi->gid;
-    struct group* grp = NULL;
-    struct passwd* pw = NULL;
+    struct group *grp = NULL;
+    struct passwd *pw = NULL;
 
     data->all_native = fm_path_is_native (fi->path);
     data->has_dir = S_ISDIR (fi->mode) != FALSE;
 
     for (l=fm_list_peek_head_link (data->files)->next; l; l=l->next)
     {
-        FmFileInfo* fi =  (FmFileInfo*)l->data;
+        FmFileInfo *fi =  (FmFileInfo*)l->data;
 
         if ( !fm_path_is_native (fi->path) )
             data->all_native = FALSE;
@@ -499,7 +502,7 @@ static void update_permissions (FmFilePropData* data)
     data->orig_owner = g_strdup (gtk_entry_get_text (GTK_ENTRY (data->owner)));
     data->orig_group = g_strdup (gtk_entry_get_text (GTK_ENTRY (data->group)));
 
-    /* on local filesystems, only root can do chown. */
+    // on local filesystems, only root can do chown.
     if ( data->all_native && geteuid () != 0 )
     {
         gtk_editable_set_editable (GTK_EDITABLE (data->owner), FALSE);
@@ -559,19 +562,19 @@ static void update_permissions (FmFilePropData* data)
         gboolean xusr =  (exec_perm & S_IXUSR) != 0;
         gboolean xgrp =  (exec_perm & S_IXGRP) != 0;
         gboolean xoth =  (exec_perm & S_IXOTH) != 0;
-        if ( xusr == xgrp && xusr == xoth ) /* executable */
+        if ( xusr == xgrp && xusr == xoth ) // executable
         {
             gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (data->exec), xusr);
             data->exec_state = xusr;
         }
-        else /* inconsistent */
+        else // inconsistent
         {
             gtk_toggle_button_set_inconsistent (GTK_TOGGLE_BUTTON (data->exec), TRUE);
             g_signal_connect (data->exec, "toggled", G_CALLBACK (on_exec_toggled), data);
             data->exec_state = -1;
         }
     }
-    else /* inconsistent */
+    else // inconsistent
     {
         gtk_toggle_button_set_inconsistent (GTK_TOGGLE_BUTTON (data->exec), TRUE);
         g_signal_connect (data->exec, "toggled", G_CALLBACK (on_exec_toggled), data);
@@ -579,23 +582,21 @@ static void update_permissions (FmFilePropData* data)
     }
 }
 
-static void update_ui (FmFilePropData* data)
+static void update_ui (FmFilePropData *data)
 {
-    GtkImage* img =  (GtkImage*)data->icon;
+    GtkImage *img =  (GtkImage*) data->icon;
 
-    if ( data->single_type ) /* all files are of the same mime-type */
+    if ( data->single_type ) // all files are of the same mime-type
     {
-        GIcon* icon = NULL;
-        /* FIXME: handle custom icons for some files */
+        GIcon *icon = NULL;
+        // FIXME: handle custom icons for some files
 
         /* FIXME: display special property pages for special files or
          * some specified mime-types. */
-        if ( data->single_file ) /* only one file is selected. */
+        if ( data->single_file ) // only one file is selected.
         {
-            FmFileInfo* fi =  (FmFileInfo*)fm_list_peek_head (data->files);
-            // TODOaxl: test and remove...
-            //~ if (fi->icon)
-                //~ icon = fi->icon->gicon;
+            FmFileInfo *fi =  (FmFileInfo*)fm_list_peek_head (data->files);
+            
             icon = fm_file_info_get_gicon (fi);
         }
 
@@ -603,7 +604,7 @@ static void update_ui (FmFilePropData* data)
         {
             if (!icon)
             {
-                FmIcon* ficon = fm_mime_type_get_icon (data->mime_type);
+                FmIcon *ficon = fm_mime_type_get_icon (data->mime_type);
                 if (ficon)
                     icon = ficon->gicon;
             }
@@ -641,12 +642,12 @@ static void update_ui (FmFilePropData* data)
         data->open_with = data->open_with_label = NULL;
     }
 
-    /* FIXME: check if all files has the same parent dir, mtime, or atime */
+    // FIXME: check if all files has the same parent dir, mtime, or atime
     if ( data->single_file )
     {
         char buf[128];
-        FmPath* parent = fm_path_get_parent (fm_file_info_get_path (data->fi));
-        char* parent_str = parent ? fm_path_display_name (parent, TRUE) : NULL;
+        FmPath *parent = fm_path_get_parent (fm_file_info_get_path (data->fi));
+        char *parent_str = parent ? fm_path_display_name (parent, TRUE) : NULL;
         gtk_entry_set_text (GTK_ENTRY (data->name), fm_file_info_get_disp_name (data->fi));
         if (parent_str)
         {
@@ -657,7 +658,7 @@ static void update_ui (FmFilePropData* data)
             gtk_label_set_text (GTK_LABEL (data->dir), "");
         gtk_label_set_text (GTK_LABEL (data->mtime), fm_file_info_get_disp_mtime (data->fi));
 
-        /* FIXME: need to encapsulate this in an libfm API. */
+        // FIXME: need to encapsulate this in an libfm API.
         strftime ( buf, sizeof ( buf ),
                   "%x %R",
                   localtime ( &data->fi->atime ) );
@@ -674,13 +675,13 @@ static void update_ui (FmFilePropData* data)
     on_timeout (data);
 }
 
-static void init_application_list (FmFilePropData* data)
+static void init_application_list (FmFilePropData *data)
 {
     if (data->single_type && data->mime_type)
     {
         if (g_strcmp0 (data->mime_type->type, "inode/directory"))
             fm_app_chooser_combo_box_setup_for_mime_type ((GtkComboBox*) data->open_with, data->mime_type);
-        else /* shouldn't allow set file association for folders. */
+        else // shouldn't allow set file association for folders.
         {
             gtk_widget_destroy (data->open_with_label);
             gtk_widget_destroy (data->open_with);
@@ -689,12 +690,12 @@ static void init_application_list (FmFilePropData* data)
     }
 }
 
-GtkWidget* fm_file_properties_widget_new (FmFileInfoList* files, gboolean toplevel)
+GtkWidget *fm_file_properties_widget_new (FmFileInfoList *files, gboolean toplevel)
 {
-    GtkBuilder* builder=gtk_builder_new ();
-    GtkWidget* dlg, *total_size;
-    FmFilePropData* data;
-    FmPathList* paths;
+    GtkBuilder *builder=gtk_builder_new ();
+    GtkWidget *dlg, *total_size;
+    FmFilePropData *data;
+    FmPathList *paths;
 
     gtk_builder_set_translation_domain (builder, GETTEXT_PACKAGE);
     data = g_slice_new0 (FmFilePropData);
@@ -704,7 +705,7 @@ GtkWidget* fm_file_properties_widget_new (FmFileInfoList* files, gboolean toplev
     data->single_file =  (fm_list_get_length (files) == 1);
     data->fi = fm_list_peek_head (files);
     if (data->single_type)
-        data->mime_type = data->fi->type; /* FIXME: do we need ref counting here? */
+        data->mime_type = data->fi->type; // FIXME: do we need ref counting here?
     paths = fm_path_list_new_from_file_info_list (files);
     data->dc_job = fm_deep_count_job_new (paths, FM_DC_JOB_DEFAULT);
     fm_list_unref (paths);
@@ -718,7 +719,7 @@ GtkWidget* fm_file_properties_widget_new (FmFileInfoList* files, gboolean toplev
     else
     {
         #if 0
-        /* FIXME: is this really useful? */
+        // FIXME: is this really useful?
         const char *names[]={"notebook", NULL};
         gtk_builder_add_objects_from_file (builder, UI_FILE, names, NULL);
         data->dlg =  (GtkWidget*)gtk_builder_get_object (builder, "notebook");
@@ -764,9 +765,9 @@ GtkWidget* fm_file_properties_widget_new (FmFileInfoList* files, gboolean toplev
     return dlg;
 }
 
-gboolean fm_show_file_properties (GtkWindow* parent, FmFileInfoList* files)
+gboolean fm_show_file_properties (GtkWindow *parent, FmFileInfoList *files)
 {
-    GtkWidget* dlg = fm_file_properties_widget_new (files, TRUE);
+    GtkWidget *dlg = fm_file_properties_widget_new (files, TRUE);
     if (parent)
         gtk_window_set_transient_for (GTK_WINDOW (dlg), parent);
     gtk_widget_show (dlg);

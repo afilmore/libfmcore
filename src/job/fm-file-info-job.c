@@ -260,68 +260,13 @@ _retry:
     
     file_info->type = mime_type;
     
-    
-    /* TODOaxl: Moved to FileInfo, test and remove...
-    if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))
-    {
-        file_info->icon = file_info->type ? fm_icon_ref (file_info->type->icon) : NULL;
-        return TRUE;
-    }
-    */
-        
+    // TODOaxl: Create one function.....
     if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))
     {
         fm_file_info_set_fm_icon (file_info, mime_type->icon);
         return TRUE;
     }
-    
     fm_file_info_set_from_desktop_entry (file_info);
-    
-    /* TODOaxl: Moved to FileInfo, test and remove...
-     * 
-     * Special handling for desktop entries...
-    char *fpath = fm_path_to_str (file_info->path);
-    GKeyFile *kf = g_key_file_new ();
-    
-    FmIcon *icon = NULL;
-    if (g_key_file_load_from_file (kf, fpath, 0, NULL))
-    {
-        char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
-        char *title = g_key_file_get_locale_string (kf, "Desktop Entry", "Name", NULL, NULL);
-        
-        if (icon_name)
-        {
-            // This is an icon name, not a full path to icon file.
-            if (icon_name[0] != '/')
-            {
-                // remove file extension
-                char *dot = strrchr (icon_name, '.');
-                if (dot)
-                {
-                    ++dot;
-                    if (strcmp (dot, "png") == 0
-                        || strcmp (dot, "svg") == 0
-                        || strcmp (dot, "xpm") == 0)
-                    {
-                        *(dot-1) = '\0';
-                    }
-                }
-            }
-            
-            icon = fm_icon_from_name (icon_name);
-            g_free (icon_name);
-            
-        }
-        
-        if (title)
-            file_info->disp_name = title;
-    }
-    
-    if (icon)
-        file_info->icon = icon;
-    else
-        file_info->icon = fm_icon_ref (file_info->type->icon);
-	*/
     
     return TRUE;
 }

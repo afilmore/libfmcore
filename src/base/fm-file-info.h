@@ -52,40 +52,42 @@ struct _FmFileInfo
      * other ones are set from this path...
      * 
      ****************************************************************/
-    FmPath *path;
+    FmPath          *path;
     
     // UTF-8 Displayed Name
-    char *disp_name;
+    char            *disp_name;
+    char            *collate_key;   // Used to sort files by name
     
-    FmMimeType *type;   // TODOaxl: rename to mime_type...
+    FmMimeType      *type;          // TODOaxl: rename to mime_type...
     
     // The GIcon Cache (see base/fm-icon.h)...
     
-    FmIcon *icon;       // TODOaxl: rename to fm_icon... avoid any direct member access...
+    FmIcon          *icon;          // TODOaxl: rename to fm_icon... avoid any direct member access...
 
     // Target of shortcut or mountable...
-    char *target;
+    char            *target;
 
     // FileSystem Informations...
-    mode_t mode;
+    mode_t          mode;
+    
     union {
-        const char *fs_id;
-        dev_t dev;
+        const char  *fs_id;
+        dev_t       dev;
     };
-    uid_t   uid;
-    gid_t   gid;
-    goffset size;
-    time_t  mtime;
-    time_t  atime;
-    gulong  blksize;
-    goffset blocks;
+    
+    uid_t           uid;
+    gid_t           gid;
+    goffset         size;
+    time_t          mtime;
+    time_t          atime;
+    gulong          blksize;
+    goffset         blocks;
 
-    char *collate_key;  // Used to sort files by name
-    char *disp_size;    // Displayed human-readable file size
-    char *disp_mtime;   // Displayed last modification time
+    char            *disp_size;     // Displayed human-readable file size
+    char            *disp_mtime;    // Displayed last modification time
     
     // Private...
-    int n_ref;
+    int             n_ref;
 };
 
 // Intialize the file info system
@@ -102,8 +104,10 @@ void _fm_file_info_finalize ();
  ********************************************************************/
 FmFileInfo *fm_file_info_new (); 
 
+
 /*********************************************************************
  * Create Special Items To Display On The Desktop View...
+ * 
  * 
  ********************************************************************/
 FmFileInfo *fm_file_info_new_computer ();
@@ -154,15 +158,12 @@ gboolean fm_file_info_is_text                   (FmFileInfo *fi);
 gboolean fm_file_info_is_desktop_entry          (FmFileInfo *fi);
 gboolean fm_file_info_is_unknown_type           (FmFileInfo *fi);
 gboolean fm_file_info_is_hidden                 (FmFileInfo *fi);
-
-// If the mime-type is executable, shell script, python script...
 gboolean fm_file_info_is_executable_type        (FmFileInfo *fi);
-
 gboolean fm_file_info_can_thumbnail             (FmFileInfo *fi);
 
 
 
-
+// TODOaxl: remove....
 /* Maybe Create fm-file-info-list.c/h files...
 gboolean fm_list_is_file_info_list              (FmList *list);
 FmFileInfoList *fm_file_info_list_new ();

@@ -1,17 +1,25 @@
 /***********************************************************************************************************************
- * fm-gtk-launcher.c
  * 
- * Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
- * 
- * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
- * 
- * Purpose: 
- * 
+ *      fm-gtk-launcher.c
+ *
+ *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 2 of the License, or
+ *       (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
+ *
  * 
  **********************************************************************************************************************/
 #ifdef HAVE_CONFIG_H
@@ -20,11 +28,11 @@
 
 #include <glib/gi18n-lib.h>
 #include <gio/gdesktopappinfo.h>
-/* for open () */
+// for open ()
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-/* for read () */
+// for read ()
 #include <unistd.h>
 
 #include "fm-gtk-launcher.h"
@@ -39,29 +47,29 @@ extern const char EXEC_FILE_DLG[];
 typedef struct _LaunchData LaunchData;
 struct _LaunchData
 {
-    GtkWindow* parent;
+    GtkWindow *parent;
     FmLaunchFolderFunc folder_func;
     gpointer user_data;
 };
 
-static gboolean _fm_launch_files (GAppLaunchContext* ctx,
-                                 GList* file_infos,
-                                 FmFileLauncher* launcher,
+static gboolean _fm_launch_files (GAppLaunchContext *ctx,
+                                 GList *file_infos,
+                                 FmFileLauncher *launcher,
                                  gpointer user_data);
 
-static GAppInfo* choose_app (GList* file_infos, FmMimeType* mime_type, gpointer user_data, GError** err)
+static GAppInfo *choose_app (GList *file_infos, FmMimeType *mime_type, gpointer user_data, GError **err)
 {
-    LaunchData* data = (LaunchData*)user_data;
+    LaunchData *data = (LaunchData*)user_data;
     return fm_choose_app_for_mime_type (data->parent, mime_type, mime_type != NULL);
 }
 
-static gboolean file_is_executable_script (FmFileInfo* file)
+static gboolean file_is_executable_script (FmFileInfo *file)
 {
-    /* We don't execute remote files */
+    // We don't execute remote files
     if (fm_path_is_local (file->path) && fm_file_info_is_text (file) && fm_file_info_get_size (file) > 2)
     {
-        /* check if the first two bytes of the file is #! */
-        char* path = fm_path_to_str (file->path);
+        // check if the first two bytes of the file is #!
+        char *path = fm_path_to_str (file->path);
         int fd = open (path, O_RDONLY);
         g_free (path);
         if (fd != -1)
@@ -70,17 +78,17 @@ static gboolean file_is_executable_script (FmFileInfo* file)
             ssize_t r = read (fd, buf, 2);
             close (fd);
             if (r == 2 && buf[0] == '#' && buf[1] == '!')
-                return TRUE; /* the file contains #! in first two bytes */
+                return TRUE; // the file contains #! in first two bytes
         }
     }
     return FALSE;
 }
 
-static FmFileLauncherExecAction on_exec_file (FmFileInfo* file, gpointer user_data)
+static FmFileLauncherExecAction on_exec_file (FmFileInfo *file, gpointer user_data)
 {
-    //LaunchData* data = (LaunchData*) user_data;
+    //LaunchData *data = (LaunchData*) user_data;
     
-    GtkBuilder* builder = gtk_builder_new ();
+    GtkBuilder *builder = gtk_builder_new ();
     
     gtk_builder_set_translation_domain (builder, GETTEXT_PACKAGE);
     gtk_builder_add_from_string (builder, EXEC_FILE_DLG, -1, NULL);
@@ -89,10 +97,10 @@ static FmFileLauncherExecAction on_exec_file (FmFileInfo* file, gpointer user_da
     GtkWidget *msg = (GtkWidget*) gtk_builder_get_object (builder, "msg");
     GtkWidget *icon = (GtkWidget*) gtk_builder_get_object (builder, "icon");
     
-    gtk_image_set_from_gicon (GTK_IMAGE (icon), file->icon->gicon, GTK_ICON_SIZE_DIALOG);
+    gtk_image_set_from_gicon (GTK_IMAGE (icon), fm_file_info_get_gicon (file), GTK_ICON_SIZE_DIALOG);
     gtk_box_set_homogeneous (GTK_BOX (gtk_dialog_get_action_area (GTK_DIALOG (dlg))), FALSE);
 
-    char* msg_str;
+    char *msg_str;
     
     // Ask before opening scripts
     if (file_is_executable_script (file))
@@ -105,7 +113,7 @@ static FmFileLauncherExecAction on_exec_file (FmFileInfo* file, gpointer user_da
     }
     else
     {
-        GtkWidget* open = (GtkWidget*) gtk_builder_get_object (builder, "open");
+        GtkWidget *open = (GtkWidget*) gtk_builder_get_object (builder, "open");
         gtk_widget_destroy (open);
         msg_str = g_strdup_printf (_("This file '%s' is executable. Do you want to execute it?"),
                                    fm_file_info_get_disp_name (file));
@@ -124,9 +132,9 @@ static FmFileLauncherExecAction on_exec_file (FmFileInfo* file, gpointer user_da
     return ((res <=0) ? FM_FILE_LAUNCHER_EXEC_CANCEL : res);
 }
 
-static gboolean on_launch_error (GAppLaunchContext* ctx, GError* err, gpointer user_data)
+static gboolean on_launch_error (GAppLaunchContext *ctx, GError *err, gpointer user_data)
 {
-    LaunchData* data = (LaunchData*) user_data;
+    LaunchData *data = (LaunchData*) user_data;
     
     g_return_val_if_fail (data && data->parent, FALSE);
     
@@ -135,22 +143,22 @@ static gboolean on_launch_error (GAppLaunchContext* ctx, GError* err, gpointer u
     return TRUE;
 }
 
-static int on_launch_ask (const char* msg, const char** btn_labels, int default_btn, gpointer user_data)
+static int on_launch_ask (const char *msg, const char **btn_labels, int default_btn, gpointer user_data)
 {
-    LaunchData* data = (LaunchData*)user_data;
+    LaunchData *data = (LaunchData*)user_data;
     
     g_return_val_if_fail (data && data->parent, 0);
     
-    /* FIXME: set default button properly */
+    // FIXME: set default button properly
     
     return fm_askv (data->parent, NULL, msg, btn_labels);
 }
 
-gboolean fm_launch_paths (GAppLaunchContext* ctx, GList* paths, FmFileLauncher* launcher, gpointer user_data)
+gboolean fm_launch_paths (GAppLaunchContext *ctx, GList *paths, FmFileLauncher *launcher, gpointer user_data)
 {
-    FmJob* job = fm_file_info_job_new (NULL, 0);
+    FmJob *job = fm_file_info_job_new (NULL, 0);
     
-    GList* l;
+    GList *l;
     gboolean ret;
     
     for (l=paths;l;l=l->next)
@@ -160,7 +168,7 @@ gboolean fm_launch_paths (GAppLaunchContext* ctx, GList* paths, FmFileLauncher* 
     
     if (ret)
     {
-        GList* file_infos = fm_list_peek_head_link (FM_FILE_INFO_JOB (job)->file_infos);
+        GList *file_infos = fm_list_peek_head_link (FM_FILE_INFO_JOB (job)->file_infos);
         if (file_infos)
             ret = _fm_launch_files (ctx, file_infos, launcher, user_data);
         else
@@ -171,54 +179,54 @@ gboolean fm_launch_paths (GAppLaunchContext* ctx, GList* paths, FmFileLauncher* 
     return ret;
 }
 
-gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
-                                  const char* file_or_id,
-                                  GList* uris,
-                                  FmFileLauncher* launcher,
+gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx,
+                                  const char *file_or_id,
+                                  GList *uris,
+                                  FmFileLauncher *launcher,
                                   gpointer user_data)
 {
     gboolean ret = FALSE;
-    GAppInfo* app;
+    GAppInfo *app;
     gboolean is_absolute_path = g_path_is_absolute (file_or_id);
-    GList* _uris = NULL;
-    GError* err = NULL;
+    GList *_uris = NULL;
+    GError *err = NULL;
 
-    /* Let GDesktopAppInfo try first. */
+    // Let GDesktopAppInfo try first.
     if (is_absolute_path)
         app = (GAppInfo*) g_desktop_app_info_new_from_filename (file_or_id);
     else
         app = (GAppInfo*) g_desktop_app_info_new (file_or_id);
 
-    if (!app) /* gio failed loading it. Let's see what's going on */
+    if (!app) // gio failed loading it. Let's see what's going on
     {
         printf ("fm_launch_desktop_entry: GIO Failed to load %s entry file !!!\n", file_or_id);
         
         gboolean loaded;
-        GKeyFile* kf = g_key_file_new ();
+        GKeyFile *kf = g_key_file_new ();
 
-        /* load the desktop entry file ourselves */
+        // load the desktop entry file ourselves
         if (is_absolute_path)
             loaded = g_key_file_load_from_file (kf, file_or_id, 0, &err);
         else
         {
-            char* tmp = g_strconcat ("applications/", file_or_id, NULL);
+            char *tmp = g_strconcat ("applications/", file_or_id, NULL);
             loaded = g_key_file_load_from_data_dirs (kf, tmp, NULL, 0, &err);
             g_free (tmp);
         }
         
         if (loaded)
         {
-            char* type = g_key_file_get_string (kf, G_KEY_FILE_DESKTOP_GROUP, "Type", NULL);
+            char *type = g_key_file_get_string (kf, G_KEY_FILE_DESKTOP_GROUP, "Type", NULL);
             
-            /* gio only supports "Application" type. Let's handle other types ourselves. */
+            // gio only supports "Application" type. Let's handle other types ourselves.
             if (type)
             {
                 if (strcmp (type, "Link") == 0)
                 {
-                    char* url = g_key_file_get_string (kf, G_KEY_FILE_DESKTOP_GROUP, "URL", &err);
+                    char *url = g_key_file_get_string (kf, G_KEY_FILE_DESKTOP_GROUP, "URL", &err);
                     if (url)
                     {
-                        char* scheme = g_uri_parse_scheme (url);
+                        char *scheme = g_uri_parse_scheme (url);
                         if (scheme)
                         {
                             if (strcmp (scheme, "file") == 0 ||
@@ -227,12 +235,12 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
                                strcmp (scheme, "computer") == 0 ||
                                strcmp (scheme, "menu") == 0)
                             {
-                                /* OK, it's a file. We can handle it! */
-                                /* FIXME: prevent recursive invocation of desktop entry file.
+                                /* OK, it's a file. We can handle it!
+                                 * FIXME: prevent recursive invocation of desktop entry file.
                                  * e.g: If this URL points to the another desktop entry file, and it
                                  * points to yet another desktop entry file, this can create a
                                  * infinite loop. This is a extremely rare case. */
-                                FmPath* path = fm_path_new_for_uri (url);
+                                FmPath *path = fm_path_new_for_uri (url);
                                 _uris = g_list_prepend (_uris, path);
                                 ret = fm_launch_paths (ctx, _uris, launcher, user_data);
                                 g_list_free (_uris);
@@ -241,8 +249,8 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
                             }
                             else
                             {
-                                /* Damn! this actually relies on gconf to work. */
-                                /* FIXME: use our own way to get a usable browser later. */
+                                // Damn! this actually relies on gconf to work.
+                                // FIXME: use our own way to get a usable browser later.
                                 app = g_app_info_get_default_for_uri_scheme (scheme);
                                 uris = _uris = g_list_prepend (NULL, url);
                             }
@@ -252,7 +260,7 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
                 }
                 else if (strcmp (type, "Directory") == 0)
                 {
-                    /* FIXME: how should this work? It's not defined in the spec. :- ( */
+                    // FIXME: how should this work? It's not defined in the spec. :- (
                 }
                 g_free (type);
             }
@@ -279,25 +287,25 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext* ctx,
     return ret;
 }
 
-static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmFileLauncher* launcher, gpointer user_data)
+static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmFileLauncher *launcher, gpointer user_data)
 {
-    GHashTable* hash = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
+    GHashTable *hash = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
     
-    GList* l;
-    //GList* folders = NULL;
-    FmFileInfo* fi;
-    GError* err = NULL;
-    GAppInfo* app;
+    GList *l;
+    //GList *folders = NULL;
+    FmFileInfo *fi;
+    GError *err = NULL;
+    GAppInfo *app;
 
     for (l = file_infos; l; l=l->next)
     {
-        GList* fis;
+        GList *fis;
         fi = (FmFileInfo*) l->data;
         
-        /* FIXME: handle shortcuts, such as the items in menu:// */
+        // FIXME: handle shortcuts, such as the items in menu://
         if (fm_path_is_native (fi->path))
         {
-            char* filename;
+            char *filename;
             
             // Open Desktop Entries...
             if (fm_file_info_is_desktop_entry (fi))
@@ -323,8 +331,8 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
                                 flags |= G_APP_INFO_CREATE_NEEDS_TERMINAL;
                             case FM_FILE_LAUNCHER_EXEC:
                             {
-                                /* filename may contain spaces. Fix #3143296 */
-                                char* quoted = g_shell_quote (filename);
+                                // filename may contain spaces. Fix #3143296
+                                char *quoted = g_shell_quote (filename);
                                 app = fm_app_info_create_from_commandline (quoted, NULL, flags, NULL);
                                 g_free (quoted);
                                 if (app)
@@ -376,16 +384,16 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
     if (g_hash_table_size (hash) > 0)
     {
         GHashTableIter it;
-        const char* type;
-        GList* fis;
+        const char *type;
+        GList *fis;
         g_hash_table_iter_init (&it, hash);
         
         while (g_hash_table_iter_next (&it, (void**) &type, (void**) &fis))
         {
-            GAppInfo* app = g_app_info_get_default_for_type (type, FALSE);
+            GAppInfo *app = g_app_info_get_default_for_type (type, FALSE);
             if (!app && launcher->get_app)
             {
-                FmMimeType* mime_type = ((FmFileInfo*)fis->data)->type;
+                FmMimeType *mime_type = ((FmFileInfo*)fis->data)->type;
                 app = launcher->get_app (fis, mime_type, user_data, NULL);
             }
             
@@ -393,7 +401,7 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
             {
                 for (l=fis; l; l=l->next)
                 {
-                    char* uri;
+                    char *uri;
                     fi = (FmFileInfo*)l->data;
                     uri = fm_path_to_uri (fi->path);
                     l->data = uri;
@@ -404,7 +412,7 @@ static gboolean _fm_launch_files (GAppLaunchContext* ctx, GList* file_infos, FmF
                 
                 fm_app_info_launch_uris (app, fis, ctx, &err);
                 
-                /* free URI strings */
+                // free URI strings
                 g_list_foreach (fis, (GFunc)g_free, NULL);
                 g_object_unref (app);
             }
@@ -423,15 +431,15 @@ gboolean fm_launch_file (GtkWindow *parent,
                          gpointer user_data)
 {
     gboolean ret;
-    GList* files = g_list_prepend (NULL, file_info);
+    GList *files = g_list_prepend (NULL, file_info);
     ret = fm_launch_multiple_files (parent, ctx, files, func, user_data);
     g_list_free (files);
     return ret;
 }
 
-gboolean fm_launch_multiple_files (GtkWindow* parent,
-                                   GAppLaunchContext* ctx,
-                                   GList* file_infos,
+gboolean fm_launch_multiple_files (GtkWindow *parent,
+                                   GAppLaunchContext *ctx,
+                                   GList *file_infos,
                                    FmLaunchFolderFunc func,
                                    gpointer user_data)
 {
