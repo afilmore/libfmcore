@@ -14,6 +14,7 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/fmvala \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
+	-I$(srcdir)/gtk-dlg \
 	-I$(srcdir)/job \
 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
@@ -34,23 +35,23 @@ base_SOURCES = \
 	base/fm-path.c \
 	base/fm-path-list.c \
 	base/fm-utils.c \
-	gtk/app-global-ui.c \
-	gtk/fm-app-chooser-combo-box.c \
-	gtk/fm-app-chooser-dlg.c \
-	gtk/fm-app-menu-view.c \
 	gtk/fm-cell-renderer-pixbuf.c \
 	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
 	gtk/fm-file-menu.c \
-	gtk/fm-file-properties.c \
 	gtk/fm-gtk-launcher.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-gtk-utils.c \
 	gtk/fm-icon-pixbuf.c \
-	gtk/fm-progress-dlg.c \
 	gtk/fm-thumbnail.c \
+	gtk-dlg/app-global-ui.c \
+	gtk-dlg/fm-app-chooser-combo-box.c \
+	gtk-dlg/fm-app-chooser-dlg.c \
+	gtk-dlg/fm-app-menu-view.c \
+	gtk-dlg/fm-file-properties.c \
+	gtk-dlg/fm-progress-dlg.c \
 	$(NULL)
 
 job_SOURCES = \
@@ -98,22 +99,22 @@ libfmcoreinclude_HEADERS = \
 	job/fm-file-ops-job-xfer.h \
 	job/fm-job.h \
 	job/fm-simple-job.h \
-	gtk/fm-app-chooser-combo-box.h \
-	gtk/fm-app-chooser-dlg.h \
-	gtk/fm-app-menu-view.h \
 	gtk/fm-cell-renderer-pixbuf.h \
 	gtk/fm-clipboard.h \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-src.h \
 	gtk/fm-file-menu.h \
-	gtk/fm-file-properties.h \
 	gtk/fm-gtk-launcher.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \
-	gtk/fm-progress-dlg.h \
 	gtk/fm-thumbnail.h \
+	gtk-dlg/fm-app-chooser-combo-box.h \
+	gtk-dlg/fm-app-chooser-dlg.h \
+	gtk-dlg/fm-app-menu-view.h \
+	gtk-dlg/fm-file-properties.h \
+	gtk-dlg/fm-progress-dlg.h \
 	$(NULL)
 
 pkginclude_HEADERS = \
