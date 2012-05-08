@@ -51,7 +51,7 @@ G_DEFINE_TYPE (FmFolder, fm_folder, G_TYPE_OBJECT);
 static GList* _fm_folder_get_file_by_name (FmFolder* folder, const char* name);
 
 static guint signals[N_SIGNALS];
-static GHashTable* hash = NULL; /* FIXME: should this be guarded with a mutex? */
+static GHashTable* hash = NULL; /* FIXME_pcm: should this be guarded with a mutex? */
 
 static void fm_folder_class_init (FmFolderClass *klass)
 {
@@ -193,7 +193,7 @@ void on_file_info_finished (FmFileInfoJob* job, FmFolder* folder)
         if (l2) /* the file is already in the folder, update */
         {
             FmFileInfo* fi2 =  (FmFileInfo*)l2->data;
-            /* FIXME: will fm_file_info_copy here cause problems?
+            /* FIXME_pcm: will fm_file_info_copy here cause problems?
              *        the file info might be referenced by others, too.
              *        we're mofifying an object referenced by others.
              *        we should redesign the API, or document this clearly
@@ -329,7 +329,7 @@ static void on_folder_changed (GFileMonitor* mon, GFile* gf, GFile* other, GFile
     if (g_file_equal (gf, folder->gf))
     {
         g_debug ("event of the folder itself: %d", evt);
-        /* FIXME: handle unmount events */
+        /* FIXME_pcm: handle unmount events */
         switch (evt)
         {
         case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
@@ -431,10 +431,10 @@ FmFolder* fm_folder_new_internal (FmPath* path, GFile* gf)
 FmFolder* fm_folder_get_internal (FmPath* path, GFile* gf)
 {
     FmFolder* folder;
-    /* FIXME: should we provide a generic FmPath cache in fm-path.c
+    /* FIXME_pcm: should we provide a generic FmPath cache in fm-path.c
      * to associate all kinds of data structures with FmPaths? */
 
-    /* FIXME: should creation of the hash table be moved to fm_init ()? */
+    /* FIXME_pcm: should creation of the hash table be moved to fm_init ()? */
     if ( G_LIKELY (hash) )
         folder =  (FmFolder*)g_hash_table_lookup (hash, path);
     else
@@ -470,7 +470,7 @@ static void fm_folder_finalize (GObject *object)
     {
         g_signal_handlers_disconnect_by_func (folder->job, on_job_finished, folder);
         g_signal_handlers_disconnect_by_func (folder->job, on_job_err, folder);
-        fm_job_cancel (FM_JOB (folder->job)); /* FIXME: is this ok? */
+        fm_job_cancel (FM_JOB (folder->job)); /* FIXME_pcm: is this ok? */
         /* the job will be freed automatically in idle handler. */
     }
 
@@ -548,7 +548,7 @@ FmFolder* fm_folder_get_for_path_name (const char* path)
     return folder;
 }
 
-/* FIXME: should we use GFile here? */
+/* FIXME_pcm: should we use GFile here? */
 FmFolder*    fm_folder_get_for_uri     (const char* uri)
 {
     GFile* gf = g_file_new_for_uri (uri);
@@ -559,7 +559,7 @@ FmFolder*    fm_folder_get_for_uri     (const char* uri)
 
 void fm_folder_reload (FmFolder* folder)
 {
-    /* FIXME: remove all items and re-run a dir list job. */
+    /* FIXME_pcm: remove all items and re-run a dir list job. */
     GSList* files_to_del = NULL;
     GList* l = fm_list_peek_head_link (folder->files);
     if (l)
@@ -637,7 +637,7 @@ static void on_query_filesystem_info_finished (GObject *src, GAsyncResult *res, 
         folder->has_fs_info = FALSE;
         folder->fs_info_not_avail = TRUE;
 
-        /* FIXME: examine unsupported filesystems */
+        /* FIXME_pcm: examine unsupported filesystems */
 
         g_error_free (err);
         goto _out;

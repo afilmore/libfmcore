@@ -199,7 +199,7 @@ gboolean fm_dnd_dest_files_dropped (FmDndDest* dnd_dest, int x, int y, GdkDragAc
         // fm_link_files (parent, files, fm_dnd_dest_get_dest_path (dnd_dest));
         break;
     case GDK_ACTION_ASK:
-        g_debug ("TODO: GDK_ACTION_ASK");
+        g_debug ("TODO_pcm: GDK_ACTION_ASK");
         break;
     }
     fm_list_unref (files);
@@ -470,7 +470,7 @@ gboolean fm_dnd_dest_drag_drop (FmDndDest* dnd_dest, GdkDragContext *drag_contex
         {
             if (dnd_dest->waiting_data) /* if we're still waiting for the data */
             {
-                /* FIXME: how to handle this? */
+                /* FIXME_pcm: how to handle this? */
                 ret = FALSE;
             }
             else
@@ -530,7 +530,7 @@ GdkDragAction fm_dnd_dest_get_default_action (FmDndDest* dnd_dest,
         else if (fm_path_is_virtual (dest_path))
         {
             /* computer:/// and network:/// shouldn't received dropped files. */
-            /* FIXME: some special handling can be done with menu:// */
+            /* FIXME_pcm: some special handling can be done with menu:// */
             action = 0;
         }
         else /* dest is a ordinary path */
@@ -552,7 +552,7 @@ GdkDragAction fm_dnd_dest_get_default_action (FmDndDest* dnd_dest,
                 /* compare the device/filesystem id against that of destination file */
                 if (fm_path_is_native (dest_path))
                     same_fs = dnd_dest->src_dev &&  (dnd_dest->src_dev == dest->dev);
-                else /* FIXME: can we use direct comparison here? */
+                else /* FIXME_pcm: can we use direct comparison here? */
                     same_fs = dnd_dest->src_fs_id &&  (0 == g_strcmp0 (dnd_dest->src_fs_id, dest->fs_id));
                 action = same_fs ? GDK_ACTION_MOVE : GDK_ACTION_COPY;
             }

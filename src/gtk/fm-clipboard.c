@@ -183,7 +183,7 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
         
         char *pdata = (char*) data;
         
-        /* FIXME: is it safe to assume the clipboard data is null-terminalted?
+        /* FIXME_pcm: is it safe to assume the clipboard data is null-terminalted?
          * According to the source code in gtkselection.c, gtk+ seems to
          * includes an extra byte at the end of GtkSelectionData::data, so
          * this should be safe. */
@@ -210,7 +210,7 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
             }
             break;
         case UTF8_STRING:
-            /* FIXME: how should we treat UTF-8 strings? URIs or filenames? */
+            /* FIXME_pcm: how should we treat UTF-8 strings? URIs or filenames? */
             uris = g_uri_list_extract_uris (pdata);
             break;
         }

@@ -68,7 +68,7 @@ FmJob* fm_dir_list_job_new (FmPath* path, gboolean dir_only)
 
 FmJob* fm_dir_list_job_new_for_gfile (GFile* gf)
 {
-	/* FIXME: should we cache this with hash table? Or, the cache
+	/* FIXME_pcm: should we cache this with hash table? Or, the cache
 	 * should be done at the level of FmFolder instead? */
 	FmDirListJob* job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	job->dir_path = fm_path_new_for_gfile (gf);
@@ -267,7 +267,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             if (job->dir_only) /* if we only want directories */
             {
                 struct stat st;
-                /* FIXME: this results in an additional stat () call, which is inefficient */
+                /* FIXME_pcm: this results in an additional stat () call, which is inefficient */
                 if (stat (fpath->str, &st) == -1 || !S_ISDIR (st.st_mode))
                     continue;
             }
@@ -347,7 +347,7 @@ _retry:
         return FALSE;
     }
 
-    /* FIXME: should we use fm_file_info_new_ + fm_file_info_set_from_gfileinfo? */
+    /* FIXME_pcm: should we use fm_file_info_new_ + fm_file_info_set_from_gfileinfo? */
     job->dir_fi = fm_file_info_new_from_gfileinfo (job->dir_path, inf);
     
     g_object_unref (inf);
@@ -376,7 +376,7 @@ _retry:
                 FmPath* sub;
                 if (G_UNLIKELY (job->dir_only))
                 {
-                    /* FIXME: handle symlinks */
+                    /* FIXME_pcm: handle symlinks */
                     if (g_file_info_get_file_type (inf) != G_FILE_TYPE_DIRECTORY)
                     {
                         g_object_unref (inf);
@@ -399,7 +399,7 @@ _retry:
                     if (act == FM_JOB_ABORT)
                         fm_job_cancel (FM_JOB (job));
                 }
-                break; /* FIXME: error handling */
+                break; /* FIXME_pcm: error handling */
             }
             g_object_unref (inf);
         }

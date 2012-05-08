@@ -66,7 +66,7 @@ enum _FmFileOpOption
 };
 typedef enum _FmFileOpOption FmFileOpOption;
 
-/* FIXME: maybe we should create derived classes for different kind
+/* FIXME_pcm: maybe we should create derived classes for different kind
  * of file operations rather than use one class to handle all kinds of
  * file operations. */
 

@@ -105,7 +105,7 @@ gboolean fm_job_is_cancelled(FmJob* job);
 gboolean fm_job_is_running(FmJob* job);
 
 
-/* FIXME: requiring g_object_unref() is actually a better idea
+/* FIXME_pcm: requiring g_object_unref() is actually a better idea
  * due to API consistency. Need to re-think this part. */
 
 /* Run a job asynchronously in another working thread, and 

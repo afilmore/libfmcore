@@ -269,7 +269,7 @@ FmFileOpOption fm_file_ops_job_ask_rename (FmFileOpsJob* job, GFile* src, GFileI
     fm_job_set_cancellable (FM_JOB (fijob), fm_job_get_cancellable (FM_JOB (job)));
     fm_job_run_sync (FM_JOB (fijob));
 
-    /* FIXME, handle cancellation correctly */
+    /* FIXME_pcm, handle cancellation correctly */
     if ( fm_job_is_cancelled (FM_JOB (fijob)) )
     {
         if (src_fi)

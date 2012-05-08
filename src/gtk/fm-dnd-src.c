@@ -204,7 +204,7 @@ on_drag_begin  (GtkWidget *src_widget,
 
     gtk_drag_set_icon_default (drag_context);
 
-    /* FIXME: set the icon to file icon later */
+    /* FIXME_pcm: set the icon to file icon later */
     // gtk_drag_set_icon_pixbuf ();
 
     /* ask drag source to provide list of source files. */

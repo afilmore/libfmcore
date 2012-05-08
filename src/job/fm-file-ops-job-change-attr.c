@@ -98,7 +98,7 @@ _retry_change_group:
         mode &= ~job->new_mode_mask;
         mode |= (job->new_mode & job->new_mode_mask);
 
-        /* FIXME: this behavior should be optional. */
+        /* FIXME_pcm: this behavior should be optional. */
         /* treat dirs with 'r' as 'rx' */
         if(type == G_FILE_TYPE_DIRECTORY)
         {
@@ -170,7 +170,7 @@ _retry_enum_children:
 			if(inf)
 			{
 				GFile* sub = g_file_get_child(gf, g_file_info_get_name(inf));
-				ret = _fm_file_ops_job_change_attr_file(job, sub, inf); /* FIXME: error handling? */
+				ret = _fm_file_ops_job_change_attr_file(job, sub, inf); /* FIXME_pcm: error handling? */
 				g_object_unref(sub);
 				g_object_unref(inf);
                 if(!ret)
@@ -193,7 +193,7 @@ _retry_enum_children:
 
         if(job->src_folder_mon)
         {
-            /* FIXME: we also need to fire a changed event on the monitor of the dir itself. */
+            /* FIXME_pcm: we also need to fire a changed event on the monitor of the dir itself. */
             g_file_monitor_emit_event(job->src_folder_mon, gf, NULL, G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED);
             g_object_unref(job->src_folder_mon);
         }

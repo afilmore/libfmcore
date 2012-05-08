@@ -87,7 +87,7 @@ gboolean fm_launch_desktop_entry(GAppLaunchContext* ctx, const char* file_or_id,
                                strcmp(scheme, "menu") == 0)
                             {
                                 /* OK, it's a file. We can handle it! */
-                                /* FIXME: prevent recursive invocation of desktop entry file.
+                                /* FIXME_pcm: prevent recursive invocation of desktop entry file.
                                  * e.g: If this URL points to the another desktop entry file, and it
                                  * points to yet another desktop entry file, this can create a
                                  * infinite loop. This is a extremely rare case. */
@@ -101,7 +101,7 @@ gboolean fm_launch_desktop_entry(GAppLaunchContext* ctx, const char* file_or_id,
                             else
                             {
                                 /* Damn! this actually relies on gconf to work. */
-                                /* FIXME: use our own way to get a usable browser later. */
+                                /* FIXME_pcm: use our own way to get a usable browser later. */
                                 app = g_app_info_get_default_for_uri_scheme(scheme);
                                 uris = _uris = g_list_prepend(NULL, url);
                             }
@@ -111,7 +111,7 @@ gboolean fm_launch_desktop_entry(GAppLaunchContext* ctx, const char* file_or_id,
                 }
                 else if(strcmp(type, "Directory") == 0)
                 {
-                    /* FIXME: how should this work? It's not defined in the spec. :-( */
+                    /* FIXME_pcm: how should this work? It's not defined in the spec. :-( */
                 }
                 g_free(type);
             }
@@ -155,7 +155,7 @@ gboolean fm_launch_files(GAppLaunchContext* ctx, GList* file_infos, FmFileLaunch
                 folders = g_list_prepend(folders, fi);
         else
         {
-            /* FIXME: handle shortcuts, such as the items in menu:// */
+            /* FIXME_pcm: handle shortcuts, such as the items in menu:// */
             if(fm_path_is_native(fi->path))
             {
                 char* filename;
@@ -170,7 +170,7 @@ gboolean fm_launch_files(GAppLaunchContext* ctx, GList* file_infos, FmFileLaunch
                 {
                     /* if it's an executable file, directly execute it. */
                     filename = fm_path_to_str(fi->path);
-                    /* FIXME: we need to use eaccess/euidaccess here. */
+                    /* FIXME_pcm: we need to use eaccess/euidaccess here. */
                     if(g_file_test(filename, G_FILE_TEST_IS_EXECUTABLE))
                     {
                         if(launcher->exec_file)
@@ -216,7 +216,7 @@ gboolean fm_launch_files(GAppLaunchContext* ctx, GList* file_infos, FmFileLaunch
             {
                 if(fm_file_info_is_shortcut(fi) && !fm_file_info_is_dir(fi))
                 {
-                    /* FIXME: special handling for shortcuts */
+                    /* FIXME_pcm: special handling for shortcuts */
                     if(fm_path_is_xdg_menu(fi->path) && fi->target)
                     {
                         fm_launch_desktop_entry(ctx, fi->target, NULL, launcher, user_data);

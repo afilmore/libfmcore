@@ -78,7 +78,7 @@ gboolean _fm_file_ops_job_check_paths(FmFileOpsJob* job, GFile* src, GFileInfo* 
 
 gboolean _fm_file_ops_job_copy_file(FmFileOpsJob* job, GFile* src, GFileInfo* inf, GFile* dest)
 {
-    /* FIXME: prevent copying to self or copying parent dir to child. */
+    /* FIXME_pcm: prevent copying to self or copying parent dir to child. */
     gboolean ret = FALSE;
     gboolean delete_src = FALSE;
     GError* err = NULL;
@@ -208,7 +208,7 @@ _retry_query_src_info:
                             err = NULL;
                             if(act == FM_JOB_RETRY)
                                 goto _retry_chmod_for_dir;
-                            /* FIXME: some filesystems may not support this. */
+                            /* FIXME_pcm: some filesystems may not support this. */
                         }
                     }
                     dir_created = TRUE;
@@ -225,7 +225,7 @@ _retry_query_src_info:
                 job->skip_dir_content = TRUE;
 
             /* the dest dir is created. let's copy its content. */
-            /* FIXME: handle the case when the dir cannot be created. */
+            /* FIXME_pcm: handle the case when the dir cannot be created. */
             if(!fm_job_is_cancelled(fmjob))
             {
             _retry_enum_children:
@@ -244,7 +244,7 @@ _retry_query_src_info:
                             /* don't overwrite dir content, only calculate progress. */
                             if(G_UNLIKELY(job->skip_dir_content))
                             {
-                                /* FIXME: this is incorrect as we don't do the calculation recursively. */
+                                /* FIXME_pcm: this is incorrect as we don't do the calculation recursively. */
                                 job->finished += g_file_info_get_size(inf);
                                 fm_file_ops_job_emit_percent(job);
                             }
@@ -277,7 +277,7 @@ _retry_query_src_info:
                         {
                             if(err)
                             {
-                                /* FIXME: error handling */
+                                /* FIXME_pcm: error handling */
                                 fm_job_emit_error(fmjob, err, FM_JOB_ERROR_MODERATE);
                                 g_error_free(err);
                                 err = NULL;
@@ -352,14 +352,14 @@ _retry_query_src_info:
                     }
                     else
                     {
-                        /* FIXME: error handling */
+                        /* FIXME_pcm: error handling */
                     }
                 }
-                /* FIXME: how about blcok device, char device, and socket? */
+                /* FIXME_pcm: how about blcok device, char device, and socket? */
             }
             else
             {
-                /* FIXME: error handling */
+                /* FIXME_pcm: error handling */
             }
         }
         job->finished += size;
@@ -450,7 +450,7 @@ _retry_query_src_info:
 
 gboolean _fm_file_ops_job_move_file(FmFileOpsJob* job, GFile* src, GFileInfo* inf, GFile* dest)
 {
-    /* FIXME: prevent moving to self or moving parent dir to child. */
+    /* FIXME_pcm: prevent moving to self or moving parent dir to child. */
     GError* err = NULL;
     FmJob* fmjob = FM_JOB(job);
     const char* src_fs_id;
@@ -566,7 +566,7 @@ _retry_query_src_info:
                             FmJobErrorAction act = fm_job_emit_error(fmjob, err, FM_JOB_ERROR_MODERATE);
                             g_error_free(err);
                             err = NULL;
-                            /* FIXME: should this be recoverable? */
+                            /* FIXME_pcm: should this be recoverable? */
                         }
                     }
                     else /* the destination is a file, just overwrite it. */
@@ -638,7 +638,7 @@ gboolean _fm_file_ops_job_copy_run(FmFileOpsJob* job)
     FmDeepCountJob* dc = (FmDeepCountJob*) fm_deep_count_job_new(job->srcs, FM_DC_JOB_DEFAULT);
     /* let the deep count job share the same cancellable object. */
     fm_job_set_cancellable(FM_JOB(dc), fm_job_get_cancellable(fmjob));
-    /* FIXME: there is no way to cancel the deep count job here. */
+    /* FIXME_pcm: there is no way to cancel the deep count job here. */
     fm_job_run_sync(FM_JOB(dc));
     job->total = dc->total_size;
     if(fm_job_is_cancelled(fmjob))

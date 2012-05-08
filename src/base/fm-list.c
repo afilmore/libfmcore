@@ -68,7 +68,7 @@ void fm_list_remove(gpointer list, gpointer data)
 
 void fm_list_remove_all(gpointer list, gpointer data)
 {
-	/* FIXME: the performance can be better... */
+	/* FIXME_pcm: the performance can be better... */
 	GList* l = ((GQueue*)list)->head;
 	for(;l; l=l->next)
 	{

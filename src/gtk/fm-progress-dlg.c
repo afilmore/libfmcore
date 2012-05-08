@@ -118,7 +118,7 @@ static void on_percent (FmFileOpsJob *job, guint percent, FmProgressDisplay *dat
 
 static void on_cur_file (FmFileOpsJob *job, const char *cur_file, FmProgressDisplay *data)
 {
-    /* FIXME: Displaying currently processed file will slow down the
+    /* FIXME_pcm: Displaying currently processed file will slow down the
      * operation and waste CPU source due to showing the text with pango.
      * Consider showing current file every 0.5 second. */
     g_free (data->cur_file);
@@ -144,7 +144,7 @@ static FmJobErrorAction on_error (FmFileOpsJob *job, GError *err, FmJobErrorSeve
     ensure_dlg (data);
 
 /*
-    FIXME: Need to mount volumes on demand here, too.
+    FIXME_pcm: Need to mount volumes on demand here, too.
     if ( err->domain == G_IO_ERROR )
     {
         if ( err->code == G_IO_ERROR_NOT_MOUNTED && severity < FM_JOB_ERROR_CRITICAL )
@@ -335,7 +335,7 @@ static void on_finished (FmFileOpsJob *job, FmProgressDisplay *data)
         fm_progress_display_destroy (data);
 
     /* sepcial handling for trash
-     * FIXME: need to refactor this to use a more elegant way later. */
+     * FIXME_pcm: need to refactor this to use a more elegant way later. */
     if (job->type == FM_FILE_OP_TRASH)
     {
         FmPathList *unsupported =  (FmPathList*)g_object_get_data (G_OBJECT (job), "trash-unsupported");
@@ -448,7 +448,7 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
         g_string_free (str, TRUE);
     }
 
-    // FIXME: use accessor functions instead
+    // FIXME_pcm: use accessor functions instead
     switch (data->job->type)
     {
     case FM_FILE_OP_MOVE:

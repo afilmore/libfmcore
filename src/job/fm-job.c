@@ -160,7 +160,7 @@ static void fm_job_finalize (GObject *object)
 
 	if (self->cancellable)
     {
-        /* FIXME: should we use new API provided in glib 2.22 for this? */
+        /* FIXME_pcm: should we use new API provided in glib 2.22 for this? */
         g_signal_handlers_disconnect_by_func (self->cancellable, on_cancellable_cancelled, self);
 		g_object_unref (self->cancellable);
     }
@@ -267,7 +267,7 @@ void fm_job_cancel (FmJob* job)
 	job->cancel = TRUE;
 	if (job->cancellable)
 		g_cancellable_cancel (job->cancellable);
-	/* FIXME: is this needed? */
+	/* FIXME_pcm: is this needed? */
 	if (klass->cancel)
 		klass->cancel (job);
 }
@@ -468,7 +468,7 @@ FmJobErrorAction fm_job_emit_error (FmJob* job, GError* err, FmJobErrorSeverity 
     {
         ret = FM_JOB_ABORT;
         fm_job_cancel (job);
-        /* FIXME: do we need fm_job_is_aborted ()? */
+        /* FIXME_pcm: do we need fm_job_is_aborted ()? */
     }
 
     /* If the job is already cancelled, retry is not allowed. */
@@ -481,7 +481,7 @@ FmJobErrorAction fm_job_emit_error (FmJob* job, GError* err, FmJobErrorSeverity 
 	return ret;
 }
 
-/* FIXME: need to re-think how to do this in a correct way. */
+/* FIXME_pcm: need to re-think how to do this in a correct way. */
 /*
 gboolean fm_job_error_accumulator (GSignalInvocationHint *ihint, GValue *return_accu,
                                    const GValue *handler_return, gpointer data)

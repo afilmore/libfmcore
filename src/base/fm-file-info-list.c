@@ -43,7 +43,7 @@ gboolean fm_list_is_file_info_list (FmList *list)
 
 gboolean fm_file_info_list_is_same_type (FmFileInfoList *list)
 {
-    // FIXME: handle virtual files without mime-types
+    // FIXME_pcm: handle virtual files without mime-types
     if (! fm_list_is_empty (list))
     {
         GList *l = fm_list_peek_head_link (list);

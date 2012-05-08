@@ -209,7 +209,7 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
     return path;
 
 on_error: // this is not a valid URI
-    // FIXME: should we return root or NULL?
+    // FIXME_pcm: should we return root or NULL?
     if (remaining)
         *remaining = uri + len;
     return fm_path_ref (root_path);
@@ -242,7 +242,7 @@ static inline FmPath *_fm_path_reuse_existing_paths (FmPath *parent, const char 
  */
 FmPath *fm_path_new (const char *path)
 {
-    // FIXME: need to canonicalize paths
+    // FIXME_pcm: need to canonicalize paths
 
     if ( path[0] == '/' ) // if this is a absolute native path
     {
@@ -267,9 +267,9 @@ FmPath *fm_path_new (const char *path)
 
         // return root instead of NULL for invalid URIs. fix #2988010.
         if ( !colon ) // this shouldn't happen
-            return fm_path_ref (root); // invalid path FIXME: should we treat it as relative path?
+            return fm_path_ref (root); // invalid path FIXME_pcm: should we treat it as relative path?
 
-        // FIXME: convert file:/// to local native path
+        // FIXME_pcm: convert file:/// to local native path
         hier_part = colon+1;
         if ( hier_part[0] == '/' )
         {
@@ -299,7 +299,7 @@ FmPath *fm_path_new (const char *path)
         }
         else // this URI doesn't have //, like mailto:
         {
-            // FIXME: is this useful to file managers?
+            // FIXME_pcm: is this useful to file managers?
             rest = colon + 1;
         }
         root_len =  (rest - path);
@@ -479,7 +479,7 @@ FmPath *fm_path_new_relative (FmPath *parent, const char *rel)
             path = fm_path_ref (parent);
         else
         {
-#if 0       // FIXME: Let's optimize this later. Make things working first is more important.
+#if 0       // FIXME_pcm: Let's optimize this later. Make things working first is more important.
             // use some pre-defined paths when possible
             if (G_UNLIKELY (parent == root_path))
             {
@@ -754,7 +754,7 @@ static gchar *fm_path_to_str_int (FmPath *path, gchar **ret, gint str_len)
     return pbuf + name_len;
 }
 
-// FIXME: handle display name and real file name  (maybe non-UTF8) issue
+// FIXME_pcm: handle display name and real file name  (maybe non-UTF8) issue
 char *fm_path_to_str (FmPath *path)
 {
     gchar *ret;
@@ -772,7 +772,7 @@ char *fm_path_to_uri (FmPath *path)
             uri = g_filename_to_uri (str, NULL, NULL);
         else
         {
-            // FIXME: is this correct?
+            // FIXME_pcm: is this correct?
             uri = g_uri_escape_string (str, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, FALSE);
         }
         g_free (str);
@@ -780,7 +780,7 @@ char *fm_path_to_uri (FmPath *path)
     return uri;
 }
 
-// FIXME: maybe we can support different encoding for different mount points?
+// FIXME_pcm: maybe we can support different encoding for different mount points?
 char *fm_path_display_name (FmPath *path, gboolean human_readable)
 {
     char *disp;
@@ -806,7 +806,7 @@ char *fm_path_display_name (FmPath *path, gboolean human_readable)
     return disp;
 }
 
-// FIXME: maybe we can support different encoding for different mount points?
+// FIXME_pcm: maybe we can support different encoding for different mount points?
 char *fm_path_display_basename (FmPath *path)
 {
     if (G_UNLIKELY (!path->parent)) // root_path element
@@ -819,7 +819,7 @@ char *fm_path_display_basename (FmPath *path)
                 return g_strdup (_ ("My Computer"));
             if (g_str_has_prefix (path->name, "menu:/"))
             {
-                // FIXME: this should be more flexible
+                // FIXME_pcm: this should be more flexible
                 const char *p = path->name + 5;
                 while (p[0] == '/')
                     ++p;
@@ -923,7 +923,7 @@ void _fm_path_init ()
     desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
 //    printf  ("Desktop Dir: parent = %s, name = %s\n", parent->name, name);
     // build path object for trash can
-    // FIXME: currently there are problems with URIs. using trash:/ here will cause problems.
+    // FIXME_pcm: currently there are problems with URIs. using trash:/ here will cause problems.
     trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH|FM_PATH_IS_VIRTUAL|FM_PATH_IS_LOCAL);
     apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
 }
@@ -931,7 +931,7 @@ void _fm_path_init ()
 
 // For used in hash tables
 
-// FIXME: is this good enough?
+// FIXME_pcm: is this good enough?
 guint fm_path_hash (FmPath *path)
 {
     guint hash = g_str_hash (path->name);
@@ -1011,7 +1011,7 @@ int fm_path_depth (FmPath *path)
 
 
 
-// TODOaxl: remove....
+// TODO_axl: remove....
 
 #if 0
 // path list

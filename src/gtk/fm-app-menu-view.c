@@ -110,7 +110,7 @@ static void on_menu_cache_reload(MenuCache* mc, gpointer user_data)
     g_return_if_fail(store);
     gtk_tree_store_clear(store);
     MenuCacheDir* dir = menu_cache_get_root_dir(menu_cache);
-    /* FIXME: preserve original selection */
+    /* FIXME_pcm: preserve original selection */
     if(dir)
         add_menu_items(NULL, dir);
 }

@@ -220,7 +220,7 @@ namespace Fm {
 	[Compact]
 	public class FileInfo {
 		
-        [CCode (has_construct_function = false)]    /* FIXME: should be private... */
+        [CCode (has_construct_function = false)]    /* FIXME_axl: should be private... */
 		public FileInfo ();
 		
         [CCode (has_construct_function = false)]
@@ -320,7 +320,7 @@ namespace Fm {
 		
         public void set_cancellable (GLib.Cancellable cancellable);
 		
-        public virtual signal int ask2 (void* question, void* options); /* FIXME: rename this signal... */
+        public virtual signal int ask2 (void* question, void* options); /* FIXME_axl: rename this signal... */
 		public virtual signal void cancelled ();
 		public virtual signal int error (void* err, int severity);
 		public virtual signal void finished ();
@@ -329,14 +329,14 @@ namespace Fm {
     [CCode (cheader_filename = "fm.h", cprefix = "FM_FILE_INFO_JOB_")]
     public enum FileInfoJobFlags {
         NONE = 0,
-        FOLLOW_SYMLINK = 1 << 0,        /* FIXME: not yet implemented */
-        EMIT_FOR_EACH_FILE = 1 << 1     /* FIXME: not yet implemented */
+        FOLLOW_SYMLINK = 1 << 0,        /* FIXME_pcm: not yet implemented */
+        EMIT_FOR_EACH_FILE = 1 << 1     /* FIXME_pcm: not yet implemented */
     }
 
     [CCode (cheader_filename = "fm.h")]
 	public class FileInfoJob : Fm.Job {
         
-		public weak Fm.FileInfoList file_infos;                         /* FIXME: avoid direct member access... */
+		public weak Fm.FileInfoList file_infos;                         /* FIXME_axl: avoid direct member access... */
 
 		[CCode (has_construct_function = false, type = "FmJob*")]
 		public FileInfoJob (Fm.PathList? files_to_query, FileInfoJobFlags flags);
@@ -479,7 +479,7 @@ namespace Fm {
 		
         public bool is_single_file_type ();
 		
-        public void set_folder_func (Fm.LaunchFolderFunc func); /* FIXME: WARNING !!!!
+        public void set_folder_func (Fm.LaunchFolderFunc func); /* FIXME_axl: WARNING !!!!
                                                                  * There's a problem in the delegate
                                                                  * function definition..... */
 	}
@@ -493,7 +493,7 @@ namespace Fm {
 	[CCode (cheader_filename = "fm-folder.h")]
 	public class Folder : GLib.Object {
 		
-		public weak Fm.FileInfo dir_fi;     /* FIXME: avoid direct member access... */
+		public weak Fm.FileInfo dir_fi;     /* FIXME_axl: avoid direct member access... */
 
         [CCode (has_construct_function = false)]
 		protected Folder ();

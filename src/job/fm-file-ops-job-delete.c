@@ -28,7 +28,7 @@ static const char query[] =  G_FILE_ATTRIBUTE_STANDARD_TYPE","
                                G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME;
 
 
-/* FIXME: cancel the job on errors */
+/* FIXME_pcm: cancel the job on errors */
 gboolean _fm_file_ops_job_delete_file(FmJob* job, GFile* gf, GFileInfo* inf)
 {
     GError* err = NULL;
@@ -125,7 +125,7 @@ _retry_query_info:
             if(inf)
             {
                 GFile* sub = g_file_get_child(gf, g_file_info_get_name(inf));
-                _fm_file_ops_job_delete_file(job, sub, inf); /* FIXME: error handling? */
+                _fm_file_ops_job_delete_file(job, sub, inf); /* FIXME_pcm: error handling? */
                 g_object_unref(sub);
                 g_object_unref(inf);
             }
@@ -151,7 +151,7 @@ _retry_query_info:
 
         if(fjob->src_folder_mon)
         {
-            /* FIXME: this is a little bit incorrect since we emit deleted signal before the
+            /* FIXME_pcm: this is a little bit incorrect since we emit deleted signal before the
              * dir is really deleted. */
             g_file_monitor_emit_event(fjob->src_folder_mon, gf, NULL, G_FILE_MONITOR_EVENT_DELETED);
             g_object_unref(fjob->src_folder_mon);
@@ -175,7 +175,7 @@ _retry_delete:
                 if(err->domain == G_IO_ERROR && err->code == G_IO_ERROR_PERMISSION_DENIED)
                 {
                     /* special case for trash:/// */
-                    /* FIXME: is there any better way to handle this? */
+                    /* FIXME_pcm: is there any better way to handle this? */
                     char* scheme = g_file_get_uri_scheme(gf);
                     if(g_strcmp0(scheme, "trash") == 0)
                     {
@@ -268,7 +268,7 @@ gboolean _fm_file_ops_job_trash_run(FmFileOpsJob* job)
 
     fm_file_ops_job_emit_prepared(job);
 
-    /* FIXME: we shouldn't trash a file already in trash:/// */
+    /* FIXME_pcm: we shouldn't trash a file already in trash:/// */
 
     l = fm_list_peek_head_link(job->srcs);
     for(; !fm_job_is_cancelled(fmjob) && l;l=l->next)
@@ -324,7 +324,7 @@ _retry_trash:
         fm_list_unref(unsupported);
     else
     {
-        /* FIXME: this is a dirty hack to fallback to delete if trash is not available.
+        /* FIXME_pcm: this is a dirty hack to fallback to delete if trash is not available.
          * The API must be re-designed later. */
         g_object_set_data_full(G_OBJECT(job), "trash-unsupported", unsupported, fm_list_unref);
     }
@@ -395,7 +395,7 @@ _retry_get_orig_path:
 
             if(orig_path_str)
             {
-                /* FIXME: what if orig_path_str is a relative path?
+                /* FIXME_pcm: what if orig_path_str is a relative path?
                  * This is actually allowed by the horrible trash spec. */
                 GFile* orig_path = g_file_new_for_commandline_arg(orig_path_str);
                 /* ensure the existence of parent folder. */
@@ -405,7 +405,7 @@ _retry_get_orig_path:
             }
             else
             {
-                /* FIXME: error handling. */
+                /* FIXME_pcm: error handling. */
             }
             g_object_unref(inf);
         }

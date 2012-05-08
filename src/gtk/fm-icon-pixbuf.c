@@ -35,7 +35,7 @@ static void destroy_pixbufs(GSList* pixs)
 {
     GSList* l;
     
-    gdk_threads_enter(); /* FIXME: is this needed? */
+    gdk_threads_enter(); /* FIXME_pcm: is this needed? */
     
     for(l = pixs; l; l=l->next)
     {
@@ -96,7 +96,7 @@ GdkPixbuf* fm_icon_get_pixbuf(FmIcon* icon, int size)
     ent->size = size;
     ent->pix = pix;
 
-    /* FIXME: maybe we should unload icons that nobody is using to reduce memory usage. */
+    /* FIXME_pcm: maybe we should unload icons that nobody is using to reduce memory usage. */
     /* g_object_weak_ref(); */
     pixs = g_slist_prepend(pixs, ent);
     fm_icon_set_user_data(icon, pixs);
@@ -113,7 +113,7 @@ static void on_icon_theme_changed(GtkIconTheme* theme, gpointer user_data)
 
 void _fm_icon_pixbuf_init()
 {
-    /* FIXME: GtkIconTheme object is different on different GdkScreen */
+    /* FIXME_pcm: GtkIconTheme object is different on different GdkScreen */
     GtkIconTheme* theme = gtk_icon_theme_get_default();
     changed_handler = g_signal_connect(theme, "changed", G_CALLBACK(on_icon_theme_changed), NULL);
 

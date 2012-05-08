@@ -150,7 +150,7 @@ struct _FmFileInfo
 
     char* disp_name;  /* displayed name (in UTF-8) */
 
-    /* FIXME: caching the collate key can greatly speed up sorting.
+    /* caching the collate key can greatly speed up sorting.
      *        However, memory usage is greatly increased!.
      *        Is there a better alternative solution?
      */

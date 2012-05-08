@@ -219,7 +219,7 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
                 if (!arg_found)  /* append %f if no %f, %F, %u, or %U was found. */
                     cmdline = _cmdline = g_strconcat (cmdline, " %f", NULL);
 
-                /* FIXME: is there any better way to do this? */
+                /* FIXME_pcm: is there any better way to do this? */
                 /* We need to ensure that no duplicated items are added */
                 if (data->mime_type)
                 {
@@ -279,7 +279,7 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
                     }
                 }
 
-                /* FIXME: g_app_info_create_from_commandline force the use of %f or %u, so this is not we need */
+                /* FIXME_pcm: g_app_info_create_from_commandline force the use of %f or %u, so this is not we need */
                 app = (GDesktopAppInfo*) app_info_create_from_commandline (cmdline, bin1, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (data->use_terminal)));
             _out:
                 g_free (bin1);

@@ -80,7 +80,7 @@ FmIcon* fm_icon_from_name(const char* name)
     return NULL;
 }
 
-/* FIXME: using mutex is a little bit expansive, but since we need
+/* FIXME_pcm: using mutex is a little bit expansive, but since we need
  * to handle hash table too, it might be necessary. */
 FmIcon* fm_icon_ref(FmIcon* icon)
 {
@@ -90,7 +90,7 @@ FmIcon* fm_icon_ref(FmIcon* icon)
     return icon;
 }
 
-/* FIXME: what will happen if someone is ref this structure while we're
+/* FIXME_pcm: what will happen if someone is ref this structure while we're
  * trying to free it? */
 void fm_icon_unref(FmIcon* icon)
 {

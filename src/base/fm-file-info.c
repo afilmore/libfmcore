@@ -68,7 +68,7 @@ void _fm_file_info_init ()
 
 void _fm_file_info_finalize ()
 {
-    // FIXME: FmMimeTypes ar not freed, is it normal ?
+    // FIXME_axl: FmMimeTypes ar not freed, is it normal ?
 }
 
 FmFileInfo *fm_file_info_ref (FmFileInfo *file_info)
@@ -88,7 +88,7 @@ void fm_file_info_unref (FmFileInfo *file_info)
 }
 
 
-// TODOaxl: this function should be private... fm-file-info-job.c and fm-dir-list-job.c use it...
+// TODO_axl: this function should be private... fm-file-info-job.c and fm-dir-list-job.c use it...
 FmFileInfo *fm_file_info_new ()
 {
     FmFileInfo *file_info = g_slice_new0 (FmFileInfo);
@@ -145,7 +145,7 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
     
     
     
-    // TODO: must set some path flags here.....
+    // TODO_axl: must set some path flags here.....
     
     
     
@@ -244,13 +244,13 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 
         if (!file_info->type)
         {
-            // FIXME: is this appropriate?
+            // FIXME_pcm: is this appropriate?
             if (type == G_FILE_TYPE_SHORTCUT)
                 file_info->type = fm_mime_type_ref (shortcut_type);
             else
                 file_info->type = fm_mime_type_ref (mountable_type);
         }
-        // FIXME: how about target of symlinks?
+        // FIXME_pcm: how about target of symlinks?
     }
 
     if (fm_path_is_native (file_info->path))
@@ -324,7 +324,7 @@ void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
 
 void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
 {
-    // TODOaxl: test and remove...
+    // TODO_axl: test and remove...
     //~ if (G_LIKELY(!fm_file_info_is_desktop_entry (file_info)))
     //~ {
         file_info->icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
@@ -490,7 +490,7 @@ const char *fm_file_info_get_disp_name (FmFileInfo *file_info)
 {
     if (G_UNLIKELY (!file_info->disp_name))
     {
-        /* FIXME: this is not guaranteed to be UTF-8.
+        /* FIXME_pcm: this is not guaranteed to be UTF-8.
          * Encoding conversion is needed here. */
         return file_info->path->name;
     }
@@ -510,7 +510,7 @@ void fm_file_info_set_path (FmFileInfo *file_info, FmPath *path)
     {
         file_info->path = fm_path_ref (path);
         
-        // FIXME: need to handle UTF-8 issue here
+        // FIXME_pcm: need to handle UTF-8 issue here
         file_info->disp_name = file_info->path->name;
     }
     else
@@ -582,7 +582,7 @@ gboolean fm_file_info_is_mountable (FmFileInfo *file_info)
 
 gboolean fm_file_info_is_image (FmFileInfo *file_info)
 {
-    // FIXME: We had better use functions of xdg_mime to check this
+    // FIXME_pcm: We had better use functions of xdg_mime to check this
     if (! strncmp ("image/", file_info->type->type, 6))
         return TRUE;
     return FALSE;
@@ -611,7 +611,7 @@ gboolean fm_file_info_is_unknown_type (FmFileInfo *file_info)
 // full path of the file is required by this function
 gboolean fm_file_info_is_executable_type (FmFileInfo *file_info)
 {
-    // FIXME: didn't check access rights.
+    // FIXME_pcm: didn't check access rights.
 //    return mime_type_is_executable_file (file_path, file_info->type->type);
     return g_content_type_can_be_executable (file_info->type->type);
 }
@@ -660,13 +660,13 @@ const char *fm_file_info_get_target (FmFileInfo *file_info)
 
 const char *fm_file_info_get_desc (FmFileInfo *file_info)
 {
-    // FIXME: how to handle descriptions for virtual files without mime-tyoes?
+    // FIXME_pcm: how to handle descriptions for virtual files without mime-tyoes?
     return file_info->type ? fm_mime_type_get_desc (file_info->type) : NULL;
 }
 
 const char *fm_file_info_get_disp_mtime (FmFileInfo *file_info)
 {
-    // FIXME: This can cause problems if the file really has mtime=0.
+    // FIXME_pcm: This can cause problems if the file really has mtime=0.
     //        We'd better hide mtime for virtual files only.
     if (file_info->mtime > 0)
     {
@@ -698,7 +698,7 @@ time_t *fm_file_info_get_atime (FmFileInfo *file_info)
 
 
 
-// TODOaxl: remove...
+// TODO_axl: remove...
 /*
 static FmListFuncs fm_list_funcs = {fm_file_info_ref, fm_file_info_unref};
 
@@ -715,7 +715,7 @@ gboolean fm_list_is_file_info_list (FmList* list)
 // return TRUE if all files in the list are of the same type
 gboolean fm_file_info_list_is_same_type (FmFileInfoList* list)
 {
-    // FIXME: handle virtual files without mime-types
+    // FIXME_pcm: handle virtual files without mime-types
     if (! fm_list_is_empty (list))
     {
         GList* l = fm_list_peek_head_link (list);

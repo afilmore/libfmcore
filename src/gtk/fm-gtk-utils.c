@@ -104,11 +104,11 @@ int fm_askv (GtkWindow* parent, const char* title, const char* question, const c
     GtkWidget* dialog = gtk_message_dialog_new_with_markup (parent, 0,
                                 GTK_MESSAGE_QUESTION, 0, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Question"));
-    /* FIXME: need to handle defualt button and alternative button
+    /* FIXME_pcm: need to handle defualt button and alternative button
      * order problems. */
     while (*options)
     {
-        /* FIXME: handle button image and stock buttons */
+        /* FIXME_pcm: handle button image and stock buttons */
         GtkWidget* btn = gtk_dialog_add_button (GTK_DIALOG (dialog), *options, id);
         ++options;
         ++id;
@@ -196,7 +196,7 @@ gchar* fm_get_user_input_rename (GtkWindow* parent, const char* title, const cha
         /* only select filename part without extension name. */
         if (default_text[1])
         {
-            /* FIXME: handle the special case for *.tar.gz or *.tar.bz2
+            /* FIXME_pcm: handle the special case for *.tar.gz or *.tar.bz2
              * We should exam the file extension with g_content_type_guess, and
              * find out a longest valid extension name.
              * For example, the extension name of foo.tar.gz is .tar.gz, not .gz. */
@@ -257,7 +257,7 @@ static gchar* _fm_user_input_dialog_run (GtkDialog *dialog, GtkEntry *entry)
     int sel_start, sel_end;
     gboolean has_sel;
 
-    /* FIXME: this workaround is used to overcome bug of gtk+.
+    /* FIXME_pcm: this workaround is used to overcome bug of gtk+.
      * gtk+ seems to ignore select region and select all text for entry in dialog. */
     
     has_sel = gtk_editable_get_selection_bounds (GTK_EDITABLE (entry), &sel_start, &sel_end);
@@ -372,7 +372,7 @@ static void prepare_unmount (GMount* mount)
     GFile* cwd = g_file_new_for_path (cwd_str);
     GFile* root = g_mount_get_root (mount);
     g_free (cwd_str);
-    /* FIXME: This cannot cover 100% cases since symlinks are not checked.
+    /* FIXME_pcm: This cannot cover 100% cases since symlinks are not checked.
      * There may be other cases that cwd is actually under mount root
      * but checking prefix is not enough. We already did our best, though. */
     if (g_file_has_prefix (cwd, root))
@@ -521,7 +521,7 @@ gboolean fm_eject_volume (GtkWindow* parent, GVolume* vol, gboolean interactive)
 
 
 /* File operations */
-/* FIXME: only show the progress dialog if the job isn't finished
+/* FIXME_pcm: only show the progress dialog if the job isn't finished
  * in 1 sec. */
 
 void fm_copy_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir)

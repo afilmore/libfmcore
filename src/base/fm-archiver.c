@@ -56,7 +56,7 @@ gboolean fm_archiver_is_mime_type_supported (FmArchiver* archiver, const char* t
     return FALSE;
 }
 
-/* FIXME: error handling */
+/* FIXME_pcm: error handling */
 static gboolean launch_program (FmArchiver* archiver, GAppLaunchContext* ctx, const char* cmd, FmPathList* files, FmPath* dir)
 {
     GDesktopAppInfo* app;
@@ -74,7 +74,7 @@ static gboolean launch_program (FmArchiver* archiver, GAppLaunchContext* ctx, co
         else
         {
             GFile* gf = fm_path_to_gfile (dir);
-            /* FIXME: convert dir to fuse-based local path if needed. */
+            /* FIXME_pcm: convert dir to fuse-based local path if needed. */
             dir_str = g_file_get_path (gf);
             g_object_unref (gf);
         }

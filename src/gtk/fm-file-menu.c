@@ -584,7 +584,7 @@ static void open_with_app (FmFileMenu* data, GAppInfo* app)
     gdk_app_launch_context_set_icon (ctx, g_app_info_get_icon (app));
     gdk_app_launch_context_set_timestamp (ctx, gtk_get_current_event_time ());
 
-    /* FIXME: error handling. */
+    /* FIXME_pcm: error handling. */
     fm_app_info_launch_uris (app, uris, (GAppLaunchContext*) ctx, NULL);
     g_object_unref (ctx);
 
@@ -621,7 +621,7 @@ void on_open_with (GtkAction* action, gpointer user_data)
         /* add the app to apps that support this file type. */
         if (mime_type)
             g_app_info_add_supports_type (app, mime_type->type, NULL);
-        /* FIXME: what to do if mime_type is NULL? */
+        /* FIXME_pcm: what to do if mime_type is NULL? */
         g_object_unref (app);
     }
 }
@@ -674,7 +674,7 @@ void on_rename (GtkAction* action, gpointer user_data)
     FmFileInfo* fi = fm_list_peek_head (data->file_infos);
     if (fi)
         fm_rename_file (data->parent, fi->path);
-    /* FIXME: is it ok to only rename the first selected file here? */
+    /* FIXME_pcm: is it ok to only rename the first selected file here? */
 }
 
 void on_empty_trash (GtkAction* act, gpointer user_data)

@@ -260,7 +260,7 @@ _retry:
     
     file_info->type = mime_type;
     
-    // TODOaxl: Create one function.....
+    // TODO_axl: Create one function.....
     if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))
     {
         fm_file_info_set_fm_icon (file_info, mime_type->icon);

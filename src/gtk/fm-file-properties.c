@@ -150,7 +150,7 @@ static void fm_file_prop_data_free (FmFilePropData *data)
 
     if (data->timeout)
         g_source_remove (data->timeout);
-    if (data->dc_job) // FIXME: check if it's running
+    if (data->dc_job) // FIXME_pcm: check if it's running
         fm_job_cancel (data->dc_job);
     fm_list_unref (data->files);
     g_slice_free (FmFilePropData, data);
@@ -236,7 +236,7 @@ static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
             return;
         }
 
-        /* FIXME: if all files are native, it's possible to check
+        /* FIXME_pcm: if all files are native, it's possible to check
          * if the names are legal user and group names on the local
          * machine prior to chown. */
         if (new_owner && *new_owner && g_strcmp0 (data->orig_owner, new_owner))
@@ -394,7 +394,7 @@ static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
             // if the user has changed its name
             if ( g_strcmp0 (data->fi->disp_name, gtk_entry_get_text (GTK_ENTRY (data->name))) )
             {
-                // FIXME: rename the file or set display name for it.
+                // FIXME_pcm: rename the file or set display name for it.
             }
         }
     }
@@ -424,7 +424,7 @@ static void on_exec_toggled (GtkToggleButton *btn, FmFilePropData *data)
                                        0, NULL, on_exec_toggled, NULL );
 }
 
-// FIXME: this is too dirty. Need some refactor later.
+// FIXME_pcm: this is too dirty. Need some refactor later.
 static void update_permissions (FmFilePropData *data)
 {
     FmFileInfo *fi =  (FmFileInfo*)fm_list_peek_head (data->files);
@@ -589,9 +589,9 @@ static void update_ui (FmFilePropData *data)
     if ( data->single_type ) // all files are of the same mime-type
     {
         GIcon *icon = NULL;
-        // FIXME: handle custom icons for some files
+        // FIXME_pcm: handle custom icons for some files
 
-        /* FIXME: display special property pages for special files or
+        /* FIXME_pcm: display special property pages for special files or
          * some specified mime-types. */
         if ( data->single_file ) // only one file is selected.
         {
@@ -642,7 +642,7 @@ static void update_ui (FmFilePropData *data)
         data->open_with = data->open_with_label = NULL;
     }
 
-    // FIXME: check if all files has the same parent dir, mtime, or atime
+    // FIXME_pcm: check if all files has the same parent dir, mtime, or atime
     if ( data->single_file )
     {
         char buf[128];
@@ -658,7 +658,7 @@ static void update_ui (FmFilePropData *data)
             gtk_label_set_text (GTK_LABEL (data->dir), "");
         gtk_label_set_text (GTK_LABEL (data->mtime), fm_file_info_get_disp_mtime (data->fi));
 
-        // FIXME: need to encapsulate this in an libfm API.
+        // FIXME_pcm: need to encapsulate this in an libfm API.
         strftime ( buf, sizeof ( buf ),
                   "%x %R",
                   localtime ( &data->fi->atime ) );
@@ -705,7 +705,7 @@ GtkWidget *fm_file_properties_widget_new (FmFileInfoList *files, gboolean toplev
     data->single_file =  (fm_list_get_length (files) == 1);
     data->fi = fm_list_peek_head (files);
     if (data->single_type)
-        data->mime_type = data->fi->type; // FIXME: do we need ref counting here?
+        data->mime_type = data->fi->type; // FIXME_pcm: do we need ref counting here?
     paths = fm_path_list_new_from_file_info_list (files);
     data->dc_job = fm_deep_count_job_new (paths, FM_DC_JOB_DEFAULT);
     fm_list_unref (paths);
@@ -719,7 +719,7 @@ GtkWidget *fm_file_properties_widget_new (FmFileInfoList *files, gboolean toplev
     else
     {
         #if 0
-        // FIXME: is this really useful?
+        // FIXME_pcm: is this really useful?
         const char *names[]={"notebook", NULL};
         gtk_builder_add_objects_from_file (builder, UI_FILE, names, NULL);
         data->dlg =  (GtkWidget*)gtk_builder_get_object (builder, "notebook");

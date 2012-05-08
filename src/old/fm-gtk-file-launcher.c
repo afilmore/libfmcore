@@ -72,7 +72,7 @@ static gboolean on_open_folder(GAppLaunchContext* ctx, GList* folder_infos, gpoi
 static int on_launch_ask(const char* msg, const char** btn_labels, int default_btn, gpointer user_data)
 {
     LaunchData* data = (LaunchData*)user_data;
-    /* FIXME: set default button properly */
+    /* FIXME_pcm: set default button properly */
     return fm_askv(data->parent, NULL, msg, btn_labels);
 }
 
@@ -159,7 +159,7 @@ gboolean fm_launch_files_simple(GtkWindow* parent, GAppLaunchContext* ctx, GList
         _ctx = ctx = gdk_app_launch_context_new();
         gdk_app_launch_context_set_screen(GDK_APP_LAUNCH_CONTEXT(ctx), parent ? gtk_widget_get_screen(GTK_WIDGET(parent)) : gdk_screen_get_default());
         gdk_app_launch_context_set_timestamp(GDK_APP_LAUNCH_CONTEXT(ctx), gtk_get_current_event_time());
-        /* FIXME: how to handle gdk_app_launch_context_set_icon? */
+        /* FIXME_pcm: how to handle gdk_app_launch_context_set_icon? */
     }
     ret = fm_launch_files(ctx, file_infos, &launcher, &data);
     if(_ctx)
@@ -182,7 +182,7 @@ gboolean fm_launch_paths_simple(GtkWindow* parent, GAppLaunchContext* ctx, GList
         _ctx = ctx = gdk_app_launch_context_new();
         gdk_app_launch_context_set_screen(GDK_APP_LAUNCH_CONTEXT(ctx), parent ? gtk_widget_get_screen(GTK_WIDGET(parent)) : gdk_screen_get_default());
         gdk_app_launch_context_set_timestamp(GDK_APP_LAUNCH_CONTEXT(ctx), gtk_get_current_event_time());
-        /* FIXME: how to handle gdk_app_launch_context_set_icon? */
+        /* FIXME_pcm: how to handle gdk_app_launch_context_set_icon? */
     }
     ret = fm_launch_paths(ctx, paths, &launcher, &data);
     if(_ctx)

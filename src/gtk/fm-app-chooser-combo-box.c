@@ -44,7 +44,7 @@ struct _FmAppChooserComboBoxData
 static gboolean is_row_separator(GtkTreeModel* model, GtkTreeIter* it, gpointer user_data)
 {
     FmAppChooserComboBoxData* data = (FmAppChooserComboBoxData*)user_data;
-    /* FIXME: this is dirty but it works! */
+    /* FIXME_pcm: this is dirty but it works! */
     return data->separator_iter.user_data == it->user_data;
 }
 

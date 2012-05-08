@@ -149,7 +149,7 @@ static int on_launch_ask (const char *msg, const char **btn_labels, int default_
     
     g_return_val_if_fail (data && data->parent, 0);
     
-    // FIXME: set default button properly
+    // FIXME_pcm: set default button properly
     
     return fm_askv (data->parent, NULL, msg, btn_labels);
 }
@@ -236,7 +236,7 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx,
                                strcmp (scheme, "menu") == 0)
                             {
                                 /* OK, it's a file. We can handle it!
-                                 * FIXME: prevent recursive invocation of desktop entry file.
+                                 * FIXME_pcm: prevent recursive invocation of desktop entry file.
                                  * e.g: If this URL points to the another desktop entry file, and it
                                  * points to yet another desktop entry file, this can create a
                                  * infinite loop. This is a extremely rare case. */
@@ -250,7 +250,7 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx,
                             else
                             {
                                 // Damn! this actually relies on gconf to work.
-                                // FIXME: use our own way to get a usable browser later.
+                                // FIXME_pcm: use our own way to get a usable browser later.
                                 app = g_app_info_get_default_for_uri_scheme (scheme);
                                 uris = _uris = g_list_prepend (NULL, url);
                             }
@@ -260,7 +260,7 @@ gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx,
                 }
                 else if (strcmp (type, "Directory") == 0)
                 {
-                    // FIXME: how should this work? It's not defined in the spec. :- (
+                    // FIXME_pcm: how should this work? It's not defined in the spec. :- (
                 }
                 g_free (type);
             }
@@ -302,7 +302,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
         GList *fis;
         fi = (FmFileInfo*) l->data;
         
-        // FIXME: handle shortcuts, such as the items in menu://
+        // FIXME_pcm: handle shortcuts, such as the items in menu://
         if (fm_path_is_native (fi->path))
         {
             char *filename;
@@ -318,7 +318,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
             {
                 filename = fm_path_to_str (fi->path);
                 
-                if (g_file_test (filename, G_FILE_TEST_IS_EXECUTABLE)) // FIXME: use eaccess/euidaccess...
+                if (g_file_test (filename, G_FILE_TEST_IS_EXECUTABLE)) // FIXME_pcm: use eaccess/euidaccess...
                 {
                     if (launcher->exec_file)
                     {
@@ -367,7 +367,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
                  && fm_path_is_xdg_menu (fi->path)
                  && fi->target)
         {
-            fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME: shortcuts handling...
+            fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME_pcm: shortcuts handling...
             continue;
         }
         

@@ -23,7 +23,7 @@
 #include <config.h>
 #endif
 
-/* TODO:
+/* TODO_pcm:
  * Thunar can directly load embedded thumbnail in jpeg files, we need that, too.
  * Need to support external thumbnailers.
  **/
@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-/* FIXME: this function prototype seems to be missing in header files of GdkPixbuf. Bug report to them. */
+/* FIXME_pcm: this function prototype seems to be missing in header files of GdkPixbuf. Bug report to them. */
 gboolean gdk_pixbuf_set_option (GdkPixbuf *pixbuf, const gchar *key, const gchar *value);
 
 
@@ -91,7 +91,7 @@ struct _ThumbnailCache
     GSList* items;
 };
 
-/* FIXME: use thread pool */
+/* FIXME_pcm: use thread pool */
 
 G_LOCK_DEFINE_STATIC (queue);
 
@@ -543,7 +543,7 @@ FmThumbnailRequest* fm_thumbnail_request (FmFileInfo* src_file,
 
     G_LOCK (queue);
 
-    /* FIXME: find in the cache first to see if thumbnail is already cached */
+    /* FIXME_pcm: find in the cache first to see if thumbnail is already cached */
     pix = find_thumbnail_in_hash (src_file->path, size);
     if (pix)
     {
@@ -708,7 +708,7 @@ void _fm_thumbnail_finalize ()
 {
         g_hash_table_destroy (hash);
     hash = NULL;
-    /* FIXME: cancel all pending requests... */
+    /* FIXME_pcm: cancel all pending requests... */
     g_free (thumb_dir);
 }
 
@@ -838,7 +838,7 @@ void save_thumbnail_to_disk (ThumbnailTask* task, GdkPixbuf* pix, const char* pa
 
 void generate_thumbnails_with_gdk_pixbuf (ThumbnailTask* task)
 {
-    /* FIXME: only formats supported by GdkPixbuf should be handled this way. */
+    /* FIXME_pcm: only formats supported by GdkPixbuf should be handled this way. */
     GFile* gf = fm_path_to_gfile (task->fi->path);
     GFileInputStream* ins;
     GdkPixbuf* normal_pix = NULL;
@@ -929,7 +929,7 @@ void generate_thumbnails_with_gdk_pixbuf (ThumbnailTask* task)
 
 void generate_thumbnails_with_thumbnailers (ThumbnailTask* task)
 {
-    /* TODO: external thumbnailer support */
+    /* TODO_pcm: external thumbnailer support */
     DEBUG ("external thumbnailer is needed for %s", task->fi->disp_name);
 
     G_LOCK (queue);

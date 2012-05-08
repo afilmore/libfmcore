@@ -105,7 +105,7 @@ static char* expand_exec_macros(GAppInfo* app, const char* full_desktop_path, GK
                 /* append the file path of the desktop file */
                 if(full_desktop_path)
                 {
-                    /* FIXME: how about quoting here? */
+                    /* FIXME_pcm: how about quoting here? */
                     char* desktop_location = g_path_get_dirname(full_desktop_path);
                     g_string_append(cmd, desktop_location);
                     g_free(desktop_location);
@@ -147,7 +147,7 @@ static char* expand_terminal(char* cmd)
 {
     char* ret;
     /* add terminal emulator command */
-    /* FIXME: this is very unsafe */
+    /* FIXME_pcm: this is very unsafe */
 #if 0    
     if(strstr(fm_config->terminal, "%s"))
         ret = g_strdup_printf(fm_config->terminal, cmd);
@@ -201,7 +201,7 @@ gboolean do_launch(GAppInfo* appinfo, const char* full_desktop_path, GKeyFile* k
                  * use it by default, unless it's a console app. */
                 if(!kf || !g_key_file_has_key(kf, "Desktop Entry", "StartupNotify", NULL))
                     use_sn = !use_terminal; /* we only use sn for GUI apps by default */
-                /* FIXME: console programs should use sn_id of terminal emulator instead. */
+                /* FIXME_pcm: console programs should use sn_id of terminal emulator instead. */
             }
 
             if(use_sn)
@@ -312,7 +312,7 @@ gboolean fm_app_info_launch_default_for_uri(const char *uri,
                                             GAppLaunchContext *launch_context,
                                             GError **error)
 {
-    /* FIXME: implement this */
+    /* FIXME_pcm: implement this */
     return g_app_info_launch_default_for_uri(uri, launch_context, error);
 }
 
