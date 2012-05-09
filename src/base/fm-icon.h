@@ -52,11 +52,11 @@ struct _FmIcon
 };
 
 
-FmIcon *fm_icon_from_gicon (GIcon *gicon);
-FmIcon *fm_icon_from_name (const char *name);
+FmIcon *fm_icon_from_gicon          (GIcon *gicon);
+FmIcon *fm_icon_from_name           (const char *name);
 
-FmIcon *fm_icon_ref (FmIcon *icon);
-void fm_icon_unref (FmIcon *icon);
+FmIcon *fm_icon_ref                 (FmIcon *icon);
+void fm_icon_unref                  (FmIcon *icon);
 
 
 /*******************************************************************************
@@ -66,9 +66,9 @@ void fm_icon_unref (FmIcon *icon);
  * It shouldn't be used in other ways by application developers.
  * 
  ******************************************************************************/
-void fm_icon_set_user_data (FmIcon *icon, gpointer user_data);
-gpointer fm_icon_get_user_data (FmIcon *icon);
-void fm_icon_set_user_data_destroy (GDestroyNotify func);
+void fm_icon_set_user_data          (FmIcon *icon, gpointer user_data);
+gpointer fm_icon_get_user_data      (FmIcon *icon);
+void fm_icon_set_user_data_destroy  (GDestroyNotify func);
 
 void fm_icon_unload_user_data_cache ();
 void fm_icon_unload_cache ();

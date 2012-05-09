@@ -440,10 +440,12 @@ void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
     FmPath *tmp_path = fm_path_ref (src->path);
     FmMimeType *tmp_type = fm_mime_type_ref (src->type);
     FmIcon *tmp_icon = fm_icon_ref (src->icon);
+    
     /* NOTE: we need to ref source first. Otherwise,
      * if path, mime_type, and icon are identical in src
      * and file_info, calling fm_file_info_clear () first on file_info
      * might unref that. */
+    
     fm_file_info_clear (file_info);
     file_info->path = tmp_path;
     file_info->type = tmp_type;
@@ -691,101 +693,4 @@ time_t *fm_file_info_get_atime (FmFileInfo *file_info)
 {
     return &file_info->atime;
 }
-
-
-
-
-
-
-
-// TODO_axl: remove...
-/*
-static FmListFuncs fm_list_funcs = {fm_file_info_ref, fm_file_info_unref};
-
-FmFileInfoList* fm_file_info_list_new ()
-{
-    return fm_list_new (&fm_list_funcs);
-}
-
-gboolean fm_list_is_file_info_list (FmList* list)
-{
-    return list->funcs == &fm_list_funcs;
-}
-
-// return TRUE if all files in the list are of the same type
-gboolean fm_file_info_list_is_same_type (FmFileInfoList* list)
-{
-    // FIXME_pcm: handle virtual files without mime-types
-    if (! fm_list_is_empty (list))
-    {
-        GList* l = fm_list_peek_head_link (list);
-        FmFileInfo* fi = (FmFileInfo*)l->data;
-        l = l->next;
-        for (;l;l=l->next)
-        {
-            FmFileInfo* fi2 = (FmFileInfo*)l->data;
-            if (fi->type != fi2->type)
-                return FALSE;
-        }
-    }
-    return TRUE;
-}
-
-// return TRUE if all files in the list are on the same fs
-gboolean fm_file_info_list_is_same_fs (FmFileInfoList* list)
-{
-    if (! fm_list_is_empty (list))
-    {
-        GList* l = fm_list_peek_head_link (list);
-        FmFileInfo* fi = (FmFileInfo*)l->data;
-        l = l->next;
-        for (;l;l=l->next)
-        {
-            FmFileInfo* fi2 = (FmFileInfo*)l->data;
-            gboolean is_native = fm_path_is_native (fi->path);
-            if (is_native != fm_path_is_native (fi2->path))
-                return FALSE;
-            if (is_native)
-            {
-                if (fi->dev != fi2->dev)
-                    return FALSE;
-            }
-            else
-            {
-                if (fi->fs_id != fi2->fs_id)
-                    return FALSE;
-            }
-        }
-    }
-    return TRUE;
-}
-
-uint fm_file_info_list_get_flags (FmFileInfoList* list)
-{
-    uint flags = FM_PATH_NONE;
-    
-    if (fm_list_is_empty (list))
-        return flags;
-    
-    GList* l;
-    for (l = fm_list_peek_head_link (list); l; l=l->next)
-    {
-        FmFileInfo* fi = (FmFileInfo*)l->data;
-        
-        //printf ("fm_file_info_list_get_flags: path name = %s\n", fi->path->name);
-        
-        if (fm_path_is_trash_root (fi->path))
-        {
-            flags |= FM_PATH_IS_TRASH_CAN;
-            flags |= FM_PATH_IS_VIRTUAL;
-        }
-        else if (fm_path_is_virtual (fi->path))
-        {
-            flags |= FM_PATH_IS_VIRTUAL;
-        }
-    }
-    return flags;
-}
-
-*/
 

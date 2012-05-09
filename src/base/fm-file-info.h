@@ -40,7 +40,6 @@
 G_BEGIN_DECLS
 
 typedef struct _FmFileInfo FmFileInfo;
-//typedef FmList FmFileInfoList;
 
 #define FM_FILE_INFO(ptr) ((FmFileInfo*) ptr)
 
@@ -77,14 +76,16 @@ struct _FmFileInfo
     
     uid_t           uid;
     gid_t           gid;
+    
+    char            *disp_size;     // Displayed human-readable file size
     goffset         size;
+    
+    char            *disp_mtime;    // Displayed last modification time
     time_t          mtime;
     time_t          atime;
+    
     gulong          blksize;
     goffset         blocks;
-
-    char            *disp_size;     // Displayed human-readable file size
-    char            *disp_mtime;    // Displayed last modification time
     
     // Private...
     int             n_ref;
@@ -160,21 +161,6 @@ gboolean fm_file_info_is_unknown_type           (FmFileInfo *fi);
 gboolean fm_file_info_is_hidden                 (FmFileInfo *fi);
 gboolean fm_file_info_is_executable_type        (FmFileInfo *fi);
 gboolean fm_file_info_can_thumbnail             (FmFileInfo *fi);
-
-
-
-// TODO_axl: remove....
-/* Maybe Create fm-file-info-list.c/h files...
-gboolean fm_list_is_file_info_list              (FmList *list);
-FmFileInfoList *fm_file_info_list_new ();
-FmFileInfoList *fm_file_info_list_new_from_glist ();
-
-// Return TRUE if all files in the list are of the same type
-gboolean fm_file_info_list_is_same_type         (FmFileInfoList *list);
-// Return TRUE if all files in the list are on the same fs
-gboolean fm_file_info_list_is_same_fs           (FmFileInfoList *list);
-
-uint fm_file_info_list_get_flags                (FmFileInfoList *list);*/
 
 
 G_END_DECLS

@@ -98,6 +98,7 @@ GdkPixbuf* fm_icon_get_pixbuf(FmIcon* icon, int size)
 
     /* FIXME_pcm: maybe we should unload icons that nobody is using to reduce memory usage. */
     /* g_object_weak_ref(); */
+    
     pixs = g_slist_prepend(pixs, ent);
     fm_icon_set_user_data(icon, pixs);
 
