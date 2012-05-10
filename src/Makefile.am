@@ -35,13 +35,11 @@ base_SOURCES = \
 	base/fm-path.c \
 	base/fm-path-list.c \
 	base/fm-utils.c \
-	gtk/fm-cell-renderer-pixbuf.c \
 	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
 	gtk/fm-file-menu.c \
-	gtk/fm-gtk-launcher.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-gtk-utils.c \
 	gtk/fm-icon-pixbuf.c \
@@ -50,6 +48,7 @@ base_SOURCES = \
 	gtk-dlg/fm-app-chooser-combo-box.c \
 	gtk-dlg/fm-app-chooser-dlg.c \
 	gtk-dlg/fm-app-menu-view.c \
+	gtk-dlg/fm-gtk-launcher.c \
 	gtk-dlg/fm-file-properties.c \
 	gtk-dlg/fm-progress-dlg.c \
 	$(NULL)
@@ -99,13 +98,11 @@ libfmcoreinclude_HEADERS = \
 	job/fm-file-ops-job-xfer.h \
 	job/fm-job.h \
 	job/fm-simple-job.h \
-	gtk/fm-cell-renderer-pixbuf.h \
 	gtk/fm-clipboard.h \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-src.h \
 	gtk/fm-file-menu.h \
-	gtk/fm-gtk-launcher.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \
@@ -114,6 +111,7 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-chooser-dlg.h \
 	gtk-dlg/fm-app-menu-view.h \
 	gtk-dlg/fm-file-properties.h \
+	gtk-dlg/fm-gtk-launcher.h \
 	gtk-dlg/fm-progress-dlg.h \
 	$(NULL)
 

@@ -49,7 +49,6 @@
 #include "fm-app-chooser-combo-box.h"
 #include "fm-app-chooser-dlg.h"
 #include "fm-app-menu-view.h"
-#include "fm-cell-renderer-pixbuf.h"
 #include "fm-file-menu.h"
 #include "fm-gtk-launcher.h"
 #include "fm-gtk-marshal.h"
