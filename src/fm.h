@@ -37,7 +37,6 @@
 #include "fm-monitor.h"
 #include "fm-path.h"
 #include "fm-path-list.h"
-#include "fm-utils.h"
 
 // Fm Job
 #include "fm-deep-count-job.h"

@@ -34,7 +34,6 @@ base_SOURCES = \
 	base/fm-monitor.c \
 	base/fm-path.c \
 	base/fm-path-list.c \
-	base/fm-utils.c \
 	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
@@ -88,7 +87,6 @@ libfmcoreinclude_HEADERS = \
 	base/fm-monitor.h \
 	base/fm-path.h \
 	base/fm-path-list.h \
-	base/fm-utils.h \
 	job/fm-deep-count-job.h \
 	job/fm-dir-list-job.h \
 	job/fm-file-info-job.h \

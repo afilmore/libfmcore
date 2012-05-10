@@ -31,7 +31,7 @@
 
 #include "fm-file-info.h"
 #include "fm-path.h"
-#include "fm-utils.h"
+#include "fm-gtk-utils.h"
 
 
 G_BEGIN_DECLS

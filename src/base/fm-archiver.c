@@ -28,7 +28,9 @@
 #include "fm-config.h"
 #include "fm-archiver.h"
 #include "fm-app-info.h"
-#include "fm-utils.h"
+
+#include "fm-gtk-utils.h"
+
 #include <gio/gdesktopappinfo.h>
 #include <string.h>
 

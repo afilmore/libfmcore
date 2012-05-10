@@ -30,10 +30,17 @@
 
 #include "fm-path-list.h"
 #include "fm-file-ops-job.h"
-#include "fm-utils.h"
-//#include "fm-file-launcher.h"
 
 G_BEGIN_DECLS
+
+char *fm_file_size_to_str ( char *buf, goffset size, gboolean si_prefix );
+
+gboolean fm_key_file_get_int (GKeyFile *kf, const char *grp, const char *key, int *val);
+gboolean fm_key_file_get_bool (GKeyFile *kf, const char *grp, const char *key, gboolean *val);
+
+char *fm_canonicalize_filename (const char *filename, const char *cwd);
+
+char *fm_str_replace (char *str, char *old, char *new);
 
 // Convinient dialog functions
 

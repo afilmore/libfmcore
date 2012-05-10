@@ -37,7 +37,6 @@
 #include "fm-clipboard.h"
 #include "fm-file-properties.h"
 
-#include "fm-utils.h"
 #include "fm-gtk-utils.h"
 
 #include "fm-app-chooser-dlg.h"
