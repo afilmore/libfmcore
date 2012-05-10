@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-cell-renderer-pixbuf.c
  *      
  *      Copyright 2010 PCMan <pcman.tw@gmail.com>
@@ -17,12 +18,13 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #include "fm-cell-renderer-pixbuf.h"
 
 
-static GdkPixbuf* link_icon = NULL;
+static GdkPixbuf *link_icon = NULL;
 
 /* GdkPixbuf RGB C-Source image dump 1-byte-run-length-encoded */
 

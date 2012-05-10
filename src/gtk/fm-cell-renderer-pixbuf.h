@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-cell-renderer-pixbuf.h
  *      
  *      Copyright 2010 PCMan <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_CELL_RENDERER_PIXBUF_H__
 #define __FM_CELL_RENDERER_PIXBUF_H__
 
@@ -44,7 +45,7 @@ typedef struct _FmCellRendererPixbufClass		FmCellRendererPixbufClass;
 struct _FmCellRendererPixbuf
 {
 	GtkCellRendererPixbuf parent;
-    FmFileInfo* fi;
+    FmFileInfo *fi;
     gint fixed_w;
     gint fixed_h;
 };
@@ -67,7 +68,6 @@ void fm_cell_renderer_pixbuf_render (GtkCellRenderer *cell,
                                      GtkCellRendererState flags);
 
 G_END_DECLS
-
-#endif /* __FM_CELL_RENDERER_PIXBUF_H__ */
+#endif
 
 

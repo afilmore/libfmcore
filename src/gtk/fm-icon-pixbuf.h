@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-icon-pixbuf.h
  *      
  *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_ICON_PIXBUF_H__
 #define __FM_ICON_PIXBUF_H__
 
@@ -28,11 +29,12 @@
 
 G_BEGIN_DECLS
 
-void _fm_icon_pixbuf_init();
-void _fm_icon_pixbuf_finalize();
+void _fm_icon_pixbuf_init ();
+void _fm_icon_pixbuf_finalize ();
 
-GdkPixbuf* fm_icon_get_pixbuf(FmIcon* icon, int size);
+GdkPixbuf *fm_icon_get_pixbuf (FmIcon *icon, int size);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_ICON_PIXBUF_H__ */
+

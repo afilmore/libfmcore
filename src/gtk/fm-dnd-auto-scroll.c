@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-dnd-auto-scroll.c
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -17,8 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #include "fm-dnd-auto-scroll.h"
 
 #define SCROLL_EDGE_SIZE 15
@@ -26,20 +28,20 @@
 typedef struct _FmDndAutoScroll FmDndAutoScroll;
 struct _FmDndAutoScroll
 {
-    GtkWidget* widget;
+    GtkWidget *widget;
     guint timeout;
-    GtkAdjustment* hadj;
-    GtkAdjustment* vadj;
+    GtkAdjustment *hadj;
+    GtkAdjustment *vadj;
 };
 
 static GQuark data_id = 0;
 
-static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
+static gboolean on_auto_scroll (FmDndAutoScroll *dnd_autoscroll)
 {
     int x, y;
-    GtkAdjustment* vadjustment = dnd_autoscroll->vadj;
-    GtkAdjustment* hadjustment = dnd_autoscroll->hadj;
-    GtkWidget* widget = dnd_autoscroll->widget;
+    GtkAdjustment *vadjustment = dnd_autoscroll->vadj;
+    GtkAdjustment *hadjustment = dnd_autoscroll->hadj;
+    GtkWidget *widget = dnd_autoscroll->widget;
 
     GdkDeviceManager *device_manager;
     GdkDevice *pointer;
@@ -52,7 +54,7 @@ static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
        HACK.
        Sometimes we do not get drag-leave signal. (Why?)
        This check prevents infinite scrolling.
-    */
+   */
 
     GtkAllocation allocation = {0};
     gtk_widget_get_allocation (widget, &allocation);
@@ -74,7 +76,7 @@ static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
         gdouble vadjustment_upper           = gtk_adjustment_get_upper (vadjustment);
         gdouble vadjustment_value           = gtk_adjustment_get_value (vadjustment);
         
-        if (y < SCROLL_EDGE_SIZE) /* scroll up */
+        if (y < SCROLL_EDGE_SIZE) // scroll up
         {
             if (vadjustment_value > vadjustment_lower)
             {
@@ -87,7 +89,7 @@ static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
         }
         else if (y > (allocation.height - SCROLL_EDGE_SIZE))
         {
-            /* scroll down */
+            // scroll down
             if (gtk_adjustment_get_value (vadjustment) < vadjustment_upper - vadjustment_page_size)
             {
                 gtk_adjustment_set_value (vadjustment, vadjustment_value + vadjustment_step_increment);
@@ -109,7 +111,7 @@ static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
         gdouble hadjustment_upper           = gtk_adjustment_get_upper (hadjustment);
         gdouble hadjustment_value           = gtk_adjustment_get_value (hadjustment);
         
-        if (x < SCROLL_EDGE_SIZE) /* scroll to left */
+        if (x < SCROLL_EDGE_SIZE) // scroll to left
         {
             if (gtk_adjustment_get_value (hadjustment) > hadjustment_lower)
             {
@@ -122,7 +124,7 @@ static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
         }
         else if (x > (allocation.width - SCROLL_EDGE_SIZE))
         {
-            /* scroll to right */
+            // scroll to right
             if (hadjustment_value < hadjustment_upper - hadjustment_page_size)
             {
                 gtk_adjustment_set_value (hadjustment, hadjustment_value + hadjustment_step_increment);
@@ -142,13 +144,13 @@ static gboolean on_auto_scroll (FmDndAutoScroll* dnd_autoscroll)
 static gboolean on_drag_motion (GtkWidget *widget, GdkDragContext *drag_context,
                                gint x, gint y, guint time, gpointer user_data)
 {
-    FmDndAutoScroll* dnd_autoscroll = (FmDndAutoScroll*)user_data;
-    /* FIXME_pcm: this is a dirty hack for GTK_TREE_MODEL_ROW. When dragging GTK_TREE_MODEL_ROW
-     * we cannot receive "drag-leave" message. So weied! Is it a gtk+ bug? */
+    FmDndAutoScroll *dnd_autoscroll = (FmDndAutoScroll*)user_data;
+    // FIXME_pcm: this is a dirty hack for GTK_TREE_MODEL_ROW. When dragging GTK_TREE_MODEL_ROW
+    // we cannot receive "drag-leave" message. So weied! Is it a gtk+ bug?
     GdkAtom target = gtk_drag_dest_find_target (widget, drag_context, NULL);
     if (target == GDK_NONE)
         return FALSE;
-    if (0 == dnd_autoscroll->timeout) /* install a scroll timeout if needed */
+    if (0 == dnd_autoscroll->timeout) // install a scroll timeout if needed
     {
         dnd_autoscroll->timeout = gdk_threads_add_timeout (150, (GSourceFunc)on_auto_scroll, dnd_autoscroll);
     }
@@ -158,7 +160,7 @@ static gboolean on_drag_motion (GtkWidget *widget, GdkDragContext *drag_context,
 static void on_drag_leave (GtkWidget *widget, GdkDragContext *drag_context,
                           guint time, gpointer user_data)
 {
-    FmDndAutoScroll* dnd_autoscroll = (FmDndAutoScroll*)user_data;
+    FmDndAutoScroll *dnd_autoscroll = (FmDndAutoScroll*)user_data;
     if (dnd_autoscroll->timeout)
     {
         g_source_remove (dnd_autoscroll->timeout);
@@ -166,7 +168,7 @@ static void on_drag_leave (GtkWidget *widget, GdkDragContext *drag_context,
     }
 }
 
-static void fm_dnd_auto_scroll_free (FmDndAutoScroll* dnd_autoscroll)
+static void fm_dnd_auto_scroll_free (FmDndAutoScroll *dnd_autoscroll)
 {
     if (dnd_autoscroll->timeout)
         g_source_remove (dnd_autoscroll->timeout);
@@ -181,22 +183,22 @@ static void fm_dnd_auto_scroll_free (FmDndAutoScroll* dnd_autoscroll)
 }
 
 /**
- * fm_dnd_set_dest_auto_scroll
- * @drag_dest_widget a drag destination widget
- * @hadj: horizontal GtkAdjustment
- * @vadj: vertical GtkAdjustment
+  *fm_dnd_set_dest_auto_scroll
+  *@drag_dest_widget a drag destination widget
+  *@hadj: horizontal GtkAdjustment
+  *@vadj: vertical GtkAdjustment
  *
- * This function installs a "drag-motion" handler to the dest widget
- * to support auto-scroll when the dragged item is near the margin
- * of the destination widget. For example, when a user drags an item
- * over the bottom of a GtkTreeView, the desired behavior should be
- * to scroll up the content of the tree view and to expose the items
- * below currently visible region. So the user can drop on them.
- */
-void fm_dnd_set_dest_auto_scroll (GtkWidget* drag_dest_widget,
-                                 GtkAdjustment* hadj, GtkAdjustment* vadj)
+  *This function installs a "drag-motion" handler to the dest widget
+  *to support auto-scroll when the dragged item is near the margin
+  *of the destination widget. For example, when a user drags an item
+  *over the bottom of a GtkTreeView, the desired behavior should be
+  *to scroll up the content of the tree view and to expose the items
+  *below currently visible region. So the user can drop on them.
+**/
+void fm_dnd_set_dest_auto_scroll (GtkWidget *drag_dest_widget,
+                                 GtkAdjustment *hadj, GtkAdjustment *vadj)
 {
-    FmDndAutoScroll* dnd_autoscroll;
+    FmDndAutoScroll *dnd_autoscroll;
     if (G_UNLIKELY (data_id == 0))
         data_id = g_quark_from_static_string ("FmDndAutoScroll");
 
@@ -207,7 +209,7 @@ void fm_dnd_set_dest_auto_scroll (GtkWidget* drag_dest_widget,
     }
 
     dnd_autoscroll = g_slice_new (FmDndAutoScroll);
-    dnd_autoscroll->widget = drag_dest_widget; /* no g_object_ref is needed here */
+    dnd_autoscroll->widget = drag_dest_widget; // no g_object_ref is needed here
     dnd_autoscroll->timeout = 0;
     dnd_autoscroll->hadj = hadj ? GTK_ADJUSTMENT (g_object_ref (hadj)) : NULL;
     dnd_autoscroll->vadj = vadj ? GTK_ADJUSTMENT (g_object_ref (vadj)) : NULL;
@@ -222,12 +224,12 @@ void fm_dnd_set_dest_auto_scroll (GtkWidget* drag_dest_widget,
 }
 
 /**
- * fm_dnd_unset_dest_auto_scroll
- * @drag_dest_widget drag destination widget.
+  *fm_dnd_unset_dest_auto_scroll
+  *@drag_dest_widget drag destination widget.
  *
- * Unsets what has been done by fm_dnd_set_dest_auto_scroll ()
- */
-void fm_dnd_unset_dest_auto_scroll (GtkWidget* drag_dest_widget)
+  *Unsets what has been done by fm_dnd_set_dest_auto_scroll ()
+**/
+void fm_dnd_unset_dest_auto_scroll (GtkWidget *drag_dest_widget)
 {
     if (G_UNLIKELY (data_id == 0))
         data_id = g_quark_from_static_string ("FmDndAutoScroll");

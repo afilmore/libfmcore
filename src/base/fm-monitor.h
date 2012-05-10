@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-file-monitor.h
  *      
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_FILE_MONITOR_H__
 #define __FM_FILE_MONITOR_H__
 
@@ -28,14 +29,15 @@
 
 G_BEGIN_DECLS
 
-GFileMonitor* fm_monitor_directory(GFile* gf, GError** err);
+GFileMonitor *fm_monitor_directory (GFile *gf, GError **err);
 
-void _fm_monitor_init();
-void _fm_monitor_finalize();
+void _fm_monitor_init ();
+void _fm_monitor_finalize ();
 
-GFileMonitor* fm_monitor_lookup_monitor(GFile* gf);
-GFileMonitor* fm_monitor_lookup_dummy_monitor(GFile* gf);
+GFileMonitor *fm_monitor_lookup_monitor (GFile *gf);
+GFileMonitor *fm_monitor_lookup_dummy_monitor (GFile *gf);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_FILE_MONITOR_H__ */
+

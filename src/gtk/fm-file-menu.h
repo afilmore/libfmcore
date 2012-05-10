@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-file-menu.h
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -18,8 +19,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_FILE_MENU__
 #define __FM_FILE_MENU__
 
@@ -33,7 +35,7 @@ G_BEGIN_DECLS
 typedef struct _FmFileMenu FmFileMenu;
 struct _FmFileMenu
 {
-    FmFileInfoList* file_infos;
+    FmFileInfoList *file_infos;
     
     gboolean same_type : 1;
     gboolean same_fs : 1;
@@ -41,34 +43,34 @@ struct _FmFileMenu
     gboolean all_trash : 1;
     gboolean auto_destroy : 1; // private
     
-    GtkUIManager* ui;
-    GtkActionGroup* act_grp;
-    GtkMenu* menu;
-    GtkWindow* parent;
+    GtkUIManager *ui;
+    GtkActionGroup *act_grp;
+    GtkMenu *menu;
+    GtkWindow *parent;
 
     FmLaunchFolderFunc folder_func;
     gpointer folder_func_data;
 
-    FmPath* cwd;
+    FmPath *cwd;
 };
 
-FmFileMenu*     fm_file_menu_new_for_file (GtkWindow* parent, FmFileInfo* fi, FmPath* cwd, gboolean auto_destroy);
-FmFileMenu*     fm_file_menu_new_for_files (GtkWindow* parent,
-                                            FmFileInfoList* files,
-                                            FmPath* cwd,
+FmFileMenu *    fm_file_menu_new_for_file (GtkWindow *parent, FmFileInfo *fi, FmPath *cwd, gboolean auto_destroy);
+FmFileMenu *    fm_file_menu_new_for_files (GtkWindow *parent,
+                                            FmFileInfoList *files,
+                                            FmPath *cwd,
                                             gboolean auto_destroy);
                                             
-void            fm_file_menu_destroy (FmFileMenu* menu);
+void            fm_file_menu_destroy (FmFileMenu *menu);
 
-/* build the menu with GtkUIManager */
-GtkMenu*        fm_file_menu_get_menu (FmFileMenu* menu);
+// build the menu with GtkUIManager
+GtkMenu *       fm_file_menu_get_menu (FmFileMenu *menu);
 
-GtkUIManager*   fm_file_menu_get_ui (FmFileMenu* menu);
-GtkActionGroup* fm_file_menu_get_action_group (FmFileMenu* menu);
-gboolean        fm_file_menu_is_single_file_type (FmFileMenu* menu);
+GtkUIManager *  fm_file_menu_get_ui (FmFileMenu *menu);
+GtkActionGroup *fm_file_menu_get_action_group (FmFileMenu *menu);
+gboolean        fm_file_menu_is_single_file_type (FmFileMenu *menu);
 
-/* call fm_list_ref () if you need to own reference to the returned list. */
-FmFileInfoList* fm_file_menu_get_file_info_list (FmFileMenu* menu);
+// call fm_list_ref () if you need to own reference to the returned list.
+FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu);
 
 G_END_DECLS
 

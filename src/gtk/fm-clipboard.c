@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-clipboard.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,8 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #include "fm-clipboard.h"
 #include "fm-gtk-utils.h"
 
@@ -47,7 +49,7 @@ static void get_data (GtkClipboard *clipboard, GtkSelectionData *selection_data,
     
     if (info == KDE_CUT_SEL)
     {
-        /* set application/kde-cutselection data */
+        // set application/kde-cutselection data
         if (is_cut)
             gtk_selection_data_set (selection_data, target, 8, "1", 2);
         return;
@@ -58,18 +60,18 @@ static void get_data (GtkClipboard *clipboard, GtkSelectionData *selection_data,
         g_string_append (uri_list, is_cut ? "cut\n" : "copy\n");
     if (info == UTF8_STRING)
     {
-        GList* l = fm_list_peek_head_link (files);
+        GList *l = fm_list_peek_head_link (files);
         while (l)
         {
-            FmPath* path =  (FmPath*)l->data;
-            char* str = fm_path_to_str (path);
+            FmPath *path =  (FmPath*)l->data;
+            char *str = fm_path_to_str (path);
             g_string_append (uri_list, str);
             g_string_append_c (uri_list, '\n');
             g_free (str);
             l=l->next;
         }
     }
-    else   /* text/uri-list format */
+    else   // text/uri-list format
     {
         fm_path_list_write_uri_list (files, uri_list);
     }
@@ -79,33 +81,33 @@ static void get_data (GtkClipboard *clipboard, GtkSelectionData *selection_data,
     g_string_free (uri_list, TRUE);
 }
 
-static void clear_data (GtkClipboard* clipboard, gpointer user_data)
+static void clear_data (GtkClipboard *clipboard, gpointer user_data)
 {
-    FmPathList* files =  (FmPathList*)user_data;
+    FmPathList *files =  (FmPathList*)user_data;
     fm_list_unref (files);
     is_cut = FALSE;
 }
 
-gboolean fm_clipboard_cut_or_copy_files (GtkWidget* src_widget, FmPathList* files, gboolean _is_cut)
+gboolean fm_clipboard_cut_or_copy_files (GtkWidget *src_widget, FmPathList *files, gboolean _is_cut)
 {
-    GdkDisplay* dpy = src_widget ? gtk_widget_get_display (src_widget) : gdk_display_get_default ();
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (dpy, GDK_SELECTION_CLIPBOARD);
+    GdkDisplay *dpy = src_widget ? gtk_widget_get_display (src_widget) : gdk_display_get_default ();
+    GtkClipboard *clipboard = gtk_clipboard_get_for_display (dpy, GDK_SELECTION_CLIPBOARD);
     gboolean ret = gtk_clipboard_set_with_data (clipboard, targets, G_N_ELEMENTS (targets),
                                                get_data, clear_data, fm_list_ref (files));
     is_cut = _is_cut;
     return ret;
 }
 
-gboolean check_kde_curselection (GtkClipboard* clipboard)
+gboolean check_kde_curselection (GtkClipboard *clipboard)
 {
-    /* Check application/x-kde-cutselection:
-     * If the content of this format is string "1", that means the
-     * file is cut in KDE  (Dolphin). */
+    /*Check application/x-kde-cutselection:
+      *If the content of this format is string "1", that means the
+      *file is cut in KDE  (Dolphin). */
     
     gboolean ret = FALSE;
     GdkAtom atom = gdk_atom_intern_static_string (targets[KDE_CUT_SEL-1].target);
     
-    GtkSelectionData* selection_data = gtk_clipboard_wait_for_contents (clipboard, atom);
+    GtkSelectionData *selection_data = gtk_clipboard_wait_for_contents (clipboard, atom);
     const guchar *data = gtk_selection_data_get_data (selection_data);
     gint data_length = gtk_selection_data_get_length (selection_data);
     gint data_format = gtk_selection_data_get_format (selection_data);
@@ -120,22 +122,22 @@ gboolean check_kde_curselection (GtkClipboard* clipboard)
     return ret;
 }
 
-gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
+gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
 {
-    GdkDisplay* dpy = dest_widget ? gtk_widget_get_display (dest_widget) : gdk_display_get_default ();
-    GtkClipboard* clipboard = gtk_clipboard_get_for_display (dpy, GDK_SELECTION_CLIPBOARD);
-    FmPathList* files;
-    char** uris, **uri;
+    GdkDisplay *dpy = dest_widget ? gtk_widget_get_display (dest_widget) : gdk_display_get_default ();
+    GtkClipboard *clipboard = gtk_clipboard_get_for_display (dpy, GDK_SELECTION_CLIPBOARD);
+    FmPathList *files;
+    char **uris, **uri;
     GdkAtom atom;
     int type = 0;
     GdkAtom *avail_targets;
     int n, i;
 
-    /* get all available targets currently in the clipboard. */
+    // get all available targets currently in the clipboard.
     if ( !gtk_clipboard_wait_for_targets (clipboard, &avail_targets, &n) )
         return FALSE;
 
-    /* check gnome and xfce compatible format first */
+    // check gnome and xfce compatible format first
     atom = gdk_atom_intern_static_string (targets[GNOME_COPIED_FILES-1].target);
     for (i = 0; i < n; ++i)
     {
@@ -145,9 +147,9 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
             break;
         }
     }
-    if ( 0 == type ) /* x-special/gnome-copied-files is not found. */
+    if ( 0 == type ) // x-special/gnome-copied-files is not found.
     {
-        /* check uri-list */
+        // check uri-list
         atom = gdk_atom_intern_static_string (targets[URI_LIST-1].target);
         for (i = 0; i < n; ++i)
         {
@@ -157,9 +159,9 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
                 break;
             }
         }
-        if ( 0 == type ) /* text/uri-list is not found. */
+        if ( 0 == type ) // text/uri-list is not found.
         {
-            /* finally, fallback to UTF-8 string */
+            // finally, fallback to UTF-8 string
             atom = gdk_atom_intern_static_string (targets[UTF8_STRING-1].target);
             for (i = 0; i < n; ++i)
             {
@@ -183,12 +185,12 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
         
         char *pdata = (char*) data;
         
-        /* FIXME_pcm: is it safe to assume the clipboard data is null-terminalted?
-         * According to the source code in gtkselection.c, gtk+ seems to
-         * includes an extra byte at the end of GtkSelectionData::data, so
-         * this should be safe. */
+        /*FIXME_pcm: is it safe to assume the clipboard data is null-terminalted?
+          *According to the source code in gtkselection.c, gtk+ seems to
+          *includes an extra byte at the end of GtkSelectionData::data, so
+          *this should be safe. */
          
-        pdata[data_length] = '\0'; /* make sure the data is null-terminated. */
+        pdata[data_length] = '\0'; //make sure the data is null-terminated.
         
         is_cut = FALSE;
 
@@ -199,18 +201,18 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
             while (*pdata && *pdata != '\n')
                 ++pdata;
             ++pdata;
-            /* the following parts is actually a uri-list, so don't break here. */
+            //the following parts is actually a uri-list, so don't break here.
         case URI_LIST:
             uris = g_uri_list_extract_uris (pdata);
             if ( type != GNOME_COPIED_FILES )
             {
-                /* if we're not handling x-special/gnome-copied-files, check
-                 * if information from KDE is available. */
+                /*if we're not handling x-special/gnome-copied-files, check
+                  *if information from KDE is available. */
                 is_cut = check_kde_curselection (clipboard);
             }
             break;
         case UTF8_STRING:
-            /* FIXME_pcm: how should we treat UTF-8 strings? URIs or filenames? */
+            //FIXME_pcm: how should we treat UTF-8 strings? URIs or filenames?
             uris = g_uri_list_extract_uris (pdata);
             break;
         }
@@ -218,7 +220,7 @@ gboolean fm_clipboard_paste_files (GtkWidget* dest_widget, FmPath* dest_dir)
 
         if (uris)
         {
-            GtkWindow* parent;
+            GtkWindow *parent;
             if (dest_widget)
                 parent =  (GtkWindow*) gtk_widget_get_toplevel (GTK_WIDGET (dest_widget));
             else

@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-archiver.c
  *
  *      Copyright 2010 PCMan <pcman.tw@gmail.com>
@@ -17,8 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -30,10 +32,10 @@
 #include <gio/gdesktopappinfo.h>
 #include <string.h>
 
-static GList* archivers = NULL;
-static FmArchiver* default_archiver = NULL;
+static GList *archivers = NULL;
+static FmArchiver *default_archiver = NULL;
 
-static void fm_archiver_free (FmArchiver* archiver)
+static void fm_archiver_free (FmArchiver *archiver)
 {
     g_free (archiver->program);
     g_free (archiver->create_cmd);
@@ -43,9 +45,9 @@ static void fm_archiver_free (FmArchiver* archiver)
     g_slice_free (FmArchiver, archiver);
 }
 
-gboolean fm_archiver_is_mime_type_supported (FmArchiver* archiver, const char* type)
+gboolean fm_archiver_is_mime_type_supported (FmArchiver *archiver, const char *type)
 {
-    char** p;
+    char **p;
     if (G_UNLIKELY (!type))
         return FALSE;
     for (p=archiver->mime_types; *p; ++p)
@@ -56,35 +58,35 @@ gboolean fm_archiver_is_mime_type_supported (FmArchiver* archiver, const char* t
     return FALSE;
 }
 
-/* FIXME_pcm: error handling */
-static gboolean launch_program (FmArchiver* archiver, GAppLaunchContext* ctx, const char* cmd, FmPathList* files, FmPath* dir)
+// FIXME_pcm: error handling
+static gboolean launch_program (FmArchiver *archiver, GAppLaunchContext *ctx, const char *cmd, FmPathList *files, FmPath *dir)
 {
-    GDesktopAppInfo* app;
-    char* _cmd = NULL;
-    const char* dir_place_holder;
-    GKeyFile* dummy;
-    char* tmp;
+    GDesktopAppInfo *app;
+    char *_cmd = NULL;
+    const char *dir_place_holder;
+    GKeyFile *dummy;
+    char *tmp;
 
     if (dir &&  (dir_place_holder = strstr (cmd, "%d")))
     {
-        char* dir_str;
+        char *dir_str;
         int len;
-        if (strstr (cmd, "%U") || strstr (cmd, "%u")) /* supports URI */
+        if (strstr (cmd, "%U") || strstr (cmd, "%u")) // supports URI
             dir_str = fm_path_to_uri (dir);
         else
         {
-            GFile* gf = fm_path_to_gfile (dir);
-            /* FIXME_pcm: convert dir to fuse-based local path if needed. */
+            GFile *gf = fm_path_to_gfile (dir);
+            // FIXME_pcm: convert dir to fuse-based local path if needed.
             dir_str = g_file_get_path (gf);
             g_object_unref (gf);
         }
 
-        /* replace all % with %% so encoded URI can be handled correctly when parsing Exec key. */
+        // replace all % with %% so encoded URI can be handled correctly when parsing Exec key.
         tmp = fm_str_replace (dir_str, "%", "%%");
         g_free (dir_str);
         dir_str = tmp;
 
-        /* quote the path or URI */
+        // quote the path or URI
         tmp = g_shell_quote (dir_str);
         g_free (dir_str);
         dir_str = tmp;
@@ -99,12 +101,12 @@ static gboolean launch_program (FmArchiver* archiver, GAppLaunchContext* ctx, co
         cmd = _cmd;
     }
 
-    /* create a fake key file to cheat GDesktopAppInfo */
+    // create a fake key file to cheat GDesktopAppInfo
     dummy = g_key_file_new ();
     g_key_file_set_string (dummy, G_KEY_FILE_DESKTOP_GROUP, "Type", "Application");
     g_key_file_set_string (dummy, G_KEY_FILE_DESKTOP_GROUP, "Name", archiver->program);
 
-    /* replace all % with %% so encoded URI can be handled correctly when parsing Exec key. */
+    // replace all % with %% so encoded URI can be handled correctly when parsing Exec key.
     g_key_file_set_string (dummy, G_KEY_FILE_DESKTOP_GROUP, "Exec", cmd);
     app = g_desktop_app_info_new_from_keyfile (dummy);
 
@@ -112,10 +114,10 @@ static gboolean launch_program (FmArchiver* archiver, GAppLaunchContext* ctx, co
     g_debug ("cmd = %s", cmd);
     if (app)
     {
-        GList* uris = NULL, *l;
+        GList *uris = NULL, *l;
         for (l = fm_list_peek_head_link (files); l; l=l->next)
         {
-            FmPath* path = FM_PATH (l->data);
+            FmPath *path = FM_PATH (l->data);
             uris = g_list_prepend (uris, fm_path_to_uri (path));
         }
         fm_app_info_launch_uris ((GAppInfo *) app, uris, ctx, NULL);
@@ -126,38 +128,38 @@ static gboolean launch_program (FmArchiver* archiver, GAppLaunchContext* ctx, co
     return TRUE;
 }
 
-gboolean fm_archiver_create_archive (FmArchiver* archiver, GAppLaunchContext* ctx, FmPathList* files)
+gboolean fm_archiver_create_archive (FmArchiver *archiver, GAppLaunchContext *ctx, FmPathList *files)
 {
     if (archiver->create_cmd && files)
         launch_program (archiver, ctx, archiver->create_cmd, files, NULL);
     return FALSE;
 }
 
-gboolean fm_archiver_extract_archives (FmArchiver* archiver, GAppLaunchContext* ctx, FmPathList* files)
+gboolean fm_archiver_extract_archives (FmArchiver *archiver, GAppLaunchContext *ctx, FmPathList *files)
 {
     if (archiver->extract_cmd && files)
         launch_program (archiver, ctx, archiver->extract_cmd, files, NULL);
     return FALSE;
 }
 
-gboolean fm_archiver_extract_archives_to (FmArchiver* archiver, GAppLaunchContext* ctx, FmPathList* files, FmPath* dest_dir)
+gboolean fm_archiver_extract_archives_to (FmArchiver *archiver, GAppLaunchContext *ctx, FmPathList *files, FmPath *dest_dir)
 {
     if (archiver->extract_to_cmd && files)
         launch_program (archiver, ctx, archiver->extract_to_cmd, files, dest_dir);
     return FALSE;
 }
 
-/* get default GUI archivers used by libfm */
-FmArchiver* fm_archiver_get_default ()
+// get default GUI archivers used by libfm
+FmArchiver *fm_archiver_get_default ()
 {
     if (!default_archiver)
     {
-        GList* l;
+        GList *l;
         if (fm_config->archiver)
         {
             for (l = archivers; l; l=l->next)
             {
-                FmArchiver* archiver =  (FmArchiver*)l->data;
+                FmArchiver *archiver =  (FmArchiver*)l->data;
                 if ( g_strcmp0 (fm_config->archiver, archiver->program) == 0 )
                 {
                     default_archiver = archiver;
@@ -169,8 +171,8 @@ FmArchiver* fm_archiver_get_default ()
         {
             for (l = archivers; l; l=l->next)
             {
-                FmArchiver* archiver =  (FmArchiver*)l->data;
-                char* tmp = g_find_program_in_path (archiver->program);
+                FmArchiver *archiver =  (FmArchiver*)l->data;
+                char *tmp = g_find_program_in_path (archiver->program);
                 if ( tmp )
                 {
                     g_free (tmp);
@@ -185,15 +187,15 @@ FmArchiver* fm_archiver_get_default ()
     return default_archiver;
 }
 
-/* set default GUI archivers used by libfm */
-void fm_archiver_set_default (FmArchiver* archiver)
+// set default GUI archivers used by libfm
+void fm_archiver_set_default (FmArchiver *archiver)
 {
     if (archiver)
         default_archiver = archiver;
 }
 
-/* get a list of FmArchiver* of all GUI archivers known to libfm */
-GList* fm_archiver_get_all ()
+// get a list of FmArchiver *of all GUI archivers known to libfm
+GList *fm_archiver_get_all ()
 {
     return archivers;
 }
@@ -205,13 +207,13 @@ void _fm_archiver_init ()
     if (g_key_file_load_from_file (kf, PACKAGE_DATA_DIR "/archivers.list", 0, NULL))
     {
         int n_archivers;
-        char** programs = g_key_file_get_groups (kf, &n_archivers);
+        char **programs = g_key_file_get_groups (kf, &n_archivers);
         if (programs)
         {
             int i;
             for (i = 0; i < n_archivers; ++i)
             {
-                FmArchiver* archiver = g_slice_new0 (FmArchiver);
+                FmArchiver *archiver = g_slice_new0 (FmArchiver);
                 archiver->program = programs[i];
                 archiver->create_cmd = g_key_file_get_string (kf, programs[i], "create", NULL);
                 archiver->extract_cmd = g_key_file_get_string (kf, programs[i], "extract", NULL);
@@ -219,7 +221,7 @@ void _fm_archiver_init ()
                 archiver->mime_types = g_key_file_get_string_list (kf, programs[i], "mime_types", NULL, NULL);
                 archivers = g_list_append (archivers, archiver);
             }
-            g_free (programs); /* strings in the vector are stolen by FmArchiver. */
+            g_free (programs); // strings in the vector are stolen by FmArchiver.
         }
     }
     g_key_file_free (kf);

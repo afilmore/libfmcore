@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-dnd-auto-scroll.h
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_DND_AUTO_SCROLL_H__
 #define __FM_DND_AUTO_SCROLL_H__
 
@@ -27,11 +28,12 @@
 
 G_BEGIN_DECLS
 
-void fm_dnd_set_dest_auto_scroll(GtkWidget* drag_dest_widget,
-                                 GtkAdjustment* hadj, GtkAdjustment* vadj);
+void fm_dnd_set_dest_auto_scroll (GtkWidget *drag_dest_widget,
+                                 GtkAdjustment *hadj, GtkAdjustment *vadj);
 
-void fm_dnd_unset_dest_auto_scroll(GtkWidget* drag_dest_widget);
+void fm_dnd_unset_dest_auto_scroll (GtkWidget *drag_dest_widget);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_DND_AUTO_SCROLL_H__ */
+

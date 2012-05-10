@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-dnd-src.h
  *      
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_DND_SRC_H__
 #define __FM_DND_SRC_H__
 
@@ -39,11 +40,11 @@ G_BEGIN_DECLS
 #define FM_IS_DND_SRC_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE((klass),\
 			FM_TYPE_DND_SRC))
 
-/* default targets of drag source */
+// default targets of drag source
 enum
 {
-	FM_DND_SRC_TARGET_FM_LIST, /* direct pointer of FmList */
-	FM_DND_SRC_TARGET_URI_LIST, /* text/uri-list */
+	FM_DND_SRC_TARGET_FM_LIST, // direct pointer of FmList
+	FM_DND_SRC_TARGET_URI_LIST, // text/uri-list
 	N_FM_DND_SRC_DEFAULT_TARGETS
 };
 
@@ -55,25 +56,26 @@ typedef struct _FmDndSrcClass		FmDndSrcClass;
 struct _FmDndSrc
 {
 	GObject parent;
-	GtkWidget* widget;
-	FmFileInfoList* files;
+	GtkWidget *widget;
+	FmFileInfoList *files;
 };
 
 struct _FmDndSrcClass
 {
 	GObjectClass parent_class;
-	void (*data_get)();
+	void  (*data_get) ();
 };
 
-GType		fm_dnd_src_get_type		(void);
-FmDndSrc*	fm_dnd_src_new			(GtkWidget* w);
+GType		fm_dnd_src_get_type		 (void);
+FmDndSrc*	fm_dnd_src_new			 (GtkWidget *w);
 
-void fm_dnd_src_set_widget(FmDndSrc* ds, GtkWidget* w);
+void fm_dnd_src_set_widget (FmDndSrc *ds, GtkWidget *w);
 
-FmFileInfoList* fm_dnd_src_get_files(FmDndSrc* ds);
-void fm_dnd_src_set_files(FmDndSrc* ds, FmFileInfoList* files);
-void fm_dnd_src_set_file(FmDndSrc* ds, FmFileInfo* file);
+FmFileInfoList *fm_dnd_src_get_files (FmDndSrc *ds);
+void fm_dnd_src_set_files (FmDndSrc *ds, FmFileInfoList *files);
+void fm_dnd_src_set_file (FmDndSrc *ds, FmFileInfo *file);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_DND_SRC_H__ */
+

@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-file-monitor.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,35 +18,36 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #include "fm-monitor.h"
 #include "fm-dummy-monitor.h"
 #include <string.h>
 
 #define MONITOR_RATE_LIMIT 5000
 
-static GHashTable* hash = NULL;
-static GHashTable* dummy_hash = NULL;
+static GHashTable *hash = NULL;
+static GHashTable *dummy_hash = NULL;
 G_LOCK_DEFINE_STATIC (hash);
 
-static void on_monitor_destroy (GFile* gf, GFileMonitor* mon)
+static void on_monitor_destroy (GFile *gf, GFileMonitor *mon)
 {
     G_LOCK (hash);
     g_hash_table_remove (hash, gf);
     G_UNLOCK (hash);
 }
 
-static void on_dummy_monitor_destroy (GFile* gf, GFileMonitor* mon)
+static void on_dummy_monitor_destroy (GFile *gf, GFileMonitor *mon)
 {
     G_LOCK (hash);
     g_hash_table_remove (dummy_hash, gf);
     G_UNLOCK (hash);
 }
 
-GFileMonitor* fm_monitor_directory (GFile* gf, GError** err)
+GFileMonitor *fm_monitor_directory (GFile *gf, GError* *err)
 {
-    GFileMonitor* ret = NULL;
+    GFileMonitor *ret = NULL;
     G_LOCK (hash);
     ret =  (GFileMonitor*)g_hash_table_lookup (hash, gf);
     if (!ret && !g_file_is_native (gf))
@@ -54,7 +56,7 @@ GFileMonitor* fm_monitor_directory (GFile* gf, GError** err)
         g_object_ref (ret);
     else
     {
-        GError* e = NULL;
+        GError *e = NULL;
         ret = g_file_monitor_directory (gf, G_FILE_MONITOR_WATCH_MOUNTS, NULL, &e);
         if (ret)
         {
@@ -68,7 +70,7 @@ GFileMonitor* fm_monitor_directory (GFile* gf, GError** err)
             {
                 if (e->domain == G_IO_ERROR && e->code == G_IO_ERROR_NOT_SUPPORTED)
                 {
-                    /* create a fake file monitor */
+                    //create a fake file monitor
                     ret = fm_dummy_monitor_new ();
                     g_error_free (e);
                     g_object_weak_ref (G_OBJECT (ret),  (GWeakNotify)on_dummy_monitor_destroy, gf);
@@ -105,9 +107,9 @@ void _fm_monitor_finalize ()
     dummy_hash = NULL;
 }
 
-GFileMonitor* fm_monitor_lookup_monitor (GFile* gf)
+GFileMonitor *fm_monitor_lookup_monitor (GFile *gf)
 {
-    GFileMonitor* ret = NULL;
+    GFileMonitor *ret = NULL;
     if (G_UNLIKELY (!gf))
         return NULL;
     G_LOCK (hash);
@@ -120,16 +122,16 @@ GFileMonitor* fm_monitor_lookup_monitor (GFile* gf)
     return ret;
 }
 
-GFileMonitor* fm_monitor_lookup_dummy_monitor (GFile* gf)
+GFileMonitor *fm_monitor_lookup_dummy_monitor (GFile *gf)
 {
-    GFileMonitor* mon;
-    char* scheme;
+    GFileMonitor *mon;
+    char *scheme;
     if (G_LIKELY (!gf || g_file_is_native (gf)))
         return NULL;
     scheme = g_file_get_uri_scheme (gf);
     if (scheme)
     {
-        /* those URI schemes don't need dummy monitor */
+        //those URI schemes don't need dummy monitor
         if (strcmp (scheme, "trash") == 0
          || strcmp (scheme, "computer") == 0
          || strcmp (scheme, "network") == 0
@@ -146,7 +148,7 @@ GFileMonitor* fm_monitor_lookup_dummy_monitor (GFile* gf)
         g_object_ref (mon);
     else
     {
-        /* create a fake file monitor */
+        //create a fake file monitor
         mon = fm_dummy_monitor_new ();
         g_object_weak_ref (G_OBJECT (mon),  (GWeakNotify)on_dummy_monitor_destroy, gf);
         g_hash_table_insert (dummy_hash, g_object_ref (gf), mon);

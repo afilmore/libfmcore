@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-dummy-monitor.h
  *      
  *      Copyright 2009 PCMan <pcman@debian>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_DUMMY_MONITOR_H__
 #define __FM_DUMMY_MONITOR_H__
 
@@ -50,8 +51,8 @@ struct _FmDummyMonitorClass
 	GFileMonitorClass parent_class;
 };
 
-GType fm_dummy_monitor_get_type(void);
-GFileMonitor* fm_dummy_monitor_new(void);
+GType fm_dummy_monitor_get_type (void);
+GFileMonitor *fm_dummy_monitor_new (void);
 
 G_END_DECLS
 

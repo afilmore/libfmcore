@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-list.h
  *      A generic list container supporting reference counting.
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_LIST_H__
 #define __FM_LIST_H__
 
@@ -33,27 +34,27 @@ typedef struct _FmListFuncs		FmListFuncs;
 struct _FmList
 {
 	GQueue list;
-	FmListFuncs* funcs;
+	FmListFuncs *funcs;
 	gint n_ref;
 };
 
 struct _FmListFuncs
 {
-	gpointer (*item_ref)(gpointer item);
-	void (*item_unref)(gpointer item);
+	gpointer  (*item_ref) (gpointer item);
+	void  (*item_unref) (gpointer item);
 };
 
-FmList* fm_list_new(FmListFuncs* funcs);
+FmList *fm_list_new (FmListFuncs *funcs);
 
-FmList* fm_list_ref(gpointer list);
-void fm_list_unref(gpointer list);
+FmList *fm_list_ref (gpointer list);
+void fm_list_unref (gpointer list);
 
 #define FM_LIST(list)	((FmList*)list)
 
-/* Since FmList is actually a GQueue with reference counting,
- * all APIs for GQueue should be usable */
+/*Since FmList is actually a GQueue with reference counting,
+  *all APIs for GQueue should be usable */
 
-void fm_list_clear(gpointer list);
+void fm_list_clear (gpointer list);
 #define fm_list_is_empty(list)				g_queue_is_empty((GQueue*)list)
 #define fm_list_get_length(list)			g_queue_get_length((GQueue*)list)
 
@@ -81,8 +82,8 @@ void fm_list_clear(gpointer list);
 
 #define fm_list_index(list,d)				g_queue_index((GQueue*)list,d)
 
-void fm_list_remove(gpointer list, gpointer data);
-void fm_list_remove_all(gpointer list, gpointer data);
+void fm_list_remove (gpointer list, gpointer data);
+void fm_list_remove_all (gpointer list, gpointer data);
 #define fm_list_insert_before(list,s,d)	g_queue_insert_before((GQueue*)list,s,list->funcs->item_ref(d))
 #define fm_list_insert_after(list,s,d)		g_queue_insert_after((GQueue*)list,s,list->funcs->item_ref(d))
 #define fm_list_insert_sorted(list,d,f,u)	g_queue_insert_sorted((GQueue*)list,list->funcs->item_ref(d),f,u)
@@ -106,8 +107,10 @@ void fm_list_remove_all(gpointer list, gpointer data);
 #define fm_list_link_index(list,l_)		g_queue_index((GQueue*)list,l_)
 #define fm_list_unlink(list,l_)			g_queue_unlink((GQueue*)list,l_)
 #define fm_list_delete_link_nounref(list, l_)    g_queue_delete_link((GQueue*)list,l_)
-void fm_list_delete_link(gpointer list, gpointer l_);
+void fm_list_delete_link (gpointer list, gpointer l_);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_LIST_H__ */
+
+

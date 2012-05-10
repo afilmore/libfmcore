@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-gtk-utils.c
  *
  *      Copyright 2009 PCMan <pcman@debian>
@@ -17,8 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -34,12 +36,12 @@
 
 #include "fm-config.h"
 
-static GtkDialog*   _fm_get_user_input_dialog    (GtkWindow* parent, const char* title, const char* msg);
-static gchar*       _fm_user_input_dialog_run    (GtkDialog* dialog, GtkEntry *entry);
+static GtkDialog *  _fm_get_user_input_dialog    (GtkWindow *parent, const char *title, const char *msg);
+static gchar *      _fm_user_input_dialog_run    (GtkDialog *dialog, GtkEntry *entry);
 
-void fm_show_error (GtkWindow* parent, const char* title, const char* msg)
+void fm_show_error (GtkWindow *parent, const char *title, const char *msg)
 {
-    GtkWidget* dialog = gtk_message_dialog_new (parent, 0,
+    GtkWidget *dialog = gtk_message_dialog_new (parent, 0,
                                             GTK_MESSAGE_ERROR,
                                             GTK_BUTTONS_OK, "%s", msg);
     gtk_window_set_title ((GtkWindow*)dialog, title ? title : _ ("Error"));
@@ -47,10 +49,10 @@ void fm_show_error (GtkWindow* parent, const char* title, const char* msg)
     gtk_widget_destroy (dialog);
 }
 
-gboolean fm_yes_no (GtkWindow* parent, const char* title, const char* question, gboolean default_yes)
+gboolean fm_yes_no (GtkWindow *parent, const char *title, const char *question, gboolean default_yes)
 {
     int ret;
-    GtkWidget* dialog = gtk_message_dialog_new_with_markup (parent, 0,
+    GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
                                 GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Confirm"));
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), default_yes ? GTK_RESPONSE_YES : GTK_RESPONSE_NO);
@@ -59,10 +61,10 @@ gboolean fm_yes_no (GtkWindow* parent, const char* title, const char* question, 
     return ret == GTK_RESPONSE_YES;
 }
 
-gboolean fm_ok_cancel (GtkWindow* parent, const char* title, const char* question, gboolean default_ok)
+gboolean fm_ok_cancel (GtkWindow *parent, const char *title, const char *question, gboolean default_ok)
 {
     int ret;
-    GtkWidget* dialog = gtk_message_dialog_new_with_markup (parent, 0,
+    GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
                                 GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Confirm"));
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), default_ok ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL);
@@ -72,14 +74,14 @@ gboolean fm_ok_cancel (GtkWindow* parent, const char* title, const char* questio
 }
 
 /**
- * fm_ask
- * Ask the user a question with several options provided.
- * @parent: toplevel parent widget
- * @question: the question to show to the user
- * @...: a NULL terminated list of button labels
- * Returns: the index of selected button, or -1 if the dialog is closed.
+  *fm_ask
+  *Ask the user a question with several options provided.
+  *@parent: toplevel parent widget
+  *@question: the question to show to the user
+  *@...: a NULL terminated list of button labels
+  *Returns: the index of selected button, or -1 if the dialog is closed.
  */
-int fm_ask (GtkWindow* parent, const char* title, const char* question, ...)
+int fm_ask (GtkWindow *parent, const char *title, const char *question, ...)
 {
     int ret;
     va_list args;
@@ -90,26 +92,26 @@ int fm_ask (GtkWindow* parent, const char* title, const char* question, ...)
 }
 
 /**
- * fm_askv
- * Ask the user a question with several options provided.
- * @parent: toplevel parent widget
- * @question: the question to show to the user
- * @options: a NULL terminated list of button labels
- * Returns: the index of selected button, or -1 if the dialog is closed.
+  *fm_askv
+  *Ask the user a question with several options provided.
+  *@parent: toplevel parent widget
+  *@question: the question to show to the user
+  *@options: a NULL terminated list of button labels
+  *Returns: the index of selected button, or -1 if the dialog is closed.
  */
-int fm_askv (GtkWindow* parent, const char* title, const char* question, const char** options)
+int fm_askv (GtkWindow *parent, const char *title, const char *question, const char **options)
 {
     int ret;
     guint id = 1;
-    GtkWidget* dialog = gtk_message_dialog_new_with_markup (parent, 0,
+    GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
                                 GTK_MESSAGE_QUESTION, 0, "%s", question);
     gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Question"));
-    /* FIXME_pcm: need to handle defualt button and alternative button
-     * order problems. */
+    /*FIXME_pcm: need to handle defualt button and alternative button
+      *order problems. */
     while (*options)
     {
-        /* FIXME_pcm: handle button image and stock buttons */
-        GtkWidget* btn = gtk_dialog_add_button (GTK_DIALOG (dialog), *options, id);
+        // FIXME_pcm: handle button image and stock buttons
+        GtkWidget *btn = gtk_dialog_add_button (GTK_DIALOG (dialog), *options, id);
         ++options;
         ++id;
     }
@@ -123,18 +125,18 @@ int fm_askv (GtkWindow* parent, const char* title, const char* question, const c
 }
 
 /**
- * fm_ask_valist
- * Ask the user a question with several options provided.
- * @parent: toplevel parent widget
- * @question: the question to show to the user
- * @options: a NULL terminated list of button labels
- * Returns: the index of selected button, or -1 if the dialog is closed.
+  *fm_ask_valist
+  *Ask the user a question with several options provided.
+  *@parent: toplevel parent widget
+  *@question: the question to show to the user
+  *@options: a NULL terminated list of button labels
+  *Returns: the index of selected button, or -1 if the dialog is closed.
  */
-int fm_ask_valist (GtkWindow* parent, const char* title, const char* question, va_list options)
+int fm_ask_valist (GtkWindow *parent, const char *title, const char *question, va_list options)
 {
-    GArray* opts = g_array_sized_new (TRUE, TRUE, sizeof (char*), 6);
+    GArray *opts = g_array_sized_new (TRUE, TRUE, sizeof (char*), 6);
     gint ret;
-    const char* opt = va_arg (options, const char*);
+    const char *opt = va_arg (options, const char*);
     while (opt)
     {
         g_array_append_val (opts, opt);
@@ -147,10 +149,10 @@ int fm_ask_valist (GtkWindow* parent, const char* title, const char* question, v
 
 
 
-gchar* fm_get_user_input (GtkWindow* parent, const char* title, const char* msg, const char* default_text)
+gchar *fm_get_user_input (GtkWindow *parent, const char *title, const char *msg, const char *default_text)
 {
-    GtkDialog* dialog = _fm_get_user_input_dialog (parent, title, msg);
-    GtkWidget* entry = gtk_entry_new ();
+    GtkDialog *dialog = _fm_get_user_input_dialog (parent, title, msg);
+    GtkWidget *entry = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 
     if (default_text && default_text[0])
@@ -159,13 +161,13 @@ gchar* fm_get_user_input (GtkWindow* parent, const char* title, const char* msg,
     return _fm_user_input_dialog_run (dialog,  GTK_ENTRY (entry));
 }
 
-FmPath* fm_get_user_input_path (GtkWindow* parent, const char* title, const char* msg, FmPath* default_path)
+FmPath *fm_get_user_input_path (GtkWindow *parent, const char *title, const char *msg, FmPath *default_path)
 {
 
-    GtkDialog* dialog = _fm_get_user_input_dialog (parent, title, msg);
-    GtkWidget* entry = gtk_entry_new ();
+    GtkDialog *dialog = _fm_get_user_input_dialog (parent, title, msg);
+    GtkWidget *entry = gtk_entry_new ();
     char *str, *path_str = NULL;
-    FmPath* path;
+    FmPath *path;
 
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 
@@ -184,33 +186,33 @@ FmPath* fm_get_user_input_path (GtkWindow* parent, const char* title, const char
 }
 
 
-gchar* fm_get_user_input_rename (GtkWindow* parent, const char* title, const char* msg, const char* default_text)
+gchar *fm_get_user_input_rename (GtkWindow *parent, const char *title, const char *msg, const char *default_text)
 {
-    GtkDialog* dialog = _fm_get_user_input_dialog (parent, title, msg);
-    GtkWidget* entry = gtk_entry_new ();
+    GtkDialog *dialog = _fm_get_user_input_dialog (parent, title, msg);
+    GtkWidget *entry = gtk_entry_new ();
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
 
     if (default_text && default_text[0])
     {
         gtk_entry_set_text (GTK_ENTRY (entry), default_text);
-        /* only select filename part without extension name. */
+        // only select filename part without extension name.
         if (default_text[1])
         {
-            /* FIXME_pcm: handle the special case for *.tar.gz or *.tar.bz2
-             * We should exam the file extension with g_content_type_guess, and
-             * find out a longest valid extension name.
-             * For example, the extension name of foo.tar.gz is .tar.gz, not .gz. */
-            const char* dot = g_utf8_strrchr (default_text, -1, '.');
+            /**FIXME_pcm: handle the special case for *.tar.gz or *.tar.bz2
+              *We should exam the file extension with g_content_type_guess, and
+              *find out a longest valid extension name.
+              *For example, the extension name of foo.tar.gz is .tar.gz, not .gz. */
+            const char *dot = g_utf8_strrchr (default_text, -1, '.');
             if (dot)
                 gtk_editable_select_region (GTK_EDITABLE (entry), 0, g_utf8_pointer_to_offset (default_text, dot));
             else
                 gtk_editable_select_region (GTK_EDITABLE (entry), 0, -1);
             /*
-            const char* dot = default_text;
+            const char *dot = default_text;
             while (dot = g_utf8_strchr (dot + 1, -1, '.'))
             {
                 gboolean uncertain;
-                char* type = g_content_type_guess (dot-1, NULL, 0, &uncertain);
+                char *type = g_content_type_guess (dot-1, NULL, 0, &uncertain);
                 if (!g_content_type_is_unknown (type))
                 {
                     g_free (type);
@@ -226,9 +228,9 @@ gchar* fm_get_user_input_rename (GtkWindow* parent, const char* title, const cha
     return _fm_user_input_dialog_run (dialog,  GTK_ENTRY (entry));
 }
 
-static GtkDialog* _fm_get_user_input_dialog (GtkWindow* parent, const char* title, const char* msg)
+static GtkDialog *_fm_get_user_input_dialog (GtkWindow *parent, const char *title, const char *msg)
 {
-    GtkWidget* dialog = gtk_dialog_new_with_buttons (title,
+    GtkWidget *dialog = gtk_dialog_new_with_buttons (title,
                                                   parent,
                                                   0,
                                                   GTK_STOCK_CANCEL,
@@ -236,7 +238,7 @@ static GtkDialog* _fm_get_user_input_dialog (GtkWindow* parent, const char* titl
                                                   GTK_STOCK_OK,
                                                   GTK_RESPONSE_OK,
                                                   NULL);
-    GtkWidget* label = gtk_label_new (msg);
+    GtkWidget *label = gtk_label_new (msg);
     gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
 
     gtk_dialog_set_alternative_button_order (GTK_DIALOG (dialog), GTK_RESPONSE_OK, GTK_RESPONSE_CANCEL, -1);
@@ -251,14 +253,14 @@ static GtkDialog* _fm_get_user_input_dialog (GtkWindow* parent, const char* titl
     return (GtkDialog*) dialog;
 }
 
-static gchar* _fm_user_input_dialog_run (GtkDialog *dialog, GtkEntry *entry)
+static gchar *_fm_user_input_dialog_run (GtkDialog *dialog, GtkEntry *entry)
 {
-    char* str = NULL;
+    char *str = NULL;
     int sel_start, sel_end;
     gboolean has_sel;
 
-    /* FIXME_pcm: this workaround is used to overcome bug of gtk+.
-     * gtk+ seems to ignore select region and select all text for entry in dialog. */
+    /*FIXME_pcm: this workaround is used to overcome bug of gtk+.
+      *gtk+ seems to ignore select region and select all text for entry in dialog. */
     
     has_sel = gtk_editable_get_selection_bounds (GTK_EDITABLE (entry), &sel_start, &sel_end);
 
@@ -275,7 +277,7 @@ static gchar* _fm_user_input_dialog_run (GtkDialog *dialog, GtkEntry *entry)
 
     while (gtk_dialog_run (dialog) == GTK_RESPONSE_OK)
     {
-        const char* pstr = gtk_entry_get_text (entry);
+        const char *pstr = gtk_entry_get_text (entry);
         if (pstr && *pstr)
         {
             str = g_strdup (pstr);
@@ -286,10 +288,10 @@ static gchar* _fm_user_input_dialog_run (GtkDialog *dialog, GtkEntry *entry)
     return str;
 }
 
-FmPath* fm_select_folder (GtkWindow* parent, const char* title)
+FmPath *fm_select_folder (GtkWindow *parent, const char *title)
 {
-    FmPath* path;
-    GtkFileChooser* chooser;
+    FmPath *path;
+    GtkFileChooser *chooser;
     chooser =  (GtkFileChooser*)gtk_file_chooser_dialog_new (
                                         title ? title : _ ("Please select a folder"),
                                         parent, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
@@ -301,7 +303,7 @@ FmPath* fm_select_folder (GtkWindow* parent, const char* title)
                                         GTK_RESPONSE_OK, NULL);
     if (gtk_dialog_run ((GtkDialog*)chooser) == GTK_RESPONSE_OK)
     {
-        GFile* file = gtk_file_chooser_get_file (chooser);
+        GFile *file = gtk_file_chooser_get_file (chooser);
         path = fm_path_new_for_gfile (file);
         g_object_unref (file);
     }
@@ -324,13 +326,13 @@ struct MountData
 {
     GMainLoop *loop;
     MountAction action;
-    GError* err;
+    GError *err;
     gboolean ret;
 };
 
-static void on_mount_action_finished (GObject* src, GAsyncResult *res, gpointer user_data)
+static void on_mount_action_finished (GObject *src, GAsyncResult *res, gpointer user_data)
 {
-    struct MountData* data = user_data;
+    struct MountData *data = user_data;
 g_debug ("on_mount_action_finished");
     switch (data->action)
     {
@@ -365,28 +367,28 @@ g_debug ("on_mount_action_finished");
     g_main_loop_quit (data->loop);
 }
 
-static void prepare_unmount (GMount* mount)
+static void prepare_unmount (GMount *mount)
 {
-    /* ensure that CWD is not on the mounted filesystem. */
-    char* cwd_str = g_get_current_dir ();
-    GFile* cwd = g_file_new_for_path (cwd_str);
-    GFile* root = g_mount_get_root (mount);
+    // ensure that CWD is not on the mounted filesystem.
+    char *cwd_str = g_get_current_dir ();
+    GFile *cwd = g_file_new_for_path (cwd_str);
+    GFile *root = g_mount_get_root (mount);
     g_free (cwd_str);
-    /* FIXME_pcm: This cannot cover 100% cases since symlinks are not checked.
-     * There may be other cases that cwd is actually under mount root
-     * but checking prefix is not enough. We already did our best, though. */
+    /*FIXME_pcm: This cannot cover 100% cases since symlinks are not checked.
+      *There may be other cases that cwd is actually under mount root
+      *but checking prefix is not enough. We already did our best, though. */
     if (g_file_has_prefix (cwd, root))
         g_chdir ("/");
     g_object_unref (cwd);
     g_object_unref (root);
 }
 
-static gboolean fm_do_mount (GtkWindow* parent, GObject* obj, MountAction action, gboolean interactive)
+static gboolean fm_do_mount (GtkWindow *parent, GObject *obj, MountAction action, gboolean interactive)
 {
     gboolean ret;
-    struct MountData* data = g_new0 (struct MountData, 1);
-    GMountOperation* op = interactive ? gtk_mount_operation_new (parent) : NULL;
-    GCancellable* cancellable = g_cancellable_new ();
+    struct MountData *data = g_new0 (struct MountData, 1);
+    GMountOperation *op = interactive ? gtk_mount_operation_new (parent) : NULL;
+    GCancellable *cancellable = g_cancellable_new ();
 
     data->loop = g_main_loop_new  (NULL, TRUE);
     data->action = action;
@@ -417,7 +419,7 @@ static gboolean fm_do_mount (GtkWindow* parent, GObject* obj, MountAction action
         break;
     case EJECT_VOLUME:
         {
-            GMount* mnt = g_volume_get_mount (G_VOLUME (obj));
+            GMount *mnt = g_volume_get_mount (G_VOLUME (obj));
             prepare_unmount (mnt);
             g_object_unref (mnt);
 #if GLIB_CHECK_VERSION (2, 22, 0)
@@ -447,15 +449,15 @@ static gboolean fm_do_mount (GtkWindow* parent, GObject* obj, MountAction action
             {
                 if (data->err->code == G_IO_ERROR_FAILED)
                 {
-                    /* Generate a more human-readable error message instead of using a gvfs one. */
+                    // Generate a more human-readable error message instead of using a gvfs one.
 
-                    /* The original error message is something like:
-                     * Error unmounting: umount exited with exit code 1:
-                     * helper failed with: umount: only root can unmount
-                     * UUID=18cbf00c-e65f-445a-bccc-11964bdea05d from /media/sda4 */
+                    /*The original error message is something like:
+                      *Error unmounting: umount exited with exit code 1:
+                      *helper failed with: umount: only root can unmount
+                      *UUID=18cbf00c-e65f-445a-bccc-11964bdea05d from /media/sda4 */
 
-                    /* Why they pass this back to us?
-                     * This is not human-readable for the users at all. */
+                    /*Why they pass this back to us?
+                      *This is not human-readable for the users at all. */
 
                     if (strstr (data->err->message, "only root can "))
                     {
@@ -480,27 +482,27 @@ static gboolean fm_do_mount (GtkWindow* parent, GObject* obj, MountAction action
     return ret;
 }
 
-gboolean fm_mount_path (GtkWindow* parent, FmPath* path, gboolean interactive)
+gboolean fm_mount_path (GtkWindow *parent, FmPath *path, gboolean interactive)
 {
-    GFile* gf = fm_path_to_gfile (path);
+    GFile *gf = fm_path_to_gfile (path);
     gboolean ret = fm_do_mount (parent, G_OBJECT (gf), MOUNT_GFILE, interactive);
     g_object_unref (gf);
     return ret;
 }
 
-gboolean fm_mount_volume (GtkWindow* parent, GVolume* vol, gboolean interactive)
+gboolean fm_mount_volume (GtkWindow *parent, GVolume *vol, gboolean interactive)
 {
     return fm_do_mount (parent, G_OBJECT (vol), MOUNT_VOLUME, interactive);
 }
 
-gboolean fm_unmount_mount (GtkWindow* parent, GMount* mount, gboolean interactive)
+gboolean fm_unmount_mount (GtkWindow *parent, GMount *mount, gboolean interactive)
 {
     return fm_do_mount (parent, G_OBJECT (mount), UMOUNT_MOUNT, interactive);
 }
 
-gboolean fm_unmount_volume (GtkWindow* parent, GVolume* vol, gboolean interactive)
+gboolean fm_unmount_volume (GtkWindow *parent, GVolume *vol, gboolean interactive)
 {
-    GMount* mount = g_volume_get_mount (vol);
+    GMount *mount = g_volume_get_mount (vol);
     gboolean ret;
     if (!mount)
         return FALSE;
@@ -509,79 +511,79 @@ gboolean fm_unmount_volume (GtkWindow* parent, GVolume* vol, gboolean interactiv
     return ret;
 }
 
-gboolean fm_eject_mount (GtkWindow* parent, GMount* mount, gboolean interactive)
+gboolean fm_eject_mount (GtkWindow *parent, GMount *mount, gboolean interactive)
 {
     return fm_do_mount (parent, G_OBJECT (mount), EJECT_MOUNT, interactive);
 }
 
-gboolean fm_eject_volume (GtkWindow* parent, GVolume* vol, gboolean interactive)
+gboolean fm_eject_volume (GtkWindow *parent, GVolume *vol, gboolean interactive)
 {
     return fm_do_mount (parent, G_OBJECT (vol), EJECT_VOLUME, interactive);
 }
 
 
-/* File operations */
-/* FIXME_pcm: only show the progress dialog if the job isn't finished
- * in 1 sec. */
+// File operations
+/*FIXME_pcm: only show the progress dialog if the job isn't finished
+  *in 1 sec. */
 
-void fm_copy_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
+void fm_copy_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
 {
-    FmJob* job = fm_file_ops_job_new (FM_FILE_OP_COPY, files);
+    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_COPY, files);
     fm_file_ops_job_set_dest (FM_FILE_OPS_JOB (job), dest_dir);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
 }
 
-void fm_move_files (GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
+void fm_move_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
 {
-    FmJob* job = fm_file_ops_job_new (FM_FILE_OP_MOVE, files);
+    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_MOVE, files);
     fm_file_ops_job_set_dest (FM_FILE_OPS_JOB (job), dest_dir);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
 }
 
-void fm_trash_files (GtkWindow* parent, FmPathList* files)
+void fm_trash_files (GtkWindow *parent, FmPathList *files)
 {
     if (!fm_config->confirm_delete || fm_yes_no (parent, NULL, _ ("Do you want to move the selected files to trash can?"), TRUE))
     {
-        FmJob* job = fm_file_ops_job_new (FM_FILE_OP_TRASH, files);
+        FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, files);
         fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
     }
 }
 
-void fm_untrash_files (GtkWindow* parent, FmPathList* files)
+void fm_untrash_files (GtkWindow *parent, FmPathList *files)
 {
-    FmJob* job = fm_file_ops_job_new (FM_FILE_OP_UNTRASH, files);
+    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_UNTRASH, files);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
 }
 
-static void fm_delete_files_internal (GtkWindow* parent, FmPathList* files)
+static void fm_delete_files_internal (GtkWindow *parent, FmPathList *files)
 {
-    FmJob* job = fm_file_ops_job_new (FM_FILE_OP_DELETE, files);
+    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_DELETE, files);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
 }
 
-void fm_delete_files (GtkWindow* parent, FmPathList* files)
+void fm_delete_files (GtkWindow *parent, FmPathList *files)
 {
     if (!fm_config->confirm_delete || fm_yes_no (parent, NULL, _ ("Do you want to delete the selected files?"), TRUE))
         fm_delete_files_internal (parent, files);
 }
 
-void fm_trash_or_delete_files (GtkWindow* parent, FmPathList* files)
+void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files)
 {
     if (!fm_list_is_empty (files))
     {
         gboolean all_in_trash = TRUE;
         if (fm_config->use_trash_can)
         {
-            GList* l = fm_list_peek_head_link (files);
+            GList *l = fm_list_peek_head_link (files);
             for (;l;l=l->next)
             {
-                FmPath* path = FM_PATH (l->data);
+                FmPath *path = FM_PATH (l->data);
                 if (!fm_path_is_trash (path))
                     all_in_trash = FALSE;
             }
         }
 
-        /* files already in trash:/// should only be deleted and cannot be trashed again. */
+        // files already in trash:/// should only be deleted and cannot be trashed again.
         if (fm_config->use_trash_can && !all_in_trash)
             fm_trash_files (parent, files);
         else
@@ -589,9 +591,9 @@ void fm_trash_or_delete_files (GtkWindow* parent, FmPathList* files)
     }
 }
 
-void fm_move_or_copy_files_to (GtkWindow* parent, FmPathList* files, gboolean is_move)
+void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move)
 {
-    FmPath* dest = fm_select_folder (parent, NULL);
+    FmPath *dest = fm_select_folder (parent, NULL);
     if (dest)
     {
         if (is_move)
@@ -603,11 +605,11 @@ void fm_move_or_copy_files_to (GtkWindow* parent, FmPathList* files, gboolean is
 }
 
 
-void fm_rename_file (GtkWindow* parent, FmPath* file)
+void fm_rename_file (GtkWindow *parent, FmPath *file)
 {
-    GFile* gf = fm_path_to_gfile (file), *parent_gf, *dest;
-    GError* err = NULL;
-    gchar* new_name = fm_get_user_input_rename (parent, _ ("Rename File"), _ ("Please enter a new name:"), file->name);
+    GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;
+    GError *err = NULL;
+    gchar *new_name = fm_get_user_input_rename (parent, _ ("Rename File"), _ ("Please enter a new name:"), file->name);
     if (!new_name)
         return;
     parent_gf = g_file_get_parent (gf);
@@ -617,7 +619,7 @@ void fm_rename_file (GtkWindow* parent, FmPath* file)
                 G_FILE_COPY_ALL_METADATA|
                 G_FILE_COPY_NO_FALLBACK_FOR_MOVE|
                 G_FILE_COPY_NOFOLLOW_SYMLINKS,
-                NULL, /* make this cancellable later. */
+                NULL, // make this cancellable later.
                 NULL, NULL, &err))
     {
         fm_show_error (parent, NULL, err->message);
@@ -627,11 +629,11 @@ void fm_rename_file (GtkWindow* parent, FmPath* file)
     g_object_unref (gf);
 }
 
-void fm_empty_trash (GtkWindow* parent)
+void fm_empty_trash (GtkWindow *parent)
 {
     if (fm_yes_no (parent, NULL, _ ("Are you sure you want to empty the trash can?"), TRUE))
     {
-        FmPathList* paths = fm_path_list_new ();
+        FmPathList *paths = fm_path_list_new ();
         fm_list_push_tail (paths, fm_path_get_trash ());
         fm_delete_files_internal (parent, paths);
         fm_list_unref (paths);
