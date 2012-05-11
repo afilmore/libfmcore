@@ -28,7 +28,7 @@
 #include <gtk/gtk.h>
 #include "fm-file-info.h"
 #include "fm-gtk-launcher.h"
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 
 G_BEGIN_DECLS
 

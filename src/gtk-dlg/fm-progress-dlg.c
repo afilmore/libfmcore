@@ -27,7 +27,7 @@
 #endif
 
 #include "fm-progress-dlg.h"
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 #include <glib/gi18n-lib.h>
 
 #define SHOW_DLG_DELAY  1000

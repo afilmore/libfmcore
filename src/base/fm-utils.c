@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-gtk-utils.c
+ *      fm-utils.c
  *
  *      Copyright 2009 PCMan <pcman@debian>
  *
@@ -28,10 +28,9 @@
 #include <glib/gi18n-lib.h>
 #include <gio/gdesktopappinfo.h>
 
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 #include "fm-file-ops-job.h"
 #include "fm-progress-dlg.h"
-//#include "fm-path-entry.h"
 #include "fm-app-chooser-dlg.h"
 
 #include "fm-config.h"

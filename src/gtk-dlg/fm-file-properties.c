@@ -39,11 +39,11 @@
 #include "fm-file-properties.h"
 #include "fm-deep-count-job.h"
 #include "fm-file-ops-job.h"
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 #include "fm-path.h"
 
 #include "fm-progress-dlg.h"
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 
 #include "fm-app-chooser-combo-box.h"
 

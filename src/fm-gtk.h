@@ -40,7 +40,7 @@
 #include "fm-folder-view.h"
 #include "fm-gtk-file-launcher.h"
 #include "fm-gtk-marshal.h"
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 #include "fm-icon-pixbuf.h"
 #include "fm-path-bar.h"
 #include "fm-path-entry.h"

@@ -36,7 +36,7 @@
 #include <unistd.h>
 
 #include "fm-gtk-launcher.h"
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 #include "fm-app-chooser-dlg.h"
 #include "fm-config.h"
 #include "fm-file-info-job.h"

@@ -37,7 +37,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "fm-gtk-utils.h"
+#include "fm-utils.h"
 #include <menu-cache.h>
 
 static gboolean use_si_prefix = TRUE;

@@ -34,13 +34,13 @@ base_SOURCES = \
 	base/fm-monitor.c \
 	base/fm-path.c \
 	base/fm-path-list.c \
+	base/fm-utils.c \
 	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
 	gtk/fm-file-menu.c \
 	gtk/fm-gtk-marshal.c \
-	gtk/fm-gtk-utils.c \
 	gtk/fm-icon-pixbuf.c \
 	gtk/fm-thumbnail.c \
 	gtk-dlg/app-global-ui.c \
@@ -87,6 +87,7 @@ libfmcoreinclude_HEADERS = \
 	base/fm-monitor.h \
 	base/fm-path.h \
 	base/fm-path-list.h \
+	base/fm-utils.h \
 	job/fm-deep-count-job.h \
 	job/fm-dir-list-job.h \
 	job/fm-file-info-job.h \
@@ -102,7 +103,6 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-dnd-src.h \
 	gtk/fm-file-menu.h \
 	gtk/fm-gtk-marshal.h \
-	gtk/fm-gtk-utils.h \
 	gtk/fm-icon-pixbuf.h \
 	gtk/fm-thumbnail.h \
 	gtk-dlg/fm-app-chooser-combo-box.h \
