@@ -47,6 +47,7 @@ base_SOURCES = \
 	gtk-dlg/fm-app-chooser-combo-box.c \
 	gtk-dlg/fm-app-chooser-dlg.c \
 	gtk-dlg/fm-app-menu-view.c \
+	gtk-dlg/fm-dlg-utils.c \
 	gtk-dlg/fm-gtk-launcher.c \
 	gtk-dlg/fm-file-properties.c \
 	gtk-dlg/fm-progress-dlg.c \
@@ -108,6 +109,7 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-chooser-combo-box.h \
 	gtk-dlg/fm-app-chooser-dlg.h \
 	gtk-dlg/fm-app-menu-view.h \
+	gtk-dlg/fm-dlg-utils.h \
 	gtk-dlg/fm-file-properties.h \
 	gtk-dlg/fm-gtk-launcher.h \
 	gtk-dlg/fm-progress-dlg.h \
