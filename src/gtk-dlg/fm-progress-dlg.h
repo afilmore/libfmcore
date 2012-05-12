@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-progress-dlg.h
  *      
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_PROGRESS_DLG_H__
 #define __FM_PROGRESS_DLG_H__
 
@@ -34,8 +35,9 @@ typedef struct _FmProgressDisplay FmProgressDisplay;
  * The returned data structure will be freed in idle handler automatically
  * when it's not needed anymore.
  */
-FmProgressDisplay* fm_file_ops_job_run_with_progress(GtkWindow* parent, FmFileOpsJob* job);
+FmProgressDisplay *fm_file_ops_job_run_with_progress (GtkWindow *parent, FmFileOpsJob *job);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_PROGRESS_DLG_H__ */
+

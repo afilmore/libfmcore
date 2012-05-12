@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-app-chooser-dlg.c
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -17,7 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
+ *
+ * 
+ **********************************************************************************************************************/
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -31,12 +34,12 @@
 #include <menu-cache.h>
 #include <gio/gdesktopappinfo.h>
 
-//extern const char APP_CHOOSER_DLG[];
-/***********************************************************************************************************************
+
+/*****************************************************************************************
  * Application Chooser Dialog
  * 
  * 
- **********************************************************************************************************************/
+ ****************************************************************************************/
 const char APP_CHOOSER_DLG[] ="<?xml version='1.0'?>"
 "<interface>"
 "<requires lib='gtk+' version='2.16'/>"
@@ -319,30 +322,30 @@ const char APP_CHOOSER_DLG[] ="<?xml version='1.0'?>"
 typedef struct _AppChooserData AppChooserData;
 struct _AppChooserData
 {
-    GtkWidget* dlg;
-    GtkWidget* notebook;
-    GtkWidget* apps_view;
-    GtkWidget* cmdline;
-    GtkWidget* set_default;
-    GtkWidget* status;
-    GtkWidget* use_terminal;
-    FmMimeType* mime_type;
+    GtkWidget *dlg;
+    GtkWidget *notebook;
+    GtkWidget *apps_view;
+    GtkWidget *cmdline;
+    GtkWidget *set_default;
+    GtkWidget *status;
+    GtkWidget *use_terminal;
+    FmMimeType *mime_type;
 };
 
-static GAppInfo* app_info_create_from_commandline (const char *commandline,
+static GAppInfo *app_info_create_from_commandline (const char *commandline,
                                                const char *application_name,
                                                gboolean terminal)
 {
-    GDesktopAppInfo* app = NULL;
-    char* dirname = g_build_filename (g_get_user_data_dir (), "applications", NULL);
+    GDesktopAppInfo *app = NULL;
+    char *dirname = g_build_filename (g_get_user_data_dir (), "applications", NULL);
 
     if (g_mkdir_with_parents (dirname, 0700) == 0)
     {
-        char* filename = g_strdup_printf ("%s/userapp-%s-XXXXXX.desktop", dirname, application_name);
+        char *filename = g_strdup_printf ("%s/userapp-%s-XXXXXX.desktop", dirname, application_name);
         int fd = g_mkstemp (filename);
         if (fd != -1)
         {
-            GString* content = g_string_sized_new (256);
+            GString *content = g_string_sized_new (256);
             g_string_printf (content,
                 "[Desktop Entry]\n"
                 "Type=Application\n"
@@ -357,7 +360,7 @@ static GAppInfo* app_info_create_from_commandline (const char *commandline,
                     "Terminal=%s\n", terminal ? "true" : "false");
             if (g_file_set_contents (filename, content->str, content->len, NULL))
             {
-                char* desktop_id = g_path_get_basename (filename);
+                char *desktop_id = g_path_get_basename (filename);
                 app = g_desktop_app_info_new (desktop_id);
                 g_free (desktop_id);
             }
@@ -369,28 +372,28 @@ static GAppInfo* app_info_create_from_commandline (const char *commandline,
     return (GAppInfo*) app;
 }
 
-static void on_dlg_destroy (AppChooserData* data, GObject* dlg)
+static void on_dlg_destroy (AppChooserData *data, GObject *dlg)
 {
     g_slice_free (AppChooserData, data);
 }
 
-static void on_switch_page (GtkNotebook* nb, GtkWidget* page, gint num, AppChooserData* data)
+static void on_switch_page (GtkNotebook *nb, GtkWidget *page, gint num, AppChooserData *data)
 {
-    if (num == 0) /* list of installed apps */
+    if (num == 0) /*list of installed apps */
     {
         gtk_label_set_text (GTK_LABEL (data->status), _ ("Use selected application to open files"));
         gtk_dialog_set_response_sensitive ((GtkDialog*) data->dlg, GTK_RESPONSE_OK,
                         fm_app_menu_view_is_app_selected (GTK_TREE_VIEW (data->apps_view)));
     }
-    else /* custom app */
+    else /*custom app */
     {
-        const char* cmd = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
+        const char *cmd = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
         gtk_label_set_text (GTK_LABEL (data->status), _ ("Execute custom command line to open files"));
         gtk_dialog_set_response_sensitive (GTK_DIALOG (data->dlg), GTK_RESPONSE_OK, (cmd && cmd[0]));
     }
 }
 
-static void on_apps_view_sel_changed (GtkTreeSelection* tree_sel, AppChooserData* data)
+static void on_apps_view_sel_changed (GtkTreeSelection *tree_sel, AppChooserData *data)
 {
     if (gtk_notebook_get_current_page (GTK_NOTEBOOK (data->notebook)) == 0)
     {
@@ -399,22 +402,22 @@ static void on_apps_view_sel_changed (GtkTreeSelection* tree_sel, AppChooserData
     }
 }
 
-static void on_cmdline_changed (GtkEditable* cmdline, AppChooserData* data)
+static void on_cmdline_changed (GtkEditable *cmdline, AppChooserData *data)
 {
     if (gtk_notebook_get_current_page (GTK_NOTEBOOK (data->notebook)) == 1)
     {
-        const char* cmd = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
+        const char *cmd = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
         gtk_dialog_set_response_sensitive (GTK_DIALOG (data->dlg), GTK_RESPONSE_OK, (cmd && cmd[0]));
     }
 }
 
-GtkWidget *fm_app_chooser_dlg_new (FmMimeType* mime_type, gboolean can_set_default)
+GtkWidget *fm_app_chooser_dlg_new (FmMimeType *mime_type, gboolean can_set_default)
 {
-    GtkWidget* scroll;
-    GtkWidget* file_type;
-    GtkTreeSelection* tree_sel;
-    GtkBuilder* builder = gtk_builder_new ();
-    AppChooserData* data = g_slice_new0 (AppChooserData);
+    GtkWidget *scroll;
+    GtkWidget *file_type;
+    GtkTreeSelection *tree_sel;
+    GtkBuilder *builder = gtk_builder_new ();
+    AppChooserData *data = g_slice_new0 (AppChooserData);
 
     gtk_builder_set_translation_domain (builder, GETTEXT_PACKAGE);
 
@@ -439,7 +442,7 @@ GtkWidget *fm_app_chooser_dlg_new (FmMimeType* mime_type, gboolean can_set_defau
         gtk_label_set_text (GTK_LABEL (file_type), mime_type->description);
     else
     {
-        GtkWidget* hbox = (GtkWidget*)gtk_builder_get_object (builder, "file_type_hbox");
+        GtkWidget *hbox = (GtkWidget*)gtk_builder_get_object (builder, "file_type_hbox");
         gtk_widget_destroy (hbox);
         gtk_widget_hide (data->set_default);
     }
@@ -463,13 +466,13 @@ GtkWidget *fm_app_chooser_dlg_new (FmMimeType* mime_type, gboolean can_set_defau
     return data->dlg;
 }
 
-inline static char* get_binary (const char* cmdline, gboolean* arg_found)
+inline static char *get_binary (const char *cmdline, gboolean *arg_found)
 {
-    /* see if command line contains %f, %F, %u, or %U. */
-    const char* p = strstr (cmdline, " %");
+    /*see if command line contains %f, %F, %u, or %U. */
+    const char *p = strstr (cmdline, " %");
     if (p)
     {
-        if ( !strchr ("fFuU", * (p + 2)) )
+        if ( !strchr ("fFuU",  *(p + 2)) )
             p = NULL;
     }
     if (arg_found)
@@ -480,42 +483,42 @@ inline static char* get_binary (const char* cmdline, gboolean* arg_found)
         return g_strdup (cmdline);
 }
 
-GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_default)
+GAppInfo *fm_app_chooser_dlg_get_selected_app (GtkDialog *dlg, gboolean *set_default)
 {
-    GDesktopAppInfo* app = NULL;
-    AppChooserData* data = (AppChooserData*)g_object_get_qdata (G_OBJECT (dlg), fm_qdata_id);
+    GDesktopAppInfo *app = NULL;
+    AppChooserData *data = (AppChooserData*)g_object_get_qdata (G_OBJECT (dlg), fm_qdata_id);
     switch ( gtk_notebook_get_current_page (GTK_NOTEBOOK (data->notebook)) )
     {
-    case 0: /* all applications */
+    case 0: /*all applications */
         app = fm_app_menu_view_get_selected_app (GTK_TREE_VIEW (data->apps_view));
         break;
-    case 1: /* custom cmd line */
+    case 1: /*custom cmd line */
         {
-            const char* cmdline = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
+            const char *cmdline = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
             if (cmdline && cmdline[0])
             {
-                char* _cmdline = NULL;
+                char *_cmdline = NULL;
                 gboolean arg_found = FALSE;
-                char* bin1 = get_binary (cmdline, &arg_found);
+                char *bin1 = get_binary (cmdline, &arg_found);
                 g_debug ("bin1 = %s", bin1);
-                /* see if command line contains %f, %F, %u, or %U. */
-                if (!arg_found)  /* append %f if no %f, %F, %u, or %U was found. */
+                /*see if command line contains %f, %F, %u, or %U. */
+                if (!arg_found)  /*append %f if no %f, %F, %u, or %U was found. */
                     cmdline = _cmdline = g_strconcat (cmdline, " %f", NULL);
 
-                /* FIXME_pcm: is there any better way to do this? */
-                /* We need to ensure that no duplicated items are added */
+                /*FIXME_pcm: is there any better way to do this? */
+                /*We need to ensure that no duplicated items are added */
                 if (data->mime_type)
                 {
-                    MenuCache* menu_cache;
+                    MenuCache *menu_cache;
                     #if GLIB_CHECK_VERSION (2, 10, 0)
-                    /* see if the command is already in the list of known apps for this mime-type */
-                    GList* apps = g_app_info_get_all_for_type (data->mime_type->type);
-                    GList* l;
+                    /*see if the command is already in the list of known apps for this mime-type */
+                    GList *apps = g_app_info_get_all_for_type (data->mime_type->type);
+                    GList *l;
                     for (l=apps;l;l=l->next)
                     {
-                        GAppInfo* app2 = (GAppInfo*)l->data;
-                        const char* cmd = g_app_info_get_commandline (app2);
-                        char* bin2 = get_binary (cmd, NULL);
+                        GAppInfo *app2 = (GAppInfo*)l->data;
+                        const char *cmd = g_app_info_get_commandline (app2);
+                        char *bin2 = get_binary (cmd, NULL);
                         if (g_strcmp0 (bin1, bin2) == 0)
                         {
                             app = (GDesktopAppInfo*) g_object_ref (app2);
@@ -531,18 +534,18 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
                         goto _out;
                     #endif
 
-                    /* see if this command can be found in menu cache */
+                    /*see if this command can be found in menu cache */
                     menu_cache = menu_cache_lookup ("applications.menu");
                     if (menu_cache)
                     {
                         if (menu_cache_get_root_dir (menu_cache))
                         {
-                            GSList* all_apps = menu_cache_list_all_apps (menu_cache);
-                            GSList* l;
+                            GSList *all_apps = menu_cache_list_all_apps (menu_cache);
+                            GSList *l;
                             for (l=all_apps;l;l=l->next)
                             {
-                                MenuCacheApp* ma = MENU_CACHE_APP (l->data);
-                                char* bin2 = get_binary (menu_cache_app_get_exec (ma), NULL);
+                                MenuCacheApp *ma = MENU_CACHE_APP (l->data);
+                                char *bin2 = get_binary (menu_cache_app_get_exec (ma), NULL);
                                 if (g_strcmp0 (bin1, bin2) == 0)
                                 {
                                     app = g_desktop_app_info_new (menu_cache_item_get_id (MENU_CACHE_ITEM (ma)));
@@ -562,7 +565,7 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
                     }
                 }
 
-                /* FIXME_pcm: g_app_info_create_from_commandline force the use of %f or %u, so this is not we need */
+                /*FIXME_pcm: g_app_info_create_from_commandline force the use of %f or %u, so this is not we need */
                 app = (GDesktopAppInfo*) app_info_create_from_commandline (cmdline, bin1, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (data->use_terminal)));
             _out:
                 g_free (bin1);
@@ -577,10 +580,10 @@ GAppInfo* fm_app_chooser_dlg_get_selected_app (GtkDialog* dlg, gboolean* set_def
     return (GAppInfo*) app;
 }
 
-GAppInfo* fm_choose_app_for_mime_type (GtkWindow* parent, FmMimeType* mime_type, gboolean can_set_default)
+GAppInfo *fm_choose_app_for_mime_type (GtkWindow *parent, FmMimeType *mime_type, gboolean can_set_default)
 {
-    GAppInfo* app = NULL;
-    GtkWidget* dlg = fm_app_chooser_dlg_new (mime_type, can_set_default);
+    GAppInfo *app = NULL;
+    GtkWidget *dlg = fm_app_chooser_dlg_new (mime_type, can_set_default);
     if (parent)
         gtk_window_set_transient_for (GTK_WINDOW (dlg), parent);
     if (gtk_dialog_run (GTK_DIALOG (dlg)) == GTK_RESPONSE_OK)
@@ -590,14 +593,14 @@ GAppInfo* fm_choose_app_for_mime_type (GtkWindow* parent, FmMimeType* mime_type,
 
         if (app && mime_type && mime_type->type)
         {
-            GError* err = NULL;
-            /* add this app to the mime-type */
+            GError *err = NULL;
+            /*add this app to the mime-type */
             if (!g_app_info_add_supports_type (app, mime_type->type, &err))
             {
                 g_debug ("error: %s", err->message);
                 g_error_free (err);
             }
-            /* if need to set default */
+            /*if need to set default */
             if (set_default)
                 g_app_info_set_as_default_for_type (app, mime_type->type, NULL);
         }
@@ -605,3 +608,5 @@ GAppInfo* fm_choose_app_for_mime_type (GtkWindow* parent, FmMimeType* mime_type,
     gtk_widget_destroy (dlg);
     return app;
 }
+
+

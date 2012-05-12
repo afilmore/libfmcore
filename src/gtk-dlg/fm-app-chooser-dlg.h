@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-app-chooser-dlg.h
  *      
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_APP_CHOOSER_DLG_H__
 #define __FM_APP_CHOOSER_DLG_H__
 
@@ -29,11 +30,13 @@
 
 G_BEGIN_DECLS
 
-GtkWidget*	fm_app_chooser_dlg_new(FmMimeType* mime_type, gboolean can_set_default);
-GAppInfo* fm_app_chooser_dlg_get_selected_app(GtkDialog* dlg, gboolean* set_default);
+GtkWidget *fm_app_chooser_dlg_new (FmMimeType *mime_type, gboolean can_set_default);
+GAppInfo *fm_app_chooser_dlg_get_selected_app (GtkDialog *dlg, gboolean *set_default);
 
-GAppInfo* fm_choose_app_for_mime_type(GtkWindow* parent, FmMimeType* mime_type, gboolean can_set_default);
+GAppInfo *fm_choose_app_for_mime_type (GtkWindow *parent, FmMimeType *mime_type, gboolean can_set_default);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_APP_CHOOSER_DLG_H__ */
+
+

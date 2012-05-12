@@ -33,16 +33,13 @@
 
 #define SHOW_DLG_DELAY  1000
 
-// Dialog Xml String Definition  (gtk/app-global-ui.c)
-//~ extern const char RENAME_DLG[];
-//~ extern const char PROGRESS_DLG[];
 
-/***********************************************************************************************************************
+/*****************************************************************************************
  * Rename Dialog
  * 
  * 
- **********************************************************************************************************************/
-const char RENAME_DLG[] ="<?xml version='1.0'?>"
+ ****************************************************************************************/
+const char RENAME_DLG [] ="<?xml version='1.0'?>"
 "<interface>"
 "<!-- interface-requires gtk+ 2.12 -->"
 "<!-- interface-naming-policy toplevel-contextual -->"
@@ -299,11 +296,12 @@ const char RENAME_DLG[] ="<?xml version='1.0'?>"
 "</object>"
 "</interface>";
 
-/***********************************************************************************************************************
+
+/*****************************************************************************************
  * Progress Dialog
  * 
  * 
- **********************************************************************************************************************/
+ ****************************************************************************************/
 const char PROGRESS_DLG[] ="<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
 "<!-- interface-requires gtk+ 2.12 -->"
@@ -589,7 +587,6 @@ const char PROGRESS_DLG[] ="<?xml version='1.0' encoding='UTF-8'?>"
 "</interface>";
 
 
-
 enum
 {
     RESPONSE_OVERWRITE = 1,
@@ -675,6 +672,7 @@ static void on_cur_file (FmFileOpsJob *job, const char *cur_file, FmProgressDisp
     /* FIXME_pcm: Displaying currently processed file will slow down the
      * operation and waste CPU source due to showing the text with pango.
      * Consider showing current file every 0.5 second. */
+    
     g_free (data->cur_file);
     data->cur_file = g_strdup (cur_file);
 }
@@ -697,7 +695,7 @@ static FmJobErrorAction on_error (FmFileOpsJob *job, GError *err, FmJobErrorSeve
 
     ensure_dlg (data);
 
-/*
+    /*
     FIXME_pcm: Need to mount volumes on demand here, too.
     if ( err->domain == G_IO_ERROR )
     {
@@ -705,7 +703,7 @@ static FmJobErrorAction on_error (FmFileOpsJob *job, GError *err, FmJobErrorSeve
             if (fm_mount_path (parent, dest_path))
                 return FM_JOB_RETRY;
     }
-*/
+    */
 
     gtk_text_buffer_get_end_iter (data->error_buf, &it);
     gtk_text_buffer_insert_with_tags (data->error_buf, &it, data->cur_file, -1, data->bold_tag, NULL);
@@ -718,6 +716,7 @@ static FmJobErrorAction on_error (FmFileOpsJob *job, GError *err, FmJobErrorSeve
 
     if (data->timer)
         g_timer_continue (data->timer);
+    
     return FM_JOB_CONTINUE;
 }
 
@@ -733,6 +732,7 @@ static void on_filename_changed (GtkEditable *entry, GtkWidget *rename)
     const char *new_name = gtk_entry_get_text (GTK_ENTRY (entry));
     gboolean can_rename = new_name && *new_name && g_strcmp0 (old_name, new_name);
     gtk_widget_set_sensitive (rename, can_rename);
+    
     if (can_rename)
     {
         GtkDialog *dlg = GTK_DIALOG (gtk_widget_get_toplevel (GTK_WIDGET (entry)));
@@ -759,13 +759,14 @@ static gint on_ask_rename (FmFileOpsJob *job, FmFileInfo *src, FmFileInfo *dest,
     ensure_dlg (data);
 
     gtk_builder_add_from_string  (builder, RENAME_DLG, -1, NULL);
-    dlg =  (GtkWidget*)gtk_builder_get_object (builder, "dlg");
+    dlg =       (GtkWidget*)gtk_builder_get_object (builder, "dlg");
     src_icon =  (GtkWidget*)gtk_builder_get_object (builder, "src_icon");
-    src_fi =  (GtkWidget*)gtk_builder_get_object (builder, "src_fi");
-    dest_icon =  (GtkWidget*)gtk_builder_get_object (builder, "dest_icon");
-    dest_fi =  (GtkWidget*)gtk_builder_get_object (builder, "dest_fi");
+    src_fi =    (GtkWidget*)gtk_builder_get_object (builder, "src_fi");
+    dest_icon = (GtkWidget*)gtk_builder_get_object (builder, "dest_icon");
+    dest_fi =   (GtkWidget*)gtk_builder_get_object (builder, "dest_fi");
     filename =  (GtkWidget*)gtk_builder_get_object (builder, "filename");
-    apply_all =  (GtkWidget*)gtk_builder_get_object (builder, "apply_all");
+    apply_all = (GtkWidget*)gtk_builder_get_object (builder, "apply_all");
+    
     gtk_window_set_transient_for (GTK_WINDOW (dlg), (GtkWindow*) data->dlg);
 
     gtk_image_set_from_gicon (GTK_IMAGE (src_icon), fm_file_info_get_gicon (src), GTK_ICON_SIZE_DIALOG);
@@ -809,6 +810,7 @@ static gint on_ask_rename (FmFileOpsJob *job, FmFileInfo *src, FmFileInfo *dest,
     tmp = g_filename_display_name (dest->path->name);
     gtk_entry_set_text (GTK_ENTRY (filename), tmp);
     g_free (tmp);
+    
     g_object_set_data (G_OBJECT (filename), "old_name", dest->disp_name);
     g_signal_connect (filename, "changed", (GCallback) on_filename_changed, gtk_builder_get_object (builder, "rename"));
 
@@ -817,18 +819,21 @@ static gint on_ask_rename (FmFileOpsJob *job, FmFileInfo *src, FmFileInfo *dest,
     res = gtk_dialog_run (GTK_DIALOG (dlg));
     switch (res)
     {
-    case RESPONSE_RENAME:
-        *new_name = g_strdup (gtk_entry_get_text (GTK_ENTRY (filename)));
-        res = FM_FILE_OP_RENAME;
+        case RESPONSE_RENAME:
+            *new_name = g_strdup (gtk_entry_get_text (GTK_ENTRY (filename)));
+            res = FM_FILE_OP_RENAME;
         break;
-    case RESPONSE_OVERWRITE:
-        res = FM_FILE_OP_OVERWRITE;
+        
+        case RESPONSE_OVERWRITE:
+            res = FM_FILE_OP_OVERWRITE;
         break;
-    case RESPONSE_SKIP:
-        res = FM_FILE_OP_SKIP;
+        
+        case RESPONSE_SKIP:
+            res = FM_FILE_OP_SKIP;
         break;
-    default:
-        res = FM_FILE_OP_CANCEL;
+        
+        default:
+            res = FM_FILE_OP_CANCEL;
     }
 
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (apply_all)))
@@ -855,6 +860,7 @@ static void on_finished (FmFileOpsJob *job, FmProgressDisplay *data)
     }
 
     parent = data->parent;
+    
     if (data->dlg)
     {
         // errors happened
@@ -883,6 +889,7 @@ static void on_finished (FmFileOpsJob *job, FmProgressDisplay *data)
         }
         else
             fm_progress_display_destroy (data);
+        
         g_debug ("file operation is finished!");
     }
     else
@@ -890,11 +897,13 @@ static void on_finished (FmFileOpsJob *job, FmProgressDisplay *data)
 
     /* sepcial handling for trash
      * FIXME_pcm: need to refactor this to use a more elegant way later. */
+    
     if (job->type == FM_FILE_OP_TRASH)
     {
         FmPathList *unsupported =  (FmPathList*)g_object_get_data (G_OBJECT (job), "trash-unsupported");
         // some files cannot be trashed because underlying filesystems don't support it.
-        if (unsupported) // delete them instead
+        // delete them instead
+        if (unsupported)
         {
             if (fm_yes_no (GTK_WINDOW (parent), NULL,
                         _ ("Some files cannot be moved to trash can because "
@@ -926,7 +935,9 @@ static void on_response (GtkDialog *dlg, gint id, FmProgressDisplay *data)
         }
     }
     else if (id == GTK_RESPONSE_CLOSE)
+    {
         fm_progress_display_destroy (data);
+    }
 }
 
 static gboolean on_update_dlg (FmProgressDisplay *data)
@@ -936,6 +947,7 @@ static gboolean on_update_dlg (FmProgressDisplay *data)
         gtk_label_set_text (GTK_LABEL (data->current), data->cur_file);
         data->old_cur_file = data->cur_file;
     }
+    
     return TRUE;
 }
 
@@ -948,30 +960,32 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
     GtkTextTagTable *tag_table = gtk_text_tag_table_new ();
 
     gtk_builder_set_translation_domain (builder, GETTEXT_PACKAGE);
-    gtk_builder_add_from_string  (builder, PROGRESS_DLG, -1, NULL);
+    gtk_builder_add_from_string (builder, PROGRESS_DLG, -1, NULL);
 
-    data->dlg =  (GtkWidget*)gtk_builder_get_object (builder, "dlg");
+    data->dlg = (GtkWidget*) gtk_builder_get_object (builder, "dlg");
 
     g_signal_connect (data->dlg, "response", (GCallback) on_response, data);
 
-    to_label =  (GtkWidget*)gtk_builder_get_object (builder, "to_label");
-    to =  (GtkWidget*)gtk_builder_get_object (builder, "dest");
-    data->icon =  (GtkWidget*)gtk_builder_get_object (builder, "icon");
-    data->msg =  (GtkWidget*)gtk_builder_get_object (builder, "msg");
-    data->act =  (GtkWidget*)gtk_builder_get_object (builder, "action");
-    data->src =  (GtkWidget*)gtk_builder_get_object (builder, "src");
-    data->dest =  (GtkWidget*)gtk_builder_get_object (builder, "dest");
-    data->current =  (GtkWidget*)gtk_builder_get_object (builder, "current");
-    data->progress =  (GtkWidget*)gtk_builder_get_object (builder, "progress");
-    data->error_pane =  (GtkWidget*)gtk_builder_get_object (builder, "error_pane");
-    data->error_msg =  (GtkWidget*)gtk_builder_get_object (builder, "error_msg");
-    data->remaining_time =  (GtkWidget*)gtk_builder_get_object (builder, "remaining_time");
+    to_label =              (GtkWidget*) gtk_builder_get_object (builder, "to_label");
+    to =                    (GtkWidget*) gtk_builder_get_object (builder, "dest");
+    data->icon =            (GtkWidget*) gtk_builder_get_object (builder, "icon");
+    data->msg =             (GtkWidget*) gtk_builder_get_object (builder, "msg");
+    data->act =             (GtkWidget*) gtk_builder_get_object (builder, "action");
+    data->src =             (GtkWidget*) gtk_builder_get_object (builder, "src");
+    data->dest =            (GtkWidget*) gtk_builder_get_object (builder, "dest");
+    data->current =         (GtkWidget*) gtk_builder_get_object (builder, "current");
+    data->progress =        (GtkWidget*) gtk_builder_get_object (builder, "progress");
+    data->error_pane =      (GtkWidget*) gtk_builder_get_object (builder, "error_pane");
+    data->error_msg =       (GtkWidget*) gtk_builder_get_object (builder, "error_msg");
+    data->remaining_time =  (GtkWidget*) gtk_builder_get_object (builder, "remaining_time");
 
     data->bold_tag = gtk_text_tag_new ("bold");
     g_object_set (data->bold_tag, "weight", PANGO_WEIGHT_BOLD, NULL);
+    
     gtk_text_tag_table_add (tag_table, data->bold_tag);
     data->error_buf = gtk_text_buffer_new (tag_table);
     g_object_unref (tag_table);
+    
     gtk_text_view_set_buffer (GTK_TEXT_VIEW (data->error_msg), data->error_buf);
 
     g_object_unref (builder);
@@ -983,11 +997,13 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
         int i;
         char *disp;
         FmPath *path;
+        
         GString *str = g_string_sized_new (512);
         path = FM_PATH (l->data);
         disp = fm_path_display_basename (path);
         g_string_assign (str, disp);
         g_free (disp);
+        
         for ( i =1, l=l->next; i < 10 && l; l=l->next, ++i)
         {
             path = FM_PATH (l->data);
@@ -996,8 +1012,10 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
             g_string_append (str, disp);
             g_free (disp);
         }
+        
         if (l)
             g_string_append (str, "...");
+        
         gtk_label_set_text (GTK_LABEL (data->src), str->str);
         g_string_free (str, TRUE);
     }
@@ -1005,25 +1023,31 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
     // FIXME_pcm: use accessor functions instead
     switch (data->job->type)
     {
-    case FM_FILE_OP_MOVE:
-        title = _ ("Moving files");
+        case FM_FILE_OP_MOVE:
+            title = _ ("Moving files");
         break;
-    case FM_FILE_OP_COPY:
-        title = _ ("Copying files");
+        
+        case FM_FILE_OP_COPY:
+            title = _ ("Copying files");
         break;
-    case FM_FILE_OP_TRASH:
-        title = _ ("Trashing files");
+        
+        case FM_FILE_OP_TRASH:
+            title = _ ("Trashing files");
         break;
-    case FM_FILE_OP_DELETE:
-        title = _ ("Deleting files");
+        
+        case FM_FILE_OP_DELETE:
+            title = _ ("Deleting files");
         break;
-    case FM_FILE_OP_LINK:
-        title = _ ("Creating symlinks");
+        
+        case FM_FILE_OP_LINK:
+            title = _ ("Creating symlinks");
         break;
-    case FM_FILE_OP_CHANGE_ATTR:
-        title = _ ("Changing file attributes");
+        
+        case FM_FILE_OP_CHANGE_ATTR:
+            title = _ ("Changing file attributes");
         break;
     }
+    
     if (title)
     {
         gtk_window_set_title (GTK_WINDOW (data->dlg), title);
@@ -1056,6 +1080,7 @@ void ensure_dlg (FmProgressDisplay *data)
         g_source_remove (data->delay_timeout);
         data->delay_timeout = 0;
     }
+    
     if (!data->dlg)
         on_show_dlg (data);
 }
@@ -1073,6 +1098,7 @@ static void on_parent_destroy (GtkWidget *parent, gpointer user_data)
     // parent window is destroyed
     FmProgressDisplay *data =  (FmProgressDisplay*)user_data;
     data->parent = NULL;
+    
     g_signal_handlers_disconnect_by_func (parent, on_parent_destroy, data);
     g_object_unref (parent);
 }
@@ -1084,8 +1110,10 @@ static void on_parent_destroy (GtkWidget *parent, gpointer user_data)
 FmProgressDisplay *fm_file_ops_job_run_with_progress (GtkWindow *parent, FmFileOpsJob *job)
 {
     FmProgressDisplay *data = g_slice_new0 (FmProgressDisplay);
+    
     data->job =  (FmFileOpsJob*)g_object_ref (job);
     data->parent = g_object_ref (parent);
+    
     g_signal_connect (parent, "destroy", G_CALLBACK (on_parent_destroy), data);
     data->delay_timeout = g_timeout_add (SHOW_DLG_DELAY,  (GSourceFunc)on_show_dlg, data);
 

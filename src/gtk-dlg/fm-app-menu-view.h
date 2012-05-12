@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-app-menu-view.h
  *      
  *      Copyright 2010 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
@@ -17,9 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_APP_MENU_VIEW_H__
 #define __FM_APP_MENU_VIEW_H__
 
@@ -28,13 +29,15 @@
 
 G_BEGIN_DECLS
 
-GtkWidget*	fm_app_menu_view_new (void);
-GDesktopAppInfo* fm_app_menu_view_get_selected_app (GtkTreeView* view);
-char* fm_app_menu_view_get_selected_app_desktop_id (GtkTreeView* view);
-char* fm_app_menu_view_get_selected_app_desktop_file (GtkTreeView* view);
-gboolean fm_app_menu_view_is_app_selected (GtkTreeView* view);
-gboolean fm_app_menu_view_is_item_app (GtkTreeView* view, GtkTreeIter* it);
+GtkWidget *fm_app_menu_view_new (void);
+GDesktopAppInfo *fm_app_menu_view_get_selected_app (GtkTreeView *view);
+char *fm_app_menu_view_get_selected_app_desktop_id (GtkTreeView *view);
+char *fm_app_menu_view_get_selected_app_desktop_file (GtkTreeView *view);
+gboolean fm_app_menu_view_is_app_selected (GtkTreeView *view);
+gboolean fm_app_menu_view_is_item_app (GtkTreeView *view, GtkTreeIter *it);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_APP_MENU_VIEW_H__ */
+
+

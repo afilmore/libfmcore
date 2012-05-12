@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-file-ops-job-delete.h
  *
  *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -17,8 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_FILE_OPS_JOB_DELETE_H__
 #define __FM_FILE_OPS_JOB_DELETE_H__
 

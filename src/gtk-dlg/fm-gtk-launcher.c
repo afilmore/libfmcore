@@ -28,10 +28,12 @@
 
 #include <glib/gi18n-lib.h>
 #include <gio/gdesktopappinfo.h>
+
 // for open ()
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
 // for read ()
 #include <unistd.h>
 
@@ -43,13 +45,13 @@
 #include "fm-file-info-job.h"
 #include "fm-app-info.h"
 
-//~ extern const char EXEC_FILE_DLG[];
-/***********************************************************************************************************************
+
+/*****************************************************************************************
  * Execute File Dialog
  * 
  * 
- **********************************************************************************************************************/
-const char EXEC_FILE_DLG[] ="<?xml version='1.0'?>"
+ ****************************************************************************************/
+const char EXEC_FILE_DLG [] ="<?xml version='1.0'?>"
 "<interface>"
 "<requires lib='gtk+' version='2.16'/>"
 "<!-- interface-naming-policy project-wide -->"
@@ -256,8 +258,8 @@ static FmFileLauncherExecAction on_exec_file (FmFileInfo *file, gpointer user_da
     gtk_label_set_text (GTK_LABEL (msg), msg_str);
     g_free (msg_str);
 
-    int res = gtk_dialog_run (GTK_DIALOG (dlg));    // MIGRATION: will be deprecated...
-                                                    // They should rename their stuff Dtk, the Deprecation Tool Kit...
+    int res = gtk_dialog_run (GTK_DIALOG (dlg));
+    
     gtk_widget_destroy ((GtkWidget*) dlg);
     g_object_unref (builder);
 
@@ -589,7 +591,8 @@ gboolean fm_launch_multiple_files (GtkWindow *parent,
 
     if (ctx == NULL)
     {
-        _ctx = (GAppLaunchContext*) gdk_app_launch_context_new ();
+        _ctx = (GAppLaunchContext*) gdk_display_get_app_launch_context (gtk_widget_get_display (GTK_WIDGET (parent)));
+        
         gdk_app_launch_context_set_screen (GDK_APP_LAUNCH_CONTEXT (_ctx),
                                            parent ?
                                            gtk_widget_get_screen (GTK_WIDGET (parent))

@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-file-properties.c
  *      
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,8 +18,9 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_FILE_PROPERTIES_H__
 #define __FM_FILE_PROPERTIES_H__
 
@@ -28,9 +30,10 @@
 G_BEGIN_DECLS
 
 /* FIXME_pcm: use list of FmFileInfo is much better here. */
-GtkWidget* fm_file_properties_widget_new(FmFileInfoList* files, gboolean toplevel);
-gboolean fm_show_file_properties(GtkWindow* parent, FmFileInfoList* files);
+GtkWidget *fm_file_properties_widget_new (FmFileInfoList *files, gboolean toplevel);
+gboolean fm_show_file_properties (GtkWindow *parent, FmFileInfoList *files);
 
 G_END_DECLS
-
 #endif
+
+
