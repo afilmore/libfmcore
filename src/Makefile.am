@@ -43,7 +43,6 @@ base_SOURCES = \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-icon-pixbuf.c \
 	gtk/fm-thumbnail.c \
-	gtk-dlg/app-global-ui.c \
 	gtk-dlg/fm-app-chooser-combo-box.c \
 	gtk-dlg/fm-app-chooser-dlg.c \
 	gtk-dlg/fm-app-menu-view.c \

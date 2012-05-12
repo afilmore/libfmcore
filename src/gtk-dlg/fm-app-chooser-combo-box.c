@@ -44,6 +44,7 @@ struct _FmAppChooserComboBoxData
 static gboolean is_row_separator(GtkTreeModel* model, GtkTreeIter* it, gpointer user_data)
 {
     FmAppChooserComboBoxData* data = (FmAppChooserComboBoxData*)user_data;
+    
     /* FIXME_pcm: this is dirty but it works! */
     return data->separator_iter.user_data == it->user_data;
 }
@@ -57,6 +58,7 @@ static void on_app_selected(GtkComboBox* cb, FmAppChooserComboBoxData* data)
         return;
 
     model = gtk_combo_box_get_model(cb);
+    
     /* if the user chooses "Customize..." */
     if(it.user_data == data->other_apps_iter.user_data)
     {

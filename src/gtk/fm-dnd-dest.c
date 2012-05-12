@@ -27,6 +27,7 @@
 
 #include "fm-dnd-dest.h"
 #include "fm-utils.h"
+#include "fm-dlg-utils.h"
 #include "fm-gtk-marshal.h"
 #include "fm-file-info-list.h"
 #include "fm-file-info-job.h"

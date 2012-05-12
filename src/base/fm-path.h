@@ -37,7 +37,6 @@ G_BEGIN_DECLS
 #define FM_PATH_URI_TRASH_CAN   "trash:///"
 
 typedef struct _FmPath FmPath;
-//typedef FmList FmPathList;
 
 
 /*********************************************************************
@@ -79,20 +78,20 @@ typedef enum _FmPathFlags FmPathFlags;
 struct _FmPath
 {
     gint    n_ref;
+    
     FmPath  *parent;
+    
     uint    flags;       // FmPathFlags flags : 32;
+    
     char    name[1];
 };
 
 void _fm_path_init ();
 
-// fm_path_new is deprecated. Use fm_path_new_for_str 
-//FmPath*	fm_path_new (const char *path);
-
+FmPath *fm_path_new_for_str             (const char *path_str);
 FmPath *fm_path_new_for_path            (const char *path_name);
 FmPath *fm_path_new_for_uri             (const char *uri);
 FmPath *fm_path_new_for_display_name    (const char *path_name);
-FmPath *fm_path_new_for_str             (const char *path_str);
 FmPath *fm_path_new_for_commandline_arg (const char *arg);
 
 FmPath *fm_path_new_child               (FmPath *parent, const char *basename);
@@ -138,24 +137,6 @@ gboolean fm_path_equal_str              (FmPath *path, const gchar *str, int n);
 
 // calculate how many elements are in this path.
 int fm_path_depth                       (FmPath *path);
-
-
-
-// TODO_axl: remove....
-/* path list
-FmPathList* fm_path_list_new();
-FmPathList* fm_path_list_new_from_uri_list(const char* uri_list);
-FmPathList* fm_path_list_new_from_uris(const char** uris);
-FmPathList* fm_path_list_new_from_file_info_list(FmList* fis);
-FmPathList* fm_path_list_new_from_file_info_glist(GList* fis);
-FmPathList* fm_path_list_new_from_file_info_gslist(GSList* fis);
-
-gboolean fm_list_is_path_list(FmList* list);
-
-char* fm_path_list_to_uri_list(FmPathList* pl);
-void fm_path_list_write_uri_list(FmPathList* pl, GString* buf);
-
-// char** fm_path_list_to_uris(FmPathList* pl);*/
 
 G_END_DECLS
 #endif
