@@ -144,7 +144,9 @@ GtkWidget *fm_app_menu_view_new (void)
         /* ensure that we're using lxmenu-data */
         oldenv = g_strdup (g_getenv ("XDG_MENU_PREFIX"));
         g_setenv ("XDG_MENU_PREFIX", "lxde-", TRUE);
+        
         menu_cache = menu_cache_lookup ("applications.menu");
+        
         g_setenv ("XDG_MENU_PREFIX", oldenv, TRUE);
         g_free (oldenv);
 
@@ -152,6 +154,7 @@ GtkWidget *fm_app_menu_view_new (void)
         {
             MenuCacheDir *dir = menu_cache_get_root_dir (menu_cache);
             menu_cache_reload_notify = menu_cache_add_reload_notify (menu_cache,  (GFunc) on_menu_cache_reload, NULL);
+            
             if (dir) /*content of menu is already loaded */
                 add_menu_items (NULL, dir);
         }
@@ -161,21 +164,24 @@ GtkWidget *fm_app_menu_view_new (void)
         g_object_ref (store);
     }
     
-    view = gtk_tree_view_new_with_model ( (GtkTreeModel*)store);
+    view = gtk_tree_view_new_with_model ((GtkTreeModel*) store);
 
     render = gtk_cell_renderer_pixbuf_new ();
+    
     col = gtk_tree_view_column_new ();
     gtk_tree_view_column_set_title (col, _ ("Installed Applications"));
     gtk_tree_view_column_pack_start (col, render, FALSE);
     gtk_tree_view_column_set_attributes (col, render, "gicon", COL_ICON, NULL);
 
     render = gtk_cell_renderer_text_new ();
+    
     gtk_tree_view_column_pack_start (col, render, TRUE);
     gtk_tree_view_column_set_attributes (col, render, "text", COL_TITLE, NULL);
 
     gtk_tree_view_append_column (GTK_TREE_VIEW (view), col);
 
     g_object_unref (store);
+    
     return view;
 }
 
@@ -249,3 +255,6 @@ gboolean fm_app_menu_view_is_app_selected (GtkTreeView *view)
     
     return FALSE;
 }
+
+
+
