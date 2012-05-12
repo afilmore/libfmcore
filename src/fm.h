@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm.h
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,11 +18,11 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
+ *
+ * 
+ **********************************************************************************************************************/
 #ifndef __LIBFM_FM_H__
 #define __LIBFM_FM_H__
-
 
 // Fm Base.
 #include "fm-app-info.h"
@@ -65,14 +66,15 @@ typedef enum
     FM_WP_FIT,
     FM_WP_CENTER,
     FM_WP_TILE
-}FmWallpaperMode;
+} FmWallpaperMode;
 
-extern GQuark fm_qdata_id; /* a quark value used to associate data with objects */
+extern GQuark fm_qdata_id;  /* a quark value used to associate data with objects */
 
-gboolean fm_init(FmConfig* config);
-void fm_finalize();
+gboolean fm_init (FmConfig* config);
+void fm_finalize ();
 
 G_END_DECLS
-
 #endif
+
+
 
