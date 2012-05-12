@@ -21,8 +21,8 @@
  *
  * 
  **********************************************************************************************************************/
-#ifndef __FM_DLG_H__
-#define __FM_DLG_H__
+#ifndef __FM_DLG_UTILS_H__
+#define __FM_DLG_UTILS_H__
 
 #include <gtk/gtk.h>
 //~ #include <gio/gio.h>

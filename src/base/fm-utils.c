@@ -55,16 +55,16 @@
  * 
  * 
  ********************************************************************/
-inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data)
-{
-    while (list)
-    {
-        GList *next = list->next;
-        (*func) (list, user_data);
-        list = next;
-    }
-}
-
+//~ inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data)
+//~ {
+    //~ while (list)
+    //~ {
+        //~ GList *next = list->next;
+        //~ (*func) (list, user_data);
+        //~ list = next;
+    //~ }
+//~ }
+//~ 
 
 char *fm_file_size_to_str ( char *buf, goffset size, gboolean si_prefix )
 {
