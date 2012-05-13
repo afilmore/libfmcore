@@ -590,7 +590,7 @@ void on_open (GtkAction *action, gpointer user_data)
     
     GList *files_list = fm_list_peek_head_link (data->file_infos);
     
-    fm_launch_multiple_files (data->parent, NULL, files_list, NULL, NULL);
+    fm_launch_multiple_files (data->parent, NULL, files_list, data->folder_func, data->folder_func_data);
 }
 
 static void open_with_app (FmFileMenu *data, GAppInfo *app)
@@ -805,6 +805,12 @@ void on_properties (GtkAction *action, gpointer user_data)
     }
     
     fm_show_file_properties (data->parent, files);
+}
+
+void fm_file_menu_set_folder_func (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data)
+{
+    menu->folder_func = func;
+    menu->folder_func_data = user_data;
 }
 
 

@@ -72,6 +72,8 @@ gboolean        fm_file_menu_is_single_file_type (FmFileMenu *menu);
 // call fm_list_ref () if you need to own reference to the returned list.
 FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu);
 
+void fm_file_menu_set_folder_func (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data);
+
 G_END_DECLS
 
 #endif
