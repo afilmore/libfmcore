@@ -315,7 +315,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             }
         }
         else
+        { 
             g_string_append (xml, "<menuitem action='Compress'/>\n");
+        }
+        
         g_string_append (xml, "</placeholder>\n</popup>\n");
     }
 
@@ -330,6 +333,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         {
             gboolean can_restore = TRUE;
             GList *l;
+            
             // only immediate children of trash:/// can be restored.
             for (l = fm_list_peek_head_link (files);l;l=l->next)
             {
@@ -347,8 +351,11 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
                                     _ ("_Restore"),
                                     _ ("Restore trashed files to original paths"),
                             NULL);
+                
                 g_signal_connect (act, "activate", G_CALLBACK (on_untrash), data);
+                
                 gtk_action_group_add_action (act_grp, act);
+                
                 g_string_append (xml, "<menuitem action='UnTrash'/>\n");
             }
 
@@ -367,6 +374,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             act = gtk_ui_manager_get_action (ui, "/popup/Del");
             gtk_action_set_visible (act, FALSE);
         }
+        
         act = gtk_ui_manager_get_action (ui, "/popup/Rename");
         gtk_action_set_visible (act, FALSE);
     }
@@ -457,8 +465,12 @@ void fm_file_menu_destroy (FmFileMenu *menu)
     if (menu->cwd)
         fm_path_unref (menu->cwd);
 
-    if (menu->act_grp) g_object_unref (menu->act_grp);
-    if (menu->ui) g_object_unref (menu->ui);
+    if (menu->act_grp)
+        g_object_unref (menu->act_grp);
+        
+    if (menu->ui)
+        g_object_unref (menu->ui);
+    
     g_slice_free (FmFileMenu, menu);
 }
 
