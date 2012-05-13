@@ -186,10 +186,10 @@ struct _LaunchData
     gpointer user_data;
 };
 
-static gboolean default_open_folder_func (GAppLaunchContext* ctx, GList* folder_infos, gpointer user_data, GError** err)
+/*static gboolean default_open_folder_func (GAppLaunchContext* ctx, GList* folder_infos, gpointer user_data, GError** err)
 {
     
-    /*g_return_val_if_fail (folder_infos, FALSE);
+    g_return_val_if_fail (folder_infos, FALSE);
     printf ("default open folder func !!!!\n");
     
     GList* l = folder_infos;
@@ -206,9 +206,9 @@ static gboolean default_open_folder_func (GAppLaunchContext* ctx, GList* folder_
             g_free (cmd); 
         }
             
-    }*/
+    }
     return TRUE;
-}
+}*/
 
 static gboolean _fm_launch_files (GAppLaunchContext *ctx,
                                  GList *file_infos,
@@ -229,6 +229,7 @@ static gboolean on_open_folder (GAppLaunchContext* ctx, GList* folder_infos, gpo
     
     if (data->folder_func)
         return data->folder_func (ctx, folder_infos, data->user_data, err);
+    
     //~ else
         //~ return default_open_folder_func (ctx, folder_infos, data->user_data, err);
 }
@@ -659,8 +660,8 @@ gboolean fm_launch_multiple_files (GtkWindow *parent,
     
     GAppLaunchContext *_ctx = NULL;
 
-    if (!func)
-        launcher.open_folder = default_open_folder_func;
+    //~ if (!func)
+        //~ launcher.open_folder = default_open_folder_func;
 
     if (ctx == NULL)
     {
