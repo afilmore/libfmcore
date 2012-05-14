@@ -475,7 +475,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
         
         // Add Folders to a FileInfoList...
         if (fm_file_info_is_dir (fi)
-        || (fi->path && fm_path_is_trash_root(fi->path)))
+        || (fi->path && fm_path_is_trash_root (fi->path)))
         {
             //~ if (!launcher->open_folder)
                 //~ continue;
@@ -620,6 +620,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
         {
             if (launcher->error)
                 launcher->error (ctx, err, user_data);
+            
             g_error_free (err);
             err = NULL;
         }
@@ -636,9 +637,13 @@ gboolean fm_launch_file (GtkWindow *parent,
                          gpointer user_data)
 {
     gboolean ret;
+    
     GList *files = g_list_prepend (NULL, file_info);
+    
     ret = fm_launch_multiple_files (parent, ctx, files, func, user_data);
+    
     g_list_free (files);
+    
     return ret;
 }
 

@@ -408,7 +408,7 @@ namespace Fm {
 	[CCode (cheader_filename = "fm-gtk-launcher.h")]
 	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
                                            GLib.List<Fm.FileInfo> folder_infos,
-                                           void* user_data,
+                                           void *user_data,
                                            GLib.Error error);
 
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
