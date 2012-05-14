@@ -466,22 +466,24 @@ namespace Fm {
 	[Compact]
 	public class FileMenu {
 		
+        /** Maybe useless...
         [CCode (has_construct_function = false)]
 		public FileMenu.for_file (Gtk.Window parent, Fm.FileInfo fi, Fm.Path cwd, bool auto_destroy);
-		
+		**/
+        
         [CCode (has_construct_function = false)]
 		public FileMenu.for_files (Gtk.Window parent, Fm.FileInfoList files, Fm.Path cwd, bool auto_destroy);
 		
-		public unowned Gtk.UIManager get_ui ();
+        /** The set folder func bug seems fixed.. **/
+        public void set_folder_func (Fm.LaunchFolderFunc func);
+		
+        public unowned Gtk.UIManager get_ui ();
 		public unowned Gtk.Menu get_menu ();
         public unowned Gtk.ActionGroup get_action_group ();
 		public unowned Fm.FileInfoList get_file_info_list ();
 		
         public bool is_single_file_type ();
 		
-        public void set_folder_func (Fm.LaunchFolderFunc func); /* FIXME_axl: WARNING !!!!
-                                                                 * There's a problem in the delegate
-                                                                 * function definition..... */
 	}
     
     

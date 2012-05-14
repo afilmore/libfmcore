@@ -137,6 +137,7 @@ GtkActionEntry filefolder_menu_actions[] =
  *
  *
  ****************************************************************************************/
+/** Maybe useless...
 FmFileMenu *fm_file_menu_new_for_file (GtkWindow *parent, FmFileInfo *fi, FmPath *cwd, gboolean auto_destroy)
 {
     FmFileMenu *menu;
@@ -146,6 +147,7 @@ FmFileMenu *fm_file_menu_new_for_file (GtkWindow *parent, FmFileInfo *fi, FmPath
     fm_list_unref (files);
     return menu;
 }
+**/
 
 FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
 {
@@ -407,6 +409,12 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     g_string_free (xml, TRUE);
 
     return data;
+}
+
+void fm_file_menu_set_folder_func (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data)
+{
+    menu->folder_func = func;
+    menu->folder_func_data = user_data;
 }
 
 
@@ -805,12 +813,6 @@ void on_properties (GtkAction *action, gpointer user_data)
     }
     
     fm_show_file_properties (data->parent, files);
-}
-
-void fm_file_menu_set_folder_func (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data)
-{
-    menu->folder_func = func;
-    menu->folder_func_data = user_data;
 }
 
 
