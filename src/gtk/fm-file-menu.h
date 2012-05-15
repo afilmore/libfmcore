@@ -54,29 +54,22 @@ struct _FmFileMenu
     FmPath *cwd;
 };
 
-/** Maybe useless...
-
-FmFileMenu *fm_file_menu_new_for_file           (GtkWindow *parent, FmFileInfo *fi, FmPath *cwd,
-                                                 gboolean auto_destroy);
-**/
-
-
 FmFileMenu *fm_file_menu_new_for_files          (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd,
                                                  gboolean auto_destroy);
                                             
-void fm_file_menu_destroy                       (FmFileMenu *menu);
+void fm_file_menu_set_folder_func               (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data);
 
-// build the menu with GtkUIManager
+            /*** build the menu with GtkUIManager ***/
 GtkMenu *fm_file_menu_get_menu                  (FmFileMenu *menu);
+
+void fm_file_menu_destroy                       (FmFileMenu *menu);
 
 GtkUIManager *fm_file_menu_get_ui               (FmFileMenu *menu);
 GtkActionGroup *fm_file_menu_get_action_group   (FmFileMenu *menu);
 gboolean fm_file_menu_is_single_file_type       (FmFileMenu *menu);
 
-// call fm_list_ref () if you need to own reference to the returned list.
+    /*** call fm_list_ref () if you need to own reference to the returned list. ***/
 FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu);
-
-void fm_file_menu_set_folder_func               (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data);
 
 G_END_DECLS
 
