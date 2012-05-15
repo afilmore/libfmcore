@@ -58,34 +58,6 @@
  *
  * 
  ****************************************************************************************/
-const char filefolder_popup_xml[] =
-    "<popup>"
-        "<menuitem action='Open'/>"
-        "<separator/>"
-        
-        "<placeholder name='OPEN_WITH'/>"
-        "<separator/>"
-        
-        "<menuitem action='Cut'/>"
-        "<menuitem action='Copy'/>"
-        "<menuitem action='Paste'/>"
-        "<menuitem action='Delete'/>"
-        "<separator/>"
-        
-        "<menuitem action='Rename'/>"
-        "<separator/>"
-        
-        "<menuitem action='EmptyTrash'/>"
-        "<separator/>"
-        
-        "<placeholder name='ARCHIVER'/>"
-        "<separator/>"
-        
-        "<menuitem action='Properties'/>"
-    "</popup>"
-;
-
-
 // Forward declarations...
 static void on_open             (GtkAction *action, gpointer user_data);
 static void on_restaure         (GtkAction *action, gpointer user_data);
@@ -107,10 +79,38 @@ static void on_extract_to       (GtkAction *action, gpointer user_data);
 
 static void on_properties       (GtkAction *action, gpointer user_data);
 
+const char filefolder_popup_xml[] =
+    "<popup>"
+        "<menuitem action='Open'/>"
+        "<separator/>"
+        
+        "<menuitem action='EmptyTrash'/>"
+        "<separator/>"
+        
+        "<placeholder name='OPEN_WITH'/>"
+        "<separator/>"
+        
+        "<menuitem action='Cut'/>"
+        "<menuitem action='Copy'/>"
+        "<menuitem action='Paste'/>"
+        "<menuitem action='Delete'/>"
+        "<separator/>"
+        
+        "<menuitem action='Rename'/>"
+        "<separator/>"
+        
+        "<placeholder name='ARCHIVER'/>"
+        "<separator/>"
+        
+        "<menuitem action='Properties'/>"
+    "</popup>"
+;
 
-GtkActionEntry filefolder_menu_actions[] =
+GtkActionEntry file_menu_actions [] =
 {
     {"Open",            GTK_STOCK_OPEN, NULL, NULL, NULL,               G_CALLBACK (on_open)},
+    
+    {"EmptyTrash",      NULL, N_ ("Empty Trash"), NULL, NULL,           G_CALLBACK (on_empty_trash)},
     
     {"OpenWithMenu",    NULL, N_ ("Open With..."), NULL, NULL,          NULL},
     {"OpenWith",        NULL, N_ ("Open With..."), NULL, NULL,          G_CALLBACK (on_open_with)},
@@ -126,8 +126,6 @@ GtkActionEntry filefolder_menu_actions[] =
     {"Link",            NULL, N_ ("Create Symlink"), NULL, NULL,        NULL},
     {"SendTo",          NULL, N_ ("Send To"), NULL, NULL,               NULL},
     **/
-    
-    {"EmptyTrash",      NULL, N_ ("Empty Trash"), NULL, NULL,           G_CALLBACK (on_empty_trash)},
     
     {"Compress",        NULL, N_ ("Compress..."), NULL, NULL,           G_CALLBACK (on_compress)},
     
@@ -158,16 +156,15 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     g_return_val_if_fail (files && !fm_list_is_empty (files), NULL);
     
-    file_menu = g_slice_new0 (FmFileMenu);
-    
     /***
-     * Is this really needed ? Should we connect to "destroy" signal of the parent
-     * and set file_menu->parent to NULL when it's detroyed ?
+     * NOTE: It may be possible to connect to the "destroy" signal of the parent
+     * and set file_menu->parent to NULL when it's detroyed...
      * 
      ***/
+    file_menu = g_slice_new0 (FmFileMenu);
     file_menu->parent = g_object_ref (parent);
-    
     file_menu->file_infos = fm_list_ref (files);
+    file_menu->auto_destroy = auto_destroy;
 
     
     
@@ -177,92 +174,52 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     file_menu->same_type = fm_file_info_list_is_same_type (files);
     // check if the files are on the same filesystem
     file_menu->same_fs = fm_file_info_list_is_same_fs (files);
-
-
-    
-    gboolean multiple_files = (fm_list_get_length (files) > 1);
-    
-    
-    // check if selected files contains the Trash Can
-    uint flags = fm_file_info_list_get_flags (files);
-    
-    gboolean hide_empty_trash_can = FALSE;
-    
-    if (multiple_files || !(flags & FM_PATH_IS_TRASH_CAN))
-        hide_empty_trash_can = TRUE;
-
-    gboolean hide_file_actions = FALSE;
-    gboolean hide_archiver = FALSE;
-    
-    if (flags & FM_PATH_IS_VIRTUAL) {
-        hide_file_actions = TRUE;
-        hide_archiver = TRUE;
-    }
-    
     
     FmFileInfo *first_file_info = (FmFileInfo*) fm_list_peek_head (files);
     
-    // really needed ???
     file_menu->all_virtual = file_menu->same_fs && fm_path_is_virtual (first_file_info->path);
     file_menu->all_trash = file_menu->same_fs && fm_path_is_trash (first_file_info->path);
     
-    file_menu->auto_destroy = auto_destroy;
+
+
     
     // the current working directory is used to extract archives.
     if (cwd)
         file_menu->cwd = fm_path_ref (cwd);
 
+    
+    
     // Add Default Menu Items...
     file_menu->ui = ui = gtk_ui_manager_new ();
     file_menu->action_group = action_group = gtk_action_group_new ("Popup");
     gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
 
     // Create Files/Folders Popup Menu...
-    gtk_action_group_add_actions (action_group, filefolder_menu_actions, G_N_ELEMENTS (filefolder_menu_actions), file_menu);
+    gtk_action_group_add_actions (action_group, file_menu_actions, G_N_ELEMENTS (file_menu_actions),
+                                  file_menu);
     gtk_ui_manager_add_ui_from_string (ui, filefolder_popup_xml, -1, NULL);
     gtk_ui_manager_insert_action_group (ui, action_group, 0);
 
-
-
-    /* Maybe we should hide all and show only needed items instead of show every thing and hide some items...
+    // Hide all items and show only the needed ones...
+    action = gtk_ui_manager_get_action (ui, "/popup/Open");
+    gtk_action_set_visible (action, FALSE);
+    //~ action = gtk_ui_manager_get_action (ui, "/popup/OpenWith");
+    //~ gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/Cut");
+    gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/Copy");
+    gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+    gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/Delete");
+    gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/Rename");
+    gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
+    gtk_action_set_visible (action, FALSE);
+    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
+    gtk_action_set_visible (action, FALSE);
         
-        action = gtk_ui_manager_get_action (ui, "/popup/Open");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-        gtk_action_set_visible (action, FALSE);
-        
-        "<menuitem action='Cut'/>"
-        "<menuitem action='Copy'/>"
-        "<menuitem action='Paste'/>"
-        "<menuitem action='Delete'/>"
-        "<separator/>"
-        
-        "<menuitem action='Rename'/>"
-        "<separator/>"
-        
-        "<menuitem action='EmptyTrash'/>"
-        "<separator/>"
-        
-        "<placeholder name='ARCHIVER'/>"
-        "<separator/>"
-        
-        "<menuitem action='Properties'/>"
-    
-    */
-
-
 
     // OpenWith items...
     xml = g_string_new ("");
@@ -332,13 +289,58 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         g_string_append (xml, "</placeholder>\n</popup>\n");
     }
 
+    
+    // Get paths flags...
+    uint flags = fm_file_info_list_get_flags (files);
+    gboolean multiple_files = (fm_list_get_length (files) > 1);
+    
+    gboolean trash_can = FALSE;
+    
+    // Trash Can...
+    if (!multiple_files && (flags & FM_PATH_IS_TRASH_CAN))
+        trash_can = TRUE;
+    
+    
+    gboolean have_virtual = FALSE;
+    if (flags & FM_PATH_IS_VIRTUAL)
+        have_virtual = TRUE;
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Open");
+    gtk_action_set_visible (action, !trash_can);
+    //~ action = gtk_ui_manager_get_action (ui, "/popup/OpenWith");
+    //~ gtk_action_set_visible (action, !trash_can);
+    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
+    gtk_action_set_visible (action, trash_can);
+    
+
+    if (!have_virtual)
+    {
+        action = gtk_ui_manager_get_action (ui, "/popup/Cut");
+        gtk_action_set_visible (action, TRUE);
+        action = gtk_ui_manager_get_action (ui, "/popup/Copy");
+        gtk_action_set_visible (action, TRUE);
+        action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+        gtk_action_set_visible (action, TRUE);
+        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
+        gtk_action_set_visible (action, TRUE);
+        action = gtk_ui_manager_get_action (ui, "/popup/Rename");
+        gtk_action_set_visible (action, !multiple_files);
+    }
+    
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
+    //~ gtk_action_set_visible (action, !have_virtual);
+    gtk_action_set_visible (action, TRUE);
+
     #if 0
 	// add custom file actions
-	fm_file_menu_add_custom_actions (file_menu, xml, files);
+	if (show_custom_actions)
+        fm_file_menu_add_custom_actions (file_menu, xml, files);
     #endif
 
-    // archiver integration
-    if (!hide_archiver)
+    
+    // Archiver integration
+    if (!have_virtual)
     {
         g_string_append (xml, "<popup>\n<placeholder name='ARCHIVER'>\n");
         if (file_menu->same_type)
@@ -366,32 +368,12 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         g_string_append (xml, "</placeholder>\n</popup>\n");
     }
 
-    
-    if (hide_empty_trash_can)
-    {
-        action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
-        gtk_action_set_visible (action, FALSE);
-    }
-    
-    if (hide_file_actions)
-    {
-        action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-        gtk_action_set_visible (action, FALSE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Rename");
-        gtk_action_set_visible (action, FALSE);
-        
-    }
-    
     gtk_ui_manager_add_ui_from_string (ui, xml->str, xml->len, NULL);
 
     g_string_free (xml, TRUE);
 
+    
+    
     return file_menu;
 }
 
@@ -782,14 +764,11 @@ void on_delete (GtkAction *action, gpointer user_data)
 
 void on_rename (GtkAction *action, gpointer user_data)
 {
-    // FIXME_axl: Rename should be available only for single files...
-    
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    FmFileInfo *fi = fm_list_peek_head (file_menu->file_infos);
+    FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
     
-    if (fi)
-        fm_rename_file (file_menu->parent, fi->path);
-    
+    if (first_file_info)
+        fm_rename_file (file_menu->parent, first_file_info->path);
 }
 
 void on_empty_trash (GtkAction *action, gpointer user_data)
