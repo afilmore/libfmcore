@@ -33,43 +33,44 @@
 G_BEGIN_DECLS
 
 typedef struct _FmFileMenu FmFileMenu;
+
 struct _FmFileMenu
 {
-    FmFileInfoList *file_infos;
+    FmFileInfoList      *file_infos;
     
-    gboolean same_type : 1;
-    gboolean same_fs : 1;
-    gboolean all_virtual : 1;
-    gboolean all_trash : 1;
-    gboolean auto_destroy : 1; // private
+    gboolean            same_type : 1;
+    gboolean            same_fs : 1;
+    gboolean            all_virtual : 1;
+    gboolean            all_trash : 1;
+    gboolean            auto_destroy : 1;
     
-    GtkUIManager *ui;
-    GtkActionGroup *act_grp;
-    GtkMenu *menu;
-    GtkWindow *parent;
+    GtkUIManager        *ui;
+    GtkActionGroup      *action_group;
+    GtkMenu             *menu;
+    GtkWindow           *parent;
 
-    FmLaunchFolderFunc folder_func;
-    gpointer folder_func_data;
+    FmLaunchFolderFunc  folder_func;
+    gpointer            folder_func_data;
 
-    FmPath *cwd;
+    FmPath              *cwd;
 };
 
 FmFileMenu *fm_file_menu_new_for_files          (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd,
                                                  gboolean auto_destroy);
                                             
-void fm_file_menu_set_folder_func               (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data);
+void fm_file_menu_set_folder_func               (FmFileMenu *file_menu, FmLaunchFolderFunc func, gpointer user_data);
 
             /*** build the menu with GtkUIManager ***/
-GtkMenu *fm_file_menu_get_menu                  (FmFileMenu *menu);
+GtkMenu *fm_file_menu_get_menu                  (FmFileMenu *file_menu);
 
-void fm_file_menu_destroy                       (FmFileMenu *menu);
+void fm_file_menu_destroy                       (FmFileMenu *file_menu);
 
-GtkUIManager *fm_file_menu_get_ui               (FmFileMenu *menu);
-GtkActionGroup *fm_file_menu_get_action_group   (FmFileMenu *menu);
-gboolean fm_file_menu_is_single_file_type       (FmFileMenu *menu);
+GtkUIManager *fm_file_menu_get_ui               (FmFileMenu *file_menu);
+GtkActionGroup *fm_file_menu_get_action_group   (FmFileMenu *file_menu);
+gboolean fm_file_menu_is_single_file_type       (FmFileMenu *file_menu);
 
     /*** call fm_list_ref () if you need to own reference to the returned list. ***/
-FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu);
+FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *file_menu);
 
 G_END_DECLS
 
