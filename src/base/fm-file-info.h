@@ -118,6 +118,7 @@ void fm_file_info_set_from_gfileinfo            (FmFileInfo *fi, GFileInfo *inf)
 void fm_file_info_set_from_desktop_entry        (FmFileInfo *file_info);
 
 void fm_file_info_set_fm_icon                   (FmFileInfo *file_info, FmIcon *fm_icon);
+FmIcon *fm_file_info_get_fm_icon                (FmFileInfo *file_info);
 GIcon *fm_file_info_get_gicon                   (FmFileInfo *file_info);
 
 FmFileInfo *fm_file_info_ref                    (FmFileInfo *fi);

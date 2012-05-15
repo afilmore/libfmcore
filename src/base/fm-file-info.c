@@ -324,6 +324,9 @@ void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
 
 void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
 {
+    
+    // why I added this ????
+    
     // TODO_axl: test and remove...
     //~ if (G_LIKELY(!fm_file_info_is_desktop_entry (file_info)))
     //~ {
@@ -332,6 +335,11 @@ void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
     
         //return TRUE;
     //~ }
+}
+
+FmIcon *fm_file_info_get_fm_icon (FmFileInfo *file_info)
+{
+    return file_info->fm_icon;
 }
 
 GIcon *fm_file_info_get_gicon (FmFileInfo *file_info)
