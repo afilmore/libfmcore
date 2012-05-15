@@ -260,7 +260,8 @@ _retry:
     
     g_return_val_if_fail (mime_type, FALSE);
     
-    file_info->type = mime_type;
+    // FIXME_axl: avoid direct member access !!!
+    file_info->mime_type = mime_type;
     
     // TODO_axl: Create one function.....
     if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))

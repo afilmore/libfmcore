@@ -224,13 +224,16 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     // OpenWith items...
     xml = g_string_new ("");
     
-     /***the file has a valid mime-type, its not virtual, it's no a directory ***/
-     if (file_menu->same_type
-        && first_file_info->type
+    /***the file has a valid mime-type, its not virtual, it's no a directory ***/
+    
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (first_file_info, FALSE);
+    
+    if (file_menu->same_type
+        && fi_mime_type
         && !fm_file_info_is_dir (first_file_info)
         && !file_menu->all_virtual )
     {
-        GList *apps = g_app_info_get_all_for_type (first_file_info->type->type);
+        GList *apps = g_app_info_get_all_for_type (fi_mime_type->type);
         GList *l;
         gboolean use_sub = g_list_length (apps) > 5;
         
@@ -349,7 +352,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             if (archiver)
             {
                 first_file_info = (FmFileInfo*)fm_list_peek_head (files);
-                if (fm_archiver_is_mime_type_supported (archiver, first_file_info->type->type))
+                if (fm_archiver_is_mime_type_supported (archiver, fi_mime_type->type))
                 {
                     if (file_menu->cwd && archiver->extract_to_cmd)
                         g_string_append (xml, "<menuitem action='Extract'/>\n");
@@ -664,9 +667,10 @@ void on_open_with (GtkAction *action, gpointer user_data)
     FmFileInfo *fi = (FmFileInfo*) fm_list_peek_head (files);
     
     FmMimeType *mime_type;
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (fi, FALSE);
 
-    if (file_menu->same_type && fi->type && fi->type->type)
-        mime_type = fi->type;
+    if (file_menu->same_type && fi_mime_type && fi_mime_type->type)
+        mime_type = fi_mime_type;
     else
         mime_type = NULL;
 

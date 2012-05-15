@@ -1359,8 +1359,12 @@ GtkWidget *fm_file_properties_widget_new (FmFileInfoList *files, gboolean toplev
     data->single_type = fm_file_info_list_is_same_type (files);
     data->single_file =  (fm_list_get_length (files) == 1);
     data->fi = fm_list_peek_head (files);
+    
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (data->fi, FALSE);
+    
     if (data->single_type)
-        data->mime_type = data->fi->type; // FIXME_pcm: do we need ref counting here?
+        data->mime_type = fi_mime_type; // FIXME_pcm: do we need ref counting here?
+    
     paths = fm_path_list_new_from_file_info_list (files);
     data->dc_job = fm_deep_count_job_new (paths, FM_DC_JOB_DEFAULT);
     fm_list_unref (paths);

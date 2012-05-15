@@ -174,7 +174,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 
     tmp = g_file_info_get_content_type (inf);
     if (tmp)
-        file_info->type = fm_mime_type_get_for_type (tmp);
+        file_info->mime_type = fm_mime_type_get_for_type (tmp);
 
     file_info->mode = g_file_info_get_attribute_uint32 (inf, G_FILE_ATTRIBUTE_UNIX_MODE);
 
@@ -218,10 +218,10 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
     }
 
     // set file icon according to mime-type
-    if (!file_info->type || !file_info->type->icon)
+    if (!file_info->mime_type || !file_info->mime_type->icon)
     {
         gicon = g_file_info_get_icon (inf);
-        file_info->icon = fm_icon_from_gicon (gicon);
+        file_info->fm_icon = fm_icon_from_gicon (gicon);
         
         /* g_object_unref (gicon); this is not needed since
          * g_file_info_get_icon didn't increase ref_count.
@@ -229,7 +229,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
          * owned by GFileInfo. */
     }
     else
-        file_info->icon = fm_icon_ref (file_info->type->icon);
+        file_info->fm_icon = fm_icon_ref (file_info->mime_type->icon);
 
     if (type == G_FILE_TYPE_MOUNTABLE || G_FILE_TYPE_SHORTCUT)
     {
@@ -242,13 +242,13 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
                 file_info->target = g_strdup (uri);
         }
 
-        if (!file_info->type)
+        if (!file_info->mime_type)
         {
             // FIXME_pcm: is this appropriate?
             if (type == G_FILE_TYPE_SHORTCUT)
-                file_info->type = fm_mime_type_ref (shortcut_type);
+                file_info->mime_type = fm_mime_type_ref (shortcut_type);
             else
-                file_info->type = fm_mime_type_ref (mountable_type);
+                file_info->mime_type = fm_mime_type_ref (mountable_type);
         }
         // FIXME_pcm: how about target of symlinks?
     }
@@ -316,9 +316,9 @@ void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
     }
     
     if (icon)
-        file_info->icon = icon;
+        file_info->fm_icon = icon;
     else
-        file_info->icon = file_info->type ? fm_icon_ref (file_info->type->icon) : NULL;
+        file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
     
 }
 
@@ -327,14 +327,16 @@ void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
     // TODO_axl: test and remove...
     //~ if (G_LIKELY(!fm_file_info_is_desktop_entry (file_info)))
     //~ {
-        file_info->icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
+        
+    file_info->fm_icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
+    
         //return TRUE;
     //~ }
 }
 
 GIcon *fm_file_info_get_gicon (FmFileInfo *file_info)
 {
-    return file_info->icon ? file_info->icon->gicon : NULL;
+    return file_info->fm_icon ? file_info->fm_icon->gicon : NULL;
 }
 
 void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
@@ -361,7 +363,7 @@ void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheIte
             }
         }
         
-        file_info->icon = fm_icon_from_name (icon_name);
+        file_info->fm_icon = fm_icon_from_name (icon_name);
         
         if (G_UNLIKELY (tmp_name))
             g_free (tmp_name);
@@ -375,7 +377,7 @@ void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheIte
         file_info->mode |= S_IFREG;
         file_info->target = menu_cache_item_get_file_path (item);
     }
-    file_info->type = fm_mime_type_ref (shortcut_type);
+    file_info->mime_type = fm_mime_type_ref (shortcut_type);
 }
 
 FmFileInfo *_fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item)
@@ -423,23 +425,23 @@ static void fm_file_info_clear (FmFileInfo *file_info)
 
     g_free (file_info->target);
 
-    if (file_info->type)
+    if (file_info->mime_type)
     {
-        fm_mime_type_unref (file_info->type);
-        file_info->type = NULL;
+        fm_mime_type_unref (file_info->mime_type);
+        file_info->mime_type = NULL;
     }
-    if (file_info->icon)
+    if (file_info->fm_icon)
     {
-        fm_icon_unref (file_info->icon);
-        file_info->icon = NULL;
+        fm_icon_unref (file_info->fm_icon);
+        file_info->fm_icon = NULL;
     }
 }
 
 void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
 {
     FmPath *tmp_path = fm_path_ref (src->path);
-    FmMimeType *tmp_type = fm_mime_type_ref (src->type);
-    FmIcon *tmp_icon = fm_icon_ref (src->icon);
+    FmMimeType *tmp_type = fm_mime_type_ref (src->mime_type);
+    FmIcon *tmp_icon = fm_icon_ref (src->fm_icon);
     
     /* NOTE: we need to ref source first. Otherwise,
      * if path, mime_type, and icon are identical in src
@@ -448,8 +450,8 @@ void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
     
     fm_file_info_clear (file_info);
     file_info->path = tmp_path;
-    file_info->type = tmp_type;
-    file_info->icon = tmp_icon;
+    file_info->mime_type = tmp_type;
+    file_info->fm_icon = tmp_icon;
 
     file_info->mode = src->mode;
     if (fm_path_is_native (file_info->path))
@@ -473,8 +475,8 @@ void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
     file_info->collate_key = g_strdup (src->collate_key);
     file_info->disp_size = g_strdup (src->disp_size);
     file_info->disp_mtime = g_strdup (src->disp_mtime);
-    file_info->type = fm_mime_type_ref (src->type);
-    file_info->icon = fm_icon_ref (src->icon);
+    file_info->mime_type = fm_mime_type_ref (src->mime_type);
+    file_info->fm_icon = fm_icon_ref (src->fm_icon);
 }
 
 FmPath *fm_file_info_get_path (FmFileInfo *file_info)
@@ -550,9 +552,15 @@ goffset fm_file_info_get_blocks (FmFileInfo *file_info)
     return file_info->blocks;
 }
 
-FmMimeType *fm_file_info_get_mime_type (FmFileInfo *file_info)
+FmMimeType *fm_file_info_get_mime_type (FmFileInfo *file_info, gboolean reference)
 {
-    return file_info->type ? fm_mime_type_ref (file_info->type) : NULL;
+    // FIXME_axl: this function is strange... it doesn't need a ref counting IMO...
+    // We also need a set_mime_type_function () ... that lib is really pure crap...
+    
+    if (!reference)
+        return file_info->mime_type;
+    
+    return file_info->mime_type ? fm_mime_type_ref (file_info->mime_type) : NULL;
 }
 
 mode_t fm_file_info_get_mode (FmFileInfo *file_info)
@@ -563,8 +571,8 @@ mode_t fm_file_info_get_mode (FmFileInfo *file_info)
 gboolean fm_file_info_is_dir (FmFileInfo *file_info)
 {
     return (S_ISDIR (file_info->mode) || (S_ISLNK (file_info->mode)
-                                   && file_info->type
-                                   && (strcmp (file_info->type->type, "inode/directory") == 0)));
+                                   && file_info->mime_type
+                                   && (strcmp (file_info->mime_type->type, "inode/directory") == 0)));
 }
 
 gboolean fm_file_info_is_symlink (FmFileInfo *file_info)
@@ -574,48 +582,51 @@ gboolean fm_file_info_is_symlink (FmFileInfo *file_info)
 
 gboolean fm_file_info_is_shortcut (FmFileInfo *file_info)
 {
-    return file_info->type == shortcut_type;
+    return file_info->mime_type == shortcut_type;
 }
 
 gboolean fm_file_info_is_mountable (FmFileInfo *file_info)
 {
-    return file_info->type == mountable_type;
+    return file_info->mime_type == mountable_type;
 }
 
 gboolean fm_file_info_is_image (FmFileInfo *file_info)
 {
     // FIXME_pcm: We had better use functions of xdg_mime to check this
-    if (! strncmp ("image/", file_info->type->type, 6))
+    if (! strncmp ("image/", file_info->mime_type->type, 6))
         return TRUE;
+    
     return FALSE;
 }
 
 gboolean fm_file_info_is_text (FmFileInfo *file_info)
 {
-    if (g_content_type_is_a (file_info->type->type, "text/plain"))
+    if (g_content_type_is_a (file_info->mime_type->type, "text/plain"))
         return TRUE;
+    
     return FALSE;
 }
 
 gboolean fm_file_info_is_desktop_entry (FmFileInfo *file_info)
 {
-    return file_info->type == desktop_entry_type;
-    // return g_strcmp0 (file_info->type->type, "application/x-desktop") == 0;
+    return file_info->mime_type == desktop_entry_type;
+    // return g_strcmp0 (file_info->mime_type->type, "application/x-desktop") == 0;
 }
 
 gboolean fm_file_info_is_unknown_type (FmFileInfo *file_info)
 {
-    if (!file_info->type)
+    if (!file_info->mime_type)
         return TRUE;
-    return g_content_type_is_unknown (file_info->type->type);
+    
+    return g_content_type_is_unknown (file_info->mime_type->type);
 }
 
 // full path of the file is required by this function
 gboolean fm_file_info_is_executable_type (FmFileInfo *file_info)
 {
     // FIXME_pcm: didn't check access rights.
-//    return mime_type_is_executable_file (file_path, file_info->type->type);
-    return g_content_type_can_be_executable (file_info->type->type);
+//    return mime_type_is_executable_file (file_path, file_info->mime_type->type);
+    return g_content_type_can_be_executable (file_info->mime_type->type);
 }
 
 gboolean fm_file_info_is_hidden (FmFileInfo *file_info)
@@ -663,7 +674,7 @@ const char *fm_file_info_get_target (FmFileInfo *file_info)
 const char *fm_file_info_get_desc (FmFileInfo *file_info)
 {
     // FIXME_pcm: how to handle descriptions for virtual files without mime-tyoes?
-    return file_info->type ? fm_mime_type_get_desc (file_info->type) : NULL;
+    return file_info->mime_type ? fm_mime_type_get_desc (file_info->mime_type) : NULL;
 }
 
 const char *fm_file_info_get_disp_mtime (FmFileInfo *file_info)

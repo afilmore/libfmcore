@@ -57,17 +57,13 @@ struct _FmFileInfo
     
     FmPath          *path;
     
-    FmMimeType      *type;          // TODO_axl: rename to mime_type...
+    FmMimeType      *mime_type;
     
-    // The GIcon Cache (see base/fm-icon.h)...
+    FmIcon          *fm_icon;       // A GIcon Cache (see base/fm-icon.h)...
     
-    FmIcon          *icon;          // TODO_axl: rename to fm_icon... avoid any direct member access...
+    char            *target;        // Target of shortcut or mountable...
 
-    // Target of shortcut or mountable...
-    char            *target;
-
-    // FileSystem Informations...
-    mode_t          mode;
+    mode_t          mode;           // FileSystem Informations...
     
     union {
         const char  *fs_id;
@@ -87,15 +83,15 @@ struct _FmFileInfo
     gulong          blksize;
     goffset         blocks;
     
-    // Private...
-    int             n_ref;
+    int             n_ref;          // Private...
 };
+
 
 // Intialize the file info system
 void _fm_file_info_init ();
 void _fm_file_info_finalize ();
 
-// TODO_axl: 
+
 /* *******************************************************************
  * TODO_axl: This function should be private, there should be some
  * dedicated functions instead to avoid direct members access...
@@ -140,7 +136,7 @@ goffset fm_file_info_get_size                   (FmFileInfo *fi);
 const char *fm_file_info_get_disp_size          (FmFileInfo *fi);
 goffset fm_file_info_get_blocks                 (FmFileInfo *fi);
 mode_t fm_file_info_get_mode                    (FmFileInfo *fi);
-FmMimeType *fm_file_info_get_mime_type          (FmFileInfo *fi);
+FmMimeType *fm_file_info_get_mime_type          (FmFileInfo *fi, gboolean reference);
 const char *fm_file_info_get_target             (FmFileInfo *fi);
 
 const char *fm_file_info_get_collate_key        (FmFileInfo *fi);

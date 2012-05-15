@@ -44,18 +44,24 @@ gboolean fm_list_is_file_info_list (FmList *list)
 gboolean fm_file_info_list_is_same_type (FmFileInfoList *list)
 {
     // FIXME_pcm: handle virtual files without mime-types
-    if (! fm_list_is_empty (list))
+    
+    if (fm_list_is_empty (list))
+        return TRUE;
+        
+    GList *l = fm_list_peek_head_link (list);
+    
+    FmFileInfo *file_info = (FmFileInfo*) l->data;
+    l = l->next;
+    
+    for (; l; l=l->next)
     {
-        GList *l = fm_list_peek_head_link (list);
-        FmFileInfo *fi = (FmFileInfo*)l->data;
-        l = l->next;
-        for (;l;l=l->next)
-        {
-            FmFileInfo *fi2 = (FmFileInfo*)l->data;
-            if (fi->type != fi2->type)
-                return FALSE;
-        }
+        FmFileInfo *file_info2 = (FmFileInfo*) l->data;
+        
+        if (fm_file_info_get_mime_type (file_info, FALSE)
+            != fm_file_info_get_mime_type (file_info, FALSE))
+            return FALSE;
     }
+    
     return TRUE;
 }
 
@@ -64,22 +70,22 @@ gboolean fm_file_info_list_is_same_fs (FmFileInfoList *list)
     if (! fm_list_is_empty (list))
     {
         GList *l = fm_list_peek_head_link (list);
-        FmFileInfo *fi = (FmFileInfo*)l->data;
+        FmFileInfo *file_info = (FmFileInfo*)l->data;
         l = l->next;
         for (;l;l=l->next)
         {
-            FmFileInfo *fi2 = (FmFileInfo*)l->data;
-            gboolean is_native = fm_path_is_native (fi->path);
-            if (is_native != fm_path_is_native (fi2->path))
+            FmFileInfo *file_info2 = (FmFileInfo*)l->data;
+            gboolean is_native = fm_path_is_native (file_info->path);
+            if (is_native != fm_path_is_native (file_info2->path))
                 return FALSE;
             if (is_native)
             {
-                if (fi->dev != fi2->dev)
+                if (file_info->dev != file_info2->dev)
                     return FALSE;
             }
             else
             {
-                if (fi->fs_id != fi2->fs_id)
+                if (file_info->fs_id != file_info2->fs_id)
                     return FALSE;
             }
         }
@@ -97,16 +103,16 @@ uint fm_file_info_list_get_flags (FmFileInfoList *list)
     GList *l;
     for (l = fm_list_peek_head_link (list); l; l=l->next)
     {
-        FmFileInfo *fi = (FmFileInfo*)l->data;
+        FmFileInfo *file_info = (FmFileInfo*)l->data;
         
-        //printf ("fm_file_info_list_get_flags: path name = %s\n", fi->path->name);
+        //printf ("fm_file_info_list_get_flags: path name = %s\n", file_info->path->name);
         
-        if (fm_path_is_trash_root (fi->path))
+        if (fm_path_is_trash_root (file_info->path))
         {
             flags |= FM_PATH_IS_TRASH_CAN;
             flags |= FM_PATH_IS_VIRTUAL;
         }
-        else if (fm_path_is_virtual (fi->path))
+        else if (fm_path_is_virtual (file_info->path))
         {
             flags |= FM_PATH_IS_VIRTUAL;
         }

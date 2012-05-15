@@ -556,12 +556,14 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
                 continue;
             }
             
+            FmMimeType *fi_mime_type = fm_file_info_get_mime_type (fi, FALSE);
+            
             // Add to the hash table...
-            if (fi->type && fi->type->type)
+            if (fi_mime_type && fi_mime_type->type)
             {
-                fis = g_hash_table_lookup (hash, fi->type->type);
+                fis = g_hash_table_lookup (hash, fi_mime_type->type);
                 fis = g_list_prepend (fis, fi);
-                g_hash_table_insert (hash, fi->type->type, fis);
+                g_hash_table_insert (hash, fi_mime_type->type, fis);
             }
         }
     }
@@ -579,7 +581,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
             GAppInfo *app = g_app_info_get_default_for_type (type, FALSE);
             if (!app && launcher->get_app)
             {
-                FmMimeType *mime_type = ((FmFileInfo*)fis->data)->type;
+                FmMimeType *mime_type = fm_file_info_get_mime_type ((FmFileInfo*) fis->data, FALSE);
                 app = launcher->get_app (fis, mime_type, user_data, NULL);
             }
             
