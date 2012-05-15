@@ -148,17 +148,19 @@ time_t *fm_file_info_get_atime                  (FmFileInfo *fi);
 
 
 gboolean fm_file_info_is_dir                    (FmFileInfo *fi);
+gboolean fm_file_info_is_desktop_entry          (FmFileInfo *fi);
 gboolean fm_file_info_is_symlink                (FmFileInfo *fi);
 gboolean fm_file_info_is_shortcut               (FmFileInfo *fi);
 gboolean fm_file_info_is_mountable              (FmFileInfo *fi);
+gboolean fm_file_info_is_executable_type        (FmFileInfo *fi);
+gboolean fm_file_info_is_hidden                 (FmFileInfo *fi);
+
 gboolean fm_file_info_is_image                  (FmFileInfo *fi);
 gboolean fm_file_info_is_text                   (FmFileInfo *fi);
-gboolean fm_file_info_is_desktop_entry          (FmFileInfo *fi);
-gboolean fm_file_info_is_unknown_type           (FmFileInfo *fi);
-gboolean fm_file_info_is_hidden                 (FmFileInfo *fi);
-gboolean fm_file_info_is_executable_type        (FmFileInfo *fi);
+
 gboolean fm_file_info_can_thumbnail             (FmFileInfo *fi);
 
+gboolean fm_file_info_is_unknown_type           (FmFileInfo *fi);
 
 G_END_DECLS
 #endif
