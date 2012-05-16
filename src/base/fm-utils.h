@@ -33,7 +33,8 @@
 
 G_BEGIN_DECLS
 
-//~ inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data);
+inline void fm_foreach (GList *list, GFunc func, gpointer user_data);
+
 char *fm_file_size_to_str ( char *buf, goffset size, gboolean si_prefix );
 gboolean fm_key_file_get_int (GKeyFile *kf, const char *grp, const char *key, int *val);
 gboolean fm_key_file_get_bool (GKeyFile *kf, const char *grp, const char *key, gboolean *val);

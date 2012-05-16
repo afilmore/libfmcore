@@ -49,22 +49,22 @@
 
 /*********************************************************************
  * Free Item List Functions...
- * _g_list_foreach_l is a variant of g_list_foreach which passes
+ * fm_foreach is a variant of g_list_foreach which passes
  * GList *element as the first parameter to the given function
  * instead of the element data.
  * 
  * 
  ********************************************************************/
-//~ inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data)
-//~ {
-    //~ while (list)
-    //~ {
-        //~ GList *next = list->next;
-        //~ (*func) (list, user_data);
-        //~ list = next;
-    //~ }
-//~ }
-//~ 
+inline void fm_foreach (GList *list, GFunc func, gpointer user_data)
+{
+    while (list)
+    {
+        GList *next = list->next;
+        (*func) (list, user_data);
+        list = next;
+    }
+}
+
 
 char *fm_file_size_to_str ( char *buf, goffset size, gboolean si_prefix )
 {
