@@ -220,8 +220,8 @@ namespace Fm {
 	[Compact]
 	public class FileInfo {
 		
-        [CCode (has_construct_function = false)]    /* FIXME_axl: should be private... */
-		public FileInfo ();
+//        [CCode (has_construct_function = false)]    /* FIXME_axl: should be private... */
+//		public FileInfo ();
 		
         [CCode (has_construct_function = false)]
 		public FileInfo.computer ();
