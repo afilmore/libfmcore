@@ -640,6 +640,10 @@ namespace Fm {
 	
     [CCode (cheader_filename = "fm-utils.h")]
 	public static void trash_or_delete_files (Gtk.Window parent, Fm.PathList files);
+    
+  	[CCode (cheader_filename = "fm-utils.h")]
+	public static bool mount_volume (Gtk.Window parent, GLib.Volume vol, bool interactive);
+
 
 }
 
