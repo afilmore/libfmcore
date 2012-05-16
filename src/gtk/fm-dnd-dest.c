@@ -282,12 +282,12 @@ gboolean fm_dnd_dest_drag_data_received (FmDndDest *dnd_dest,
                 fm_list_ref (files); // segfault when draging from another instance of the desktop window...
             if (files)
             {
-                FmFileInfo *fi = FM_FILE_INFO (fm_list_peek_head (files));
+                FmFileInfo *file_info = FM_FILE_INFO (fm_list_peek_head (files));
                 // get the device of the first dragged source file
-                if (fm_path_is_native (fi->path))
-                    dnd_dest->src_dev = fi->dev;
+                if (fm_path_is_native (file_info->path))
+                    dnd_dest->src_dev = file_info->dev;
                 else
-                    dnd_dest->src_fs_id = fi->fs_id;
+                    dnd_dest->src_fs_id = file_info->fs_id;
             }
         }
     }

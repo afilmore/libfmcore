@@ -59,7 +59,7 @@ typedef enum
 typedef struct _ThumbnailTask ThumbnailTask;
 struct _ThumbnailTask
 {
-    FmFileInfo *fi;
+    FmFileInfo *file_info;
     ThumbnailTaskFlags flags;
     char *uri;
     char *normal_path;
@@ -71,7 +71,7 @@ struct _ThumbnailTask
 
 struct _FmThumbnailRequest
 {
-    FmFileInfo *fi;
+    FmFileInfo *file_info;
     ThumbnailTask *task;
     gboolean size;
     FmThumbnailReadyCallback callback;
@@ -120,7 +120,7 @@ static GHashTable *hash = NULL;
 static char *thumb_dir = NULL;
 
 
-static ThumbnailTask *find_queued_task (GQueue *queue, FmFileInfo *fi);
+static ThumbnailTask *find_queued_task (GQueue *queue, FmFileInfo *file_info);
 static gpointer load_thumbnail_thread (gpointer user_data);
 static gpointer generate_thumbnail_thread (gpointer user_data);
 static void thumbnail_task_finish (ThumbnailTask *task, GdkPixbuf *normal_pix, GdkPixbuf *large_pix);
@@ -145,7 +145,7 @@ inline static void thumbnail_task_free (ThumbnailTask *task)
         g_list_foreach (task->requests,  (GFunc)fm_thumbnail_request_free, NULL);
         g_list_free (task->requests);
     }
-    fm_file_info_unref (task->fi);
+    fm_file_info_unref (task->file_info);
 
     // if those strings are dynamically allocated, free them.
     if (task->flags & ALLOC_STRINGS)
@@ -280,7 +280,7 @@ void thumbnail_task_finish (ThumbnailTask *task, GdkPixbuf *normal_pix, GdkPixbu
 
         // cache this in hash table
         if (cached_pix)
-            cache_thumbnail_in_hash (req->fi->path, cached_pix, cached_size);
+            cache_thumbnail_in_hash (req->file_info->path, cached_pix, cached_size);
 
         g_queue_push_tail (&ready_queue, req);
         if ( 0 == ready_idle_handler ) // schedule an idle handler if there isn't one.
@@ -318,12 +318,12 @@ void load_thumbnails (ThumbnailTask *task)
     if ( IS_CANCELLED (task) )
         goto _out;
 
-    DEBUG ("loading: %s, %s", task->fi->path->name, normal_path);
+    DEBUG ("loading: %s, %s", task->file_info->path->name, normal_path);
 
     if (task->flags & LOAD_NORMAL)
     {
         normal_pix = gdk_pixbuf_new_from_file (normal_path, NULL);
-        if (!normal_pix || is_thumbnail_outdated (normal_pix, normal_path, task->fi->mtime))
+        if (!normal_pix || is_thumbnail_outdated (normal_pix, normal_path, task->file_info->mtime))
         {
             // normal_pix is freed in is_thumbnail_outdated () if it's out of date.
             // generate normal size thumbnail
@@ -341,7 +341,7 @@ void load_thumbnails (ThumbnailTask *task)
     if (task->flags & LOAD_LARGE)
     {
         large_pix = gdk_pixbuf_new_from_file (large_path, NULL);
-        if (!large_pix || is_thumbnail_outdated (large_pix, large_path, task->fi->mtime))
+        if (!large_pix || is_thumbnail_outdated (large_pix, large_path, task->file_info->mtime))
         {
             // large_pix is freed in is_thumbnail_outdated () if it's out of date.
             // generate large size thumbnail
@@ -400,12 +400,12 @@ void load_thumbnails (ThumbnailTask *task)
         {
             generate_task = g_slice_new0 (ThumbnailTask);
             generate_task->flags = task->flags | ALLOC_STRINGS;
-            generate_task->fi = fm_file_info_ref (task->fi);
+            generate_task->file_info = fm_file_info_ref (task->file_info);
             generate_task->requests = generate_reqs;
             generate_task->uri = g_strdup (task->uri);
             generate_task->normal_path = g_strdup (task->normal_path);
             generate_task->large_path = g_strdup (task->large_path);
-            DEBUG ("queue regenerate for :%s", task->fi->path->name);
+            DEBUG ("queue regenerate for :%s", task->file_info->path->name);
             // queue the re-generation task
             queue_generate (generate_task);
         }
@@ -457,7 +457,7 @@ gpointer load_thumbnail_thread (gpointer user_data)
             const char *md5;
 
             G_UNLOCK (queue);
-            uri = fm_path_to_uri (task->fi->path);
+            uri = fm_path_to_uri (task->file_info->path);
 
             // generate filename for the thumbnail
             g_checksum_update (sum, uri, -1);
@@ -512,13 +512,13 @@ inline static GdkPixbuf *find_thumbnail_in_hash (FmPath *path, guint size)
 }
 
 // should be called with queue locked
-ThumbnailTask *find_queued_task (GQueue *queue, FmFileInfo *fi)
+ThumbnailTask *find_queued_task (GQueue *queue, FmFileInfo *file_info)
 {
     GList *l;
     for ( l = queue->head; l; l=l->next )
     {
         ThumbnailTask *task =  (ThumbnailTask*)l->data;
-        if  (G_UNLIKELY (task->fi == fi))
+        if  (G_UNLIKELY (task->file_info == file_info))
             return task;
     }
     return NULL;
@@ -535,7 +535,7 @@ FmThumbnailRequest *fm_thumbnail_request (FmFileInfo *src_file,
     GdkPixbuf *pix;
 
     req = g_slice_new (FmThumbnailRequest);
-    req->fi = fm_file_info_ref (src_file);
+    req->file_info = fm_file_info_ref (src_file);
     req->size = size;
     req->callback = callback;
     req->user_data = user_data;
@@ -565,7 +565,7 @@ FmThumbnailRequest *fm_thumbnail_request (FmFileInfo *src_file,
     if (!task)
     {
         task = g_slice_new0 (ThumbnailTask);
-        task->fi = fm_file_info_ref (src_file);
+        task->file_info = fm_file_info_ref (src_file);
         g_queue_push_tail (&loader_queue, task);
     }
     else
@@ -692,7 +692,7 @@ GdkPixbuf *fm_thumbnail_request_get_pixbuf (FmThumbnailRequest *req)
 
 FmFileInfo *fm_thumbnail_request_get_file_info (FmThumbnailRequest *req)
 {
-    return req->fi;
+    return req->file_info;
 }
 
 guint fm_thumbnail_request_get_size (FmThumbnailRequest *req)
@@ -729,7 +729,7 @@ gpointer generate_thumbnail_thread (gpointer user_data)
         {
             G_UNLOCK (queue);
 
-            if (fm_file_info_is_image (task->fi))
+            if (fm_file_info_is_image (task->file_info))
                 generate_thumbnails_with_gdk_pixbuf (task);
             else
                 generate_thumbnails_with_thumbnailers (task);
@@ -759,7 +759,7 @@ void queue_generate (ThumbnailTask *regenerate_task)
 {
     ThumbnailTask *task;
     G_LOCK (queue);
-    task = find_queued_task (&generator_queue, regenerate_task->fi);
+    task = find_queued_task (&generator_queue, regenerate_task->file_info);
     if (task)
     {
         task->flags |= regenerate_task->flags;
@@ -826,7 +826,7 @@ void save_thumbnail_to_disk (ThumbnailTask *task, GdkPixbuf *pix, const char *pa
     if (fd != -1)
     {
         char mtime_str[100];
-        g_snprintf ( mtime_str, 100, "%lu", task->fi->mtime );
+        g_snprintf ( mtime_str, 100, "%lu", task->file_info->mtime );
         chmod ( tmpfile, 0600 );  // only the owner can read it.
         gdk_pixbuf_save ( pix, tmpfile, "png", NULL,
                          "tEXt::Thumb::URI", task->uri,
@@ -841,12 +841,12 @@ void save_thumbnail_to_disk (ThumbnailTask *task, GdkPixbuf *pix, const char *pa
 void generate_thumbnails_with_gdk_pixbuf (ThumbnailTask *task)
 {
     // FIXME_pcm: only formats supported by GdkPixbuf should be handled this way.
-    GFile *gf = fm_path_to_gfile (task->fi->path);
+    GFile *gf = fm_path_to_gfile (task->file_info->path);
     GFileInputStream *ins;
     GdkPixbuf *normal_pix = NULL;
     GdkPixbuf *large_pix = NULL;
 
-    DEBUG ("generate thumbnail for %s", task->fi->path->name);
+    DEBUG ("generate thumbnail for %s", task->file_info->path->name);
 
     if ( ins = g_file_read (gf, generator_cancellable, NULL) )
     {
@@ -932,7 +932,7 @@ void generate_thumbnails_with_gdk_pixbuf (ThumbnailTask *task)
 void generate_thumbnails_with_thumbnailers (ThumbnailTask *task)
 {
     // TODO_pcm: external thumbnailer support
-    DEBUG ("external thumbnailer is needed for %s", task->fi->disp_name);
+    DEBUG ("external thumbnailer is needed for %s", task->file_info->disp_name);
 
     G_LOCK (queue);
     thumbnail_task_finish (task, NULL, NULL);

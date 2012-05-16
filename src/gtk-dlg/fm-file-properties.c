@@ -748,7 +748,7 @@ struct _FmFilePropData
     int exec_state;
 
     FmFileInfoList *files;
-    FmFileInfo *fi;
+    FmFileInfo *file_info;
     gboolean single_type;
     gboolean single_file;
     gboolean all_native;
@@ -1047,7 +1047,7 @@ static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
         if (data->single_file) // when only one file is shown
         {
             // if the user has changed its name
-            if ( g_strcmp0 (data->fi->disp_name, gtk_entry_get_text (GTK_ENTRY (data->name))) )
+            if ( g_strcmp0 (data->file_info->disp_name, gtk_entry_get_text (GTK_ENTRY (data->name))) )
             {
                 // FIXME_pcm: rename the file or set display name for it.
             }
@@ -1082,45 +1082,45 @@ static void on_exec_toggled (GtkToggleButton *btn, FmFilePropData *data)
 // FIXME_pcm: this is too dirty. Need some refactor later.
 static void update_permissions (FmFilePropData *data)
 {
-    FmFileInfo *fi =  (FmFileInfo*)fm_list_peek_head (data->files);
+    FmFileInfo *file_info =  (FmFileInfo*)fm_list_peek_head (data->files);
     GList *l;
     int sel;
     char *tmp;
-    mode_t owner_perm =  (fi->mode & S_IRWXU);
-    mode_t group_perm =  (fi->mode & S_IRWXG);
-    mode_t other_perm =  (fi->mode & S_IRWXO);
-    mode_t exec_perm =  (fi->mode &  (S_IXUSR|S_IXGRP|S_IXOTH));
-    uid_t uid = fi->uid;
-    gid_t gid = fi->gid;
+    mode_t owner_perm =  (file_info->mode & S_IRWXU);
+    mode_t group_perm =  (file_info->mode & S_IRWXG);
+    mode_t other_perm =  (file_info->mode & S_IRWXO);
+    mode_t exec_perm =  (file_info->mode &  (S_IXUSR|S_IXGRP|S_IXOTH));
+    uid_t uid = file_info->uid;
+    gid_t gid = file_info->gid;
     struct group *grp = NULL;
     struct passwd *pw = NULL;
 
-    data->all_native = fm_path_is_native (fi->path);
-    data->has_dir = S_ISDIR (fi->mode) != FALSE;
+    data->all_native = fm_path_is_native (file_info->path);
+    data->has_dir = S_ISDIR (file_info->mode) != FALSE;
 
     for (l=fm_list_peek_head_link (data->files)->next; l; l=l->next)
     {
-        FmFileInfo *fi =  (FmFileInfo*)l->data;
+        FmFileInfo *file_info =  (FmFileInfo*)l->data;
 
-        if ( !fm_path_is_native (fi->path) )
+        if ( !fm_path_is_native (file_info->path) )
             data->all_native = FALSE;
 
-        if (S_ISDIR (fi->mode))
+        if (S_ISDIR (file_info->mode))
             data->has_dir = TRUE;
 
-        if ( uid != fi->uid )
+        if ( uid != file_info->uid )
             uid = -1;
-        if ( gid != fi->gid )
+        if ( gid != file_info->gid )
             gid = -1;
 
-        if ( owner_perm != -1 && owner_perm !=  (fi->mode & S_IRWXU) )
+        if ( owner_perm != -1 && owner_perm !=  (file_info->mode & S_IRWXU) )
             owner_perm = -1;
-        if ( group_perm != -1 && group_perm !=  (fi->mode & S_IRWXG) )
+        if ( group_perm != -1 && group_perm !=  (file_info->mode & S_IRWXG) )
             group_perm = -1;
-        if ( other_perm != -1 && other_perm !=  (fi->mode & S_IRWXO) )
+        if ( other_perm != -1 && other_perm !=  (file_info->mode & S_IRWXO) )
             other_perm = -1;
 
-        if ( exec_perm !=  (fi->mode &  (S_IXUSR|S_IXGRP|S_IXOTH)) )
+        if ( exec_perm !=  (file_info->mode &  (S_IXUSR|S_IXGRP|S_IXOTH)) )
             exec_perm = -1;
     }
 
@@ -1250,9 +1250,9 @@ static void update_ui (FmFilePropData *data)
          * some specified mime-types. */
         if ( data->single_file ) // only one file is selected.
         {
-            FmFileInfo *fi =  (FmFileInfo*)fm_list_peek_head (data->files);
+            FmFileInfo *file_info =  (FmFileInfo*)fm_list_peek_head (data->files);
             
-            icon = fm_file_info_get_gicon (fi);
+            icon = fm_file_info_get_gicon (file_info);
         }
 
         if (data->mime_type)
@@ -1269,11 +1269,11 @@ static void update_ui (FmFilePropData *data)
         if (icon)
             gtk_image_set_from_gicon (img, icon, GTK_ICON_SIZE_DIALOG);
 
-        if ( data->single_file && fm_file_info_is_symlink (data->fi) )
+        if ( data->single_file && fm_file_info_is_symlink (data->file_info) )
         {
             gtk_widget_show (data->target_label);
             gtk_widget_show (data->target);
-            gtk_label_set_text (GTK_LABEL (data->target), data->fi->target);
+            gtk_label_set_text (GTK_LABEL (data->target), data->file_info->target);
             // gtk_label_set_text (data->type, fm_mime_type_get_desc (data->mime_type));
         }
         else
@@ -1301,9 +1301,9 @@ static void update_ui (FmFilePropData *data)
     if ( data->single_file )
     {
         char buf[128];
-        FmPath *parent = fm_path_get_parent (fm_file_info_get_path (data->fi));
+        FmPath *parent = fm_path_get_parent (fm_file_info_get_path (data->file_info));
         char *parent_str = parent ? fm_path_display_name (parent, TRUE) : NULL;
-        gtk_entry_set_text (GTK_ENTRY (data->name), fm_file_info_get_disp_name (data->fi));
+        gtk_entry_set_text (GTK_ENTRY (data->name), fm_file_info_get_disp_name (data->file_info));
         if (parent_str)
         {
             gtk_label_set_text (GTK_LABEL (data->dir), parent_str);
@@ -1311,12 +1311,12 @@ static void update_ui (FmFilePropData *data)
         }
         else
             gtk_label_set_text (GTK_LABEL (data->dir), "");
-        gtk_label_set_text (GTK_LABEL (data->mtime), fm_file_info_get_disp_mtime (data->fi));
+        gtk_label_set_text (GTK_LABEL (data->mtime), fm_file_info_get_disp_mtime (data->file_info));
 
         // FIXME_pcm: need to encapsulate this in an libfm API.
         strftime ( buf, sizeof ( buf ),
                   "%x %R",
-                  localtime ( &data->fi->atime ) );
+                  localtime ( &data->file_info->atime ) );
         gtk_label_set_text (GTK_LABEL (data->atime), buf);
     }
     else
@@ -1358,9 +1358,9 @@ GtkWidget *fm_file_properties_widget_new (FmFileInfoList *files, gboolean toplev
     data->files = fm_list_ref (files);
     data->single_type = fm_file_info_list_is_same_type (files);
     data->single_file =  (fm_list_get_length (files) == 1);
-    data->fi = fm_list_peek_head (files);
+    data->file_info = fm_list_peek_head (files);
     
-    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (data->fi, FALSE);
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (data->file_info, FALSE);
     
     if (data->single_type)
         data->mime_type = fi_mime_type; // FIXME_pcm: do we need ref counting here?

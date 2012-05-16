@@ -190,8 +190,8 @@ void on_file_info_finished (FmFileInfoJob *job, FmFolder *folder)
 
     for (l=fm_list_peek_head_link (job->file_infos);l;l=l->next)
     {
-        FmFileInfo *fi =  (FmFileInfo*)l->data;
-        GList *l2 = _fm_folder_get_file_by_name (folder, fi->path->name);
+        FmFileInfo *file_info =  (FmFileInfo*)l->data;
+        GList *l2 = _fm_folder_get_file_by_name (folder, file_info->path->name);
         if (l2) // the file is already in the folder, update
         {
             FmFileInfo *fi2 =  (FmFileInfo*)l2->data;
@@ -201,14 +201,14 @@ void on_file_info_finished (FmFileInfoJob *job, FmFolder *folder)
               *       we should redesign the API, or document this clearly
               *       in future API doc.
              */
-            fm_file_info_copy (fi2, fi);
+            fm_file_info_copy (fi2, file_info);
             files_to_update = g_slist_prepend (files_to_update, fi2);
         }
         else
         {
-            files_to_add = g_slist_prepend (files_to_add, fi);
-            fm_file_info_ref (fi);
-            fm_list_push_tail (folder->files, fi);
+            files_to_add = g_slist_prepend (files_to_add, file_info);
+            fm_file_info_ref (file_info);
+            fm_list_push_tail (folder->files, file_info);
         }
     }
     if (files_to_add)
@@ -568,8 +568,8 @@ void fm_folder_reload (FmFolder *folder)
     {
         for (;l;l=l->next)
         {
-            FmFileInfo *fi =  (FmFileInfo*)l->data;
-            files_to_del = g_slist_prepend (files_to_del, fi);
+            FmFileInfo *file_info =  (FmFileInfo*)l->data;
+            files_to_del = g_slist_prepend (files_to_del, file_info);
         }
         g_signal_emit (folder, signals[FILES_REMOVED], 0, files_to_del);
         fm_list_clear (folder->files); // fm_file_info_unref will be invoked.
@@ -594,8 +594,8 @@ GList *_fm_folder_get_file_by_name (FmFolder *folder, const char *name)
     GList *l = fm_list_peek_head_link (folder->files);
     for (;l;l=l->next)
     {
-        FmFileInfo *fi =  (FmFileInfo*)l->data;
-        if (strcmp (fi->path->name, name) == 0)
+        FmFileInfo *file_info =  (FmFileInfo*)l->data;
+        if (strcmp (file_info->path->name, name) == 0)
             return l;
     }
     return NULL;

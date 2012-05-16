@@ -195,10 +195,10 @@ struct _LaunchData
     GList* l = folder_infos;
     for (; l; l=l->next)
     {
-        FmFileInfo* fi = (FmFileInfo*) l->data;
+        FmFileInfo* file_info = (FmFileInfo*) l->data;
         if (fm_config->filemanager)
         {
-            gchar *cmd = g_strdup_printf ("%s %s", fm_config->filemanager, fi->path); 
+            gchar *cmd = g_strdup_printf ("%s %s", fm_config->filemanager, file_info->path); 
             printf ("%s\n", cmd);
 
             g_spawn_command_line_async (cmd, NULL);
@@ -464,23 +464,23 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
     
     GList *l;
     GList* folders = NULL;
-    FmFileInfo *fi;
+    FmFileInfo *file_info;
     GError *err = NULL;
     GAppInfo *app;
 
     for (l = file_infos; l; l=l->next)
     {
         GList *fis;
-        fi = (FmFileInfo*) l->data;
+        file_info = (FmFileInfo*) l->data;
         
         // Add Folders to a FileInfoList...
-        if (fm_file_info_is_dir (fi)
-        || (fi->path && fm_path_is_trash_root (fi->path)))
+        if (fm_file_info_is_dir (file_info)
+        || (file_info->path && fm_path_is_trash_root (file_info->path)))
         {
             //~ if (!launcher->open_folder)
                 //~ continue;
 
-            folders = g_list_prepend (folders, fi);
+            folders = g_list_prepend (folders, file_info);
         }
         
         // Other files...
@@ -488,26 +488,26 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
         {
             /* FIXME: handle shortcuts, such as the items in menu:// */
             
-            if (fm_path_is_native (fi->path))
+            if (fm_path_is_native (file_info->path))
             {
                 char *filename;
                 
                 // Open Desktop Entries...
-                if (fm_file_info_is_desktop_entry (fi))
+                if (fm_file_info_is_desktop_entry (file_info))
                 {
-                    filename = fm_path_to_str (fi->path);
+                    filename = fm_path_to_str (file_info->path);
                     fm_launch_desktop_entry (ctx, filename, NULL, launcher, user_data);
                     continue;
                 }
-                else if (fm_file_info_is_executable_type (fi))
+                else if (fm_file_info_is_executable_type (file_info))
                 {
-                    filename = fm_path_to_str (fi->path);
+                    filename = fm_path_to_str (file_info->path);
                     
                     if (g_file_test (filename, G_FILE_TEST_IS_EXECUTABLE)) // FIXME_pcm: use eaccess/euidaccess...
                     {
                         if (launcher->exec_file)
                         {
-                            FmFileLauncherExecAction act = launcher->exec_file (fi, user_data);
+                            FmFileLauncherExecAction act = launcher->exec_file (file_info, user_data);
                             GAppInfoCreateFlags flags = 0;
                             
                             switch (act)
@@ -547,22 +547,22 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
                 }
             }
             // Not A Native Path...
-            else if (fm_file_info_is_shortcut (fi)
-                     && !fm_file_info_is_dir (fi)
-                     && fm_path_is_xdg_menu (fi->path)
-                     && fi->target)
+            else if (fm_file_info_is_shortcut (file_info)
+                     && !fm_file_info_is_dir (file_info)
+                     && fm_path_is_xdg_menu (file_info->path)
+                     && file_info->target)
             {
-                fm_launch_desktop_entry (ctx, fi->target, NULL, launcher, user_data); // FIXME_pcm: shortcuts handling...
+                fm_launch_desktop_entry (ctx, file_info->target, NULL, launcher, user_data); // FIXME_pcm: shortcuts handling...
                 continue;
             }
             
-            FmMimeType *fi_mime_type = fm_file_info_get_mime_type (fi, FALSE);
+            FmMimeType *fi_mime_type = fm_file_info_get_mime_type (file_info, FALSE);
             
             // Add to the hash table...
             if (fi_mime_type && fi_mime_type->type)
             {
                 fis = g_hash_table_lookup (hash, fi_mime_type->type);
-                fis = g_list_prepend (fis, fi);
+                fis = g_list_prepend (fis, file_info);
                 g_hash_table_insert (hash, fi_mime_type->type, fis);
             }
         }
@@ -590,8 +590,8 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
                 for (l=fis; l; l=l->next)
                 {
                     char *uri;
-                    fi = (FmFileInfo*)l->data;
-                    uri = fm_path_to_uri (fi->path);
+                    file_info = (FmFileInfo*)l->data;
+                    uri = fm_path_to_uri (file_info->path);
                     l->data = uri;
                     printf ("fm-gtk-launcher.c: _fm_launch_files (%s)\n", uri);
                 }

@@ -664,10 +664,10 @@ void on_open_with (GtkAction *action, gpointer user_data)
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmFileInfoList *files = file_menu->file_infos;
     
-    FmFileInfo *fi = (FmFileInfo*) fm_list_peek_head (files);
+    FmFileInfo *file_info = (FmFileInfo*) fm_list_peek_head (files);
     
     FmMimeType *mime_type;
-    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (fi, FALSE);
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (file_info, FALSE);
 
     if (file_menu->same_type && fi_mime_type && fi_mime_type->type)
         mime_type = fi_mime_type;
@@ -700,8 +700,8 @@ static void open_with_app (FmFileMenu *file_menu, GAppInfo *app)
     int i;
     for (i=0; l; ++i, l=l->next)
     {
-        FmFileInfo *fi = (FmFileInfo*) l->data;
-        FmPath *path = fi->path;
+        FmFileInfo *file_info = (FmFileInfo*) l->data;
+        FmPath *path = file_info->path;
         
         char *uri = fm_path_to_uri (path);
         uris = g_list_prepend (uris, uri);
