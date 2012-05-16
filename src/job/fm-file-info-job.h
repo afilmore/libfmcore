@@ -55,8 +55,8 @@ struct _FmFileInfoJob
 {
 	FmJob parent;
     FmFileInfoJobFlags flags;
-	FmFileInfoList* file_infos;
-    FmPath* current;
+	FmFileInfoList *file_infos;
+    FmPath *current;
 };
 
 struct _FmFileInfoJobClass
@@ -64,19 +64,21 @@ struct _FmFileInfoJobClass
 	FmJobClass parent_class;
 };
 
-GType fm_file_info_job_get_type(void);
-FmJob* fm_file_info_job_new(FmPathList* files_to_query, FmFileInfoJobFlags flags);
+FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags);
+
+GType fm_file_info_job_get_type (void);
 
 /* this can only be called before running the job. */
-void fm_file_info_job_add(FmFileInfoJob* job, FmPath* path);
-void fm_file_info_job_add_gfile(FmFileInfoJob* job, GFile* gf);
+void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path);
+void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf);
 
-gboolean _fm_file_info_job_get_info_for_native_file(FmJob* job, FmFileInfo* file_info, const char* path, GError** err);
-gboolean _fm_file_info_job_get_info_for_gfile(FmJob* job, FmFileInfo* file_info, GFile* gf, GError** err);
+gboolean _fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *file_info, const char *path, GError **err);
+gboolean _fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err);
 
 /* This API should only be called in error handler */
-FmPath* fm_file_info_job_get_current(FmFileInfoJob* job);
+FmPath *fm_file_info_job_get_current (FmFileInfoJob *job);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_FILE_INFO_JOB_H__ */
+
