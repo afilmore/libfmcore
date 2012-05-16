@@ -30,13 +30,59 @@
 #include <menu-cache.h>
 #include <errno.h>
 
-static void fm_file_info_job_finalize (GObject *object);
-static gboolean fm_file_info_job_run (FmJob *fmjob);
-
-const char gfile_info_query_attribs[] = "standard::*,unix::*,time::*,access::*,id::filesystem";
 
 G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
 
+const char gfile_info_query_attribs [] = "standard::*,unix::*,time::*,access::*,id::filesystem";
+
+
+static void fm_file_info_job_finalize (GObject *object);
+static gboolean fm_file_info_job_run (FmJob *fmjob);
+
+
+// a function from FmFileInfo.... nasty code...
+void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item);
+
+
+
+
+FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags)
+{
+	FmFileInfoJob *job = (FmFileInfoJob*) g_object_new (FM_TYPE_FILE_INFO_JOB, NULL);
+
+    job->flags = flags;
+	
+    if (!files_to_query)
+        return (FmJob*) job;
+	
+	FmFileInfoList *file_infos = job->file_infos;
+    
+	GList *l;
+    for (l = fm_list_peek_head_link (files_to_query); l; l=l->next)
+    {
+        FmPath *path = (FmPath*) l->data;
+        
+        FmFileInfo *file_info = fm_file_info_new_for_path (path);
+        
+        // TODO_axl: test and remove.....
+        /** new file_info function, test and remove...
+        
+        FmFileInfo *file_info = fm_file_info_new ();
+        file_info->path = fm_path_ref (path);
+        
+        **/
+        
+        fm_list_push_tail_noref (file_infos, file_info);
+    }
+	
+	return (FmJob*) job;
+}
+
+static void fm_file_info_job_init (FmFileInfoJob *self)
+{
+	self->file_infos = fm_file_info_list_new ();
+    fm_job_init_cancellable (FM_JOB (self));
+}
 
 static void fm_file_info_job_class_init (FmFileInfoJobClass *klass)
 {
@@ -49,7 +95,6 @@ static void fm_file_info_job_class_init (FmFileInfoJobClass *klass)
 	job_class = FM_JOB_CLASS (klass);
 	job_class->run = fm_file_info_job_run;
 }
-
 
 static void fm_file_info_job_finalize (GObject *object)
 {
@@ -65,53 +110,16 @@ static void fm_file_info_job_finalize (GObject *object)
 }
 
 
-static void fm_file_info_job_init (FmFileInfoJob *self)
-{
-	self->file_infos = fm_file_info_list_new ();
-    fm_job_init_cancellable (FM_JOB (self));
-}
-
-FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags)
-{
-	GList *l;
-	FmFileInfoJob *job =  (FmFileInfoJob*)g_object_new (FM_TYPE_FILE_INFO_JOB, NULL);
-	FmFileInfoList *file_infos;
-
-    job->flags = flags;
-	if (files_to_query)
-	{
-		file_infos = job->file_infos;
-		for (l = fm_list_peek_head_link (files_to_query);l;l=l->next)
-		{
-            FmPath *path = (FmPath*) l->data;
-            
-            FmFileInfo *file_info = fm_file_info_new_for_path (path);
-            
-            // TODO_axl: test and remove.....
-			/** new file_info function, test and remove...
-            
-            FmFileInfo *file_info = fm_file_info_new ();
-			file_info->path = fm_path_ref (path);
-			
-            **/
-            
-            fm_list_push_tail_noref (file_infos, file_info);
-		}
-	}
-	return  (FmJob*)job;
-}
-
-void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item);
 
 gboolean fm_file_info_job_run (FmJob *fmjob)
 {
-	GList *l;
-	FmFileInfoJob *job =  (FmFileInfoJob*)fmjob;
+	FmFileInfoJob *job = (FmFileInfoJob*) fmjob;
     GError *err = NULL;
 
+	GList *l;
 	for (l = fm_list_peek_head_link (job->file_infos); !fm_job_is_cancelled (fmjob) && l;)
 	{
-		FmFileInfo *file_info =  (FmFileInfo*)l->data;
+		FmFileInfo *file_info = (FmFileInfo*) l->data;
         GList *next = l->next;
 
         job->current = file_info->path;
@@ -119,18 +127,22 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
 		if (fm_path_is_native (file_info->path))
 		{
 			char *path_str = fm_path_to_str (file_info->path);
-			if (!_fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, path_str, &err))
+			
+            if (!_fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, path_str, &err))
             {
-                FmJobErrorAction act = fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_MILD);
+                FmJobErrorAction act = fm_job_emit_error (FM_JOB(job), err, FM_JOB_ERROR_MILD);
+                
                 g_error_free (err);
                 err = NULL;
+                
                 if (act == FM_JOB_RETRY)
-                    continue; /* retry */
+                    continue;
 
                 next = l->next;
-                fm_list_delete_link (job->file_infos, l); /* also calls unref */
+                fm_list_delete_link (job->file_infos, l); // Also calls unref...
             }
-			g_free (path_str);
+			
+            g_free (path_str);
 		}
 		else
 		{
@@ -138,7 +150,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             
             if (fm_path_is_virtual (file_info->path))
             {
-                /* this is a xdg menu */
+                // This is a xdg menu
                 if (fm_path_is_xdg_menu (file_info->path))
                 {
                     MenuCache *mc;
@@ -163,44 +175,57 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
                     mc = menu_cache_lookup_sync (menu_name);
                     g_free (menu_name);
 
-                    if (*dir_name && ! (*dir_name == '/' && dir_name[1]=='\0'))
+                    if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
                     {
-                        char *tmp = g_strconcat ("/", menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))), dir_name, NULL);
+                        char *tmp = g_strconcat ("/",
+                                                 menu_cache_item_get_id (MENU_CACHE_ITEM(menu_cache_get_root_dir (mc))),
+                                                 dir_name, NULL);
+                        
                         dir = menu_cache_get_dir_from_path (mc, tmp);
+                        
                         g_free (tmp);
                     }
                     else
+                    {
                         dir = menu_cache_get_root_dir (mc);
+                    }
                     
                     if (dir)
+                    {
                         _fm_file_info_set_from_menu_cache_item (file_info, (MenuCacheItem*) dir);
+                    }
                     else
                     {
                         next = l->next;
-                        fm_list_delete_link (job->file_infos, l); /* also calls unref */
+                        fm_list_delete_link (job->file_infos, l); // Also calls unref...
                     }
                     
                     g_free (path_str);
                     menu_cache_unref (mc);
-                    l=l->next;
+                    
+                    l = l->next;
                     continue;
                 }
             }
 
 			gf = fm_path_to_gfile (file_info->path);
-			if (!_fm_file_info_job_get_info_for_gfile (FM_JOB (job), file_info, gf, &err))
+			
+            if (!_fm_file_info_job_get_info_for_gfile (FM_JOB (job), file_info, gf, &err))
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_MILD);
+                
                 g_error_free (err);
                 err = NULL;
                 
                 if (act == FM_JOB_RETRY)
-                    continue; /* retry */
+                    continue;
 
                 next = l->next;
-                fm_list_delete_link (job->file_infos, l); /* also calls unref */
+                
+                fm_list_delete_link (job->file_infos, l);   // Also calls unref...
             }
-			g_object_unref (gf);
+			
+            g_object_unref (gf);
 		}
         
         l = next;
@@ -228,7 +253,7 @@ void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path)
 
 void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
 {
-	// fm_file_info_new_for_gfile ()
+	// fm_file_info_new_for_gfile () ???
     
     FmPath *path = fm_path_new_for_gfile (gf);
 	
@@ -254,6 +279,8 @@ gboolean _fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *fil
     
 _retry:
 	
+    // TODO_axl: should create a function in FmFileInfo instead of that nasty code...
+    
     if (lstat (path, &st) != 0)
     {
         g_set_error (err, G_IO_ERROR, g_io_error_from_errno (errno), "%s", g_strerror (errno));
@@ -285,7 +312,7 @@ _retry:
     
     g_return_val_if_fail (mime_type, FALSE);
     
-    // FIXME_axl: avoid direct member access !!!
+    // FIXME_axl: avoid direct member access !!! there's direct members access everywhere anyway... nasty code...
     file_info->mime_type = mime_type;
     
     // TODO_axl: Create one function.....
@@ -311,9 +338,11 @@ gboolean _fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info
 	return TRUE;
 }
 
-/* This API should only be called in error handler */
+// This API should only be called in error handler
 FmPath *fm_file_info_job_get_current (FmFileInfoJob *job)
 {
     return job->current;
 }
+
+
 

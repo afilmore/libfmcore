@@ -25,38 +25,45 @@
 #define __FM_FILE_INFO_JOB_H__
 
 #include "fm-job.h"
+
 #include "fm-file-info-list.h"
+
 #include "fm-path-list.h"
+
 
 G_BEGIN_DECLS
 
-#define FM_TYPE_FILE_INFO_JOB				(fm_file_info_job_get_type())
-#define FM_FILE_INFO_JOB(obj)				(G_TYPE_CHECK_INSTANCE_CAST((obj),\
-			FM_TYPE_FILE_INFO_JOB, FmFileInfoJob))
-#define FM_FILE_INFO_JOB_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST((klass),\
-			FM_TYPE_FILE_INFO_JOB, FmFileInfoJobClass))
-#define IS_FM_FILE_INFO_JOB(obj)			(G_TYPE_CHECK_INSTANCE_TYPE((obj),\
-			FM_TYPE_FILE_INFO_JOB))
-#define IS_FM_FILE_INFO_JOB_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE((klass),\
-			FM_TYPE_FILE_INFO_JOB))
+#define FM_TYPE_FILE_INFO_JOB			    (fm_file_info_job_get_type())
 
-typedef struct _FmFileInfoJob			FmFileInfoJob;
-typedef struct _FmFileInfoJobClass		FmFileInfoJobClass;
+#define FM_FILE_INFO_JOB(obj)               (G_TYPE_CHECK_INSTANCE_CAST((obj), FM_TYPE_FILE_INFO_JOB, FmFileInfoJob))
+#define FM_FILE_INFO_JOB_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST((klass), \
+                                             FM_TYPE_FILE_INFO_JOB, FmFileInfoJobClass))
+
+#define IS_FM_FILE_INFO_JOB(obj)            (G_TYPE_CHECK_INSTANCE_TYPE((obj), FM_TYPE_FILE_INFO_JOB))
+#define IS_FM_FILE_INFO_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE((klass), FM_TYPE_FILE_INFO_JOB))
+
+typedef struct _FmFileInfoJob			    FmFileInfoJob;
+typedef struct _FmFileInfoJobClass          FmFileInfoJobClass;
+
 
 enum _FmFileInfoJobFlags
 {
     FM_FILE_INFO_JOB_NONE = 0,
-    FM_FILE_INFO_JOB_FOLLOW_SYMLINK = 1 << 0, /* FIXME_pcm: not yet implemented */
-    FM_FILE_INFO_JOB_EMIT_FOR_EACH_FILE = 1 << 1 /* FIXME_pcm: not yet implemented */
+    FM_FILE_INFO_JOB_FOLLOW_SYMLINK = 1 << 0,       // FIXME_pcm: not yet implemented...
+    FM_FILE_INFO_JOB_EMIT_FOR_EACH_FILE = 1 << 1    // FIXME_pcm: not yet implemented...
 };
-typedef enum _FmFileInfoJobFlags        FmFileInfoJobFlags;
+
+typedef enum _FmFileInfoJobFlags FmFileInfoJobFlags;
+
 
 struct _FmFileInfoJob
 {
-	FmJob parent;
-    FmFileInfoJobFlags flags;
-	FmFileInfoList *file_infos;
-    FmPath *current;
+	FmJob               parent;
+    FmFileInfoJobFlags  flags;
+	
+    FmFileInfoList      *file_infos;
+    
+    FmPath              *current;
 };
 
 struct _FmFileInfoJobClass
@@ -64,18 +71,19 @@ struct _FmFileInfoJobClass
 	FmJobClass parent_class;
 };
 
+
 FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags);
 
 GType fm_file_info_job_get_type (void);
 
-/* this can only be called before running the job. */
+// This can only be called before running the job...
 void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path);
 void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf);
 
 gboolean _fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *file_info, const char *path, GError **err);
 gboolean _fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err);
 
-/* This API should only be called in error handler */
+// This API should only be called in error handler...
 FmPath *fm_file_info_job_get_current (FmFileInfoJob *job);
 
 G_END_DECLS
