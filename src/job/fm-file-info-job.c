@@ -87,6 +87,7 @@ FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flag
             
             FmFileInfo *file_info = fm_file_info_new_for_path (path);
             
+            // TODO_axl: test and remove.....
 			/** new file_info function, test and remove...
             
             FmFileInfo *file_info = fm_file_info_new ();
@@ -213,6 +214,7 @@ void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path)
 {
 	FmFileInfo *file_info = fm_file_info_new_for_path (path);
     
+    // TODO_axl: test and remove.....
     /** New file_info function, test and remove...
     
     FmFileInfo *file_info = fm_file_info_new ();
@@ -232,6 +234,7 @@ void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
 	
 	FmFileInfo *file_info = fm_file_info_new_for_path (path);
     
+    // TODO_axl: test and remove.....
     /** new file_info function, test and remove...
     
     FmFileInfo *file_info = fm_file_info_new ();
