@@ -106,7 +106,7 @@ FmFileInfo* _fm_file_info_new_from_menu_cache_item (FmPath* path, MenuCacheItem*
 static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
 {
     FmDirListJob* job =  (FmDirListJob*)fmjob;
-    FmFileInfo* fi;
+    FmFileInfo* file_info;
     MenuCache* mc;
     MenuCacheDir* dir;
     GList* l;
@@ -196,9 +196,9 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
             if (G_UNLIKELY (job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
                 continue;
             item_path = fm_path_new_child (job->dir_path, menu_cache_item_get_id (item));
-            fi = _fm_file_info_new_from_menu_cache_item (item_path, item);
+            file_info = _fm_file_info_new_from_menu_cache_item (item_path, item);
             fm_path_unref (item_path);
-            fm_list_push_tail_noref (job->files, fi);
+            fm_list_push_tail_noref (job->files, file_info);
         }
     }
     menu_cache_unref (mc);
@@ -216,25 +216,26 @@ gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob* job)
 
 static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
 {
-    FmFileInfo* fi;
 	GError *err = NULL;
     char* dir_path;
     GDir* dir;
 
     dir_path = fm_path_to_str (job->dir_path);
 
-	// fm_file_info_new_for_path ()
-    fi = fm_file_info_new ();
-    fi->path = fm_path_ref (job->dir_path);
+	FmFileInfo *file_info = fm_file_info_new_for_path (job->dir_path);
+	
+    /** new file_info function, test and remove...
+        file_info = fm_file_info_new ();
+        file_info->path = fm_path_ref (job->dir_path);
+    **/
     
-    
-    if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), fi, dir_path, NULL) )
+    if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL) )
     {
-        job->dir_fi = fi;
-        if (! fm_file_info_is_dir (fi))
+        job->dir_fi = file_info;
+        if (! fm_file_info_is_dir (file_info))
         {
             err = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _ ("The specified directory is not valid"));
-            //fm_file_info_unref (fi);
+            //fm_file_info_unref (file_info);
             fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_CRITICAL);
             g_error_free (err);
             return FALSE;
@@ -243,7 +244,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
     else
     {
         err = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _ ("The specified directory is not valid"));
-        fm_file_info_unref (fi);
+        fm_file_info_unref (file_info);
         fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_CRITICAL);
         g_error_free (err);
         return FALSE;
@@ -274,13 +275,22 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
                     continue;
             }
 
-            // fm_file_info_new_for_path ()
-            fi = fm_file_info_new ();
-            fi->path = fm_path_new_child (job->dir_path, name);
-
+            
+            FmPath *child_path = fm_path_new_child (job->dir_path, name);
+            
+            file_info = fm_file_info_new_for_path (child_path);
+            
+            fm_path_unref (child_path);
+            
+            
+            /** new file_info function, test and remove...
+            file_info = fm_file_info_new ();
+            file_info->path = fm_path_new_child (job->dir_path, name);
+            **/
+            
         _retry:
-            if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), fi, fpath->str, &err) )
-                fm_list_push_tail_noref (job->files, fi);
+            if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err) )
+                fm_list_push_tail_noref (job->files, file_info);
             
             else /* failed! */
             {
@@ -290,7 +300,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
                 if (act == FM_JOB_RETRY)
                     goto _retry;
 
-                fm_file_info_unref (fi);
+                fm_file_info_unref (file_info);
             }
         }
         g_string_free (fpath, TRUE);
@@ -309,7 +319,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob* job)
 {
 	GFileEnumerator *enu;
 	GFileInfo *inf;
-    FmFileInfo* fi;
+    FmFileInfo* file_info;
 	GError *err = NULL;
     FmJob* fmjob = FM_JOB (job);
     GFile* gf;
@@ -387,9 +397,9 @@ _retry:
                 }
 
                 sub = fm_path_new_child (job->dir_path, g_file_info_get_name (inf));
-                fi = fm_file_info_new_from_gfileinfo (sub, inf);
+                file_info = fm_file_info_new_from_gfileinfo (sub, inf);
                 fm_path_unref (sub);
-                fm_list_push_tail_noref (job->files, fi);
+                fm_list_push_tail_noref (job->files, file_info);
             }
             else
             {

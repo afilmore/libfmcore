@@ -98,8 +98,8 @@ void _fm_file_info_finalize ();
  * 
  * fm-file-info-job.c and fm-dir-list-job.c use it...
  * 
- ********************************************************************/
-FmFileInfo *fm_file_info_new (); 
+ *******************************************************************
+FmFileInfo *fm_file_info_new (); */
 
 
 /*********************************************************************
@@ -111,6 +111,7 @@ FmFileInfo *fm_file_info_new_computer ();
 FmFileInfo *fm_file_info_new_trash_can ();
 FmFileInfo *fm_file_info_new_user_special_dir   (GUserDirectory directory);
 
+FmFileInfo *fm_file_info_new_for_path           (FmPath *path);
 FmFileInfo *fm_file_info_new_from_gfileinfo     (FmPath *path, GFileInfo *inf);
 
 void fm_file_info_set_from_gfileinfo            (FmFileInfo *fi, GFileInfo *inf);

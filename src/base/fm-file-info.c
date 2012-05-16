@@ -96,6 +96,14 @@ FmFileInfo *fm_file_info_new ()
     return file_info;
 }
 
+FmFileInfo *fm_file_info_new_for_path (FmPath *path)
+{
+    FmFileInfo *file_info = fm_file_info_new ();
+	file_info->path = fm_path_ref (path);
+    
+    return file_info;
+}
+
 
 FmFileInfo *fm_file_info_new_computer ()
 {
