@@ -44,8 +44,6 @@ static gboolean fm_file_info_job_run (FmJob *fmjob);
 void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item);
 
 
-
-
 FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags)
 {
 	FmFileInfoJob *job = (FmFileInfoJob*) g_object_new (FM_TYPE_FILE_INFO_JOB, NULL);

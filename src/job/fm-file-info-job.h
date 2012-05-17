@@ -86,6 +86,7 @@ gboolean _fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info
 // This API should only be called in error handler...
 FmPath *fm_file_info_job_get_current (FmFileInfoJob *job);
 
+
 G_END_DECLS
 #endif
 
