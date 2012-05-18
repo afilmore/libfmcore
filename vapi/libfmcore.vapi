@@ -29,34 +29,13 @@ namespace Fm {
 	public static void finalize ();
 	
     
-    /***
-    typedef enum
-    {
-        FM_WP_COLOR,
-        FM_WP_STRETCH,
-        FM_WP_FIT,
-        FM_WP_CENTER,
-        FM_WP_TILE
-    } FmWallpaperMode;
-
-    [CCode (cheader_filename = "fm.h", cprefix = "FM_WP_")]
-    public enum WallpaperMode {
-        COLOR,
-        STRETCH,
-        FIT,
-        CENTER,
-        TILE
-    }
-    ***/
-    
-    
 	[CCode (cheader_filename = "fm-config.h", type = "FmConfig*")]
 	public class Config : GLib.Object {
 		
-		public uint big_icon_size;
-		public uint small_icon_size;
-		public uint pane_icon_size;
-        
+//~ 		public uint big_icon_size;
+//~ 		public uint small_icon_size;
+//~ 		public uint pane_icon_size;
+//~         
         public weak string archiver;
         public weak string terminal;
 		
@@ -65,10 +44,10 @@ namespace Fm {
 		
         public bool si_unit;
 		
-        public bool single_click;
-		
-        public bool show_internal_volumes;
-		
+//~         public bool single_click;
+//~ 		
+//~         public bool show_internal_volumes;
+//~ 		
 		public bool show_thumbnail;
 		public bool thumbnail_local;
 		public uint thumbnail_max;
