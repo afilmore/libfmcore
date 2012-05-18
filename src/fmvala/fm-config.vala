@@ -21,17 +21,6 @@ namespace Fm {
     
     public class Config : Object {
 
-        // Icons Sizes...
-//~         public uint pane_icon_size          = 16;       // size of side pane icons
-//~         public uint big_icon_size           = 36;       // size of big icons
-//~         public uint small_icon_size         = 16;       // size of small icons
-
-        // Show Internal Volumes...
-//~         public bool show_internal_volumes   = false;    // show system internal volumes in side pane. (udisks-only)
-
-        // Single Click...
-//~         public bool single_click            = false;    // single click to open file
-
         // Trash Can Settings...
         public bool use_trash_can           = true;     // delete file to trash can
         public bool confirm_delete          = true;     // ask before deleting files

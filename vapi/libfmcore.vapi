@@ -28,6 +28,17 @@ namespace Fm {
 	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
 	public static void finalize ();
 	
+    
+    /***
+    typedef enum
+    {
+        FM_WP_COLOR,
+        FM_WP_STRETCH,
+        FM_WP_FIT,
+        FM_WP_CENTER,
+        FM_WP_TILE
+    } FmWallpaperMode;
+
     [CCode (cheader_filename = "fm.h", cprefix = "FM_WP_")]
     public enum WallpaperMode {
         COLOR,
@@ -36,7 +47,9 @@ namespace Fm {
         CENTER,
         TILE
     }
-
+    ***/
+    
+    
 	[CCode (cheader_filename = "fm-config.h", type = "FmConfig*")]
 	public class Config : GLib.Object {
 		
