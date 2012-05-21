@@ -455,26 +455,26 @@ namespace Fm {
             cprefix =           "fm_file_menu_",
             cname =             "FmFileMenu",
             free_function =     "fm_file_menu_destroy")]
-	[Compact]
+	
+    [Compact]
 	public class FileMenu {
 		
-        /** Maybe useless...
-        [CCode (has_construct_function = false)]
-		public FileMenu.for_file (Gtk.Window parent, Fm.FileInfo fi, Fm.Path cwd, bool auto_destroy);
-		**/
-        
+        // Constructor...
         [CCode (has_construct_function = false)]
 		public FileMenu.for_files (Gtk.Window parent, Fm.FileInfoList files, Fm.Path cwd, bool auto_destroy);
 		
-        /** The set folder func bug seems fixed.. **/
+        // Set For Folder Function For The File Launcher...
         public void set_folder_func (Fm.LaunchFolderFunc func);
 		
-        public unowned Gtk.UIManager get_ui ();
-		public unowned Gtk.Menu get_menu ();
-        public unowned Gtk.ActionGroup get_action_group ();
-		public unowned Fm.FileInfoList get_file_info_list ();
+		// Get The Created Gtk.Menu...
+        public unowned Gtk.Menu         get_menu ();
+        
+        // Add Additional Actions Before Creating The Menu...
+        public unowned Gtk.UIManager    get_ui ();
+        public unowned Gtk.ActionGroup  get_action_group ();
+        public bool                     is_single_file_type ();
 		
-        public bool is_single_file_type ();
+        public unowned Fm.FileInfoList  get_file_info_list ();
 		
 	}
     

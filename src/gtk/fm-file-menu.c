@@ -84,6 +84,9 @@ const char filefolder_popup_xml[] =
         "<menuitem action='Open'/>"
         "<separator/>"
         
+        "<placeholder name='SPECIAL_ACTIONS'/>"
+        "<separator/>"
+        
         "<menuitem action='EmptyTrash'/>"
         "<separator/>"
         
