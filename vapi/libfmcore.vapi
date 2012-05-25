@@ -32,26 +32,22 @@ namespace Fm {
 	[CCode (cheader_filename = "fm-config.h", type = "FmConfig*")]
 	public class Config : GLib.Object {
 		
-//~ 		public uint big_icon_size;
-//~ 		public uint small_icon_size;
-//~ 		public uint pane_icon_size;
-//~         
-        public weak string archiver;
-        public weak string terminal;
+		public bool         use_trash_can;
+        public bool         confirm_delete;
 		
-		public bool use_trash_can;
-        public bool confirm_delete;
+		public bool         show_thumbnail;
+		public bool         thumbnail_local;
+		public uint         thumbnail_max;
+		public uint         thumbnail_size;
 		
-        public bool si_unit;
+        public weak string  archiver;
+        public weak string  terminal;
 		
-//~         public bool single_click;
-//~ 		
-//~         public bool show_internal_volumes;
-//~ 		
-		public bool show_thumbnail;
-		public bool thumbnail_local;
-		public uint thumbnail_max;
-		public uint thumbnail_size;
+        public string       panel;
+        public string       run;
+        public string       taskmanager;
+        
+        public bool         si_unit;
 		
         [CCode (has_construct_function = false)]
 		public Config ();
@@ -61,6 +57,43 @@ namespace Fm {
 	}
 
     
+    /*************************************************************************************
+     * A generic list container supporting reference counting.
+     * 
+     * 
+     ************************************************************************************/
+	[CCode (cheader_filename =  "fm-list.h",
+            cprefix =           "fm_",
+            ref_function =      "fm_list_ref",
+            unref_function =    "fm_list_unref")]
+	[Compact]
+	public class List<G> : GLib.Queue<G> {
+		
+        [CCode (has_construct_function = false)]
+		public List (Fm.ListFuncs funcs);
+		
+        public static void clear (void* list);
+		public static void delete_link (void* list, void* l_);
+		
+        public bool is_file_info_list ();
+		public bool is_path_list ();
+		
+        public static void remove (void* list, void* data);
+		public static void remove_all (void* list, void* data);
+        
+        [CCode (cprefix = "fm_", cheader_filename = "fm-list.h")]
+        public inline unowned GLib.List? peek_head_link ();
+	}
+
+    [CCode (cheader_filename = "fm-list.h")]
+	[Compact]
+	public class ListFuncs {
+		
+        public weak GLib.Callback item_ref;
+		public weak GLib.Callback item_unref;
+	}
+	
+
     /*************************************************************************************
      * Fm.Path, Fm.Icon, Fm.MimeType, Fm.Fileinfo and Fm.FileInfoList.
      * 
@@ -279,6 +312,63 @@ namespace Fm {
 		public bool is_same_type ();
 	}
 
+    
+    /*************************************************************************************
+     * Gtk Folder Model.
+     * 
+     * 
+     ************************************************************************************/
+    [CCode (cheader_filename = "fm.h", cprefix = "COL_FILE_")]
+    public enum FileColumn {
+        GICON = 0,
+        ICON,
+        NAME,
+        SIZE,
+        DESC,
+        PERM,
+        OWNER,
+        MTIME,
+        INFO,
+        [CCode (cheader_filename = "gtk/fm-folder-model.h", cprefix = "")]
+        N_FOLDER_MODEL_COLS
+    }
+
+    [CCode (cheader_filename = "fm.h")]
+	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
+
+		public weak Fm.Folder dir;      /* FIXME_axl: avoid direct member access... */
+
+		[CCode (has_construct_function = false)]
+		public FolderModel (Fm.Folder dir, bool show_hidden = false);
+		
+        public void set_folder (Fm.Folder dir);
+        
+		public void file_created (Fm.FileInfo file);
+		public void file_deleted (Fm.FileInfo file);
+        public void file_changed (Fm.FileInfo file);
+		
+        public bool find_iter_by_filename (Gtk.TreeIter it, string name);
+		
+        public void get_common_suffix_for_prefix (string prefix,
+                                                  GLib.Callback file_info_predicate,
+                                                  string common_suffix);
+		
+		public void set_icon_size (uint icon_size);
+        public uint get_icon_size ();
+		public void set_show_hidden (bool show_hidden);
+		public bool get_show_hidden ();
+		
+        public bool get_is_loaded ();
+		
+        public virtual signal void loaded ();
+	}
+    
+    
+    /*************************************************************************************
+     * 
+     * 
+     * 
+     ************************************************************************************/
 	[CCode (cheader_filename = "fm.h")]
 	public class Job : GLib.Object {
 		
@@ -340,43 +430,6 @@ namespace Fm {
 	}
     
     
-    /*************************************************************************************
-     * A generic list container supporting reference counting.
-     * 
-     * 
-     ************************************************************************************/
-	[CCode (cheader_filename =  "fm-list.h",
-            cprefix =           "fm_",
-            ref_function =      "fm_list_ref",
-            unref_function =    "fm_list_unref")]
-	[Compact]
-	public class List<G> : GLib.Queue<G> {
-		
-        [CCode (has_construct_function = false)]
-		public List (Fm.ListFuncs funcs);
-		
-        public static void clear (void* list);
-		public static void delete_link (void* list, void* l_);
-		
-        public bool is_file_info_list ();
-		public bool is_path_list ();
-		
-        public static void remove (void* list, void* data);
-		public static void remove_all (void* list, void* data);
-        
-        [CCode (cprefix = "fm_", cheader_filename = "fm-list.h")]
-        public inline unowned GLib.List? peek_head_link ();
-	}
-
-    [CCode (cheader_filename = "fm-list.h")]
-	[Compact]
-	public class ListFuncs {
-		
-        public weak GLib.Callback item_ref;
-		public weak GLib.Callback item_unref;
-	}
-	
-
     /* ***********************************************************************************
      * File Launcher functions.
      * 

@@ -40,6 +40,7 @@ base_SOURCES = \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
 	gtk/fm-file-menu.c \
+	gtk/fm-folder-model.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-icon-pixbuf.c \
 	gtk/fm-thumbnail.c \
@@ -102,6 +103,7 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-src.h \
 	gtk/fm-file-menu.h \
+	gtk/fm-folder-model.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-icon-pixbuf.h \
 	gtk/fm-thumbnail.h \

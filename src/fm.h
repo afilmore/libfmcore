@@ -50,6 +50,7 @@
 #include "fm-app-chooser-dlg.h"
 #include "fm-app-menu-view.h"
 #include "fm-file-menu.h"
+#include "fm-folder-model.h"
 #include "fm-gtk-launcher.h"
 #include "fm-gtk-marshal.h"
 #include "fm-utils.h"

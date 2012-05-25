@@ -383,6 +383,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     return file_menu;
 }
 
+// TODO_axl: move this to a TEMP_file...
 /*** Needs a rework...
 FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
 {
