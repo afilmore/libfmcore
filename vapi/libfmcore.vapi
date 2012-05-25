@@ -245,57 +245,54 @@ namespace Fm {
 	[Compact]
 	public class FileInfo {
 		
-//        [CCode (has_construct_function = false)]    /* FIXME_axl: should be private... */
-//		public FileInfo ();
+        [CCode (has_construct_function = false)]
+		public FileInfo.computer                        ();
 		
         [CCode (has_construct_function = false)]
-		public FileInfo.computer ();
+		public FileInfo.trash_can                       ();
 		
         [CCode (has_construct_function = false)]
-		public FileInfo.trash_can ();
+		public FileInfo.user_special_dir                (GLib.UserDirectory directory);
 		
         [CCode (has_construct_function = false)]
-		public FileInfo.user_special_dir (GLib.UserDirectory directory);
+		public FileInfo.from_gfileinfo                  (Fm.Path path, GLib.FileInfo inf);
 		
-        [CCode (has_construct_function = false)]
-		public FileInfo.from_gfileinfo (Fm.Path path, GLib.FileInfo inf);
+        public void                 set_disp_name       (string name);
+		public void                 set_from_gfileinfo  (GLib.FileInfo inf);
+		public void                 set_path            (Fm.Path path);
+        public bool                 can_thumbnail       ();
+		public void                 copy                (Fm.FileInfo src);
 		
-        public void set_disp_name (string name);
-		public void set_from_gfileinfo (GLib.FileInfo inf);
-		public void set_path (Fm.Path path);
-        public bool can_thumbnail ();
-		public void copy (Fm.FileInfo src);
-		
-		public unowned string get_name ();
-		public unowned string get_disp_name ();
-		public unowned Fm.Path get_path ();
-		public unowned string get_target ();
-        public unowned string get_collate_key ();
+		public unowned string       get_name            ();
+		public unowned string       get_disp_name       ();
+		public unowned Fm.Path      get_path            ();
+		public unowned string       get_target          ();
+        public unowned string       get_collate_key     ();
         
-		public unowned Fm.MimeType get_mime_type ();
-		public unowned string get_desc ();
+		public unowned Fm.MimeType  get_mime_type       ();
+		public unowned string       get_desc            ();
         
-		public uint get_mode ();
+		public uint                 get_mode            ();
         
-        public ulong get_atime ();
-		public ulong get_mtime ();
-		public unowned string get_disp_mtime ();
+        public ulong                get_atime           ();
+		public ulong                get_mtime           ();
+		public unowned string       get_disp_mtime      ();
 		
-        public int64 get_size ();
-		public unowned string get_disp_size ();
+        public int64                get_size            ();
+		public unowned string       get_disp_size       ();
 		
-        public int64 get_blocks ();
+        public int64                get_blocks          ();
 		
-		public bool is_unknown_type ();
-        public bool is_desktop_entry ();
-		public bool is_dir ();
-		public bool is_executable_type ();
-		public bool is_hidden ();
-		public bool is_image ();
-		public bool is_mountable ();
-		public bool is_shortcut ();
-		public bool is_symlink ();
-		public bool is_text ();
+		public bool                 is_unknown_type     ();
+        public bool                 is_desktop_entry    ();
+		public bool                 is_dir              ();
+		public bool                 is_executable_type  ();
+		public bool                 is_hidden           ();
+		public bool                 is_image            ();
+		public bool                 is_mountable        ();
+		public bool                 is_shortcut         ();
+		public bool                 is_symlink          ();
+		public bool                 is_text             ();
 	}
     
 	[CCode (cheader_filename = "fm-file-info-list.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
