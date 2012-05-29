@@ -333,10 +333,56 @@ namespace Fm {
         N_FOLDER_MODEL_COLS
     }
 
+    
+    /*************************************************************************************
+     * Fm.Folder.
+     * 
+     * 
+     ************************************************************************************/
+	[CCode (cheader_filename = "fm-folder.h")]
+	public class Folder : GLib.Object {
+		
+		public weak Fm.FileInfo         dir_fi;     /* FIXME_axl: avoid direct member access... */
+
+        [CCode (has_construct_function = false)]
+		protected Folder                                        ();
+		
+        [CCode (has_construct_function = false)]
+        public static unowned Fm.Folder @get                    (Fm.Path path);
+		
+        [CCode (has_construct_function = false)]
+		public static unowned Fm.Folder get_for_path_name       (string path);
+		
+        [CCode (has_construct_function = false)]
+        public static unowned Fm.Folder get_for_uri             (string uri);
+		
+        public unowned Fm.FileInfo      get_file_by_name        (string name);
+		public unowned Fm.FileInfoList  get_files               ();
+		public bool                     get_filesystem_info     (uint64 total_size, uint64 free_size);
+		public static unowned Fm.Folder get_for_gfile           (GLib.File gf);
+		
+        public bool                     get_is_loaded           ();
+		public void                     query_filesystem_info   ();
+		public void                     reload ();
+		
+        public virtual signal void      changed                 ();
+		public virtual signal void      content_changed         ();
+		public virtual signal int       error                   (void *err, int severity);
+		public virtual signal void      files_added             (void *files);
+		public virtual signal void      files_changed           (void *files);
+		public virtual signal void      files_removed           (void *files);
+		public virtual signal void      fs_info                 ();
+		public virtual signal void      loaded                  ();
+		public virtual signal void      removed                 ();
+		public virtual signal void      unmount                 ();
+	}
+    
+    
     [CCode (cheader_filename = "fm.h")]
 	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
 
-		public weak Fm.Folder dir;      /* FIXME_axl: avoid direct member access... */
+		// FIXME_axl: avoid direct member access...
+        public weak Fm.Folder dir;
 
 		[CCode (has_construct_function = false)]
 		public FolderModel (Fm.Folder dir, bool show_hidden = false);
@@ -402,7 +448,8 @@ namespace Fm {
 		
         public void set_cancellable (GLib.Cancellable cancellable);
 		
-        public virtual signal int ask2 (void* question, void* options); /* FIXME_axl: rename this signal... */
+        // FIXME_axl: rename this signal...
+        public virtual signal int ask2 (void* question, void* options);
 		public virtual signal void cancelled ();
 		public virtual signal int error (void* err, int severity);
 		public virtual signal void finished ();
@@ -411,14 +458,15 @@ namespace Fm {
     [CCode (cheader_filename = "fm.h", cprefix = "FM_FILE_INFO_JOB_")]
     public enum FileInfoJobFlags {
         NONE = 0,
-        FOLLOW_SYMLINK = 1 << 0,        /* FIXME_pcm: not yet implemented */
-        EMIT_FOR_EACH_FILE = 1 << 1     /* FIXME_pcm: not yet implemented */
+        FOLLOW_SYMLINK = 1 << 0,        // FIXME_pcm: not yet implemented
+        EMIT_FOR_EACH_FILE = 1 << 1     // FIXME_pcm: not yet implemented
     }
 
     [CCode (cheader_filename = "fm.h")]
 	public class FileInfoJob : Fm.Job {
         
-		public weak Fm.FileInfoList file_infos;                         /* FIXME_axl: avoid direct member access... */
+        // FIXME_axl: avoid direct member access...
+        public weak Fm.FileInfoList file_infos;
 
 		[CCode (has_construct_function = false, type = "FmJob*")]
 		public FileInfoJob (Fm.PathList? files_to_query, FileInfoJobFlags flags);
@@ -529,46 +577,6 @@ namespace Fm {
 		
         public unowned Fm.FileInfoList  get_file_info_list ();
 		
-	}
-    
-    
-    /*************************************************************************************
-     * Fm.Folder.
-     * 
-     * 
-     ************************************************************************************/
-	[CCode (cheader_filename = "fm-folder.h")]
-	public class Folder : GLib.Object {
-		
-		public weak Fm.FileInfo dir_fi;     /* FIXME_axl: avoid direct member access... */
-
-        [CCode (has_construct_function = false)]
-		protected Folder ();
-		
-        public static unowned Fm.Folder @get (Fm.Path path);
-		public unowned Fm.FileInfo get_file_by_name (string name);
-		public unowned Fm.FileInfoList get_files ();
-		public bool get_filesystem_info (uint64 total_size, uint64 free_size);
-		public static unowned Fm.Folder get_for_gfile (GLib.File gf);
-		
-        [CCode (has_construct_function = false)]
-		public static unowned Fm.Folder get_for_path_name (string path);
-		public static unowned Fm.Folder get_for_uri (string uri);
-		
-        public bool get_is_loaded ();
-		public void query_filesystem_info ();
-		public void reload ();
-		
-        public virtual signal void changed ();
-		public virtual signal void content_changed ();
-		public virtual signal int error (void* err, int severity);
-		public virtual signal void files_added (void* files);
-		public virtual signal void files_changed (void* files);
-		public virtual signal void files_removed (void* files);
-		public virtual signal void fs_info ();
-		public virtual signal void loaded ();
-		public virtual signal void removed ();
-		public virtual signal void unmount ();
 	}
     
     
