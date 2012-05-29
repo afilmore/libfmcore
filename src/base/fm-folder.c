@@ -687,3 +687,6 @@ static void fm_folder_content_changed (FmFolder *folder)
     if (folder->has_fs_info && !folder->fs_info_not_avail)
         fm_folder_query_filesystem_info (folder);
 }
+
+
+
