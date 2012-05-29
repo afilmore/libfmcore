@@ -24,6 +24,7 @@
 #include "fm-folder.h"
 #include "fm-monitor.h"
 #include "fm-marshal.h"
+
 #include <string.h>
 
 enum {
@@ -61,7 +62,7 @@ static void fm_folder_class_init (FmFolderClass *klass)
     FmFolderClass *folder_class;
     g_object_class = G_OBJECT_CLASS (klass);
     g_object_class->finalize = fm_folder_finalize;
-    fm_folder_parent_class =  (GObjectClass*)g_type_class_peek (G_TYPE_OBJECT);
+    fm_folder_parent_class = (GObjectClass*)g_type_class_peek (G_TYPE_OBJECT);
 
     folder_class = FM_FOLDER_CLASS (klass);
     folder_class->content_changed = fm_folder_content_changed;
@@ -71,108 +72,108 @@ static void fm_folder_class_init (FmFolderClass *klass)
      *The param is GList *of the newly added file.
     */
     signals[ FILES_ADDED ] =
-        g_signal_new  ( "files-added",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("files-added",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, files_added ),
+                       G_STRUCT_OFFSET (FmFolderClass, files_added),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__POINTER,
-                       G_TYPE_NONE, 1, G_TYPE_POINTER );
+                       G_TYPE_NONE, 1, G_TYPE_POINTER);
 
     /*
      *files-removed is emitted when there is a file deleted in the dir.
      *The param is GList *of the removed files.
     */
     signals[ FILES_REMOVED ] =
-        g_signal_new  ( "files-removed",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("files-removed",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, files_removed ),
+                       G_STRUCT_OFFSET (FmFolderClass, files_removed),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__POINTER,
-                       G_TYPE_NONE, 1, G_TYPE_POINTER );
+                       G_TYPE_NONE, 1, G_TYPE_POINTER);
 
     /*
      *file-changed is emitted when there is a file changed in the dir.
      *The param is VFSFileInfo of the newly created file.
     */
     signals[ FILES_CHANGED ] =
-        g_signal_new  ( "files-changed",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("files-changed",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, files_changed ),
+                       G_STRUCT_OFFSET (FmFolderClass, files_changed),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__POINTER,
-                       G_TYPE_NONE, 1, G_TYPE_POINTER );
+                       G_TYPE_NONE, 1, G_TYPE_POINTER);
 
     signals[ LOADED ] =
-        g_signal_new  ( "loaded",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("loaded",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, loaded ),
+                       G_STRUCT_OFFSET (FmFolderClass, loaded),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
                        G_TYPE_NONE, 0);
 
     // emitted when the folder is unmounted
     signals[ UNMOUNT ] =
-        g_signal_new  ( "unmount",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("unmount",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, unmount ),
+                       G_STRUCT_OFFSET (FmFolderClass, unmount),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
                        G_TYPE_NONE, 0);
 
     // emitted when the folder itself is changed
     signals[ CHANGED ] =
-        g_signal_new  ( "changed",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("changed",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, changed ),
+                       G_STRUCT_OFFSET (FmFolderClass, changed),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
                        G_TYPE_NONE, 0);
 
     // emitted when the folder itself is deleted
     signals[ REMOVED ] =
-        g_signal_new  ( "removed",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("removed",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, removed ),
+                       G_STRUCT_OFFSET (FmFolderClass, removed),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
                        G_TYPE_NONE, 0);
 
-    // emitted when content of the folder is changed  (some files are added, removed, changed)
+    // emitted when content of the folder is changed (some files are added, removed, changed)
     signals[ CONTENT_CHANGED ] =
-        g_signal_new  ( "content-changed",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("content-changed",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, content_changed ),
+                       G_STRUCT_OFFSET (FmFolderClass, content_changed),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
                        G_TYPE_NONE, 0);
 
     // emitted when filesystem information is available.
     signals[ FS_INFO ] =
-        g_signal_new  ( "fs-info",
-                       G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("fs-info",
+                       G_TYPE_FROM_CLASS (klass),
                        G_SIGNAL_RUN_FIRST,
-                       G_STRUCT_OFFSET  ( FmFolderClass, fs_info ),
+                       G_STRUCT_OFFSET (FmFolderClass, fs_info),
                        NULL, NULL,
                        g_cclosure_marshal_VOID__VOID,
                        G_TYPE_NONE, 0);
 
     // emitted when errors happen
     signals[ERROR] =
-        g_signal_new ( "error",
-                      G_TYPE_FROM_CLASS  ( klass ),
+        g_signal_new ("error",
+                      G_TYPE_FROM_CLASS (klass),
                       G_SIGNAL_RUN_LAST,
-                      G_STRUCT_OFFSET  ( FmFolderClass, error ),
+                      G_STRUCT_OFFSET (FmFolderClass, error),
                       NULL, NULL,
                       fm_marshal_INT__POINTER_INT,
-                      G_TYPE_INT, 2, G_TYPE_POINTER, G_TYPE_INT );
+                      G_TYPE_INT, 2, G_TYPE_POINTER, G_TYPE_INT);
 }
 
 
@@ -190,11 +191,11 @@ void on_file_info_finished (FmFileInfoJob *job, FmFolder *folder)
 
     for (l=fm_list_peek_head_link (job->file_infos);l;l=l->next)
     {
-        FmFileInfo *file_info =  (FmFileInfo*)l->data;
+        FmFileInfo *file_info = (FmFileInfo*)l->data;
         GList *l2 = _fm_folder_get_file_by_name (folder, file_info->path->name);
         if (l2) // the file is already in the folder, update
         {
-            FmFileInfo *fi2 =  (FmFileInfo*)l2->data;
+            FmFileInfo *fi2 = (FmFileInfo*)l2->data;
             /*FIXME_pcm: will fm_file_info_copy here cause problems?
               *       the file info might be referenced by others, too.
               *       we're mofifying an object referenced by others.
@@ -237,7 +238,7 @@ gboolean on_idle (FmFolder *folder)
     FmPath *path;
     folder->idle_handler = 0;
     if (folder->files_to_update || folder->files_to_add)
-        job =  (FmFileInfoJob*)fm_file_info_job_new (NULL, 0);
+        job = (FmFileInfoJob*)fm_file_info_job_new (NULL, 0);
 
     if (folder->files_to_update)
     {
@@ -245,7 +246,7 @@ gboolean on_idle (FmFolder *folder)
         for (l=folder->files_to_update;l;)
         {
             // if a file is already in files_to_add, remove it.
-            if (g_slist_find_custom (folder->files_to_add, l->data,  (GCompareFunc)strcmp))
+            if (g_slist_find_custom (folder->files_to_add, l->data, (GCompareFunc)strcmp))
             {
                 GSList *tmp = l;
                 l=l->next;
@@ -257,7 +258,7 @@ gboolean on_idle (FmFolder *folder)
                     folder->files_to_update = l;
                 continue;
             }
-            path = fm_path_new_child (folder->dir_path,  (char*)l->data);
+            path = fm_path_new_child (folder->dir_path, (char*)l->data);
             fm_file_info_job_add (job, path);
             fm_path_unref (path);
             g_free (l->data);
@@ -273,7 +274,7 @@ gboolean on_idle (FmFolder *folder)
     {
         for (l=folder->files_to_add;l;l=l->next)
         {
-            path = fm_path_new_child (folder->dir_path,  (char*)l->data);
+            path = fm_path_new_child (folder->dir_path, (char*)l->data);
             fm_file_info_job_add (job, path);
             fm_path_unref (path);
             g_free (l->data);
@@ -284,7 +285,7 @@ gboolean on_idle (FmFolder *folder)
 
     if (job)
     {
-        g_signal_connect (job, "finished", G_CALLBACK  (on_file_info_finished), folder);
+        g_signal_connect (job, "finished", G_CALLBACK (on_file_info_finished), folder);
         folder->pending_jobs = g_slist_prepend (folder->pending_jobs, job);
         fm_job_run_async (FM_JOB (job));
     }
@@ -294,12 +295,12 @@ gboolean on_idle (FmFolder *folder)
         GSList *ll;
         for (ll=folder->files_to_del;ll;ll=ll->next)
         {
-            GList *l=  (GList*)ll->data;
+            GList *l= (GList*)ll->data;
             ll->data = l->data;
             fm_list_delete_link_nounref (folder->files , l);
         }
         g_signal_emit (folder, signals[FILES_REMOVED], 0, folder->files_to_del);
-        g_slist_foreach (folder->files_to_del,  (GFunc)fm_file_info_unref, NULL);
+        g_slist_foreach (folder->files_to_del, (GFunc)fm_file_info_unref, NULL);
         g_slist_free (folder->files_to_del);
         folder->files_to_del = NULL;
 
@@ -368,7 +369,7 @@ static void on_folder_changed (GFileMonitor *mon, GFile *gf, GFile *other, GFile
         break;
     case G_FILE_MONITOR_EVENT_DELETED:
         l = _fm_folder_get_file_by_name (folder, name);
-        if (l && !g_slist_find (folder->files_to_del, l) )
+        if (l && !g_slist_find (folder->files_to_del, l))
             folder->files_to_del = g_slist_prepend (folder->files_to_del, l);
         g_free (name);
         break;
@@ -378,7 +379,7 @@ static void on_folder_changed (GFileMonitor *mon, GFile *gf, GFile *other, GFile
         return;
     }
     if (!folder->idle_handler)
-        folder->idle_handler = g_idle_add_full (G_PRIORITY_LOW,  (GSourceFunc) on_idle, folder, NULL);
+        folder->idle_handler = g_idle_add_full (G_PRIORITY_LOW, (GSourceFunc) on_idle, folder, NULL);
 }
 
 static void on_job_finished (FmDirListJob *job, FmFolder *folder)
@@ -391,7 +392,7 @@ static void on_job_finished (FmDirListJob *job, FmFolder *folder)
     // g_signal_handlers_disconnect_by_func (job, on_job_finished, folder);
     for (l = fm_list_peek_head_link (job->files); l; l=l->next)
     {
-        FmFileInfo *inf =  (FmFileInfo*)l->data;
+        FmFileInfo *inf = (FmFileInfo*)l->data;
         files = g_slist_prepend (files, inf);
         fm_list_push_tail (folder->files, inf);
     }
@@ -415,14 +416,14 @@ static FmJobErrorAction on_job_err (FmDirListJob *job, GError *err, FmJobErrorSe
 FmFolder *fm_folder_new_internal (FmPath *path, GFile *gf)
 {
     GError *err = NULL;
-    FmFolder *folder =  (FmFolder*)g_object_new (FM_TYPE_FOLDER, NULL);
+    FmFolder *folder = (FmFolder*)g_object_new (FM_TYPE_FOLDER, NULL);
     folder->dir_path = fm_path_ref (path);
 
-    folder->gf =  (GFile*)g_object_ref (gf);
+    folder->gf = (GFile*)g_object_ref (gf);
 
     folder->mon = fm_monitor_directory (gf, &err);
     if (folder->mon)
-        g_signal_connect (folder->mon, "changed", G_CALLBACK (on_folder_changed), folder );
+        g_signal_connect (folder->mon, "changed", G_CALLBACK (on_folder_changed), folder);
     else
         g_error_free (err);
 
@@ -437,15 +438,15 @@ FmFolder *fm_folder_get_internal (FmPath *path, GFile *gf)
       *to associate all kinds of data structures with FmPaths? */
 
     // FIXME_pcm: should creation of the hash table be moved to fm_init ()?
-    if ( G_LIKELY (hash) )
-        folder =  (FmFolder*)g_hash_table_lookup (hash, path);
+    if (G_LIKELY (hash))
+        folder = (FmFolder*)g_hash_table_lookup (hash, path);
     else
     {
-        hash = g_hash_table_new ( (GHashFunc)fm_path_hash,  (GEqualFunc)fm_path_equal);
+        hash = g_hash_table_new ((GHashFunc)fm_path_hash, (GEqualFunc)fm_path_equal);
         folder = NULL;
     }
 
-    if ( G_UNLIKELY (!folder) )
+    if (G_UNLIKELY (!folder))
     {
         GFile *_gf = NULL;
         if (!gf)
@@ -456,7 +457,7 @@ FmFolder *fm_folder_get_internal (FmPath *path, GFile *gf)
         g_hash_table_insert (hash, folder->dir_path, folder);
     }
     else
-        return  (FmFolder*)g_object_ref (folder);
+        return (FmFolder*)g_object_ref (folder);
     return folder;
 }
 
@@ -510,12 +511,12 @@ static void fm_folder_finalize (GObject *object)
         g_source_remove (folder->idle_handler);
         if (folder->files_to_add)
         {
-            g_slist_foreach (folder->files_to_add,  (GFunc)g_free, NULL);
+            g_slist_foreach (folder->files_to_add, (GFunc)g_free, NULL);
             g_slist_free (folder->files_to_add);
         }
         if (folder->files_to_update)
         {
-            g_slist_foreach (folder->files_to_update,  (GFunc)g_free, NULL);
+            g_slist_foreach (folder->files_to_update, (GFunc)g_free, NULL);
             g_slist_free (folder->files_to_update);
         }
         if (folder->files_to_del)
@@ -530,11 +531,11 @@ static void fm_folder_finalize (GObject *object)
         g_object_unref (folder->fs_size_cancellable);
     }
 
-    if  (G_OBJECT_CLASS (fm_folder_parent_class)->finalize)
-         ( *G_OBJECT_CLASS (fm_folder_parent_class)->finalize) (object);
+    if (G_OBJECT_CLASS (fm_folder_parent_class)->finalize)
+        (*G_OBJECT_CLASS (fm_folder_parent_class)->finalize) (object);
 }
 
-FmFolder *   fm_folder_get_for_gfile     (GFile *gf)
+FmFolder *   fm_folder_get_for_gfile   (GFile *gf)
 {
     FmPath *path = fm_path_new_for_gfile (gf);
     FmFolder *folder = fm_folder_new_internal (path, gf);
@@ -551,7 +552,7 @@ FmFolder *fm_folder_get_for_path_name (const char *path)
 }
 
 // FIXME_pcm: should we use GFile here?
-FmFolder *   fm_folder_get_for_uri     (const char *uri)
+FmFolder *   fm_folder_get_for_uri   (const char *uri)
 {
     GFile *gf = g_file_new_for_uri (uri);
     FmFolder *folder = fm_folder_get_for_gfile (gf);
@@ -568,7 +569,7 @@ void fm_folder_reload (FmFolder *folder)
     {
         for (;l;l=l->next)
         {
-            FmFileInfo *file_info =  (FmFileInfo*)l->data;
+            FmFileInfo *file_info = (FmFileInfo*)l->data;
             files_to_del = g_slist_prepend (files_to_del, file_info);
         }
         g_signal_emit (folder, signals[FILES_REMOVED], 0, files_to_del);
@@ -584,7 +585,7 @@ void fm_folder_reload (FmFolder *folder)
     fm_job_run_async (FM_JOB (folder->job));
 }
 
-FmFileInfoList *fm_folder_get_files  (FmFolder *folder)
+FmFileInfoList *fm_folder_get_files (FmFolder *folder)
 {
     return folder->files;
 }
@@ -594,7 +595,7 @@ GList *_fm_folder_get_file_by_name (FmFolder *folder, const char *name)
     GList *l = fm_list_peek_head_link (folder->files);
     for (;l;l=l->next)
     {
-        FmFileInfo *file_info =  (FmFileInfo*)l->data;
+        FmFileInfo *file_info = (FmFileInfo*)l->data;
         if (strcmp (file_info->path->name, name) == 0)
             return l;
     }
@@ -604,7 +605,7 @@ GList *_fm_folder_get_file_by_name (FmFolder *folder, const char *name)
 FmFileInfo *fm_folder_get_file_by_name (FmFolder *folder, const char *name)
 {
     GList *l = _fm_folder_get_file_by_name (folder, name);
-    return l ?  (FmFileInfo*)l->data : NULL;
+    return l ? (FmFileInfo*)l->data : NULL;
 }
 
 FmFolder *fm_folder_get (FmPath *path)
@@ -614,7 +615,7 @@ FmFolder *fm_folder_get (FmPath *path)
 
 gboolean fm_folder_get_is_loaded (FmFolder *folder)
 {
-    return  (folder->job == NULL);
+    return (folder->job == NULL);
 }
 
 gboolean fm_folder_get_filesystem_info (FmFolder *folder, guint64 *total_size, guint64 *free_size)
@@ -678,7 +679,7 @@ void fm_folder_query_filesystem_info (FmFolder *folder)
                 G_FILE_ATTRIBUTE_FILESYSTEM_SIZE","
                 G_FILE_ATTRIBUTE_FILESYSTEM_FREE,
                 G_PRIORITY_LOW, folder->fs_size_cancellable,
-                (GAsyncReadyCallback) on_query_filesystem_info_finished, g_object_ref (folder));
+               (GAsyncReadyCallback) on_query_filesystem_info_finished, g_object_ref (folder));
     }
 }
 
