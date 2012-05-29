@@ -642,6 +642,9 @@ gboolean fm_file_info_is_executable_type (FmFileInfo *file_info)
 {
     // FIXME_pcm: didn't check access rights.
 //    return mime_type_is_executable_file (file_path, file_info->mime_type->type);
+
+    g_return_val_if_fail (file_info->mime_type, FALSE);
+
     return g_content_type_can_be_executable (file_info->mime_type->type);
 }
 
