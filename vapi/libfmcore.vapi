@@ -356,15 +356,18 @@ namespace Fm {
         [CCode (has_construct_function = false)]
         public static unowned Fm.Folder get_for_uri             (string uri);
 		
+        
         public unowned Fm.FileInfo      get_file_by_name        (string name);
 		public unowned Fm.FileInfoList  get_files               ();
 		public bool                     get_filesystem_info     (uint64 total_size, uint64 free_size);
 		public static unowned Fm.Folder get_for_gfile           (GLib.File gf);
 		
+        
         public bool                     get_is_loaded           ();
 		public void                     query_filesystem_info   ();
 		public void                     reload ();
 		
+        
         public virtual signal void      changed                 ();
 		public virtual signal void      content_changed         ();
 		public virtual signal int       error                   (void *err, int severity);
