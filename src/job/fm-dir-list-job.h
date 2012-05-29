@@ -65,3 +65,5 @@ FmFileInfoList* fm_dir_dist_job_get_files(FmDirListJob* job);
 G_END_DECLS
 
 #endif /* __FM-DIR-LIST-JOB_H__ */
+
+

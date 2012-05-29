@@ -219,7 +219,7 @@ void fm_folder_model_finalize (GObject *object)
     int i;
     
     /*
-    char* str = fm_path_to_str (model->dir->dir_path);
+    char* str = fm_path_to_str (model->directory->dir_path);
     g_debug ("FINALIZE FOLDER MODEL (%p): %s", model, str);
     g_free (str);
     */
@@ -240,7 +240,7 @@ void fm_folder_model_finalize (GObject *object)
     (*G_OBJECT_CLASS (fm_folder_model_parent_class)->finalize) (object);
 }
 
-FmFolderModel *fm_folder_model_new (FmFolder *dir, gboolean show_hidden)
+FmFolderModel *fm_folder_model_new (FmFolder *directory, gboolean show_hidden)
 {
     FmFolderModel *model = (FmFolderModel*) g_object_new (FM_TYPE_FOLDER_MODEL, NULL);
     
@@ -249,7 +249,7 @@ FmFolderModel *fm_folder_model_new (FmFolder *dir, gboolean show_hidden)
     
     model->show_hidden = show_hidden;
     
-    fm_folder_model_set_folder (model, dir);
+    fm_folder_model_set_folder (model, directory);
     
     return model;
 }
@@ -273,9 +273,9 @@ static inline void fm_folder_item_free (FmFolderItem *folder_item)
     g_slice_free (FmFolderItem, folder_item);
 }
 
-static void _fm_folder_model_insert_item (FmFolder *dir, FmFolderItem *new_item, FmFolderModel *model);
+static void _fm_folder_model_insert_item (FmFolder *directory, FmFolderItem *new_item, FmFolderModel *model);
 
-static void _fm_folder_model_files_changed (FmFolder *dir, GSList *files, FmFolderModel *model)
+static void _fm_folder_model_files_changed (FmFolder *directory, GSList *files, FmFolderModel *model)
 {
     GSList *l;
     
@@ -293,7 +293,7 @@ static void _fm_folder_model_add_file (FmFolderModel *model, FmFileInfo *file)
         fm_folder_model_file_created (model, file);
 }
 
-static void _fm_folder_model_files_added (FmFolder *dir, GSList *files, FmFolderModel *model)
+static void _fm_folder_model_files_added (FmFolder *directory, GSList *files, FmFolderModel *model)
 {
     GSList *l;
     FmFileInfo *file;
@@ -305,7 +305,7 @@ static void _fm_folder_model_files_added (FmFolder *dir, GSList *files, FmFolder
 }
 
 
-static void _fm_folder_model_files_removed (FmFolder *dir, GSList *files,
+static void _fm_folder_model_files_removed (FmFolder *directory, GSList *files,
                                            FmFolderModel *model)
 {
     GSList *l;
@@ -315,66 +315,66 @@ static void _fm_folder_model_files_removed (FmFolder *dir, GSList *files,
     }
 }
 
-void fm_folder_model_set_folder (FmFolderModel *model, FmFolder *dir)
+void fm_folder_model_set_folder (FmFolderModel *model, FmFolder *directory)
 {
     GSequenceIter *it;
     
-    if (model->dir == dir)
+    if (model->directory == directory)
         return;
     
-    if (model->dir)
+    if (model->directory)
     {
-        g_signal_handlers_disconnect_by_func (model->dir, _fm_folder_model_files_added,     model);
-        g_signal_handlers_disconnect_by_func (model->dir, _fm_folder_model_files_removed,   model);
-        g_signal_handlers_disconnect_by_func (model->dir, _fm_folder_model_files_changed,   model);
-        g_signal_handlers_disconnect_by_func (model->dir, on_folder_loaded,                 model);
+        g_signal_handlers_disconnect_by_func (model->directory, _fm_folder_model_files_added,     model);
+        g_signal_handlers_disconnect_by_func (model->directory, _fm_folder_model_files_removed,   model);
+        g_signal_handlers_disconnect_by_func (model->directory, _fm_folder_model_files_changed,   model);
+        g_signal_handlers_disconnect_by_func (model->directory, on_folder_loaded,                 model);
 
         g_sequence_free (model->items);
         g_sequence_free (model->hidden);
-        g_object_unref (model->dir);
+        g_object_unref (model->directory);
     }
     
-    model->dir = dir;
+    model->directory = directory;
     model->items = g_sequence_new ((GDestroyNotify)fm_folder_item_free);
     model->hidden = g_sequence_new ((GDestroyNotify)fm_folder_item_free);
     
-    if (!dir)
+    if (!directory)
         return;
 
-    model->dir = (FmFolder*) g_object_ref (model->dir);
+    model->directory = (FmFolder*) g_object_ref (model->directory);
 
-    g_signal_connect (model->dir, "files-added",
+    g_signal_connect (model->directory, "files-added",
                       G_CALLBACK (_fm_folder_model_files_added),
                       model);
     
-    g_signal_connect (model->dir, "files-removed",
+    g_signal_connect (model->directory, "files-removed",
                       G_CALLBACK (_fm_folder_model_files_removed),
                       model);
     
-    g_signal_connect (model->dir, "files-changed",
+    g_signal_connect (model->directory, "files-changed",
                       G_CALLBACK (_fm_folder_model_files_changed),
                       model);
     
-    g_signal_connect (model->dir, "loaded",
+    g_signal_connect (model->directory, "loaded",
                       G_CALLBACK (on_folder_loaded),
                       model);
 
-    if (!fm_list_is_empty (dir->files))
+    if (!fm_list_is_empty (directory->files))
     {
         GList *l;
-        for (l = fm_list_peek_head_link (dir->files); l; l = l->next)
+        for (l = fm_list_peek_head_link (directory->files); l; l = l->next)
         {
             _fm_folder_model_add_file (model, (FmFileInfo*)l->data);
         }
     }
 
-    if (fm_folder_get_is_loaded (model->dir)) /* if it's already loaded */
-        on_folder_loaded (model->dir, model);  /* emit 'loaded' signal */
+    if (fm_folder_get_is_loaded (model->directory)) /* if it's already loaded */
+        on_folder_loaded (model->directory, model);  /* emit 'loaded' signal */
 }
 
 gboolean fm_folder_model_get_is_loaded (FmFolderModel *model)
 {
-    return model->dir && fm_folder_get_is_loaded (model->dir);
+    return model->directory && fm_folder_get_is_loaded (model->directory);
 }
 
 GtkTreeModelFlags fm_folder_model_get_flags (GtkTreeModel *tree_model)
@@ -587,7 +587,7 @@ gboolean fm_folder_model_iter_children (GtkTreeModel *tree_model,
     model = FM_FOLDER_MODEL (tree_model);
 
     /* No rows => no first row */
-//    if (model->dir->n_items == 0)
+//    if (model->directory->n_items == 0)
 //        return FALSE;
 
     /* Set iter to first item in list */
@@ -796,10 +796,10 @@ void fm_folder_model_sort (FmFolderModel *model)
 void fm_folder_model_file_created (FmFolderModel *model, FmFileInfo *file)
 {
     FmFolderItem *new_item = fm_folder_item_new (file);
-    _fm_folder_model_insert_item (model->dir, new_item, model);
+    _fm_folder_model_insert_item (model->directory, new_item, model);
 }
 
-void _fm_folder_model_insert_item (FmFolder *dir,
+void _fm_folder_model_insert_item (FmFolder *directory,
                                   FmFolderItem *new_item,
                                   FmFolderModel *model)
 {

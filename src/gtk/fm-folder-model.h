@@ -44,16 +44,16 @@ G_BEGIN_DECLS
 
 // Columns Of The Folder Model...
 enum {
-  COL_FILE_GICON = 0,
-  COL_FILE_ICON,
-  COL_FILE_NAME,
-  COL_FILE_SIZE,
-  COL_FILE_DESC,
-  COL_FILE_PERM,
-  COL_FILE_OWNER,
-  COL_FILE_MTIME,
-  COL_FILE_INFO,
-  N_FOLDER_MODEL_COLS
+    COL_FILE_GICON = 0,
+    COL_FILE_ICON,
+    COL_FILE_NAME,
+    COL_FILE_SIZE,
+    COL_FILE_DESC,
+    COL_FILE_PERM,
+    COL_FILE_OWNER,
+    COL_FILE_MTIME,
+    COL_FILE_INFO,
+    N_FOLDER_MODEL_COLS
 };
 
 #define FM_FOLDER_MODEL_COL_IS_VALID(col) (col >= COL_FILE_GICON && col < N_FOLDER_MODEL_COLS)
@@ -65,7 +65,7 @@ struct _FmFolderModel
 {
     GObject     parent;
     
-    FmFolder    *dir;
+    FmFolder    *directory;
     GSequence   *items;
     GSequence   *hidden;    // items hidden by filter...
 
@@ -91,10 +91,10 @@ struct _FmFolderModelClass
 
 };
 
-FmFolderModel *fm_folder_model_new                  (FmFolder *dir, gboolean show_hidden);
+FmFolderModel *fm_folder_model_new                  (FmFolder *directory, gboolean show_hidden);
 GType fm_folder_model_get_type                      ();
 
-void fm_folder_model_set_folder                     (FmFolderModel *model, FmFolder *dir);
+void fm_folder_model_set_folder                     (FmFolderModel *model, FmFolder *directory);
 gboolean fm_folder_model_get_is_loaded              (FmFolderModel *model);
 
 void fm_folder_model_set_icon_size                  (FmFolderModel *model, guint icon_size);

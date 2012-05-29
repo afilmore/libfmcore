@@ -441,3 +441,6 @@ FmFileInfoList* fm_dir_dist_job_get_files (FmDirListJob* job)
 {
 	return job->files;
 }
+
+
+
