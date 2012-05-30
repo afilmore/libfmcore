@@ -229,7 +229,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
         file_info->path = fm_path_ref (job->dir_path);
     **/
     
-    if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL) )
+    if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL) )
     {
         job->dir_fi = file_info;
         if (! fm_file_info_is_dir (file_info))
@@ -289,7 +289,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             **/
             
         _retry:
-            if ( _fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err) )
+            if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err) )
                 fm_list_push_tail_noref (job->files, file_info);
             
             else /* failed! */

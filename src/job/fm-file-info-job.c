@@ -126,7 +126,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
 		{
 			char *path_str = fm_path_to_str (file_info->path);
 			
-            if (!_fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, path_str, &err))
+            if (!fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, path_str, &err))
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB(job), err, FM_JOB_ERROR_MILD);
                 
@@ -208,7 +208,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
 
 			gf = fm_path_to_gfile (file_info->path);
 			
-            if (!_fm_file_info_job_get_info_for_gfile (FM_JOB (job), file_info, gf, &err))
+            if (!fm_file_info_job_get_info_for_gfile (FM_JOB (job), file_info, gf, &err))
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_MILD);
                 
@@ -270,7 +270,7 @@ void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
     fm_list_push_tail_noref (job->file_infos, file_info);
 }
 
-gboolean _fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *file_info, const char *path, GError **err)
+gboolean fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *file_info, const char *path, GError **err)
 {
 	struct stat st;
     gboolean is_link;
@@ -324,7 +324,7 @@ _retry:
     return TRUE;
 }
 
-gboolean _fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err)
+gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err)
 {
 	GFileInfo *inf = g_file_query_info (gf, gfile_info_query_attribs, 0, fm_job_get_cancellable (job), err);
 	
