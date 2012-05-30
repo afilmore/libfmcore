@@ -26,15 +26,15 @@
 #endif
 
 #include "fm-dir-list-job.h"
+#include "fm-file-info-job.h"
+
 #include <glib/gi18n-lib.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <glib/gstdio.h>
-#include "fm-mime-type.h"
-#include "fm-file-info-job.h"
 #include <menu-cache.h>
 
-extern const char gfile_info_query_attribs[]; /* defined in fm-file-info-job.c */
+extern const char gfile_info_query_attribs []; /* defined in fm-file-info-job.c */
 
 static void fm_dir_list_job_finalize  			 (GObject *object);
 G_DEFINE_TYPE (FmDirListJob, fm_dir_list_job, FM_TYPE_JOB);
@@ -170,7 +170,7 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
         de_flag =  (guint32)-1;
 
     /* the menu should be loaded now */
-    if (*dir_path && ! (*dir_path == '/' && dir_path[1]=='\0') )
+    if (*dir_path && ! (*dir_path == '/' && dir_path[1]=='\0'))
     {
         char* tmp = g_strconcat ("/", menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))), dir_path, NULL);
         dir = menu_cache_get_dir_from_path (mc, tmp);
@@ -229,10 +229,10 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
         file_info->path = fm_path_ref (job->dir_path);
     **/
     
-    if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL) )
+    if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL))
     {
         job->dir_fi = file_info;
-        if (! fm_file_info_is_dir (file_info))
+        if (!fm_file_info_is_dir (file_info))
         {
             err = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _ ("The specified directory is not valid"));
             //fm_file_info_unref (file_info);
@@ -251,7 +251,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
     }
 
     dir = g_dir_open (dir_path, 0, &err);
-    if ( dir )
+    if (dir)
     {
         char* name;
         GString* fpath = g_string_sized_new (4096);
@@ -262,7 +262,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             g_string_append_c (fpath, '/');
             ++dir_len;
         }
-        while ( ! fm_job_is_cancelled (FM_JOB (job)) &&  (name = (char*) g_dir_read_name (dir)) )
+        while (! fm_job_is_cancelled (FM_JOB (job)) &&  (name = (char*) g_dir_read_name (dir)))
         {
             g_string_truncate (fpath, dir_len);
             g_string_append (fpath, name);
@@ -289,7 +289,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             **/
             
         _retry:
-            if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err) )
+            if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err))
                 fm_list_push_tail_noref (job->files, file_info);
             
             else /* failed! */
@@ -326,16 +326,16 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob* job)
     const char* query;
 
     /* handle some built-in virtual dirs */
-    if ( fm_path_is_xdg_menu (job->dir_path) ) /* xdg menu:// */
+    if (fm_path_is_xdg_menu (job->dir_path)) /* xdg menu:// */
         return fm_dir_list_job_list_xdg_menu (job);
 
     gf = fm_path_to_gfile (job->dir_path);
 _retry:
     inf = g_file_query_info (gf, gfile_info_query_attribs, 0, fm_job_get_cancellable (fmjob), &err);
-    if (!inf )
+    if (!inf)
     {
         FmJobErrorAction act = fm_job_emit_error (fmjob, err, FM_JOB_ERROR_MODERATE);
-        if ( act == FM_JOB_RETRY )
+        if (act == FM_JOB_RETRY)
         {
             g_error_free (err);
             err = NULL;
@@ -349,7 +349,7 @@ _retry:
         }
     }
 
-    if ( g_file_info_get_file_type (inf) != G_FILE_TYPE_DIRECTORY)
+    if (g_file_info_get_file_type (inf) != G_FILE_TYPE_DIRECTORY)
     {
         err = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _ ("The specified directory is not valid"));
         fm_job_emit_error (fmjob, err, FM_JOB_ERROR_CRITICAL);
@@ -380,7 +380,7 @@ _retry:
     g_object_unref (gf);
     if (enu)
     {
-        while ( ! fm_job_is_cancelled (FM_JOB (job)) )
+        while (! fm_job_is_cancelled (FM_JOB (job)))
         {
             inf = g_file_enumerator_next_file (enu, fm_job_get_cancellable (fmjob), &err);
             if (inf)
@@ -430,10 +430,13 @@ _retry:
 gboolean fm_dir_list_job_run (FmDirListJob* job)
 {
     gboolean ret;
-	if (fm_path_is_native (job->dir_path)) /* if this is a native file on real file system */
+	
+    if (fm_path_is_native (job->dir_path)) /* if this is a native file on real file system */
         ret = fm_dir_list_job_run_posix (job);
-	else /* this is a virtual path or remote file system path */
+	
+    else /* this is a virtual path or remote file system path */
         ret = fm_dir_list_job_run_gio (job);
+    
     return ret;
 }
 

@@ -25,8 +25,8 @@
 #define __FM_DIR_LIST_JOB_H__
 
 #include "fm-job.h"
-#include "fm-path.h"
 #include "fm-file-info-list.h"
+
 
 G_BEGIN_DECLS
 
