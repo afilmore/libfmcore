@@ -51,8 +51,8 @@ struct _FmFolder
     FmPath          *dir_path;
     GFile           *gf;
     
-    GFileMonitor    *mon;
-    FmDirListJob    *job;
+    GFileMonitor    *file_monitor;
+    FmDirListJob    *dir_list_job;
     
     FmFileInfo      *dir_fi;
     FmFileInfoList  *files;
