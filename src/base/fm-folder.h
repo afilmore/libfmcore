@@ -46,25 +46,26 @@ typedef struct _FmFolderClass       FmFolderClass;
 
 struct _FmFolder
 {
-    GObject parent;
+    GObject         parent;
 
+    GFile           *gfile;
     FmPath          *dir_path;
-    GFile           *gf;
+    FmFileInfo      *dir_fi;
     
     GFileMonitor    *file_monitor;
-    FmDirListJob    *dir_list_job;
-    
-    FmFileInfo      *dir_fi;
-    FmFileInfoList  *files;
 
-    //for file monitor
+    // For the file monitor...
     guint           idle_handler;
     GSList          *files_to_add;
     GSList          *files_to_update;
     GSList          *files_to_del;
     GSList          *pending_jobs;
+    
+    FmDirListJob    *dir_list_job;
+    
+    FmFileInfoList  *files;
 
-    //filesystem info
+    // Filesystem infos...
     guint64         fs_total_size;
     guint64         fs_free_size;
     GCancellable    *fs_size_cancellable;
@@ -76,23 +77,23 @@ struct _FmFolderClass
 {
     GObjectClass parent_class;
 
-    void                (*files_added)      (FmFolder *dir, GSList *files);
-    void                (*files_removed)    (FmFolder *dir, GSList *files);
-    void                (*files_changed)    (FmFolder *dir, GSList *files);
+    void                (*files_added)      (FmFolder *folder, GSList *files);
+    void                (*files_removed)    (FmFolder *folder, GSList *files);
+    void                (*files_changed)    (FmFolder *folder, GSList *files);
     
-    void                (*loaded)           (FmFolder *dir);
-    void                (*unmount)          (FmFolder *dir);
-    void                (*changed)          (FmFolder *dir);
-    void                (*removed)          (FmFolder *dir);
-    void                (*content_changed)  (FmFolder *dir);
-    void                (*fs_info)          (FmFolder *dir);
+    void                (*loaded)           (FmFolder *folder);
+    void                (*unmount)          (FmFolder *folder);
+    void                (*changed)          (FmFolder *folder);
+    void                (*removed)          (FmFolder *folder);
+    void                (*content_changed)  (FmFolder *folder);
+    void                (*fs_info)          (FmFolder *folder);
     
-    FmJobErrorAction    (*error)            (FmFolder *dir, GError *err, FmJobErrorSeverity severity);
+    FmJobErrorAction    (*error)            (FmFolder *folder, GError *err, FmJobErrorSeverity severity);
 };
 
 GType           fm_folder_get_type              (void);
 FmFolder        *fm_folder_get                  (FmPath *path);
-FmFolder        *fm_folder_get_for_gfile        (GFile *gf);
+FmFolder        *fm_folder_get_for_gfile        (GFile *gfile);
 FmFolder        *fm_folder_get_for_path_name    (const char *path);
 FmFolder        *fm_folder_get_for_uri          (const char *uri);
 
