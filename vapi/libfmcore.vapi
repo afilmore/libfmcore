@@ -271,7 +271,7 @@ namespace Fm {
 		public unowned Fm.Path      get_path            ();
 		public unowned string       get_target          ();
         public unowned string       get_collate_key     ();
-        
+        public unowned Fm.Icon      get_fm_icon         ();        
 		public unowned Fm.MimeType  get_mime_type       ();
 		public unowned string       get_desc            ();
         
