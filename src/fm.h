@@ -28,6 +28,7 @@
 #include "fm-app-info.h"
 #include "fm-archiver.h"
 #include "fm-config.h"
+#include "fm-debug.h"
 #include "fm-dummy-monitor.h"
 #include "fm-file-info.h"
 #include "fm-folder.h"
