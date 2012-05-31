@@ -1,5 +1,8 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
+#***********************************************************************************************************************
+# make clean;make distclean;./autogen.sh && ./configure --enable-debug=yes --prefix=/usr && make
+#
+#
+#***********************************************************************************************************************
 
 AC_PREREQ([2.63])
 AC_INIT([libfmcore], [0.1.99], [https://github.com/afilmore/libfmcore])
@@ -11,9 +14,19 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 AM_PROG_LIBTOOL
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 # Vala
 AM_PROG_VALAC([0.16.0])
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 # Checks for libraries.
 
 # Checks for header files.
@@ -25,6 +38,11 @@ AC_HEADER_STDC
 AC_FUNC_MMAP
 AC_CHECK_LIB(m, pow)
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 # Large file support
 AC_ARG_ENABLE([largefile],
     AS_HELP_STRING([--enable-largefile],
@@ -38,32 +56,24 @@ if test x"$largefile" = x"yes"; then
 fi
 
 
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 # intltool
 #~ IT_PROG_INTLTOOL([0.40.0])
 
 
-##########################################################################################
-# Configure With Gtk2 > 2.24.0 or Gtk3 > 3.0.8
+#*****************************************************************************************
+# ...
 #
-##########################################################################################
-#~ AC_ARG_ENABLE([gtk3],
- #~ [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
- #~ [use_gtk3=$enableval], [use_gtk3=no])
-#~ 
-#~ pkg_modules="gtk+-2.0 >= 2.24.0"
-#~ 
-#~ if test $use_gtk3 == yes ; then
-    pkg_modules="gtk+-3.0 >= 3.0.8"
-    GTK_PKG="gtk+-3.0"
-    CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
-    AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
-    AC_SUBST([LIBFMCORE_API_VERSION], [3.0])
-    AC_SUBST([LIBFMCORE_SO_VERSION], [3:0:0])
-#~ else
-    #~ GTK_PKG="gtk+-2.0"
-    #~ AC_SUBST([LIBFMCORE_API_VERSION], [2.0])
-    #~ AC_SUBST([LIBFMCORE_SO_VERSION], [2:0:0])
-#~ fi
+#*****************************************************************************************
+pkg_modules="gtk+-3.0 >= 3.0.8"
+GTK_PKG="gtk+-3.0"
+CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
+AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
+AC_SUBST([LIBFMCORE_API_VERSION], [3.0])
+AC_SUBST([LIBFMCORE_SO_VERSION], [3:0:0])
 AC_SUBST(GTK_PKG)
 
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
@@ -96,6 +106,11 @@ PKG_CHECK_MODULES(MENU_CACHE, [$menu_modules])
 AC_SUBST(MENU_CACHE_CFLAGS)
 AC_SUBST(MENU_CACHE_LIBS)
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 # special checks for glib/gio 2.27 since it contains backward imcompatible changes.
 # glib 2.26 uses G_DESKTOP_APP_INFO_LOOKUP_EXTENSION_POINT_NAME extension point while
 # glib 2.27 uses x-scheme-handler/* mime-type to register handlers.
@@ -109,6 +124,10 @@ fi
 
 #optional features
 
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 AC_ARG_ENABLE(udisks,
     [AC_HELP_STRING([--enable-udisks],
         [build libfmcore with udisks support (Linux only) @<:@default=yes@:>@])],
@@ -127,17 +146,11 @@ if test x"$enable_udisks" = x"yes"; then
     AC_SUBST(DBUS_LIBS)
 fi
 
-#check for gtk-doc
-#~ GTK_DOC_CHECK([1.14],[--flavour no-tmpl])
 
-AC_ARG_ENABLE(demo,
-    [AC_HELP_STRING([--enable-demo],
-        [build libfm-demo file manager @<:@default=no@:>@])],
-    [enable_demo="${enableval}"],
-    [enable_demo=no]
-)
-AM_CONDITIONAL(ENABLE_DEMO, test x"$enable_demo" = x"yes")
-
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 AC_ARG_ENABLE(debug,
     [AC_HELP_STRING([--enable-debug],
         [build libfmcore with debug support @<:@default=no@:>@])],
@@ -146,20 +159,34 @@ AC_ARG_ENABLE(debug,
 )
 if test "$enable_debug" = "yes"; then
     # turn on debug and disable optimization
-    CPPFLAGS="$CPPFLAGS -DG_ENABLE_DEBUG -O0 -g"
+    CPPFLAGS="$CPPFLAGS -DENABLE_DEBUG -DG_ENABLE_DEBUG -O0 -g"
 else
     # turn off glib debug checks
     CPPFLAGS="$CPPFLAGS -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS"
 fi
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 # GIO extension module
 giomodulesdir=$libdir/gio/modules
 AC_SUBST(giomodulesdir)
 
 
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 GETTEXT_PACKAGE=libfmcore
 AC_SUBST(GETTEXT_PACKAGE)
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
 #~ # Generate po/LINGUAS on the fly rather than relying on translators
 #~ # to maintain it manually. This also overcome the problem that Transifex
 #~ # cannot add a language to po/LINGUAS if a new po file is submitted.
@@ -173,6 +200,12 @@ done
 AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
+
 AC_CONFIG_FILES([
     data/Makefile
     src/fmvala/Makefile
@@ -184,6 +217,12 @@ AC_CONFIG_FILES([
 
 AC_OUTPUT
 
+
+#*****************************************************************************************
+# ...
+#
+#*****************************************************************************************
+
 echo
 echo "Libfmcore $VERSION Configuration Summary:"
 echo
@@ -192,7 +231,6 @@ echo "prefix:                                                 $prefix"
 echo "sysconfdir:                                             $sysconfdir"
 echo "Enable compiler flags and other support for debugging:  $enable_debug"
 echo "Build udisks support (Linux only, experimental):        $enable_udisks"
-echo "Build demo program src/demo/libfm-demo:                 $enable_demo"
 echo "Large file support:                                     $largefile"
 if test x"$have_scheme_handler" = x"no"; then
 echo "GIO module for preferred apps (for glib < 2.28 only):   $giomodulesdir";
