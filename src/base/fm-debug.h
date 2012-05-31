@@ -29,6 +29,8 @@
 
 G_BEGIN_DECLS
 
+#define NO_DEBUG(...)
+
 #ifdef ENABLE_DEBUG
 #define DEBUG(...) printf(__VA_ARGS__)
 #else
