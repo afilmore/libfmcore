@@ -757,6 +757,8 @@ static gchar *fm_path_to_str_int (FmPath *path, gchar **ret, gint str_len)
 // FIXME_pcm: handle display name and real file name  (maybe non-UTF8) issue
 char *fm_path_to_str (FmPath *path)
 {
+    g_return_val_if_fail (path != NULL, NULL);
+    
     gchar *ret;
     fm_path_to_str_int ( path, &ret, 0 );
     return ret;
