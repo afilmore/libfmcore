@@ -77,6 +77,7 @@ libfmcoreinclude_HEADERS = \
 	fmvala/fm-config.h \
 	base/fm-app-info.h \
 	base/fm-archiver.h \
+	base/fm-debug.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
 	base/fm-file-info-list.h \
