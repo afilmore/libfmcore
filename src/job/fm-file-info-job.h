@@ -25,9 +25,7 @@
 #define __FM_FILE_INFO_JOB_H__
 
 #include "fm-job.h"
-
 #include "fm-file-info-list.h"
-
 #include "fm-path-list.h"
 
 
@@ -49,8 +47,8 @@ typedef struct _FmFileInfoJobClass          FmFileInfoJobClass;
 enum _FmFileInfoJobFlags
 {
     FM_FILE_INFO_JOB_NONE = 0,
-    FM_FILE_INFO_JOB_FOLLOW_SYMLINK = 1 << 0,       // FIXME_pcm: not yet implemented...
-    FM_FILE_INFO_JOB_EMIT_FOR_EACH_FILE = 1 << 1    // FIXME_pcm: not yet implemented...
+    FM_FILE_INFO_JOB_FOLLOW_SYMLINK = 1 << 0,       // Not implemented yet...
+    FM_FILE_INFO_JOB_EMIT_FOR_EACH_FILE = 1 << 1    // Not implemented yet...
 };
 
 typedef enum _FmFileInfoJobFlags FmFileInfoJobFlags;
@@ -72,20 +70,21 @@ struct _FmFileInfoJobClass
 };
 
 
-FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags);
+FmJob       *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags);
 
-GType fm_file_info_job_get_type (void);
+GType       fm_file_info_job_get_type ();
 
 // This can only be called before running the job...
-void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path);
-void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf);
+void        fm_file_info_job_add                        (FmFileInfoJob *job, FmPath *path);
+void        fm_file_info_job_add_gfile                  (FmFileInfoJob *job, GFile *gf);
 
-gboolean fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *file_info, const char *path, GError **err);
+gboolean    fm_file_info_job_get_info_for_native_file   (FmJob *job, FmFileInfo *file_info,
+                                                         const char *path, GError **err);
 
-gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err);
+gboolean    fm_file_info_job_get_info_for_gfile         (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err);
 
 // This API should only be called in error handler...
-FmPath *fm_file_info_job_get_current (FmFileInfoJob *job);
+FmPath      *fm_file_info_job_get_current               (FmFileInfoJob *job);
 
 
 G_END_DECLS

@@ -102,6 +102,8 @@ FmFileInfo  *fm_file_info_new_trash_can         ();
 FmFileInfo  *fm_file_info_new_user_special_dir  (GUserDirectory directory);
 
 FmFileInfo  *fm_file_info_new_for_path          (FmPath *path);
+gboolean fm_file_info_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/);
+
 FmFileInfo  *fm_file_info_new_from_gfileinfo    (FmPath *path, GFileInfo *inf);
 
 void        fm_file_info_set_from_gfileinfo     (FmFileInfo *file_info, GFileInfo *inf);

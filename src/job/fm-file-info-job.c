@@ -62,14 +62,6 @@ FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flag
         
         FmFileInfo *file_info = fm_file_info_new_for_path (path);
         
-        // TODO_axl: test and remove.....
-        /** new file_info function, test and remove...
-        
-        FmFileInfo *file_info = fm_file_info_new ();
-        file_info->path = fm_path_ref (path);
-        
-        **/
-        
         fm_list_push_tail_noref (file_infos, file_info);
     }
 	
@@ -232,22 +224,15 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
     return TRUE;
 }
 
+
 // This can only be called before running the job.
 void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path)
 {
 	FmFileInfo *file_info = fm_file_info_new_for_path (path);
     
-    // TODO_axl: test and remove.....
-    /** New file_info function, test and remove...
-    
-    FmFileInfo *file_info = fm_file_info_new ();
-	file_info->path = fm_path_ref (path);
-	
-    **/
-    
-    
     fm_list_push_tail_noref (job->file_infos, file_info);
 }
+
 
 void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
 {
@@ -257,18 +242,11 @@ void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
 	
 	FmFileInfo *file_info = fm_file_info_new_for_path (path);
     
-    // TODO_axl: test and remove.....
-    /** new file_info function, test and remove...
-    
-    FmFileInfo *file_info = fm_file_info_new ();
-	file_info->path = path;
-	
-    **/
-    
     fm_path_unref (path);
     
     fm_list_push_tail_noref (job->file_infos, file_info);
 }
+
 
 gboolean fm_file_info_job_get_info_for_native_file (FmJob *job, FmFileInfo *file_info, const char *path, GError **err)
 {
@@ -319,6 +297,7 @@ _retry:
         fm_file_info_set_fm_icon (file_info, mime_type->icon);
         return TRUE;
     }
+    
     fm_file_info_set_from_desktop_entry (file_info);
     
     return TRUE;

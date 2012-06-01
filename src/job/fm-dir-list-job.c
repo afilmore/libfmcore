@@ -224,11 +224,6 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
 
 	FmFileInfo *file_info = fm_file_info_new_for_path (job->dir_path);
 	
-    /** new file_info function, test and remove...
-        file_info = fm_file_info_new ();
-        file_info->path = fm_path_ref (job->dir_path);
-    **/
-    
     if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL))
     {
         job->dir_fi = file_info;
@@ -282,11 +277,6 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             
             fm_path_unref (child_path);
             
-            
-            /** new file_info function, test and remove...
-            file_info = fm_file_info_new ();
-            file_info->path = fm_path_new_child (job->dir_path, name);
-            **/
             
         _retry:
             if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err))

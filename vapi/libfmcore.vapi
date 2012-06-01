@@ -260,6 +260,8 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public FileInfo.from_gfileinfo                  (Fm.Path path, GLib.FileInfo inf);
 		
+        public bool                 for_native_file     (string path);
+
         public void                 set_disp_name       (string name);
 		public void                 set_from_gfileinfo  (GLib.FileInfo inf);
 		public void                 set_path            (Fm.Path path);
