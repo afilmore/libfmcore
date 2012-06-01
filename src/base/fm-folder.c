@@ -221,12 +221,19 @@ static FmFolder *fm_folder_new_internal (FmPath *path, GFile *gfile)
 static FmFolder *fm_folder_get_internal (FmPath *path, GFile *gfile)
 {
     FmFolder *folder;
-    /*FIXME_pcm: should we provide a generic FmPath cache in fm-path.c
-      *to associate all kinds of data structures with FmPaths? */
-
-    // FIXME_pcm: should creation of the hash table be moved to fm_init ()?
+    
+    /**
+     * FIXME_pcm: should we provide a generic FmPath cache in fm-path.c
+     * to associate all kinds of data structures with FmPaths?
+     * 
+     * FIXME_pcm: should creation of the hash table be moved to fm_init () ?
+     * 
+     **/
+    
     if (G_LIKELY (hash))
-        folder = (FmFolder*)g_hash_table_lookup (hash, path);
+    {
+        folder = (FmFolder*) g_hash_table_lookup (hash, path);
+    }
     else
     {
         hash = g_hash_table_new ((GHashFunc)fm_path_hash, (GEqualFunc)fm_path_equal);
@@ -236,15 +243,22 @@ static FmFolder *fm_folder_get_internal (FmPath *path, GFile *gfile)
     if (G_UNLIKELY (!folder))
     {
         GFile *_gf = NULL;
+        
         if (!gfile)
             _gf = gfile = fm_path_to_gfile (path);
+        
         folder = fm_folder_new_internal (path, gfile);
+        
         if (_gf)
             g_object_unref (_gf);
+        
         g_hash_table_insert (hash, folder->dir_path, folder);
     }
     else
-        return (FmFolder*)g_object_ref (folder);
+    {
+        return (FmFolder*) g_object_ref (folder);
+    }
+    
     return folder;
 }
 
