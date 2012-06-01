@@ -208,6 +208,7 @@ namespace Fm {
         public static unowned Fm.Icon from_gicon (GLib.Icon gicon);
 		public static unowned Fm.Icon from_name (string name);
 		
+        [CCode (cheader_filename =  "fm-icon-pixbuf.h")]
         public unowned Gdk.Pixbuf get_pixbuf (int size);
 		
 		public void set_user_data (void* user_data);
