@@ -78,9 +78,6 @@ GType       fm_file_info_job_get_type ();
 void        fm_file_info_job_add                        (FmFileInfoJob *job, FmPath *path);
 void        fm_file_info_job_add_gfile                  (FmFileInfoJob *job, GFile *gf);
 
-gboolean    fm_file_info_job_get_info_for_native_file   (FmJob *job, FmFileInfo *file_info,
-                                                         const char *path, GError **err);
-
 gboolean    fm_file_info_job_get_info_for_gfile         (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err);
 
 // This API should only be called in error handler...

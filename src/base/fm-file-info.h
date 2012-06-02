@@ -27,6 +27,7 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include <menu-cache.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -102,7 +103,10 @@ FmFileInfo  *fm_file_info_new_trash_can         ();
 FmFileInfo  *fm_file_info_new_user_special_dir  (GUserDirectory directory);
 
 FmFileInfo  *fm_file_info_new_for_path          (FmPath *path);
-gboolean fm_file_info_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/);
+
+// new functions...
+gboolean    fm_file_info_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/);
+void        fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item);
 
 FmFileInfo  *fm_file_info_new_from_gfileinfo    (FmPath *path, GFileInfo *inf);
 

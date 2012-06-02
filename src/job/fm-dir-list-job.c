@@ -34,6 +34,8 @@
 #include <glib/gstdio.h>
 #include <menu-cache.h>
 
+
+// TODO_axl: move to FmFileInfo ?
 extern const char gfile_info_query_attribs []; /* defined in fm-file-info-job.c */
 
 static void fm_dir_list_job_finalize  			 (GObject *object);
@@ -100,8 +102,8 @@ static void fm_dir_list_job_finalize (GObject *object)
 }
 
 
-/* defined in fm-file-info.c */
-FmFileInfo* _fm_file_info_new_from_menu_cache_item (FmPath* path, MenuCacheItem* item);
+/* defined in fm-file-info.c 
+FmFileInfo* _fm_file_info_new_from_menu_cache_item (FmPath* path, MenuCacheItem* item);*/
 
 static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
 {
@@ -224,7 +226,10 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
 
 	FmFileInfo *file_info = fm_file_info_new_for_path (job->dir_path);
 	
-    if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL))
+    // FileInfo rework: new function for testing...
+    // this one is not cancellable and doesn't handle errors...
+    // if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL))
+    if (fm_file_info_for_native_file (file_info, dir_path))
     {
         job->dir_fi = file_info;
         if (!fm_file_info_is_dir (file_info))
@@ -279,9 +284,14 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             
             
         _retry:
-            if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err))
-                fm_list_push_tail_noref (job->files, file_info);
             
+            // FileInfo rework: new function for testing...
+            // this one is not cancellable and doesn't handle errors...
+            // if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &err))
+            if (fm_file_info_for_native_file (file_info, fpath->str))
+            {
+                fm_list_push_tail_noref (job->files, file_info);
+            }
             else /* failed! */
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_MILD);

@@ -408,7 +408,7 @@ GIcon *fm_file_info_get_gicon (FmFileInfo *file_info)
     return file_info->fm_icon ? file_info->fm_icon->gicon : NULL;
 }
 
-void _fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
+void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
 {
     const char *icon_name = menu_cache_item_get_icon (item);
     file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
@@ -453,7 +453,7 @@ FmFileInfo *_fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem 
 {
     FmFileInfo *file_info = fm_file_info_new ();
     file_info->path = fm_path_ref (path);
-    _fm_file_info_set_from_menu_cache_item (file_info, item);
+    fm_file_info_set_from_menu_cache_item (file_info, item);
     return file_info;
 }
 
