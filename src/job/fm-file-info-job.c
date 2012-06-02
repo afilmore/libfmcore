@@ -36,11 +36,16 @@ G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
 //const char gfile_info_query_attribs [] = "standard::*,unix::*,time::*,access::*,id::filesystem";
 
 
+// Forward declarations...
 static void fm_file_info_job_finalize (GObject *object);
 static gboolean fm_file_info_job_run (FmJob *fmjob);
 
 
-
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flags)
 {
 	FmFileInfoJob *job = (FmFileInfoJob*) g_object_new (FM_TYPE_FILE_INFO_JOB, NULL);
@@ -65,12 +70,6 @@ FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flag
 	return (FmJob*) job;
 }
 
-static void fm_file_info_job_init (FmFileInfoJob *self)
-{
-	self->file_infos = fm_file_info_list_new ();
-    fm_job_init_cancellable (FM_JOB (self));
-}
-
 static void fm_file_info_job_class_init (FmFileInfoJobClass *klass)
 {
 	GObjectClass *g_object_class;
@@ -81,6 +80,12 @@ static void fm_file_info_job_class_init (FmFileInfoJobClass *klass)
 
 	job_class = FM_JOB_CLASS (klass);
 	job_class->run = fm_file_info_job_run;
+}
+
+static void fm_file_info_job_init (FmFileInfoJob *self)
+{
+	self->file_infos = fm_file_info_list_new ();
+    fm_job_init_cancellable (FM_JOB (self));
 }
 
 static void fm_file_info_job_finalize (GObject *object)
@@ -97,14 +102,61 @@ static void fm_file_info_job_finalize (GObject *object)
 }
 
 
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
+// This can only be called before running the job.
+void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path)
+{
+	FmFileInfo *file_info = fm_file_info_new_for_path (path);
+    
+    fm_list_push_tail_noref (job->file_infos, file_info);
+}
 
+void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
+{
+    FmPath *path = fm_path_new_for_gfile (gf);
+	
+	FmFileInfo *file_info = fm_file_info_new_for_path (path);
+    
+    fm_path_unref (path);
+    
+    fm_list_push_tail_noref (job->file_infos, file_info);
+}
+
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
+static gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err)
+{
+	GFileInfo *inf = g_file_query_info (gf, gfile_info_query_attribs, 0, fm_job_get_cancellable (job), err);
+	
+    if (!inf)
+		return FALSE;
+	
+    fm_file_info_set_from_gfileinfo (file_info, inf);
+
+	return TRUE;
+}
+
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 gboolean fm_file_info_job_run (FmJob *fmjob)
 {
 	FmFileInfoJob *job = (FmFileInfoJob*) fmjob;
     GError *err = NULL;
 
 	GList *l;
-	for (l = fm_list_peek_head_link (job->file_infos); !fm_job_is_cancelled (fmjob) && l;)
+	for (l = fm_list_peek_head_link (job->file_infos); !fm_job_is_cancelled (fmjob) && l; )
 	{
 		FmFileInfo *file_info = (FmFileInfo*) l->data;
         GList *next = l->next;
@@ -226,41 +278,11 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
 }
 
 
-// This can only be called before running the job.
-void fm_file_info_job_add (FmFileInfoJob *job, FmPath *path)
-{
-	FmFileInfo *file_info = fm_file_info_new_for_path (path);
-    
-    fm_list_push_tail_noref (job->file_infos, file_info);
-}
-
-
-void fm_file_info_job_add_gfile (FmFileInfoJob *job, GFile *gf)
-{
-	// fm_file_info_new_for_gfile () ???
-    
-    FmPath *path = fm_path_new_for_gfile (gf);
-	
-	FmFileInfo *file_info = fm_file_info_new_for_path (path);
-    
-    fm_path_unref (path);
-    
-    fm_list_push_tail_noref (job->file_infos, file_info);
-}
-
-
-gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err)
-{
-	GFileInfo *inf = g_file_query_info (gf, gfile_info_query_attribs, 0, fm_job_get_cancellable (job), err);
-	
-    if (!inf)
-		return FALSE;
-	
-    fm_file_info_set_from_gfileinfo (file_info, inf);
-
-	return TRUE;
-}
-
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 // This API should only be called in error handler
 FmPath *fm_file_info_job_get_current (FmFileInfoJob *job)
 {
