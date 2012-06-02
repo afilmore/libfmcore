@@ -26,7 +26,7 @@
 #endif
 
 #include "fm-dir-list-job.h"
-#include "fm-file-info-job.h"
+//#include "fm-file-info-job.h"
 
 #include <glib/gi18n-lib.h>
 #include <gio/gio.h>
@@ -36,7 +36,7 @@
 
 
 // TODO_axl: move to FmFileInfo ?
-extern const char gfile_info_query_attribs []; /* defined in fm-file-info-job.c */
+//extern const char gfile_info_query_attribs []; // defined in fm-file-info-job.c
 
 static void fm_dir_list_job_finalize  			 (GObject *object);
 G_DEFINE_TYPE (FmDirListJob, fm_dir_list_job, FM_TYPE_JOB);
@@ -47,7 +47,7 @@ static gboolean fm_dir_list_job_run (FmDirListJob *job);
 static void fm_dir_list_job_class_init (FmDirListJobClass *klass)
 {
 	GObjectClass *g_object_class;
-	FmJobClass* job_class = FM_JOB_CLASS (klass);
+	FmJobClass *job_class = FM_JOB_CLASS (klass);
 	g_object_class = G_OBJECT_CLASS (klass);
 	g_object_class->finalize = fm_dir_list_job_finalize;
 
@@ -61,20 +61,20 @@ static void fm_dir_list_job_init (FmDirListJob *self)
 }
 
 
-FmJob* fm_dir_list_job_new (FmPath* path, gboolean dir_only)
+FmJob *fm_dir_list_job_new (FmPath *path, gboolean dir_only)
 {
-	FmDirListJob* job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
+	FmDirListJob *job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	job->dir_path = fm_path_ref (path);
     job->dir_only = dir_only;
 	job->files = fm_file_info_list_new ();
 	return  (FmJob*) job;
 }
 
-FmJob* fm_dir_list_job_new_for_gfile (GFile* gf)
+FmJob *fm_dir_list_job_new_for_gfile (GFile *gf)
 {
 	/* FIXME_pcm: should we cache this with hash table? Or, the cache
 	 * should be done at the level of FmFolder instead? */
-	FmDirListJob* job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
+	FmDirListJob *job = (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	job->dir_path = fm_path_new_for_gfile (gf);
 	return  (FmJob*)job;
 }
@@ -98,29 +98,29 @@ static void fm_dir_list_job_finalize (GObject *object)
 		fm_list_unref (self->files);
 
 	if  (G_OBJECT_CLASS (fm_dir_list_job_parent_class)->finalize)
-		 (* G_OBJECT_CLASS (fm_dir_list_job_parent_class)->finalize) (object);
+		 ( *G_OBJECT_CLASS (fm_dir_list_job_parent_class)->finalize) (object);
 }
 
 
 /* defined in fm-file-info.c 
-FmFileInfo* _fm_file_info_new_from_menu_cache_item (FmPath* path, MenuCacheItem* item);*/
+FmFileInfo* fm_file_info_new_from_menu_cache_item (FmPath* path, MenuCacheItem* item);*/
 
-static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
+static gpointer list_menu_items (FmJob *fmjob, gpointer user_data)
 {
-    FmDirListJob* job =  (FmDirListJob*)fmjob;
-    FmFileInfo* file_info;
-    MenuCache* mc;
-    MenuCacheDir* dir;
-    GList* l;
-    char* path_str, *p, ch;
-    char* menu_name;
-    const char* dir_path;
+    FmDirListJob *job =  (FmDirListJob*)fmjob;
+    FmFileInfo *file_info;
+    MenuCache *mc;
+    MenuCacheDir *dir;
+    GList *l;
+    char *path_str, *p, ch;
+    char *menu_name;
+    const char *dir_path;
     guint32 de_flag;
-    const char* de_name;
-    /* example: menu://applications.menu/DesktopSettings */
+    const char *de_name;
+    // example: menu://applications.menu/DesktopSettings
 
     path_str = fm_path_to_str (job->dir_path);
-    p = path_str + 5; /* skip menu: */
+    p = path_str + 5; // skip menu:
     while (*p == '/')
         ++p;
     menu_name = p;
@@ -130,17 +130,17 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
     *p = '\0';
     menu_name = g_strconcat (menu_name, ".menu", NULL);
     mc = menu_cache_lookup_sync (menu_name);
-    /* ensure that the menu cache is loaded */
-    if (!mc) /* if it's not loaded */
+    // ensure that the menu cache is loaded
+    if (!mc) // if it's not loaded
     {
-        /* try to set $XDG_MENU_PREFIX to "lxde-" for lxmenu-data */
-        const char* menu_prefix = g_getenv ("XDG_MENU_PREFIX");
-        if (g_strcmp0 (menu_prefix, "lxde-")) /* if current value is not lxde- */
+        // try to set $XDG_MENU_PREFIX to "lxde-" for lxmenu-data
+        const char *menu_prefix = g_getenv ("XDG_MENU_PREFIX");
+        if (g_strcmp0 (menu_prefix, "lxde-")) // if current value is not lxde-
         {
-            char* old_prefix = g_strdup (menu_prefix);
+            char *old_prefix = g_strdup (menu_prefix);
             g_setenv ("XDG_MENU_PREFIX", "lxde-", TRUE);
             mc = menu_cache_lookup_sync (menu_name);
-            /* restore original environment variable */
+            // restore original environment variable
             if (old_prefix)
             {
                 g_setenv ("XDG_MENU_PREFIX", old_prefix, TRUE);
@@ -163,7 +163,7 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
     }
     g_free (menu_name);
     *p = ch;
-    dir_path = p; /* path of menu dir, such as: /Internet */
+    dir_path = p; // path of menu dir, such as: /Internet
 
     de_name = g_getenv ("XDG_CURRENT_DESKTOP");
     if (de_name)
@@ -171,10 +171,10 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
     else
         de_flag =  (guint32)-1;
 
-    /* the menu should be loaded now */
+    // the menu should be loaded now
     if (*dir_path && ! (*dir_path == '/' && dir_path[1]=='\0'))
     {
-        char* tmp = g_strconcat ("/", menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))), dir_path, NULL);
+        char *tmp = g_strconcat ("/", menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))), dir_path, NULL);
         dir = menu_cache_get_dir_from_path (mc, tmp);
         g_free (tmp);
     }
@@ -183,13 +183,13 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
 
     if (dir)
     {
-        job->dir_fi = _fm_file_info_new_from_menu_cache_item (job->dir_path, (MenuCacheItem*) dir);
+        job->dir_fi = fm_file_info_new_from_menu_cache_item (job->dir_path, (MenuCacheItem*) dir);
         for (l = (GList*) menu_cache_dir_get_children (dir); l; l=l->next)
         {
-            MenuCacheItem* item = MENU_CACHE_ITEM (l->data);
-            FmPath* item_path;
-            GIcon* gicon;
-            /* also hide menu items which should be hidden in current DE. */
+            MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
+            FmPath *item_path;
+            GIcon *gicon;
+            // also hide menu items which should be hidden in current DE.
             if (!item || menu_cache_item_get_type (item) == MENU_CACHE_TYPE_SEP)
                 continue;
             if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP && !menu_cache_app_get_is_visible (MENU_CACHE_APP (item), de_flag))
@@ -198,7 +198,7 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
             if (G_UNLIKELY (job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
                 continue;
             item_path = fm_path_new_child (job->dir_path, menu_cache_item_get_id (item));
-            file_info = _fm_file_info_new_from_menu_cache_item (item_path, item);
+            file_info = fm_file_info_new_from_menu_cache_item (item_path, item);
             fm_path_unref (item_path);
             fm_list_push_tail_noref (job->files, file_info);
         }
@@ -209,18 +209,18 @@ static gpointer list_menu_items (FmJob* fmjob, gpointer user_data)
     return NULL;
 }
 
-gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob* job)
+gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob *job)
 {
-    /* Calling libmenu-cache is only allowed in main thread. */
+    // Calling libmenu-cache is only allowed in main thread.
     fm_job_call_main_thread (FM_JOB (job), list_menu_items, NULL);
     return TRUE;
 }
 
-static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
+static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
 {
 	GError *err = NULL;
-    char* dir_path;
-    GDir* dir;
+    char *dir_path;
+    GDir *dir;
 
     dir_path = fm_path_to_str (job->dir_path);
 
@@ -253,8 +253,8 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
     dir = g_dir_open (dir_path, 0, &err);
     if (dir)
     {
-        char* name;
-        GString* fpath = g_string_sized_new (4096);
+        char *name;
+        GString *fpath = g_string_sized_new (4096);
         int dir_len = strlen (dir_path);
         g_string_append_len (fpath, dir_path, dir_len);
         if (fpath->str[dir_len-1] != '/')
@@ -267,10 +267,10 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             g_string_truncate (fpath, dir_len);
             g_string_append (fpath, name);
 
-            if (job->dir_only) /* if we only want directories */
+            if (job->dir_only) // if we only want directories
             {
                 struct stat st;
-                /* FIXME_pcm: this results in an additional stat () call, which is inefficient */
+                // FIXME_pcm: this results in an additional stat () call, which is inefficient
                 if (stat (fpath->str, &st) == -1 || !S_ISDIR (st.st_mode))
                     continue;
             }
@@ -292,7 +292,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
             {
                 fm_list_push_tail_noref (job->files, file_info);
             }
-            else /* failed! */
+            else // failed!
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB (job), err, FM_JOB_ERROR_MILD);
                 g_error_free (err);
@@ -315,18 +315,18 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob* job)
     return TRUE;
 }
 
-static gboolean fm_dir_list_job_run_gio (FmDirListJob* job)
+static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
 {
 	GFileEnumerator *enu;
 	GFileInfo *inf;
-    FmFileInfo* file_info;
+    FmFileInfo *file_info;
 	GError *err = NULL;
-    FmJob* fmjob = FM_JOB (job);
-    GFile* gf;
-    const char* query;
+    FmJob *fmjob = FM_JOB (job);
+    GFile *gf;
+    const char *query;
 
-    /* handle some built-in virtual dirs */
-    if (fm_path_is_xdg_menu (job->dir_path)) /* xdg menu:// */
+    // handle some built-in virtual dirs
+    if (fm_path_is_xdg_menu (job->dir_path)) // xdg menu://
         return fm_dir_list_job_list_xdg_menu (job);
 
     gf = fm_path_to_gfile (job->dir_path);
@@ -359,7 +359,7 @@ _retry:
         return FALSE;
     }
 
-    /* FIXME_pcm: should we use fm_file_info_new_ + fm_file_info_set_from_gfileinfo? */
+    // FIXME_pcm: should we use fm_file_info_new_ + fm_file_info_set_from_gfileinfo?
     job->dir_fi = fm_file_info_new_from_gfileinfo (job->dir_path, inf);
     
     g_object_unref (inf);
@@ -385,10 +385,10 @@ _retry:
             inf = g_file_enumerator_next_file (enu, fm_job_get_cancellable (fmjob), &err);
             if (inf)
             {
-                FmPath* sub;
+                FmPath *sub;
                 if (G_UNLIKELY (job->dir_only))
                 {
-                    /* FIXME_pcm: handle symlinks */
+                    // FIXME_pcm: handle symlinks
                     if (g_file_info_get_file_type (inf) != G_FILE_TYPE_DIRECTORY)
                     {
                         g_object_unref (inf);
@@ -407,11 +407,11 @@ _retry:
                 {
                     FmJobErrorAction act = fm_job_emit_error (fmjob, err, FM_JOB_ERROR_MILD);
                     g_error_free (err);
-                    /* FM_JOB_RETRY is not supported. */
+                    // FM_JOB_RETRY is not supported.
                     if (act == FM_JOB_ABORT)
                         fm_job_cancel (FM_JOB (job));
                 }
-                break; /* FIXME_pcm: error handling */
+                break; // FIXME_pcm: error handling
             }
             g_object_unref (inf);
         }
@@ -427,20 +427,20 @@ _retry:
     return TRUE;
 }
 
-gboolean fm_dir_list_job_run (FmDirListJob* job)
+gboolean fm_dir_list_job_run (FmDirListJob *job)
 {
     gboolean ret;
 	
-    if (fm_path_is_native (job->dir_path)) /* if this is a native file on real file system */
+    if (fm_path_is_native (job->dir_path)) // if this is a native file on real file system
         ret = fm_dir_list_job_run_posix (job);
 	
-    else /* this is a virtual path or remote file system path */
+    else // this is a virtual path or remote file system path
         ret = fm_dir_list_job_run_gio (job);
     
     return ret;
 }
 
-FmFileInfoList* fm_dir_dist_job_get_files (FmDirListJob* job)
+FmFileInfoList *fm_dir_dist_job_get_files (FmDirListJob *job)
 {
 	return job->files;
 }

@@ -45,6 +45,7 @@ static FmMimeType *desktop_entry_type = NULL;
 static FmMimeType *shortcut_type = NULL;
 static FmMimeType *mountable_type = NULL;
 
+const char *gfile_info_query_attribs = "standard::*,unix::*,time::*,access::*,id::filesystem";
 
 
 static void fm_file_info_clear (FmFileInfo *file_info);
@@ -449,7 +450,7 @@ void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem
     file_info->mime_type = fm_mime_type_ref (shortcut_type);
 }
 
-FmFileInfo *_fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item)
+FmFileInfo *fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item)
 {
     FmFileInfo *file_info = fm_file_info_new ();
     file_info->path = fm_path_ref (path);

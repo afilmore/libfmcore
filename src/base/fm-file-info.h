@@ -45,6 +45,7 @@ typedef struct _FmFileInfo FmFileInfo;
 
 #define FM_FILE_INFO(ptr) ((FmFileInfo*) ptr)
 
+const char *gfile_info_query_attribs;
 
 struct _FmFileInfo
 {
@@ -103,6 +104,7 @@ FmFileInfo  *fm_file_info_new_trash_can         ();
 FmFileInfo  *fm_file_info_new_user_special_dir  (GUserDirectory directory);
 
 FmFileInfo  *fm_file_info_new_for_path          (FmPath *path);
+FmFileInfo *fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item);
 
 // new functions...
 gboolean    fm_file_info_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/);

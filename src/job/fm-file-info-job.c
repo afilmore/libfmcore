@@ -33,7 +33,7 @@
 
 G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
 
-const char gfile_info_query_attribs [] = "standard::*,unix::*,time::*,access::*,id::filesystem";
+//const char gfile_info_query_attribs [] = "standard::*,unix::*,time::*,access::*,id::filesystem";
 
 
 static void fm_file_info_job_finalize (GObject *object);
