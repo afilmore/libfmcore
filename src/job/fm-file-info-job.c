@@ -171,7 +171,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             // FileInfo rework: new function for testing...
             // this one is not cancellable and doesn't handle errors...
             // if (!fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, path_str, &err))
-            if (!fm_file_info_for_native_file (file_info, path_str))
+            if (!fm_file_info_set_for_native_file (file_info, path_str))
             {
                 FmJobErrorAction act = fm_job_emit_error (FM_JOB(job), err, FM_JOB_ERROR_MILD);
                 

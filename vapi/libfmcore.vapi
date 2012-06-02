@@ -258,20 +258,23 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public FileInfo.for_path                        (Fm.Path path);
         
+		public void                 set_path            (Fm.Path path);
+		public unowned Fm.Path      get_path            ();
+        
+        public bool                 set_for_native_file (string path);
+        
         [CCode (has_construct_function = false)]
 		public FileInfo.from_gfileinfo                  (Fm.Path path, GLib.FileInfo inf);
 		
-        public bool                 for_native_file     (string path);
+        public void                 set_from_gfileinfo  (GLib.FileInfo inf);
+		
 
         public void                 set_disp_name       (string name);
-		public void                 set_from_gfileinfo  (GLib.FileInfo inf);
-		public void                 set_path            (Fm.Path path);
         public bool                 can_thumbnail       ();
 		public void                 copy                (Fm.FileInfo src);
 		
 		public unowned string       get_name            ();
 		public unowned string       get_disp_name       ();
-		public unowned Fm.Path      get_path            ();
 		public unowned string       get_target          ();
         public unowned string       get_collate_key     ();
         public unowned Fm.Icon      get_fm_icon         ();        

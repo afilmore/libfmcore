@@ -118,7 +118,7 @@ void        fm_file_info_copy                   (FmFileInfo *file_info, FmFileIn
  ********************************************************************/
 // for file info and dir list jobs...
 FmFileInfo  *fm_file_info_new_for_path              (FmPath *path);
-gboolean    fm_file_info_for_native_file            (FmFileInfo *file_info, const char *path/*, GError **err*/);
+gboolean    fm_file_info_set_for_native_file        (FmFileInfo *file_info, const char *path/*, GError **err*/);
 void        fm_file_info_set_path                   (FmFileInfo *file_info, FmPath *path);
 FmPath      *fm_file_info_get_path                  (FmFileInfo *file_info);
 

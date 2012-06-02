@@ -214,7 +214,7 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
     return file_info;
 }
 
-gboolean fm_file_info_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
+gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
 {
 	struct stat st;
     gboolean is_link;
