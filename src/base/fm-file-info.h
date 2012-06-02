@@ -45,7 +45,19 @@ typedef struct _FmFileInfo FmFileInfo;
 
 #define FM_FILE_INFO(ptr) ((FmFileInfo*) ptr)
 
+
+// Query Attributs For FileInfo And DirList Jobs...
 const char *gfile_info_query_attribs;
+
+
+/*********************************************************************
+ * Intialize the file info system...
+ * 
+ * 
+ ********************************************************************/
+void _fm_file_info_init ();
+void _fm_file_info_finalize ();
+
 
 struct _FmFileInfo
 {
@@ -89,49 +101,88 @@ struct _FmFileInfo
 };
 
 
-// Intialize the file info system
-void _fm_file_info_init ();
-void _fm_file_info_finalize ();
-
-
 /*********************************************************************
- * Create Special Items To Display On The Desktop View...
+ * Reference Counting And Copy Function...
  * 
  * 
  ********************************************************************/
-FmFileInfo  *fm_file_info_new_computer          ();
-FmFileInfo  *fm_file_info_new_trash_can         ();
-FmFileInfo  *fm_file_info_new_user_special_dir  (GUserDirectory directory);
-
-FmFileInfo  *fm_file_info_new_for_path          (FmPath *path);
-FmFileInfo *fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item);
-
-// new functions...
-gboolean    fm_file_info_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/);
-void        fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item);
-
-FmFileInfo  *fm_file_info_new_from_gfileinfo    (FmPath *path, GFileInfo *inf);
-
-void        fm_file_info_set_from_gfileinfo     (FmFileInfo *file_info, GFileInfo *inf);
-
-void        fm_file_info_set_from_desktop_entry (FmFileInfo *file_info);
-
-void        fm_file_info_set_fm_icon            (FmFileInfo *file_info, FmIcon *fm_icon);
-FmIcon      *fm_file_info_get_fm_icon           (FmFileInfo *file_info);
-GIcon       *fm_file_info_get_gicon             (FmFileInfo *file_info);
-
 FmFileInfo  *fm_file_info_ref                   (FmFileInfo *file_info);
 void        fm_file_info_unref                  (FmFileInfo *file_info);
 void        fm_file_info_copy                   (FmFileInfo *file_info, FmFileInfo *src);
 
 
+/*********************************************************************
+ * Creation Functions...
+ * 
+ * 
+ ********************************************************************/
+FmFileInfo  *fm_file_info_new_for_path              (FmPath *path);
+FmFileInfo  *fm_file_info_new_from_menu_cache_item  (FmPath *path, MenuCacheItem *item);
+
+// for ops job and dir list job...
+FmFileInfo  *fm_file_info_new_from_gfileinfo        (FmPath *path, GFileInfo *inf);
+
+// for file info job...
+void        fm_file_info_set_from_gfileinfo         (FmFileInfo *file_info, GFileInfo *inf);
+void        fm_file_info_set_from_menu_cache_item   (FmFileInfo *file_info, MenuCacheItem *item);
+
+// new functions...
+// for file info and dir list jobs...
+gboolean    fm_file_info_for_native_file            (FmFileInfo *file_info, const char *path/*, GError **err*/);
+
+/** now private..
+void        fm_file_info_set_from_desktop_entry     (FmFileInfo *file_info);
+**/
+
+
+/*********************************************************************
+ * These Are Specific To The Desktop View...
+ * 
+ * Not sure if it's a good method...
+ * 
+ * 
+ ********************************************************************/
+FmFileInfo  *fm_file_info_new_computer              ();
+FmFileInfo  *fm_file_info_new_trash_can             ();
+FmFileInfo  *fm_file_info_new_user_special_dir      (GUserDirectory directory);
+
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 void        fm_file_info_set_path               (FmFileInfo *file_info, FmPath *path);
 FmPath      *fm_file_info_get_path              (FmFileInfo *file_info);
 
-const char  *fm_file_info_get_name              (FmFileInfo *file_info);
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
+void        fm_file_info_set_fm_icon            (FmFileInfo *file_info, FmIcon *fm_icon);
+FmIcon      *fm_file_info_get_fm_icon           (FmFileInfo *file_info);
+
+// is it really needed ? do we need also a get_pixbuf function ?
+GIcon       *fm_file_info_get_gicon             (FmFileInfo *file_info);
+
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 void        fm_file_info_set_disp_name          (FmFileInfo *file_info, const char *name);
 const char  *fm_file_info_get_disp_name         (FmFileInfo *file_info);
+const char  *fm_file_info_get_name              (FmFileInfo *file_info);
 
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 goffset     fm_file_info_get_size               (FmFileInfo *file_info);
 const char  *fm_file_info_get_disp_size         (FmFileInfo *file_info);
 goffset     fm_file_info_get_blocks             (FmFileInfo *file_info);
@@ -139,6 +190,12 @@ mode_t      fm_file_info_get_mode               (FmFileInfo *file_info);
 FmMimeType  *fm_file_info_get_mime_type         (FmFileInfo *file_info, gboolean reference);
 const char  *fm_file_info_get_target            (FmFileInfo *file_info);
 
+
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 const char  *fm_file_info_get_collate_key       (FmFileInfo *file_info);
 const char  *fm_file_info_get_desc              (FmFileInfo *file_info);
 const char  *fm_file_info_get_disp_mtime        (FmFileInfo *file_info);
@@ -146,6 +203,11 @@ time_t      *fm_file_info_get_mtime             (FmFileInfo *file_info);
 time_t      *fm_file_info_get_atime             (FmFileInfo *file_info);
 
 
+/*********************************************************************
+ * ...
+ * 
+ * 
+ ********************************************************************/
 gboolean    fm_file_info_is_dir                 (FmFileInfo *file_info);
 gboolean    fm_file_info_is_desktop_entry       (FmFileInfo *file_info);
 gboolean    fm_file_info_is_symlink             (FmFileInfo *file_info);
@@ -163,5 +225,7 @@ gboolean    fm_file_info_is_unknown_type        (FmFileInfo *file_info);
 
 G_END_DECLS
 #endif
+
+
 
 

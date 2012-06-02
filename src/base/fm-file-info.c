@@ -40,6 +40,7 @@
 #include "fm-utils.h"
 #include <menu-cache.h>
 
+
 static gboolean use_si_prefix = TRUE;
 static FmMimeType *desktop_entry_type = NULL;
 static FmMimeType *shortcut_type = NULL;
@@ -48,6 +49,8 @@ static FmMimeType *mountable_type = NULL;
 const char *gfile_info_query_attribs = "standard::*,unix::*,time::*,access::*,id::filesystem";
 
 
+// Forward declarations...
+static void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info);
 static void fm_file_info_clear (FmFileInfo *file_info);
 
 
@@ -337,7 +340,7 @@ FmFileInfo *fm_file_info_new_from_gfileinfo (FmPath *path, GFileInfo *inf)
     return file_info;
 }
 
-void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
+static void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
 {
     // Special handling for desktop entries...
     char *fpath = fm_path_to_str (file_info->path);

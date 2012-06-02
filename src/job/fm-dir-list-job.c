@@ -359,7 +359,6 @@ _retry:
         return FALSE;
     }
 
-    // FIXME_pcm: should we use fm_file_info_new_ + fm_file_info_set_from_gfileinfo?
     job->dir_fi = fm_file_info_new_from_gfileinfo (job->dir_path, inf);
     
     g_object_unref (inf);
