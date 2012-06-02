@@ -26,7 +26,6 @@
 #endif
 
 #include "fm-dir-list-job.h"
-//#include "fm-file-info-job.h"
 
 #include <glib/gi18n-lib.h>
 #include <gio/gio.h>
@@ -35,14 +34,24 @@
 #include <menu-cache.h>
 
 
-// TODO_axl: move to FmFileInfo ?
-//extern const char gfile_info_query_attribs []; // defined in fm-file-info-job.c
-
-static void fm_dir_list_job_finalize  			 (GObject *object);
 G_DEFINE_TYPE (FmDirListJob, fm_dir_list_job, FM_TYPE_JOB);
 
+
+//
+static void fm_dir_list_job_finalize (GObject *object);
 static gboolean fm_dir_list_job_run (FmDirListJob *job);
 
+
+FmJob *fm_dir_list_job_new (FmPath *path, gboolean dir_only)
+{
+	FmDirListJob *job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
+	
+    job->dir_path = fm_path_ref (path);
+    job->dir_only = dir_only;
+	job->files = fm_file_info_list_new ();
+	
+    return (FmJob*) job;
+}
 
 static void fm_dir_list_job_class_init (FmDirListJobClass *klass)
 {
@@ -60,15 +69,6 @@ static void fm_dir_list_job_init (FmDirListJob *self)
     fm_job_init_cancellable (FM_JOB (self));
 }
 
-
-FmJob *fm_dir_list_job_new (FmPath *path, gboolean dir_only)
-{
-	FmDirListJob *job =  (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
-	job->dir_path = fm_path_ref (path);
-    job->dir_only = dir_only;
-	job->files = fm_file_info_list_new ();
-	return  (FmJob*) job;
-}
 
 FmJob *fm_dir_list_job_new_for_gfile (GFile *gf)
 {

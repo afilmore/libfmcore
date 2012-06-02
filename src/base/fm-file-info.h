@@ -118,24 +118,21 @@ void        fm_file_info_copy                   (FmFileInfo *file_info, FmFileIn
  ********************************************************************/
 // for file info and dir list jobs...
 FmFileInfo  *fm_file_info_new_for_path              (FmPath *path);
-
-// for dir list job...
-FmFileInfo  *fm_file_info_new_from_menu_cache_item  (FmPath *path, MenuCacheItem *item);
+gboolean    fm_file_info_for_native_file            (FmFileInfo *file_info, const char *path/*, GError **err*/);
+void        fm_file_info_set_path                   (FmFileInfo *file_info, FmPath *path);
+FmPath      *fm_file_info_get_path                  (FmFileInfo *file_info);
 
 // for ops job and dir list job...
 FmFileInfo  *fm_file_info_new_from_gfileinfo        (FmPath *path, GFileInfo *inf);
 
 // for file info job...
 void        fm_file_info_set_from_gfileinfo         (FmFileInfo *file_info, GFileInfo *inf);
+
+// for dir list job...
+FmFileInfo  *fm_file_info_new_from_menu_cache_item  (FmPath *path, MenuCacheItem *item);
+
+// for file info job...
 void        fm_file_info_set_from_menu_cache_item   (FmFileInfo *file_info, MenuCacheItem *item);
-
-// new functions...
-// for file info and dir list jobs...
-gboolean    fm_file_info_for_native_file            (FmFileInfo *file_info, const char *path/*, GError **err*/);
-
-/** now private..
-void        fm_file_info_set_from_desktop_entry     (FmFileInfo *file_info);
-**/
 
 
 /*********************************************************************
@@ -155,15 +152,6 @@ FmFileInfo  *fm_file_info_new_user_special_dir      (GUserDirectory directory);
  * 
  * 
  ********************************************************************/
-void        fm_file_info_set_path               (FmFileInfo *file_info, FmPath *path);
-FmPath      *fm_file_info_get_path              (FmFileInfo *file_info);
-
-
-/*********************************************************************
- * ...
- * 
- * 
- ********************************************************************/
 void        fm_file_info_set_fm_icon            (FmFileInfo *file_info, FmIcon *fm_icon);
 FmIcon      *fm_file_info_get_fm_icon           (FmFileInfo *file_info);
 
@@ -176,9 +164,9 @@ GIcon       *fm_file_info_get_gicon             (FmFileInfo *file_info);
  * 
  * 
  ********************************************************************/
+const char  *fm_file_info_get_name              (FmFileInfo *file_info);
 void        fm_file_info_set_disp_name          (FmFileInfo *file_info, const char *name);
 const char  *fm_file_info_get_disp_name         (FmFileInfo *file_info);
-const char  *fm_file_info_get_name              (FmFileInfo *file_info);
 
 
 /*********************************************************************
