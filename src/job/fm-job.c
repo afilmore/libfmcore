@@ -277,10 +277,12 @@ void fm_job_cancel (FmJob* job)
 static gboolean on_idle_call (FmIdleCall* data)
 {
 	data->ret = data->func (data->job, data->user_data);
-	g_mutex_lock (data->job->mutex);
+	
+    g_mutex_lock (data->job->mutex);
 	g_cond_broadcast (data->job->cond);
 	g_mutex_unlock (data->job->mutex);
-	return FALSE;
+	
+    return FALSE;
 }
 
 /* Following APIs are private to FmJob and should only be used in the
@@ -294,21 +296,26 @@ gpointer fm_job_call_main_thread (FmJob* job,
 	data.job = job;
 	data.func = func;
 	data.user_data = user_data;
-	g_mutex_lock (job->mutex);
+	
+    g_mutex_lock (job->mutex);
 	g_idle_add (  (GSourceFunc)on_idle_call, &data );
 	g_cond_wait (job->cond, job->mutex);
 	g_mutex_unlock (job->mutex);
-	return data.ret;
+	
+    return data.ret;
 }
 
 void fm_job_finish (FmJob* job)
 {
 	G_LOCK (idle_handler);
-	if (0 == idle_handler)
+	
+    if (0 == idle_handler)
 		idle_handler = g_idle_add (on_idle_cleanup, NULL);
-	finished = g_slist_append (finished, job);
+	
+    finished = g_slist_append (finished, job);
     job->running = FALSE;
-	G_UNLOCK (idle_handler);
+	
+    G_UNLOCK (idle_handler);
 }
 
 void fm_job_emit_finished (FmJob* job)
@@ -331,7 +338,8 @@ static gpointer ask_in_main_thread (FmJob* job, struct AskData* data)
 {
 	gint ret;
 	g_signal_emit (job, signals[ASK], 0, data->question, data->options, &ret);
-	return GINT_TO_POINTER (ret);
+	
+    return GINT_TO_POINTER (ret);
 }
 
 gint fm_job_ask (FmJob* job, const char* question, ...)
@@ -349,7 +357,8 @@ gint fm_job_askv (FmJob* job, const char* question, const char** options)
 	struct AskData data;
 	data.question = question;
 	data.options = options;
-	return  (gint) fm_job_call_main_thread (job, (FmJobCallMainThreadFunc) ask_in_main_thread, &data);
+	
+    return  (gint) fm_job_call_main_thread (job, (FmJobCallMainThreadFunc) ask_in_main_thread, &data);
 }
 
 gint fm_job_ask_valist (FmJob* job, const char* question, va_list options)
@@ -357,11 +366,13 @@ gint fm_job_ask_valist (FmJob* job, const char* question, va_list options)
     GArray* opts = g_array_sized_new (TRUE, TRUE, sizeof (char*), 6);
     gint ret;
     const char* opt = va_arg (options, const char*);
+    
     while (opt)
     {
         g_array_append_val (opts, opt);
         opt = va_arg  (options, const char *);
     }
+    
     ret = fm_job_askv (job, question, (const char**) opts->data);
     g_array_free (opts, TRUE);
     return ret;
@@ -506,3 +517,6 @@ gboolean fm_job_is_running (FmJob* job)
 {
     return job->running;
 }
+
+
+

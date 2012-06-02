@@ -116,7 +116,10 @@ void        fm_file_info_copy                   (FmFileInfo *file_info, FmFileIn
  * 
  * 
  ********************************************************************/
+// for file info and dir list jobs...
 FmFileInfo  *fm_file_info_new_for_path              (FmPath *path);
+
+// for dir list job...
 FmFileInfo  *fm_file_info_new_from_menu_cache_item  (FmPath *path, MenuCacheItem *item);
 
 // for ops job and dir list job...

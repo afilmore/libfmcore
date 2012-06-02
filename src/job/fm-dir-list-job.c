@@ -213,6 +213,7 @@ gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob *job)
 {
     // Calling libmenu-cache is only allowed in main thread.
     fm_job_call_main_thread (FM_JOB (job), list_menu_items, NULL);
+    
     return TRUE;
 }
 

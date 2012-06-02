@@ -46,8 +46,10 @@ typedef gboolean (*FmSimpleJobFunc)(FmSimpleJob*, gpointer);
 struct _FmSimpleJob
 {
     FmJob parent;
+    
     FmSimpleJobFunc func;
     gpointer user_data;
+    
     GDestroyNotify destroy_data;
 };
 

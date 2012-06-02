@@ -57,6 +57,7 @@ typedef enum _FmFileInfoJobFlags FmFileInfoJobFlags;
 struct _FmFileInfoJob
 {
 	FmJob               parent;
+    
     FmFileInfoJobFlags  flags;
 	
     FmFileInfoList      *file_infos;

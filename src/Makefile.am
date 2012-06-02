@@ -55,7 +55,6 @@ base_SOURCES = \
 
 job_SOURCES = \
 	job/fm-job.c \
-	job/fm-simple-job.c \
 	job/fm-dir-list-job.c \
 	job/fm-deep-count-job.c  \
 	job/fm-file-ops-job.c \
@@ -98,7 +97,6 @@ libfmcoreinclude_HEADERS = \
 	job/fm-file-ops-job-delete.h \
 	job/fm-file-ops-job-xfer.h \
 	job/fm-job.h \
-	job/fm-simple-job.h \
 	gtk/fm-clipboard.h \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \

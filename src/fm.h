@@ -44,7 +44,6 @@
 #include "fm-deep-count-job.h"
 #include "fm-dir-list-job.h"
 #include "fm-file-info-job.h"
-#include "fm-simple-job.h"
 
 // Fm Gtk
 #include "fm-app-chooser-combo-box.h"

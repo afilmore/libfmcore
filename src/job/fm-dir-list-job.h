@@ -46,10 +46,14 @@ typedef struct _FmDirListJobClass		FmDirListJobClass;
 struct _FmDirListJob
 {
 	FmJob parent;
-	FmPath* dir_path;
+	
+    FmPath* dir_path;
+    
     gboolean dir_only;
+    
     FmFileInfo* dir_fi;
-	FmFileInfoList* files;
+	
+    FmFileInfoList* files;
 };
 
 struct _FmDirListJobClass
