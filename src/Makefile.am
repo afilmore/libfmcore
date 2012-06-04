@@ -16,6 +16,7 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/gtk \
 	-I$(srcdir)/gtk-dlg \
 	-I$(srcdir)/job \
+	-I$(srcdir)/utils \
 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
@@ -34,7 +35,6 @@ base_SOURCES = \
 	base/fm-monitor.c \
 	base/fm-path.c \
 	base/fm-path-list.c \
-	base/fm-utils.c \
 	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
@@ -47,10 +47,11 @@ base_SOURCES = \
 	gtk-dlg/fm-app-chooser-combo-box.c \
 	gtk-dlg/fm-app-chooser-dlg.c \
 	gtk-dlg/fm-app-menu-view.c \
-	gtk-dlg/fm-dlg-utils.c \
 	gtk-dlg/fm-gtk-launcher.c \
 	gtk-dlg/fm-file-properties.c \
 	gtk-dlg/fm-progress-dlg.c \
+	utils/fm-dlg-utils.c \
+	utils/fm-utils.c \
 	$(NULL)
 
 job_SOURCES = \
@@ -76,7 +77,6 @@ libfmcoreinclude_HEADERS = \
 	fmvala/fm-config.h \
 	base/fm-app-info.h \
 	base/fm-archiver.h \
-	base/fm-debug.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
 	base/fm-file-info-list.h \
@@ -88,7 +88,6 @@ libfmcoreinclude_HEADERS = \
 	base/fm-monitor.h \
 	base/fm-path.h \
 	base/fm-path-list.h \
-	base/fm-utils.h \
 	job/fm-deep-count-job.h \
 	job/fm-dir-list-job.h \
 	job/fm-file-info-job.h \
@@ -109,10 +108,12 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-chooser-combo-box.h \
 	gtk-dlg/fm-app-chooser-dlg.h \
 	gtk-dlg/fm-app-menu-view.h \
-	gtk-dlg/fm-dlg-utils.h \
 	gtk-dlg/fm-file-properties.h \
 	gtk-dlg/fm-gtk-launcher.h \
 	gtk-dlg/fm-progress-dlg.h \
+	utils/fm-debug.h \
+	utils/fm-dlg-utils.h \
+	utils/fm-utils.h \
 	$(NULL)
 
 pkginclude_HEADERS = \

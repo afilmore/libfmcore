@@ -53,6 +53,7 @@
 #include "fm-folder-model.h"
 #include "fm-gtk-launcher.h"
 #include "fm-gtk-marshal.h"
+#include "fm-dlg-utils.h"
 #include "fm-utils.h"
 #include "fm-icon-pixbuf.h"
 #include "fm-thumbnail.h"

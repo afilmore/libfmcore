@@ -660,7 +660,7 @@ namespace Fm {
      * 
      ************************************************************************************/
     [CCode (cheader_filename = "fm.h")]
-    public static string? get_user_input (Gtk.Window parent, string title, string msg, string default_text);
+    public static string? get_user_input (Gtk.Window? parent, string title, string msg, string default_text);
 
     namespace Clipboard {
         
