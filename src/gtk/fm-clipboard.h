@@ -29,13 +29,10 @@
 
 G_BEGIN_DECLS
 
-#define fm_clipboard_cut_files(src_widget, files)	\
-	fm_clipboard_cut_or_copy_files(src_widget, files, TRUE)
+#define fm_clipboard_cut_files(src_widget, files)   fm_clipboard_cut_or_copy_files (src_widget, files, TRUE)
+#define fm_clipboard_copy_files(src_widget, files)	fm_clipboard_cut_or_copy_files (src_widget, files, FALSE)
 
-#define fm_clipboard_copy_files(src_widget, files)	\
-	fm_clipboard_cut_or_copy_files(src_widget, files, FALSE)
-
-gboolean fm_clipboard_cut_or_copy_files (GtkWidget *src_widget, FmPathList *files, gboolean _is_cut);
+gboolean fm_clipboard_cut_or_copy_files (GtkWidget *src_widget, FmPathList *files, gboolean cut_files);
 
 gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir);
 

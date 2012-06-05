@@ -662,6 +662,9 @@ namespace Fm {
     [CCode (cheader_filename = "fm.h")]
     public static string? get_user_input (Gtk.Window? parent, string title, string msg, string default_text);
 
+	[CCode (cheader_filename = "fm.h")]
+	public static void show_error (Gtk.Window? parent, string? title, string msg);
+
     namespace Clipboard {
         
         [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]

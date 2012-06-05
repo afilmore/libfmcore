@@ -23,6 +23,8 @@
  **********************************************************************************************************************/
 #include "fm-clipboard.h"
 #include "fm-utils.h"
+#include "fm-debug.h"
+#include <string.h>
 
 enum {
     URI_LIST = 1,
@@ -31,15 +33,15 @@ enum {
     UTF8_STRING
 };
 
-static GtkTargetEntry targets[]=
+static GtkTargetEntry targets [] =
 {
-    {"text/uri-list", 0, URI_LIST},
-    {"x-special/gnome-copied-files", 0, GNOME_COPIED_FILES},
-    {"application/x-kde-cutselection", 0, KDE_CUT_SEL},
-    { "UTF8_STRING", 0, UTF8_STRING }
+    {"text/uri-list",                   0, URI_LIST},
+    {"x-special/gnome-copied-files",    0, GNOME_COPIED_FILES},
+    {"application/x-kde-cutselection",  0, KDE_CUT_SEL},
+    {"UTF8_STRING",                     0, UTF8_STRING}
 };
 
-static gboolean is_cut = FALSE;
+static gboolean _cut_files = FALSE;
 
 static void get_data (GtkClipboard *clipboard, GtkSelectionData *selection_data, guint info, gpointer user_data)
 {
@@ -50,14 +52,14 @@ static void get_data (GtkClipboard *clipboard, GtkSelectionData *selection_data,
     if (info == KDE_CUT_SEL)
     {
         // set application/kde-cutselection data
-        if (is_cut)
+        if (_cut_files)
             gtk_selection_data_set (selection_data, target, 8, "1", 2);
         return;
     }
 
     uri_list = g_string_sized_new (4096);
     if (info == GNOME_COPIED_FILES)
-        g_string_append (uri_list, is_cut ? "cut\n" : "copy\n");
+        g_string_append (uri_list, _cut_files ? "cut\n" : "copy\n");
     if (info == UTF8_STRING)
     {
         GList *l = fm_list_peek_head_link (files);
@@ -85,16 +87,16 @@ static void clear_data (GtkClipboard *clipboard, gpointer user_data)
 {
     FmPathList *files =  (FmPathList*)user_data;
     fm_list_unref (files);
-    is_cut = FALSE;
+    _cut_files = FALSE;
 }
 
-gboolean fm_clipboard_cut_or_copy_files (GtkWidget *src_widget, FmPathList *files, gboolean _is_cut)
+gboolean fm_clipboard_cut_or_copy_files (GtkWidget *src_widget, FmPathList *files, gboolean cut_files)
 {
     GdkDisplay *dpy = src_widget ? gtk_widget_get_display (src_widget) : gdk_display_get_default ();
     GtkClipboard *clipboard = gtk_clipboard_get_for_display (dpy, GDK_SELECTION_CLIPBOARD);
     gboolean ret = gtk_clipboard_set_with_data (clipboard, targets, G_N_ELEMENTS (targets),
                                                get_data, clear_data, fm_list_ref (files));
-    is_cut = _is_cut;
+    _cut_files = cut_files;
     return ret;
 }
 
@@ -134,7 +136,7 @@ gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
     int n, i;
 
     // get all available targets currently in the clipboard.
-    if ( !gtk_clipboard_wait_for_targets (clipboard, &avail_targets, &n) )
+    if (!gtk_clipboard_wait_for_targets (clipboard, &avail_targets, &n))
         return FALSE;
 
     // check gnome and xfce compatible format first
@@ -147,7 +149,7 @@ gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
             break;
         }
     }
-    if ( 0 == type ) // x-special/gnome-copied-files is not found.
+    if (0 == type) // x-special/gnome-copied-files is not found.
     {
         // check uri-list
         atom = gdk_atom_intern_static_string (targets[URI_LIST-1].target);
@@ -159,7 +161,7 @@ gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
                 break;
             }
         }
-        if ( 0 == type ) // text/uri-list is not found.
+        if (0 == type) // text/uri-list is not found.
         {
             // finally, fallback to UTF-8 string
             atom = gdk_atom_intern_static_string (targets[UTF8_STRING-1].target);
@@ -175,7 +177,7 @@ gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
     }
     g_free (avail_targets);
 
-    if ( type )
+    if (type)
     {
         
         GtkSelectionData *selection_data = gtk_clipboard_wait_for_contents (clipboard, atom);
@@ -184,63 +186,84 @@ gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
         gint data_format = gtk_selection_data_get_format (selection_data);
         
         char *pdata = (char*) data;
+        pdata [data_length] = '\0'; //make sure the data is null-terminated.
         
-        /*FIXME_pcm: is it safe to assume the clipboard data is null-terminalted?
-          *According to the source code in gtkselection.c, gtk+ seems to
-          *includes an extra byte at the end of GtkSelectionData::data, so
-          *this should be safe. */
-         
-        pdata[data_length] = '\0'; //make sure the data is null-terminated.
-        
-        is_cut = FALSE;
+        _cut_files = FALSE;
 
         switch (type)
         {
-        case GNOME_COPIED_FILES:
-            is_cut = g_str_has_prefix (pdata, "cut\n");
-            while (*pdata && *pdata != '\n')
+            case GNOME_COPIED_FILES:
+                _cut_files = g_str_has_prefix (pdata, "cut\n");
+                
+                while (*pdata && *pdata != '\n')
+                    ++pdata;
+                
                 ++pdata;
-            ++pdata;
-            //the following parts is actually a uri-list, so don't break here.
-        case URI_LIST:
-            uris = g_uri_list_extract_uris (pdata);
-            if ( type != GNOME_COPIED_FILES )
-            {
-                /*if we're not handling x-special/gnome-copied-files, check
-                  *if information from KDE is available. */
-                is_cut = check_kde_curselection (clipboard);
-            }
+                //the following parts is actually a uri-list, so don't break here.
+            
+            case URI_LIST:
+                uris = g_uri_list_extract_uris (pdata);
+                if (type != GNOME_COPIED_FILES)
+                {
+                    /*if we're not handling x-special/gnome-copied-files, check
+                      *if information from KDE is available. */
+                    _cut_files = check_kde_curselection (clipboard);
+                }
             break;
-        case UTF8_STRING:
-            //FIXME_pcm: how should we treat UTF-8 strings? URIs or filenames?
-            uris = g_uri_list_extract_uris (pdata);
+            
+            case UTF8_STRING:
+                //FIXME_pcm: how should we treat UTF-8 strings? URIs or filenames?
+                uris = g_uri_list_extract_uris (pdata);
             break;
         }
+        
         gtk_selection_data_free (selection_data);
 
         if (uris)
         {
             GtkWindow *parent;
             if (dest_widget)
-                parent =  (GtkWindow*) gtk_widget_get_toplevel (GTK_WIDGET (dest_widget));
+                parent = (GtkWindow*) gtk_widget_get_toplevel (GTK_WIDGET (dest_widget));
             else
                 parent = NULL;
 
-            files = fm_path_list_new_from_uris ( (const char **)uris);
+            
+            // we'll have a list of uri as "file:///home/hotnuma/Bureau/TODO"
+            #ifdef DEBUG
+            const char **uri_list;
+            for (uri_list = (const char **) uris; *uri_list; ++uri_list)
+            {
+                const char *puri = *uri_list;
+                if (puri[0] != '\0') // ensure that it's not an empty string
+                {
+                    if (puri[0] == '/')
+                        DEBUG ("fm_clipboard_paste_files: path = %s\n", puri);
+                    else if (strstr (puri, "://"))
+                        DEBUG ("fm_clipboard_paste_files: uri = %s\n", puri);
+                    else // it's not a valid path or URI
+                        DEBUG ("fm_clipboard_paste_files: invalid uri = %s\n", puri);
+                }
+            }
+            #endif
+            
+            files = fm_path_list_new_from_uris ((const char **) uris);
             g_strfreev (uris);
 
             if (!fm_list_is_empty (files))
             {
-                if ( is_cut )
+                if (_cut_files)
                     fm_move_files (parent, files, dest_dir);
                 else
                     fm_copy_files (parent, files, dest_dir);
             }
+            
             fm_list_unref (files);
             return TRUE;
         }
     }
+    
     return FALSE;
 }
+
 
 

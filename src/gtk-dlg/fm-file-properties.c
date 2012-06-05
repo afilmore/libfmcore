@@ -56,10 +56,10 @@
  * 
  * 
  **********************************************************************************************************************/
-const char PROPERTIES_DLG[] ="<?xml version='1.0'?>"
+const char PROPERTIES_DLG [] =
+"<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
-"<requires lib='gtk+' version='2.16'/>"
-"<!-- interface-naming-policy toplevel-contextual -->"
+"<!-- interface-requires gtk+ 3.0 -->"
 "<object class='GtkDialog' id='dlg'>"
 "<property name='border_width'>6</property>"
 "<property name='title' translatable='yes'>File Properties</property>"
@@ -68,7 +68,6 @@ const char PROPERTIES_DLG[] ="<?xml version='1.0'?>"
 "<property name='default_width'>360</property>"
 "<property name='type_hint'>dialog</property>"
 "<property name='gravity'>center</property>"
-"<property name='has_separator'>False</property>"
 "<signal name='response' handler='on_filePropertiesDlg_response'/>"
 "<child internal-child='vbox'>"
 "<object class='GtkVBox' id='dialog_vbox'>"

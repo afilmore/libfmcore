@@ -24,8 +24,8 @@
 #ifndef __FM_DEBUG_H__
 #define __FM_DEBUG_H__
 
-#include <glib.h>
-#include <string.h>
+//~ #include <glib.h>
+#include <stdio.h>
 
 G_BEGIN_DECLS
 

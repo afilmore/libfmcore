@@ -23,6 +23,7 @@
  **********************************************************************************************************************/
 #include "fm-job.h"
 #include "fm-marshal.h"
+#include "fm-debug.h"
 
 /**
  * SECTION:fmjob
@@ -453,10 +454,16 @@ struct ErrData
 
 gpointer error_in_main_thread (FmJob* job, struct ErrData* data)
 {
-	gboolean ret;
-    g_debug ("FmJob error: %s", data->err->message);
+	gboolean ret = FALSE;
+    
+    //~ g_return_val_if_fail (NULL, data != NULL);
+    //~ g_return_val_if_fail (NULL, data->err != NULL);
+    //~ g_return_val_if_fail (NULL, data->err->message != NULL);
+    
+    DEBUG ("FmJob error: %s", data->err->message);
 	g_signal_emit (job, signals[ERROR], 0, data->err, data->severity, &ret);
-	return GINT_TO_POINTER (ret);
+	
+    return GINT_TO_POINTER (ret);
 }
 
 /* Emit an 'error' signal to notify the main thread when an error occurs.
@@ -476,7 +483,10 @@ FmJobErrorAction fm_job_emit_error (FmJob* job, GError* err, FmJobErrorSeverity 
 	struct ErrData data;
 	data.err = err;
 	data.severity = severity;
-	ret =  (gboolean)fm_job_call_main_thread (job, (FmJobCallMainThreadFunc) error_in_main_thread, &data);
+
+    //~ g_return_val_if_fail (FM_JOB_ABORT, err != NULL);
+	
+    ret =  (gboolean)fm_job_call_main_thread (job, (FmJobCallMainThreadFunc) error_in_main_thread, &data);
     if (severity == FM_JOB_ERROR_CRITICAL || ret == FM_JOB_ABORT)
     {
         ret = FM_JOB_ABORT;

@@ -22,6 +22,7 @@
  * 
  **********************************************************************************************************************/
 #include "fm-file-info-job.h"
+#include "fm-debug.h"
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -29,7 +30,6 @@
 #include <string.h>
 #include <menu-cache.h>
 #include <errno.h>
-
 
 G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
 
@@ -173,14 +173,16 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             // if (!fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, path_str, &err))
             if (!fm_file_info_set_for_native_file (file_info, path_str))
             {
-                FmJobErrorAction act = fm_job_emit_error (FM_JOB(job), err, FM_JOB_ERROR_MILD);
-                
-                g_error_free (err);
-                err = NULL;
-                
-                if (act == FM_JOB_RETRY)
-                    continue;
+                //~ FmJobErrorAction act = fm_job_emit_error (FM_JOB(job), err, FM_JOB_ERROR_MILD);
+                //~ 
+                //~ g_error_free (err);
+                //~ err = NULL;
+                //~ 
+                //~ if (act == FM_JOB_RETRY)
+                    //~ continue;
 
+                DEBUG ("fm_file_info_set_for_native_file: error reading %s\n", path_str);
+                
                 next = l->next;
                 fm_list_delete_link (job->file_infos, l); // Also calls unref...
             }
