@@ -26,25 +26,20 @@
 #endif
 
 #include <glib/gi18n-lib.h>
-#include <gio/gdesktopappinfo.h>
-
+#include <stdio.h>
+#include <stdlib.h>
+ 
 #include "fm-utils.h"
-#include "fm-dlg-utils.h"
-#include "fm-file-ops-job.h"
-#include "fm-progress-dlg.h"
-#include "fm-app-chooser-dlg.h"
 
-#include "fm-config.h"
+#define BI_KiB  ((gdouble) 1024.0)
+#define BI_MiB  ((gdouble) 1024.0 * 1024.0)
+#define BI_GiB  ((gdouble) 1024.0 * 1024.0 * 1024.0)
+#define BI_TiB  ((gdouble) 1024.0 * 1024.0 * 1024.0 * 1024.0)
 
-#define BI_KiB  ((gdouble)1024.0)
-#define BI_MiB  ((gdouble)1024.0 * 1024.0)
-#define BI_GiB  ((gdouble)1024.0 * 1024.0 * 1024.0)
-#define BI_TiB  ((gdouble)1024.0 * 1024.0 * 1024.0 * 1024.0)
-
-#define SI_KB   ((gdouble)1000.0)
-#define SI_MB   ((gdouble)1000.0 * 1000.0)
-#define SI_GB   ((gdouble)1000.0 * 1000.0 * 1000.0)
-#define SI_TB   ((gdouble)1000.0 * 1000.0 * 1000.0 * 1000.0)
+#define SI_KB   ((gdouble) 1000.0)
+#define SI_MB   ((gdouble) 1000.0 * 1000.0)
+#define SI_GB   ((gdouble) 1000.0 * 1000.0 * 1000.0)
+#define SI_TB   ((gdouble) 1000.0 * 1000.0 * 1000.0 * 1000.0)
 
 
 /*********************************************************************
