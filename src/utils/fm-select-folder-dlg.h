@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-dlg-utils.h
+ *      fm-select-folder-dlg.h
  *
  *      Copyright 2009 PCMan <pcman@debian>
  *
@@ -21,31 +21,22 @@
  *
  * 
  **********************************************************************************************************************/
-#ifndef __FM_DLG_UTILS_H__
-#define __FM_DLG_UTILS_H__
+#ifndef __FM_SELECT_FOLDER_DLG_H__
+#define __FM_SELECT_FOLDER_DLG_H__
 
 #include <gtk/gtk.h>
-//~ #include <gio/gio.h>
-//~ #include <stdarg.h>
 
 #include "fm-path.h"
-//~ #include "fm-file-ops-job.h"
 
 G_BEGIN_DECLS
-
-// Convinient dialog functions
-gchar *fm_get_user_input_rename (GtkWindow *parent, const char *title, const char *msg, const char *default_text);
-
-char *fm_get_user_input (GtkWindow *parent, const char *title, const char *msg, const char *default_text);
-//FmPath *fm_get_user_input_path (GtkWindow *parent, const char *title, const char *msg, FmPath *default_path);
 
 // Ask the user to select a folder.
 FmPath *fm_select_folder (GtkWindow *parent, const char *title);
 
 
-
 G_END_DECLS
 #endif
+
 
 
 

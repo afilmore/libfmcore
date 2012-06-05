@@ -40,7 +40,6 @@
 #include "fm-gtk-launcher.h"
 #include "fm-utils.h"
 #include "fm-msgbox.h"
-//~ #include "fm-dlg-utils.h"
 #include "fm-app-chooser-dlg.h"
 #include "fm-config.h"
 #include "fm-file-info-job.h"

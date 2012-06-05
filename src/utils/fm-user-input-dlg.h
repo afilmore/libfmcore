@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-mount.h
+ *      fm-user-input-dlg.h
  *
  *      Copyright 2009 PCMan <pcman@debian>
  *
@@ -21,24 +21,21 @@
  *
  * 
  **********************************************************************************************************************/
-#ifndef __FM_MOUNT_H__
-#define __FM_MOUNT_H__
+#ifndef __FM_USER_INPUT_DLG_H__
+#define __FM_USER_INPUT_DLG_H__
 
 #include <gtk/gtk.h>
-#include <gio/gio.h>
-
-#include "fm-path.h"
 
 
 G_BEGIN_DECLS
 
-// Mount
-gboolean fm_mount_path      (GtkWindow *parent, FmPath *path, gboolean interactive);
-gboolean fm_mount_volume    (GtkWindow *parent, GVolume *vol, gboolean interactive);
-gboolean fm_unmount_mount   (GtkWindow *parent, GMount *mount, gboolean interactive);
-gboolean fm_unmount_volume  (GtkWindow *parent, GVolume *vol, gboolean interactive);
-gboolean fm_eject_mount     (GtkWindow *parent, GMount *mount, gboolean interactive);
-gboolean fm_eject_volume    (GtkWindow *parent, GVolume *vol, gboolean interactive);
+// Convinient dialog functions
+gchar *fm_get_user_input_rename (GtkWindow *parent, const char *title, const char *msg, const char *default_text);
+
+char *fm_get_user_input (GtkWindow *parent, const char *title, const char *msg, const char *default_text);
+
+//FmPath *fm_get_user_input_path (GtkWindow *parent, const char *title, const char *msg, FmPath *default_path);
+
 
 
 G_END_DECLS

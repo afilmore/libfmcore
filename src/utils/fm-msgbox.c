@@ -29,9 +29,6 @@
 
 #include "fm-msgbox.h"
 
-//~ #include "fm-dlg-utils.h"
-//~ 
-
 
 // Forward declarations...
 int fm_ask_valist (GtkWindow *parent, const char *title, const char *question, va_list options);

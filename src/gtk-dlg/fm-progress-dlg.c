@@ -31,7 +31,6 @@
 #include "fm-progress-dlg.h"
 #include "fm-utils.h"
 #include "fm-msgbox.h"
-//~ #include "fm-dlg-utils.h"
 
 #define SHOW_DLG_DELAY  1000
 

@@ -41,7 +41,6 @@
 #include "fm-file-ops-job.h"
 #include "fm-utils.h"
 #include "fm-msgbox.h"
-//~ #include "fm-dlg-utils.h"
 #include "fm-path.h"
 
 #include "fm-progress-dlg.h"

@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-dlg-utils.c
+ *      fm-user-input-dlg.c
  *
  *      Copyright 2009 PCMan <pcman@debian>
  *
@@ -25,17 +25,9 @@
 #include <config.h>
 #endif
 
-#include "fm-dlg-utils.h"
+#include "fm-user-input-dlg.h"
 
 #include <glib/gi18n-lib.h>
-//~ #include <gio/gdesktopappinfo.h>
-//~ 
-//~ #include "fm-file-ops-job.h"
-//~ #include "fm-progress-dlg.h"
-//~ #include "fm-app-chooser-dlg.h"
-//~ 
-//~ #include "fm-config.h"
-
 
 
 static GtkDialog *  _fm_get_user_input_dialog    (GtkWindow *parent, const char *title, const char *msg);
@@ -54,6 +46,7 @@ gchar *fm_get_user_input (GtkWindow *parent, const char *title, const char *msg,
     return _fm_user_input_dialog_run (dialog,  GTK_ENTRY (entry));
 }
 
+/** currently unused...
 FmPath *fm_get_user_input_path (GtkWindow *parent, const char *title, const char *msg, FmPath *default_path)
 {
 
@@ -76,7 +69,7 @@ FmPath *fm_get_user_input_path (GtkWindow *parent, const char *title, const char
     g_free (path_str);
     g_free (str);
     return path;
-}
+} **/
 
 
 gchar *fm_get_user_input_rename (GtkWindow *parent, const char *title, const char *msg, const char *default_text)
@@ -179,31 +172,6 @@ static gchar *_fm_user_input_dialog_run (GtkDialog *dialog, GtkEntry *entry)
     }
     gtk_widget_destroy (GTK_WIDGET (dialog));
     return str;
-}
-
-FmPath *fm_select_folder (GtkWindow *parent, const char *title)
-{
-    FmPath *path;
-    GtkFileChooser *chooser;
-    chooser =  (GtkFileChooser*)gtk_file_chooser_dialog_new (
-                                        title ? title : _ ("Please select a folder"),
-                                        parent, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                        GTK_STOCK_OK, GTK_RESPONSE_OK,
-                                        NULL);
-    gtk_dialog_set_alternative_button_order ((GtkDialog*)chooser,
-                                        GTK_RESPONSE_CANCEL,
-                                        GTK_RESPONSE_OK, NULL);
-    if (gtk_dialog_run ((GtkDialog*)chooser) == GTK_RESPONSE_OK)
-    {
-        GFile *file = gtk_file_chooser_get_file (chooser);
-        path = fm_path_new_for_gfile (file);
-        g_object_unref (file);
-    }
-    else
-        path = NULL;
-    gtk_widget_destroy ((GtkWidget*)chooser);
-    return path;
 }
 
 

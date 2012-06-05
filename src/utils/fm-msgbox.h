@@ -25,11 +25,6 @@
 #define __FM_MSGBOX_H__
 
 #include <gtk/gtk.h>
-//~ #include <gio/gio.h>
-//~ #include <stdarg.h>
-
-//~ #include "fm-path.h"
-//~ #include "fm-file-ops-job.h"
 
 G_BEGIN_DECLS
 
@@ -45,9 +40,12 @@ gboolean fm_ok_cancel (GtkWindow *parent, const char *title, const char *questio
 
 // Ask the user a question with a NULL-terminated array of
 // options provided. The return value was index of the selected option.
-//int fm_ask (GtkWindow *parent, const char *title, const char *question, ...);
+
+/** int fm_ask (GtkWindow *parent, const char *title, const char *question, ...); **/
+
 int fm_askv (GtkWindow *parent, const char *title, const char *question, const char **options);
-//int fm_ask_valist (GtkWindow *parent, const char *title, const char *question, va_list options);
+
+/** int fm_ask_valist (GtkWindow *parent, const char *title, const char *question, va_list options); **/
 
 
 G_END_DECLS

@@ -25,21 +25,13 @@
 #include <config.h>
 #endif
 
-//~ #include <glib.h>
+#include "fm-mount.h"
+
 #include <glib/gstdio.h>
 #include <glib/gi18n-lib.h>
 #include <string.h>
-//~ #include <gio/gdesktopappinfo.h>
-//~ 
-//~ #include "fm-utils.h"
-#include "fm-msgbox.h"
-//~ #include "fm-file-ops-job.h"
-//~ #include "fm-progress-dlg.h"
-//~ #include "fm-app-chooser-dlg.h"
-//~ 
-//~ #include "fm-config.h"
 
-#include "fm-mount.h"
+#include "fm-msgbox.h"
 
 typedef enum
 {

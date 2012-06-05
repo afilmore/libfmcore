@@ -26,18 +26,15 @@
 #endif
 
 #include <glib/gi18n-lib.h>
-//~ #include <gio/gdesktopappinfo.h>
 
 #include "fm-file-ops.h"
 
-#include "fm-dlg-utils.h"
-#include "fm-msgbox.h"
-//~ #include "fm-dlg-utils.h"
-//~ #include "fm-file-ops-job.h"
-#include "fm-progress-dlg.h"
-//~ #include "fm-app-chooser-dlg.h"
-//~ 
 #include "fm-config.h"
+#include "fm-select-folder-dlg.h"
+#include "fm-user-input-dlg.h"
+#include "fm-progress-dlg.h"
+#include "fm-msgbox.h"
+
 
 // File operations
 /*FIXME_pcm: only show the progress dialog if the job isn't finished

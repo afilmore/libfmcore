@@ -57,11 +57,11 @@
 #include "fm-thumbnail.h"
 
 // Fm Utils
-#include "fm-dlg-utils.h"
-#include "fm-utils.h"
+#include "fm-file-ops.h"
 #include "fm-mount.h"
 #include "fm-msgbox.h"
-#include "fm-file-ops.h"
+#include "fm-user-input-dlg.h"
+#include "fm-utils.h"
 
 
 G_BEGIN_DECLS

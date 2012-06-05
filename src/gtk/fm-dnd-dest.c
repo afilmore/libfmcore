@@ -26,16 +26,16 @@
 #endif
 
 #include "fm-dnd-dest.h"
-//~ #include "fm-utils.h"
-#include "fm-file-ops.h"
-#include "fm-msgbox.h"
-//~ #include "fm-dlg-utils.h"
-#include "fm-gtk-marshal.h"
-#include "fm-file-info-list.h"
-#include "fm-file-info-job.h"
 
 #include <glib/gi18n-lib.h>
 #include <string.h>
+
+#include "fm-gtk-marshal.h"
+#include "fm-file-ops.h"
+#include "fm-msgbox.h"
+#include "fm-file-info-list.h"
+#include "fm-file-info-job.h"
+
 
 struct _FmDndDest
 {
