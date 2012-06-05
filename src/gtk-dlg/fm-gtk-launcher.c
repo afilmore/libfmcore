@@ -51,16 +51,15 @@
  * 
  * 
  ****************************************************************************************/
-const char EXEC_FILE_DLG [] ="<?xml version='1.0'?>"
+const char EXEC_FILE_DLG [] =
+"<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
-"<requires lib='gtk+' version='2.16'/>"
-"<!-- interface-naming-policy project-wide -->"
+"<!-- interface-requires gtk+ 3.0 -->"
 "<object class='GtkDialog' id='dlg'>"
 "<property name='border_width'>5</property>"
 "<property name='title' translatable='yes'>Execute File</property>"
 "<property name='window_position'>center</property>"
 "<property name='type_hint'>normal</property>"
-"<property name='has_separator'>False</property>"
 "<child internal-child='vbox'>"
 "<object class='GtkVBox' id='dialog-vbox1'>"
 "<property name='visible'>True</property>"

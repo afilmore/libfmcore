@@ -39,15 +39,14 @@
  * 
  * 
  ****************************************************************************************/
-const char RENAME_DLG [] ="<?xml version='1.0'?>"
+const char RENAME_DLG [] =
+"<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
-"<!-- interface-requires gtk+ 2.12 -->"
-"<!-- interface-naming-policy toplevel-contextual -->"
+"<!-- interface-requires gtk+ 3.0 -->"
 "<object class='GtkDialog' id='dlg'>"
 "<property name='border_width'>10</property>"
 "<property name='title' translatable='yes'>Confirm to replace files</property>"
 "<property name='type_hint'>normal</property>"
-"<property name='has_separator'>False</property>"
 "<child internal-child='vbox'>"
 "<object class='GtkVBox' id='dialog-vbox'>"
 "<property name='visible'>True</property>"
@@ -302,10 +301,10 @@ const char RENAME_DLG [] ="<?xml version='1.0'?>"
  * 
  * 
  ****************************************************************************************/
-const char PROGRESS_DLG[] ="<?xml version='1.0' encoding='UTF-8'?>"
+const char PROGRESS_DLG [] =
+"<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
-"<!-- interface-requires gtk+ 2.12 -->"
-"<!-- interface-naming-policy toplevel-contextual -->"
+"<!-- interface-requires gtk+ 3.0 -->"
 "<object class='GtkDialog' id='dlg'>"
 "<property name='visible'>True</property>"
 "<property name='border_width'>5</property>"

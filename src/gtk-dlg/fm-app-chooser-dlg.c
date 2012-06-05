@@ -40,17 +40,16 @@
  * 
  * 
  ****************************************************************************************/
-const char APP_CHOOSER_DLG[] ="<?xml version='1.0'?>"
+const char APP_CHOOSER_DLG [] =
+"<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
-"<requires lib='gtk+' version='2.16'/>"
-"<!-- interface-naming-policy toplevel-contextual -->"
+"<!-- interface-requires gtk+ 3.0 -->"
 "<object class='GtkDialog' id='dlg'>"
 "<property name='border_width'>5</property>"
 "<property name='title' translatable='yes'>Choose An Application</property>"
 "<property name='default_width'>400</property>"
 "<property name='default_height'>380</property>"
 "<property name='type_hint'>dialog</property>"
-"<property name='has_separator'>False</property>"
 "<child internal-child='vbox'>"
 "<object class='GtkVBox' id='dialog-vbox'>"
 "<property name='visible'>True</property>"
