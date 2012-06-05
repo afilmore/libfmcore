@@ -25,11 +25,10 @@
 #include <config.h>
 #endif
 
-#include <glib/gi18n-lib.h>
-
 #include "fm-file-ops.h"
 
-#include "fm-config.h"
+#include <glib/gi18n-lib.h>
+
 #include "fm-select-folder-dlg.h"
 #include "fm-user-input-dlg.h"
 #include "fm-progress-dlg.h"
@@ -54,57 +53,6 @@ void fm_move_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
     
     fm_file_ops_job_set_dest (FM_FILE_OPS_JOB (job), dest_dir);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
-}
-
-void fm_trash_files (GtkWindow *parent, FmPathList *files)
-{
-    if (!fm_config->confirm_delete || fm_yes_no (parent, NULL, _ ("Do you want to move the selected files to trash can?"), TRUE))
-    {
-        FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, files);
-        fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
-    }
-}
-
-void fm_untrash_files (GtkWindow *parent, FmPathList *files)
-{
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_UNTRASH, files);
-    fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
-}
-
-static void fm_delete_files_internal (GtkWindow *parent, FmPathList *files)
-{
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_DELETE, files);
-    fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
-}
-
-void fm_delete_files (GtkWindow *parent, FmPathList *files)
-{
-    if (!fm_config->confirm_delete || fm_yes_no (parent, NULL, _ ("Do you want to delete the selected files?"), TRUE))
-        fm_delete_files_internal (parent, files);
-}
-
-void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files)
-{
-    if (!fm_list_is_empty (files))
-    {
-        gboolean all_in_trash = TRUE;
-        if (fm_config->use_trash_can)
-        {
-            GList *l = fm_list_peek_head_link (files);
-            for (;l;l=l->next)
-            {
-                FmPath *path = FM_PATH (l->data);
-                if (!fm_path_is_trash (path))
-                    all_in_trash = FALSE;
-            }
-        }
-
-        // files already in trash:/// should only be deleted and cannot be trashed again.
-        if (fm_config->use_trash_can && !all_in_trash)
-            fm_trash_files (parent, files);
-        else
-            fm_delete_files (parent, files);
-    }
 }
 
 void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move)
@@ -147,17 +95,6 @@ void fm_rename_file (GtkWindow *parent, FmPath *file)
     
     g_object_unref (dest);
     g_object_unref (gf);
-}
-
-void fm_empty_trash (GtkWindow *parent)
-{
-    if (fm_yes_no (parent, NULL, _ ("Are you sure you want to empty the trash can?"), TRUE))
-    {
-        FmPathList *paths = fm_path_list_new ();
-        fm_list_push_tail (paths, fm_path_get_trash ());
-        fm_delete_files_internal (parent, paths);
-        fm_list_unref (paths);
-    }
 }
 
 

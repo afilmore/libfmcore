@@ -54,6 +54,7 @@ base_SOURCES = \
 	utils/fm-mount.c \
 	utils/fm-msgbox.c \
 	utils/fm-select-folder-dlg.c \
+	utils/fm-trash.c \
 	utils/fm-user-input-dlg.c \
 	utils/fm-utils.c \
 	$(NULL)
@@ -120,6 +121,7 @@ libfmcoreinclude_HEADERS = \
 	utils/fm-mount.h \
 	utils/fm-msgbox.h \
 	utils/fm-select-folder-dlg.h \
+	utils/fm-trash.h \
 	utils/fm-user-input-dlg.h \
 	utils/fm-utils.h \
 	$(NULL)

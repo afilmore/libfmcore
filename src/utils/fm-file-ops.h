@@ -57,18 +57,9 @@ void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is
 #define fm_move_files_to(parent, files) fm_move_or_copy_files_to (parent, files, TRUE)
 #define fm_copy_files_to(parent, files) fm_move_or_copy_files_to (parent, files, FALSE)
 
-void fm_trash_files (GtkWindow *parent, FmPathList *files);
-void fm_delete_files (GtkWindow *parent, FmPathList *files);
-
-// trash or delete files according to FmConfig::use_trash.
-void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files);
-
-void fm_untrash_files (GtkWindow *parent, FmPathList *files);
-
 // void fm_rename_files (FmPathList *files);
 void fm_rename_file (GtkWindow *parent, FmPath *file);
 
-void fm_empty_trash (GtkWindow *parent);
 
 
 G_END_DECLS

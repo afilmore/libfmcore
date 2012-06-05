@@ -37,8 +37,8 @@
 #include "fm-clipboard.h"
 #include "fm-file-properties.h"
 
-//~ #include "fm-utils.h"
 #include "fm-file-ops.h"
+#include "fm-trash.h"
 
 #include "fm-app-chooser-dlg.h"
 #include "fm-archiver.h"
