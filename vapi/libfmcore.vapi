@@ -680,33 +680,33 @@ namespace Fm {
         public bool paste_files (Gtk.Widget dest_widget, Fm.Path dest_dir);
     }
 
-	[CCode (cheader_filename = "fm-utils.h")]
+	[CCode (cheader_filename = "fm.h")]
 	public inline void copy_file (Gtk.Window parent, Fm.Path files, Fm.Path dest_dir);
 
-	[CCode (cheader_filename = "fm-utils.h")]
+	[CCode (cheader_filename = "fm.h")]
 	public static void copy_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
 
-	[CCode (cheader_filename = "fm-utils.h")]
+	[CCode (cheader_filename = "fm.h")]
 	public static void move_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
 	
     //#define fm_move_files_to(parent, files)   fm_move_or_copy_files_to(parent, files, TRUE)
-    [CCode (cheader_filename = "fm-utils.h")]
+    [CCode (cheader_filename = "fm.h")]
 	public inline void move_files_to (Gtk.Window parent, Fm.PathList files);
 	
     //#define fm_copy_files_to(parent, files)   fm_move_or_copy_files_to(parent, files, FALSE)
-    [CCode (cheader_filename = "fm-utils.h")]
+    [CCode (cheader_filename = "fm.h")]
 	public inline void copy_files_to (Gtk.Window parent, Fm.PathList files);
 
-	[CCode (cheader_filename = "fm-utils.h")]
+	[CCode (cheader_filename = "fm.h")]
 	public static void rename_file (Gtk.Window parent, Fm.Path file);
 
-	[CCode (cheader_filename = "fm-utils.h")]
+	[CCode (cheader_filename = "fm.h")]
 	public static void trash_files (Gtk.Window parent, Fm.PathList files);
 	
-    [CCode (cheader_filename = "fm-utils.h")]
+    [CCode (cheader_filename = "fm.h")]
 	public static void trash_or_delete_files (Gtk.Window parent, Fm.PathList files);
     
-  	[CCode (cheader_filename = "fm-utils.h")]
+  	[CCode (cheader_filename = "fm.h")]
 	public static bool mount_volume (Gtk.Window parent, GLib.Volume vol, bool interactive);
 
 

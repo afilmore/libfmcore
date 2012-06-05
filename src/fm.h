@@ -53,10 +53,15 @@
 #include "fm-folder-model.h"
 #include "fm-gtk-launcher.h"
 #include "fm-gtk-marshal.h"
-#include "fm-dlg-utils.h"
-#include "fm-utils.h"
 #include "fm-icon-pixbuf.h"
 #include "fm-thumbnail.h"
+
+// Fm Utils
+#include "fm-dlg-utils.h"
+#include "fm-utils.h"
+#include "fm-mount.h"
+#include "fm-msgbox.h"
+#include "fm-file-ops.h"
 
 
 G_BEGIN_DECLS
