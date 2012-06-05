@@ -39,7 +39,8 @@
 
 #include "fm-gtk-launcher.h"
 #include "fm-utils.h"
-#include "fm-dlg-utils.h"
+#include "fm-msgbox.h"
+//~ #include "fm-dlg-utils.h"
 #include "fm-app-chooser-dlg.h"
 #include "fm-config.h"
 #include "fm-file-info-job.h"
@@ -331,7 +332,7 @@ gboolean fm_launch_paths (GAppLaunchContext *ctx, GList *paths, FmFileLauncher *
     GList *l;
     gboolean ret;
     
-    for (l=paths;l;l=l->next)
+    for (l = paths; l; l = l->next)
         fm_file_info_job_add (FM_FILE_INFO_JOB (job), (FmPath*)l->data);
     
     ret = fm_job_run_sync_with_mainloop (job);

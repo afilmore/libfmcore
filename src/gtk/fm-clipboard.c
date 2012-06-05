@@ -22,7 +22,8 @@
  * 
  **********************************************************************************************************************/
 #include "fm-clipboard.h"
-#include "fm-utils.h"
+//~ #include "fm-utils.h"
+#include "fm-file-ops.h"
 #include "fm-debug.h"
 #include <string.h>
 

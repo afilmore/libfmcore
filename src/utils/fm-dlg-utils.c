@@ -41,115 +41,6 @@
 static GtkDialog *  _fm_get_user_input_dialog    (GtkWindow *parent, const char *title, const char *msg);
 static gchar *      _fm_user_input_dialog_run    (GtkDialog *dialog, GtkEntry *entry);
 
-void fm_show_error (GtkWindow *parent, const char *title, const char *msg)
-{
-    GtkWidget *dialog = gtk_message_dialog_new (parent, 0,
-                                            GTK_MESSAGE_ERROR,
-                                            GTK_BUTTONS_OK, "%s", msg);
-    gtk_window_set_title ((GtkWindow*)dialog, title ? title : _ ("Error"));
-    gtk_dialog_run ((GtkDialog*)dialog);
-    gtk_widget_destroy (dialog);
-}
-
-gboolean fm_yes_no (GtkWindow *parent, const char *title, const char *question, gboolean default_yes)
-{
-    int ret;
-    GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
-                                GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "%s", question);
-    gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Confirm"));
-    gtk_dialog_set_default_response (GTK_DIALOG (dialog), default_yes ? GTK_RESPONSE_YES : GTK_RESPONSE_NO);
-    ret = gtk_dialog_run ((GtkDialog*)dialog);
-    gtk_widget_destroy (dialog);
-    return ret == GTK_RESPONSE_YES;
-}
-
-gboolean fm_ok_cancel (GtkWindow *parent, const char *title, const char *question, gboolean default_ok)
-{
-    int ret;
-    GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
-                                GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "%s", question);
-    gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Confirm"));
-    gtk_dialog_set_default_response (GTK_DIALOG (dialog), default_ok ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL);
-    ret = gtk_dialog_run ((GtkDialog*)dialog);
-    gtk_widget_destroy (dialog);
-    return ret == GTK_RESPONSE_OK;
-}
-
-/**
-  *fm_ask
-  *Ask the user a question with several options provided.
-  *@parent: toplevel parent widget
-  *@question: the question to show to the user
-  *@...: a NULL terminated list of button labels
-  *Returns: the index of selected button, or -1 if the dialog is closed.
- */
-int fm_ask (GtkWindow *parent, const char *title, const char *question, ...)
-{
-    int ret;
-    va_list args;
-    va_start  (args, question);
-    ret = fm_ask_valist (parent, title, question, args);
-    va_end  (args);
-    return ret;
-}
-
-/**
-  *fm_askv
-  *Ask the user a question with several options provided.
-  *@parent: toplevel parent widget
-  *@question: the question to show to the user
-  *@options: a NULL terminated list of button labels
-  *Returns: the index of selected button, or -1 if the dialog is closed.
- */
-int fm_askv (GtkWindow *parent, const char *title, const char *question, const char **options)
-{
-    int ret;
-    guint id = 1;
-    GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
-                                GTK_MESSAGE_QUESTION, 0, "%s", question);
-    gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Question"));
-    /*FIXME_pcm: need to handle defualt button and alternative button
-      *order problems. */
-    while (*options)
-    {
-        // FIXME_pcm: handle button image and stock buttons
-        GtkWidget *btn = gtk_dialog_add_button (GTK_DIALOG (dialog), *options, id);
-        ++options;
-        ++id;
-    }
-    ret = gtk_dialog_run ((GtkDialog*)dialog);
-    if (ret >= 1)
-        ret -= 1;
-    else
-        ret = -1;
-    gtk_widget_destroy (dialog);
-    return ret;
-}
-
-/**
-  *fm_ask_valist
-  *Ask the user a question with several options provided.
-  *@parent: toplevel parent widget
-  *@question: the question to show to the user
-  *@options: a NULL terminated list of button labels
-  *Returns: the index of selected button, or -1 if the dialog is closed.
- */
-int fm_ask_valist (GtkWindow *parent, const char *title, const char *question, va_list options)
-{
-    GArray *opts = g_array_sized_new (TRUE, TRUE, sizeof (char*), 6);
-    gint ret;
-    const char *opt = va_arg (options, const char*);
-    while (opt)
-    {
-        g_array_append_val (opts, opt);
-        opt = va_arg  (options, const char *);
-    }
-    ret = fm_askv (parent, title, question, (const char**) opts->data);
-    g_array_free (opts, TRUE);
-    return ret;
-}
-
-
 
 gchar *fm_get_user_input (GtkWindow *parent, const char *title, const char *msg, const char *default_text)
 {
@@ -314,4 +205,6 @@ FmPath *fm_select_folder (GtkWindow *parent, const char *title)
     gtk_widget_destroy ((GtkWidget*)chooser);
     return path;
 }
+
+
 

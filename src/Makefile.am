@@ -51,6 +51,9 @@ base_SOURCES = \
 	gtk-dlg/fm-file-properties.c \
 	gtk-dlg/fm-progress-dlg.c \
 	utils/fm-dlg-utils.c \
+	utils/fm-file-ops.c \
+	utils/fm-mount.c \
+	utils/fm-msgbox.c \
 	utils/fm-utils.c \
 	$(NULL)
 
@@ -113,6 +116,9 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-progress-dlg.h \
 	utils/fm-debug.h \
 	utils/fm-dlg-utils.h \
+	utils/fm-file-ops.h \
+	utils/fm-mount.h \
+	utils/fm-msgbox.h \
 	utils/fm-utils.h \
 	$(NULL)
 

@@ -26,10 +26,12 @@
 #include <config.h>
 #endif
 
+#include <glib/gi18n-lib.h>
+
 #include "fm-progress-dlg.h"
 #include "fm-utils.h"
-#include "fm-dlg-utils.h"
-#include <glib/gi18n-lib.h>
+#include "fm-msgbox.h"
+//~ #include "fm-dlg-utils.h"
 
 #define SHOW_DLG_DELAY  1000
 
