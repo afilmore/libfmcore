@@ -29,21 +29,21 @@
 #include <glib/gi18n-lib.h>
 
 #include "fm.h"
-#include "fm-config.h"
-
-#include "fm-file-menu.h"
-#include "fm-path.h"
-
-#include "fm-clipboard.h"
-#include "fm-file-properties.h"
-
-#include "fm-file-ops.h"
-#include "fm-trash.h"
-
-#include "fm-app-chooser-dlg.h"
-#include "fm-archiver.h"
-#include "fm-app-info.h"
-#include "fm-gtk-launcher.h"
+//~ #include "fm-vala.h"
+//~ 
+//~ #include "fm-file-menu.h"
+//~ #include "fm-path.h"
+//~ 
+//~ #include "fm-clipboard.h"
+//~ #include "fm-file-properties.h"
+//~ 
+//~ #include "fm-file-ops.h"
+//~ #include "fm-trash.h"
+//~ 
+//~ #include "fm-app-chooser-dlg.h"
+//~ #include "fm-archiver.h"
+//~ #include "fm-app-info.h"
+//~ #include "fm-gtk-launcher.h"
 
 
 /***
@@ -80,7 +80,8 @@ static void on_extract_to       (GtkAction *action, gpointer user_data);
 
 static void on_properties       (GtkAction *action, gpointer user_data);
 
-const char filefolder_popup_xml[] =
+
+const char filefolder_popup_xml [] =
     "<popup>"
         "<menuitem action='Open'/>"
         "<separator/>"
@@ -859,5 +860,7 @@ void on_properties (GtkAction *action, gpointer user_data)
     
     fm_show_file_properties (file_menu->parent, files);
 }
+
+
 
 

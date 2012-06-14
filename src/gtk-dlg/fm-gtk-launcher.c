@@ -41,7 +41,7 @@
 #include "fm-utils.h"
 #include "fm-msgbox.h"
 #include "fm-app-chooser-dlg.h"
-#include "fm-config.h"
+#include "fm-vala.h"
 #include "fm-file-info-job.h"
 #include "fm-app-info.h"
 

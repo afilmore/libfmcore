@@ -20,12 +20,12 @@ libfmvala_la_CFLAGS = \
 
 VALAFLAGS = \
 	--pkg $(GTK_PKG) \
-    --header fm-config.h \
+    --header fm-vala.h \
 	$(NULL)
 
 libfmvalaincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmvalainclude_HEADERS = \
-	fm-config.h \
+	fm-vala.h \
 	$(NULL)
 
 libfmvala_la_LDFLAGS = \
@@ -34,3 +34,7 @@ libfmvala_la_LDFLAGS = \
 libfmvala_la_LIBADD = \
 	$(INTLLIBS) \
 	$(NULL)
+
+CLEANFILES = $(patsubst %.vala,%.c,$(filter %.vala, $(SOURCES))) libfmvala_la_vala.stamp
+
+

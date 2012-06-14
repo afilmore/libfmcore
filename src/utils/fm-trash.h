@@ -25,11 +25,8 @@
 #define __FM_TRASH_H__
 
 #include <gtk/gtk.h>
-//~ #include <gio/gio.h>
-//~ #include <stdarg.h>
 
 #include "fm-path-list.h"
-//~ #include "fm-file-ops-job.h"
 
 G_BEGIN_DECLS
 

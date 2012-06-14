@@ -22,7 +22,7 @@
  * 
  **********************************************************************************************************************/
 #include "fm-app-info.h"
-#include "fm-config.h"
+#include "fm-vala.h"
 #include <string.h>
 #include <gio/gdesktopappinfo.h>
 

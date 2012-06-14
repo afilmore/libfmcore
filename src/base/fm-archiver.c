@@ -25,7 +25,7 @@
 #include <config.h>
 #endif
 
-#include "fm-config.h"
+#include "fm-vala.h"
 #include "fm-archiver.h"
 #include "fm-app-info.h"
 

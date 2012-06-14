@@ -208,7 +208,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
 AC_CONFIG_FILES([
     data/Makefile
-    src/fmvala/Makefile
+    src/fm-vala/Makefile
     src/Makefile
     vapi/Makefile
     Makefile

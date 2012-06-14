@@ -3,6 +3,7 @@
  *      fm.h
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -24,13 +25,14 @@
 #ifndef __LIBFM_FM_H__
 #define __LIBFM_FM_H__
 
-// Fm Base.
+
+// Fm Base...
 #include "fm-app-info.h"
 #include "fm-archiver.h"
-#include "fm-config.h"
 #include "fm-debug.h"
 #include "fm-dummy-monitor.h"
 #include "fm-file-info.h"
+#include "fm-file-info-list.h"
 #include "fm-folder.h"
 #include "fm-icon.h"
 #include "fm-list.h"
@@ -40,26 +42,40 @@
 #include "fm-path.h"
 #include "fm-path-list.h"
 
+// Fm Vala...
+#include "fm-vala.h"
+
+// Fm Gtk...
+#include "fm-clipboard.h"
+#include "fm-dnd-auto-scroll.h"
+#include "fm-dnd-dest.h"
+#include "fm-dnd-src.h"
+#include "fm-file-menu.h"
+#include "fm-folder-model.h"
+#include "fm-gtk-marshal.h"
+#include "fm-icon-pixbuf.h"
+#include "fm-thumbnail.h"
+
+// Fm Gtk Dlg...
+#include "fm-app-chooser-combo-box.h"
+#include "fm-app-chooser-dlg.h"
+#include "fm-app-menu-view.h"
+#include "fm-file-properties.h"
+#include "fm-gtk-launcher.h"
+#include "fm-progress-dlg.h"
+
 // Fm Job
 #include "fm-deep-count-job.h"
 #include "fm-dir-list-job.h"
 #include "fm-file-info-job.h"
 
-// Fm Gtk
-#include "fm-app-chooser-combo-box.h"
-#include "fm-app-chooser-dlg.h"
-#include "fm-app-menu-view.h"
-#include "fm-file-menu.h"
-#include "fm-folder-model.h"
-#include "fm-gtk-launcher.h"
-#include "fm-gtk-marshal.h"
-#include "fm-icon-pixbuf.h"
-#include "fm-thumbnail.h"
-
 // Fm Utils
+#include "fm-debug.h"
 #include "fm-file-ops.h"
 #include "fm-mount.h"
 #include "fm-msgbox.h"
+#include "fm-select-folder-dlg.h"
+#include "fm-trash.h"
 #include "fm-user-input-dlg.h"
 #include "fm-utils.h"
 
@@ -68,7 +84,7 @@ G_BEGIN_DECLS
 
 extern GQuark fm_qdata_id;  /* a quark value used to associate data with objects */
 
-gboolean fm_init (FmConfig* config);
+gboolean fm_init (FmConfig *config);
 void fm_finalize ();
 
 G_END_DECLS

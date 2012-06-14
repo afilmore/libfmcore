@@ -5,13 +5,13 @@ NULL=
 
 # current dir needs to be built before tests
 SUBDIRS= \
-	fmvala \
+	fm-vala \
 	. \
 	$(NULL)
 
 AM_CPPFLAGS = \
 	-I$(srcdir) \
-	-I$(srcdir)/fmvala \
+	-I$(srcdir)/fm-vala \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
 	-I$(srcdir)/gtk-dlg \
@@ -79,7 +79,7 @@ libfmcore_SOURCES = \
 libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
-	fmvala/fm-config.h \
+	fm-vala/fm-vala.h \
 	base/fm-app-info.h \
 	base/fm-archiver.h \
 	base/fm-dummy-monitor.h \
@@ -152,7 +152,7 @@ libfmcore_@LIBFMCORE_API_VERSION@_la_LIBADD = \
 	$(PANGO_LIBS) \
 	$(MENU_CACHE_LIBS) \
 	$(DBUS_LIBS) \
-	$(srcdir)/fmvala/libfmvala.la \
+	$(srcdir)/fm-vala/libfmvala.la \
 	$(INTLLIBS) \
 	$(NULL)
 

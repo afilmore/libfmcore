@@ -22,7 +22,7 @@
  *
  * 
  **********************************************************************************************************************/
-#include "fm-config.h"
+#include "fm-vala.h"
 #include "fm-folder-model.h"
 #include "fm-file-info.h"
 #include "fm-icon-pixbuf.h"

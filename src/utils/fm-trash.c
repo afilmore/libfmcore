@@ -29,7 +29,7 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "fm-config.h"
+#include "fm-vala.h"
 #include "fm-progress-dlg.h"
 #include "fm-msgbox.h"
 
