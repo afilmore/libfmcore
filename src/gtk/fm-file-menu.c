@@ -767,7 +767,7 @@ void on_delete (GtkAction *action, gpointer user_data)
     files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     
     //~ fm_trash_or_delete_files (file_menu->parent, files);
-    fm_delete_files (GTK_WINDOW (file_menu->parent), files, FM_DELETE_FLAGS_TRASH_OR_DELETE);
+    fm_delete_files (GTK_WINDOW (file_menu->parent), files, FM_DELETE_FLAGS_TRASH_OR_DELETE, TRUE);
     
     fm_list_unref (files);
 }

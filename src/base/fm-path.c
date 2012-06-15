@@ -25,11 +25,14 @@
 #include <config.h>
 #endif
 
+
 #include "fm-path.h"
 #include "fm-file-info.h"
+
 #include <string.h>
 #include <limits.h>
 #include <glib/gi18n-lib.h>
+
 
 static FmPath *root = NULL;
 static FmPath *root_path = NULL;
@@ -51,6 +54,84 @@ static FmPath *apps_root_path = NULL;
 // static FmPath *network_root = NULL;
 
 
+static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, int name_len, int flags);
+
+
+void _fm_path_init ()
+{
+    const char *sep, *name;
+    FmPath *tmp, *parent;
+
+    // path object of root_path dir
+    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+    home_dir = (char*) g_get_home_dir ();
+    home_len = strlen (home_dir);
+    while (home_dir[home_len - 1] == '/')
+        --home_len;
+
+    // build path object for home dir
+    name = home_dir + 1; // skip leading /
+    parent = root_path;
+    while ( sep = strchr (name, '/') )
+    {
+        int len =  (sep - name);
+        if (len > 0)
+        {
+            /* ref counting is not a problem here since this path component
+             * will exist till the termination of the program. So mem leak is ok. */
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+            parent = tmp;
+        }
+        name = sep + 1;
+    }
+    home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+
+    desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+    desktop_len = strlen (desktop_dir);
+    while (desktop_dir[desktop_len - 1] == '/')
+        --desktop_len;
+
+    // build path object for desktop_path dir
+    name = desktop_dir + home_len + 1; // skip home_path dir part /
+    parent = home_path;
+    while ( sep = strchr (name, '/') )
+    {
+        int len =  (sep - name);
+        if (len > 0)
+        {
+            /* ref counting is not a problem here since this path component
+             * will exist till the termination of the program. So mem leak is ok. */
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+            parent = tmp;
+        }
+        name = sep + 1;
+    }
+    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+//    printf  ("Desktop Dir: parent = %s, name = %s\n", parent->name, name);
+    // build path object for trash can
+    // FIXME_pcm: currently there are problems with URIs. using trash:/ here will cause problems.
+    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH_FILE|FM_PATH_IS_VIRTUAL|FM_PATH_IS_LOCAL);
+    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
+}
+
+FmPath *fm_path_ref (FmPath *path)
+{
+    g_atomic_int_inc (&path->n_ref);
+    return path;
+}
+
+void fm_path_unref (FmPath *path)
+{
+    // g_debug ("fm_path_unref: %s, n_ref = %d", fm_path_to_str (path), path->n_ref);
+    if (g_atomic_int_dec_and_test (&path->n_ref))
+    {
+        if (G_LIKELY (path->parent))
+            fm_path_unref (path->parent);
+        g_free (path);
+    }
+}
+
+
 static FmPath *_fm_path_alloc (FmPath *parent, int name_len, int flags)
 {
     FmPath *path;
@@ -69,6 +150,10 @@ static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, i
     path->name[name_len] = '\0';
     return path;
 }
+
+
+
+
 
 /**
  * _fm_path_new_uri_root
@@ -113,17 +198,20 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
 
     flags = 0;
     host_len = 0;
+    
     if (scheme_len == 4 && g_ascii_strncasecmp (uri, "file", 4) == 0) // handles file:///
     {
         if (remaining)
             *remaining = host;
         return fm_path_ref (root_path);
     }
+    
     // special handling for some known schemes
     else if (scheme_len == 5 && g_ascii_strncasecmp (uri, "trash", 5) == 0) // trashed files are on local filesystems
     {
         if (remaining)
             *remaining = host;
+        
         return fm_path_ref (trash_root_path);
     }
     else if (scheme_len == 8 && g_ascii_strncasecmp (uri, "computer", 8) == 0)
@@ -174,7 +262,8 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
                     *remaining = host_end;
                 return fm_path_ref (apps_root_path);
             }
-            flags |=  (FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
+            
+            flags |= (FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
         }
 
         if (need_unescape)
@@ -215,107 +304,6 @@ on_error: // this is not a valid URI
     return fm_path_ref (root_path);
 }
 
-#if 0
-static inline FmPath *_fm_path_reuse_existing_paths (FmPath *parent, const char *basename, int name_len)
-{
-    FmPath *current;
-    /* This is a way to reuse cached FmPath objects created for $HOME and desktop dir.
-     * Since most of the files a user may use are under $HOME, reusing this can
-     * more or less reduce memory usage. However, this may slow things down a little. */
-    for (current = desktop_path; current; current = current->parent)
-    {
-        if (fm_path_equal (current->parent, parent))
-        {
-            if (strncmp (basename, current->name, name_len) == 0 && current->name[name_len] == '\0')
-                return fm_path_ref (current);
-            break;
-        }
-    }
-    return NULL;
-}
-#endif
-
-#if 0
-/*
- * fm_path_new
- * DEPRECATED function
- */
-FmPath *fm_path_new (const char *path)
-{
-    // FIXME_pcm: need to canonicalize paths
-
-    if ( path[0] == '/' ) // if this is a absolute native path
-    {
-        if  (path[1])
-            return fm_path_new_relative (root, path + 1);
-        else
-            // special case: handle root dir
-            return fm_path_ref ( root );
-    }
-    else if  ( path[0] == '~' &&  (path[1] == '\0' || path[1]=='/') ) // home dir
-    {
-        ++path;
-        return *path ? fm_path_new_relative (home, path) : fm_path_ref (home);
-    }
-    else // then this should be a URL
-    {
-        FmPath *parent, *ret;
-        char *colon = strchr (path, ':');
-        char *hier_part;
-        char *rest;
-        int root_len;
-
-        // return root instead of NULL for invalid URIs. fix #2988010.
-        if ( !colon ) // this shouldn't happen
-            return fm_path_ref (root); // invalid path FIXME_pcm: should we treat it as relative path?
-
-        // FIXME_pcm: convert file:/// to local native path
-        hier_part = colon+1;
-        if ( hier_part[0] == '/' )
-        {
-            if (hier_part[1] == '/') // this is a scheme:// form URI
-                rest = hier_part + 2;
-            else // a malformed URI
-                rest = hier_part + 1;
-
-            if (*rest == '/') // :/// means there is no authoraty part
-                ++rest;
-            else // we are now at autority part, something like <username>@domain/
-            {
-                while ( *rest && *rest != '/' )
-                    ++rest;
-                if (*rest == '/')
-                    ++rest;
-            }
-
-            if ( strncmp (path, "trash:", 6) == 0 ) // in trash://
-            {
-                if (*rest)
-                    return fm_path_new_relative (trash_root, rest);
-                else
-                    return fm_path_ref (trash_root);
-            }
-            // other URIs which requires special handling, like computer:///
-        }
-        else // this URI doesn't have //, like mailto:
-        {
-            // FIXME_pcm: is this useful to file managers?
-            rest = colon + 1;
-        }
-        root_len =  (rest - path);
-        parent = fm_path_new_child_len (NULL, path, root_len);
-        if (*rest)
-        {
-            ret = fm_path_new_relative (parent, rest);
-            fm_path_unref (parent);
-        }
-        else
-            ret = parent;
-        return ret;
-    }
-    return fm_path_new_relative (NULL, path);
-}
-#endif
 
 /**
  * fm_path_new_child_len
@@ -664,23 +652,6 @@ FmPath *fm_path_new_for_commandline_arg (const char *arg)
 }
 
 
-FmPath *fm_path_ref (FmPath *path)
-{
-    g_atomic_int_inc (&path->n_ref);
-    return path;
-}
-
-void fm_path_unref (FmPath *path)
-{
-    // g_debug ("fm_path_unref: %s, n_ref = %d", fm_path_to_str (path), path->n_ref);
-    if (g_atomic_int_dec_and_test (&path->n_ref))
-    {
-        if (G_LIKELY (path->parent))
-            fm_path_unref (path->parent);
-        g_free (path);
-    }
-}
-
 FmPath *fm_path_get_parent (FmPath *path)
 {
     return path->parent;
@@ -872,64 +843,6 @@ FmPath *fm_path_get_apps_menu ()
 {
     return apps_root_path;
 }
-
-void _fm_path_init ()
-{
-    const char *sep, *name;
-    FmPath *tmp, *parent;
-
-    // path object of root_path dir
-    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-    home_dir = (char*) g_get_home_dir ();
-    home_len = strlen (home_dir);
-    while (home_dir[home_len - 1] == '/')
-        --home_len;
-
-    // build path object for home dir
-    name = home_dir + 1; // skip leading /
-    parent = root_path;
-    while ( sep = strchr (name, '/') )
-    {
-        int len =  (sep - name);
-        if (len > 0)
-        {
-            /* ref counting is not a problem here since this path component
-             * will exist till the termination of the program. So mem leak is ok. */
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-            parent = tmp;
-        }
-        name = sep + 1;
-    }
-    home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-
-    desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-    desktop_len = strlen (desktop_dir);
-    while (desktop_dir[desktop_len - 1] == '/')
-        --desktop_len;
-
-    // build path object for desktop_path dir
-    name = desktop_dir + home_len + 1; // skip home_path dir part /
-    parent = home_path;
-    while ( sep = strchr (name, '/') )
-    {
-        int len =  (sep - name);
-        if (len > 0)
-        {
-            /* ref counting is not a problem here since this path component
-             * will exist till the termination of the program. So mem leak is ok. */
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-            parent = tmp;
-        }
-        name = sep + 1;
-    }
-    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-//    printf  ("Desktop Dir: parent = %s, name = %s\n", parent->name, name);
-    // build path object for trash can
-    // FIXME_pcm: currently there are problems with URIs. using trash:/ here will cause problems.
-    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH_FILE|FM_PATH_IS_VIRTUAL|FM_PATH_IS_LOCAL);
-    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
-}
-
 
 // For used in hash tables
 

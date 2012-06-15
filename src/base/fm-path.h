@@ -84,7 +84,9 @@ struct _FmPath
     char    name [1];
 };
 
+
 void _fm_path_init ();
+
 
 FmPath *fm_path_new_for_str             (const char *path_str);
 FmPath *fm_path_new_for_path            (const char *path_name);

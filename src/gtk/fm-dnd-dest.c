@@ -196,7 +196,7 @@ gboolean fm_dnd_dest_files_dropped (FmDndDest *dnd_dest, int x, int y, GdkDragAc
         case GDK_ACTION_MOVE:
             if (fm_path_is_trash_root (fm_dnd_dest_get_dest_path (dnd_dest)))
                 //~ fm_trash_files (GTK_WINDOW (parent), files);
-                fm_delete_files (GTK_WINDOW (parent), files, FM_DELETE_FLAGS_TRASH);
+                fm_delete_files (GTK_WINDOW (parent), files, FM_DELETE_FLAGS_TRASH, FALSE);
             else
                 fm_move_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest));
         break;

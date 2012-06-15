@@ -710,7 +710,10 @@ namespace Fm {
     }
 
     [CCode (cheader_filename = "fm.h")]
-	public static void delete_files (Gtk.Window parent, Fm.PathList files, Fm.DeleteFlags delete_flags = Fm.DeleteFlags.TRASH_OR_DELETE);
+	public static void delete_files (Gtk.Window parent,
+                                     Fm.PathList files,
+                                     Fm.DeleteFlags delete_flags = Fm.DeleteFlags.TRASH_OR_DELETE,
+                                     bool confim_delete = true);
     
 //~     [CCode (cheader_filename = "fm.h")]
 //~ 	public static void trash_files (Gtk.Window parent, Fm.PathList files);
