@@ -832,7 +832,7 @@ static gboolean ensure_valid_owner (FmFilePropData *data)
 
     if (!ret)
     {
-        fm_show_error (GTK_WINDOW (data->dlg), NULL, _ ("Please enter a valid user name or numeric id."));
+        fm_show_error (GTK_WINDOW (data->dlg), NULL, _("Please enter a valid user name or numeric id."));
         gtk_widget_grab_focus (data->owner);
     }
 
@@ -864,7 +864,7 @@ static gboolean ensure_valid_group (FmFilePropData *data)
 
     if (!ret)
     {
-        fm_show_error (GTK_WINDOW (data->dlg), NULL, _ ("Please enter a valid group name or numeric id."));
+        fm_show_error (GTK_WINDOW (data->dlg), NULL, _("Please enter a valid group name or numeric id."));
         gtk_widget_grab_focus (data->group);
     }
     if (data->gid == -1)
@@ -1012,7 +1012,7 @@ static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
 
             if (data->has_dir)
             {
-                if (fm_yes_no (GTK_WINDOW (data->dlg), NULL, _ ( "Do you want to recursively apply these changes to all files and sub-folders?" ), TRUE))
+                if (fm_yes_no (GTK_WINDOW (data->dlg), NULL, _( "Do you want to recursively apply these changes to all files and sub-folders?" ), TRUE))
                     fm_file_ops_job_set_recursive (job, TRUE);
             }
 
@@ -1286,7 +1286,7 @@ static void update_ui (FmFilePropData *data)
         gtk_image_set_from_stock (img, GTK_STOCK_DND_MULTIPLE, GTK_ICON_SIZE_DIALOG);
         gtk_widget_set_sensitive (data->name, FALSE);
 
-        gtk_label_set_text (GTK_LABEL (data->type), _ ("Files of different types"));
+        gtk_label_set_text (GTK_LABEL (data->type), _("Files of different types"));
 
         gtk_widget_destroy (data->target_label);
         gtk_widget_destroy (data->target);
@@ -1320,7 +1320,7 @@ static void update_ui (FmFilePropData *data)
     }
     else
     {
-        gtk_entry_set_text (GTK_ENTRY (data->name), _ ("Multiple Files"));
+        gtk_entry_set_text (GTK_ENTRY (data->name), _("Multiple Files"));
         gtk_widget_set_sensitive (data->name, FALSE);
     }
 

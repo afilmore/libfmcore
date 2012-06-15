@@ -74,7 +74,7 @@ void fm_rename_file (GtkWindow *parent, FmPath *file)
     GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;
     GError *err = NULL;
     
-    gchar *new_name = fm_get_user_input_rename (parent, _ ("Rename File"), _ ("Please enter a new name:"), file->name);
+    gchar *new_name = fm_get_user_input_rename (parent, _("Rename File"), _("Please enter a new name:"), file->name);
     if (!new_name)
         return;
     

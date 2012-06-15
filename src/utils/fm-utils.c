@@ -77,22 +77,22 @@ char *fm_file_size_to_str ( char *buf, goffset size, gboolean si_prefix )
         if (val < SI_MB)
         {
             val /= SI_KB;
-            unit = _ ("KB");
+            unit = _("KB");
         }
         else if (val < SI_GB)
         {
             val /= SI_MB;
-            unit = _ ("MB");
+            unit = _("MB");
         }
         else if (val < SI_TB)
         {
             val /= SI_GB;
-            unit = _ ("GB");
+            unit = _("GB");
         }
         else
         {
             val /= SI_TB;
-            unit = _ ("TB");
+            unit = _("TB");
         }
     }
     else // 1024-based binary prefix
@@ -106,22 +106,22 @@ char *fm_file_size_to_str ( char *buf, goffset size, gboolean si_prefix )
         if (val < BI_MiB)
         {
             val /= BI_KiB;
-            unit = _ ("KiB");
+            unit = _("KiB");
         }
         else if (val < BI_GiB)
         {
             val /= BI_MiB;
-            unit = _ ("MiB");
+            unit = _("MiB");
         }
         else if (val < BI_TiB)
         {
             val /= BI_GiB;
-            unit = _ ("GiB");
+            unit = _("GiB");
         }
         else
         {
             val /= BI_TiB;
-            unit = _ ("TiB");
+            unit = _("TiB");
         }
     }
     sprintf ( buf, "%.1f %s", val, unit );

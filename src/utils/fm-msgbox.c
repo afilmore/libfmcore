@@ -69,7 +69,7 @@ gboolean fm_ok_cancel (GtkWindow *parent, const char *title, const char *questio
     int ret;
     GtkWidget *dialog = gtk_message_dialog_new_with_markup (parent, 0,
                                 GTK_MESSAGE_QUESTION, GTK_BUTTONS_OK_CANCEL, "%s", question);
-    gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _ ("Confirm"));
+    gtk_window_set_title (GTK_WINDOW (dialog), title ? title : _("Confirm"));
     gtk_dialog_set_default_response (GTK_DIALOG (dialog), default_ok ? GTK_RESPONSE_OK : GTK_RESPONSE_CANCEL);
     ret = gtk_dialog_run ((GtkDialog*)dialog);
     gtk_widget_destroy (dialog);

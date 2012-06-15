@@ -380,14 +380,14 @@ static void on_switch_page (GtkNotebook *nb, GtkWidget *page, gint num, AppChoos
 {
     if (num == 0) /*list of installed apps */
     {
-        gtk_label_set_text (GTK_LABEL (data->status), _ ("Use selected application to open files"));
+        gtk_label_set_text (GTK_LABEL (data->status), _("Use selected application to open files"));
         gtk_dialog_set_response_sensitive ((GtkDialog*) data->dlg, GTK_RESPONSE_OK,
                         fm_app_menu_view_is_app_selected (GTK_TREE_VIEW (data->apps_view)));
     }
     else /*custom app */
     {
         const char *cmd = gtk_entry_get_text (GTK_ENTRY (data->cmdline));
-        gtk_label_set_text (GTK_LABEL (data->status), _ ("Execute custom command line to open files"));
+        gtk_label_set_text (GTK_LABEL (data->status), _("Execute custom command line to open files"));
         gtk_dialog_set_response_sensitive (GTK_DIALOG (data->dlg), GTK_RESPONSE_OK, (cmd && cmd[0]));
     }
 }

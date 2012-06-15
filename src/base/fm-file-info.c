@@ -68,10 +68,10 @@ void _fm_file_info_init ()
 
     // fake mime-types for mountable and shortcuts
     shortcut_type = fm_mime_type_get_for_type ("inode/x-shortcut");
-    shortcut_type->description = g_strdup (_ ("Shortcuts"));
+    shortcut_type->description = g_strdup (_("Shortcuts"));
 
     mountable_type = fm_mime_type_get_for_type ("inode/x-mountable");
-    mountable_type->description = g_strdup (_ ("Mount Point"));
+    mountable_type->description = g_strdup (_("Mount Point"));
 }
 
 void _fm_file_info_finalize ()

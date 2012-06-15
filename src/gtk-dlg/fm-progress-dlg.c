@@ -707,7 +707,7 @@ static FmJobErrorAction on_error (FmFileOpsJob *job, GError *err, FmJobErrorSeve
 
     gtk_text_buffer_get_end_iter (data->error_buf, &it);
     gtk_text_buffer_insert_with_tags (data->error_buf, &it, data->cur_file, -1, data->bold_tag, NULL);
-    gtk_text_buffer_insert (data->error_buf, &it, _ (": "), -1);
+    gtk_text_buffer_insert (data->error_buf, &it, _(": "), -1);
     gtk_text_buffer_insert (data->error_buf, &it, err->message, -1);
     gtk_text_buffer_insert (data->error_buf, &it, "\n", 1);
 
@@ -773,14 +773,14 @@ static gint on_ask_rename (FmFileOpsJob *job, FmFileInfo *src, FmFileInfo *dest,
     disp_size = fm_file_info_get_disp_size (src);
     if (disp_size)
     {
-        tmp = g_strdup_printf (_ ("Type: %s\nSize: %s\nModified: %s"),
+        tmp = g_strdup_printf (_("Type: %s\nSize: %s\nModified: %s"),
                               fm_file_info_get_desc (src),
                               disp_size,
                               fm_file_info_get_disp_mtime (src));
     }
     else
     {
-        tmp = g_strdup_printf (_ ("Type: %s\nModified: %s"),
+        tmp = g_strdup_printf (_("Type: %s\nModified: %s"),
                               fm_file_info_get_desc (src),
                               fm_file_info_get_disp_mtime (src));
     }
@@ -792,14 +792,14 @@ static gint on_ask_rename (FmFileOpsJob *job, FmFileInfo *src, FmFileInfo *dest,
     disp_size = fm_file_info_get_disp_size (dest);
     if (disp_size)
     {
-        tmp = g_strdup_printf (_ ("Type: %s\nSize: %s\nModified: %s"),
+        tmp = g_strdup_printf (_("Type: %s\nSize: %s\nModified: %s"),
                               fm_file_info_get_desc (dest),
                               fm_file_info_get_disp_size (dest),
                               fm_file_info_get_disp_mtime (dest));
     }
     else
     {
-        tmp = g_strdup_printf (_ ("Type: %s\nModified: %s"),
+        tmp = g_strdup_printf (_("Type: %s\nModified: %s"),
                               fm_file_info_get_desc (dest),
                               fm_file_info_get_disp_mtime (dest));
     }
@@ -876,15 +876,15 @@ static void on_finished (FmFileOpsJob *job, FmProgressDisplay *data)
             gtk_widget_show (data->msg);
             if (fm_job_is_cancelled (FM_JOB (data->job)))
             {
-                gtk_label_set_text (GTK_LABEL (data->msg), _ ("The file operation is cancelled and there are some errors."));
+                gtk_label_set_text (GTK_LABEL (data->msg), _("The file operation is cancelled and there are some errors."));
                 gtk_window_set_title (GTK_WINDOW (data->dlg),
-                                     _ ("Cancelled"));
+                                     _("Cancelled"));
             }
             else
             {
-                gtk_label_set_text (GTK_LABEL (data->msg), _ ("The file operation is finished, but there are some errors."));
+                gtk_label_set_text (GTK_LABEL (data->msg), _("The file operation is finished, but there are some errors."));
                 gtk_window_set_title (GTK_WINDOW (data->dlg),
-                                     _ ("Finished"));
+                                     _("Finished"));
             }
         }
         else
@@ -906,7 +906,7 @@ static void on_finished (FmFileOpsJob *job, FmProgressDisplay *data)
         if (unsupported)
         {
             if (fm_yes_no (GTK_WINDOW (parent), NULL,
-                        _ ("Some files cannot be moved to trash can because "
+                        _("Some files cannot be moved to trash can because "
                         "the underlying file systems don't support this operation.\n"
                         "Do you want to delete them instead?"), TRUE))
             {
@@ -1007,7 +1007,7 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
         for ( i =1, l=l->next; i < 10 && l; l=l->next, ++i)
         {
             path = FM_PATH (l->data);
-            g_string_append (str, _ (", "));
+            g_string_append (str, _(", "));
             disp = fm_path_display_basename (path);
             g_string_append (str, disp);
             g_free (disp);
@@ -1024,27 +1024,27 @@ static gboolean on_show_dlg (FmProgressDisplay *data)
     switch (data->job->type)
     {
         case FM_FILE_OP_MOVE:
-            title = _ ("Moving files");
+            title = _("Moving files");
         break;
         
         case FM_FILE_OP_COPY:
-            title = _ ("Copying files");
+            title = _("Copying files");
         break;
         
         case FM_FILE_OP_TRASH:
-            title = _ ("Trashing files");
+            title = _("Trashing files");
         break;
         
         case FM_FILE_OP_DELETE:
-            title = _ ("Deleting files");
+            title = _("Deleting files");
         break;
         
         case FM_FILE_OP_LINK:
-            title = _ ("Creating symlinks");
+            title = _("Creating symlinks");
         break;
         
         case FM_FILE_OP_CHANGE_ATTR:
-            title = _ ("Changing file attributes");
+            title = _("Changing file attributes");
         break;
     }
     

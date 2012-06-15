@@ -169,7 +169,7 @@ GtkWidget *fm_app_menu_view_new (void)
     render = gtk_cell_renderer_pixbuf_new ();
     
     col = gtk_tree_view_column_new ();
-    gtk_tree_view_column_set_title (col, _ ("Installed Applications"));
+    gtk_tree_view_column_set_title (col, _("Installed Applications"));
     gtk_tree_view_column_pack_start (col, render, FALSE);
     gtk_tree_view_column_set_attributes (col, render, "gicon", COL_ICON, NULL);
 

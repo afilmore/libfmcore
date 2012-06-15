@@ -816,9 +816,9 @@ char *fm_path_display_basename (FmPath *path)
         if ( !fm_path_is_native (path) && fm_path_is_virtual (path) )
         {
             if (fm_path_is_trash_root (path))
-                return g_strdup (_ ("Trash Can"));
+                return g_strdup (_("Trash Can"));
             if (g_str_has_prefix (path->name, "computer:/"))
-                return g_strdup (_ ("My Computer"));
+                return g_strdup (_("My Computer"));
             if (g_str_has_prefix (path->name, "menu:/"))
             {
                 // FIXME_pcm: this should be more flexible
@@ -826,10 +826,10 @@ char *fm_path_display_basename (FmPath *path)
                 while (p[0] == '/')
                     ++p;
                 if (g_str_has_prefix (p, "applications.menu"))
-                    return g_strdup (_ ("Applications"));
+                    return g_strdup (_("Applications"));
             }
             if (g_str_has_prefix (path->name, "network:/"))
-                return g_strdup (_ ("Network"));
+                return g_strdup (_("Network"));
         }
     }
     return g_filename_display_name (path->name);

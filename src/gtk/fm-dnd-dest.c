@@ -444,7 +444,7 @@ gboolean fm_dnd_dest_drag_drop (FmDndDest *dnd_dest, GdkDragContext *drag_contex
             }
             else
             {
-                fm_show_error ((GtkWindow*) gtk_widget_get_toplevel (dest_widget), NULL, _ ("XDirectSave failed."));
+                fm_show_error ((GtkWindow*) gtk_widget_get_toplevel (dest_widget), NULL, _("XDirectSave failed."));
                 
                 gdk_property_change (source_window,
                                      xds_target_atom,

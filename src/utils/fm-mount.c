@@ -187,7 +187,7 @@ static gboolean fm_do_mount (GtkWindow *parent, GObject *obj, MountAction action
                     {
                         g_debug ("%s", data->err->message);
                         g_free (data->err->message);
-                        data->err->message = g_strdup (_ ("Only system administrators have the permission to do this."));
+                        data->err->message = g_strdup (_("Only system administrators have the permission to do this."));
                     }
                 }
                 else if (data->err->code == G_IO_ERROR_FAILED_HANDLED)

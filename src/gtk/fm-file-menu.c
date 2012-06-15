@@ -115,27 +115,27 @@ GtkActionEntry file_menu_actions [] =
 {
     {"Open",            GTK_STOCK_OPEN, NULL, NULL, NULL,               G_CALLBACK (on_open)},
     
-    {"EmptyTrash",      NULL, N_ ("Empty Trash"), NULL, NULL,           G_CALLBACK (on_empty_trash)},
+    {"EmptyTrash",      NULL, N_("Empty Trash"), NULL, NULL,            G_CALLBACK (on_empty_trash)},
     
-    {"OpenWithMenu",    NULL, N_ ("Open With..."), NULL, NULL,          NULL},
-    {"OpenWith",        NULL, N_ ("Open With..."), NULL, NULL,          G_CALLBACK (on_open_with)},
+    {"OpenWithMenu",    NULL, N_("Open With..."), NULL, NULL,           NULL},
+    {"OpenWith",        NULL, N_("Open With..."), NULL, NULL,           G_CALLBACK (on_open_with)},
     
     {"Cut",             GTK_STOCK_CUT, NULL, "<Ctrl>X", NULL,           G_CALLBACK (on_cut)},
     {"Copy",            GTK_STOCK_COPY, NULL, "<Ctrl>C", NULL,          G_CALLBACK (on_copy)},
     {"Paste",           GTK_STOCK_PASTE, NULL, "<Ctrl>V", NULL,         G_CALLBACK (on_paste)},
     {"Delete",          GTK_STOCK_DELETE, NULL, NULL, NULL,             G_CALLBACK (on_delete)},
     
-    {"Rename",          NULL, N_ ("Rename"), "F2", NULL,                G_CALLBACK (on_rename)},
+    {"Rename",          NULL, N_("Rename"), "F2", NULL,                 G_CALLBACK (on_rename)},
     
     /** TODO_axl
-    {"Link",            NULL, N_ ("Create Symlink"), NULL, NULL,        NULL},
-    {"SendTo",          NULL, N_ ("Send To"), NULL, NULL,               NULL},
+    {"Link",            NULL, N_("Create Symlink"), NULL, NULL,         NULL},
+    {"SendTo",          NULL, N_("Send To"), NULL, NULL,                NULL},
     **/
     
-    {"Compress",        NULL, N_ ("Compress..."), NULL, NULL,           G_CALLBACK (on_compress)},
+    {"Compress",        NULL, N_("Compress..."), NULL, NULL,            G_CALLBACK (on_compress)},
     
-    {"Extract",         NULL, N_ ("Extract Here"), NULL, NULL,          G_CALLBACK (on_extract_here)},
-    {"Extract2",        NULL, N_ ("Extract To..."), NULL, NULL,         G_CALLBACK (on_extract_to)},
+    {"Extract",         NULL, N_("Extract Here"), NULL, NULL,           G_CALLBACK (on_extract_here)},
+    {"Extract2",        NULL, N_("Extract To..."), NULL, NULL,          G_CALLBACK (on_extract_to)},
     
     {"Properties",      GTK_STOCK_PROPERTIES, NULL, NULL, NULL,         G_CALLBACK (on_properties)}
 };
@@ -413,8 +413,8 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             if (can_restore)
             {
                 action = gtk_action_new ("UnTrash",
-                                    _ ("_Restore"),
-                                    _ ("Restore trashed files to original paths"),
+                                    _("_Restore"),
+                                    _("Restore trashed files to original paths"),
                             NULL);
                 
                 g_signal_connect (action, "activate", G_CALLBACK (on_restaure), file_menu);
