@@ -555,8 +555,8 @@ FmFileInfo *fm_file_info_new_trash_can ()
 
     // fm_path_new_for_uri may also define FM_PATH_IS_LOCAL
     path->flags |= FM_PATH_IS_VIRTUAL;
-    path->flags |= FM_PATH_IS_TRASH;
-    path->flags |= FM_PATH_IS_TRASH_CAN;
+    path->flags |= FM_PATH_IS_TRASH_FILE;
+    path->flags |= FM_PATH_IS_TRASH_ROOT;
     
     fm_path_unref (path);
     

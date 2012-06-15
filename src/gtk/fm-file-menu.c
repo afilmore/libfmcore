@@ -80,6 +80,8 @@ static void on_extract_to       (GtkAction *action, gpointer user_data);
 
 static void on_properties       (GtkAction *action, gpointer user_data);
 
+static void open_with_app (FmFileMenu *file_menu, GAppInfo *app);
+
 
 const char filefolder_popup_xml [] =
     "<popup>"
@@ -98,9 +100,9 @@ const char filefolder_popup_xml [] =
         "<menuitem action='Cut'/>"
         "<menuitem action='Copy'/>"
         "<menuitem action='Paste'/>"
-        "<menuitem action='Delete'/>"
         "<separator/>"
-        
+
+        "<menuitem action='Delete'/>"
         "<menuitem action='Rename'/>"
         "<separator/>"
         
@@ -183,7 +185,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     FmFileInfo *first_file_info = (FmFileInfo*) fm_list_peek_head (files);
     
     file_menu->all_virtual = file_menu->same_fs && fm_path_is_virtual (first_file_info->path);
-    file_menu->all_trash = file_menu->same_fs && fm_path_is_trash (first_file_info->path);
+    file_menu->all_trash = file_menu->same_fs && fm_path_is_trash_file (first_file_info->path);
     
 
 
@@ -305,7 +307,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gboolean trash_can = FALSE;
     
     // Trash Can...
-    if (!multiple_files && (flags & FM_PATH_IS_TRASH_CAN))
+    if (!multiple_files && (flags & FM_PATH_IS_TRASH_ROOT))
         trash_can = TRUE;
     
     
@@ -327,8 +329,8 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         gtk_action_set_visible (action, TRUE);
         action = gtk_ui_manager_get_action (ui, "/popup/Copy");
         gtk_action_set_visible (action, TRUE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-        gtk_action_set_visible (action, TRUE);
+        //~ action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+        //~ gtk_action_set_visible (action, TRUE);
         action = gtk_ui_manager_get_action (ui, "/popup/Delete");
         gtk_action_set_visible (action, TRUE);
         action = gtk_ui_manager_get_action (ui, "/popup/Rename");
@@ -651,9 +653,6 @@ void on_restaure (GtkAction *action, gpointer user_data)
     fm_list_unref (files);
 }
 
-// Forward Declaration...
-static void open_with_app (FmFileMenu *file_menu, GAppInfo *app);
-
 void on_open_with_app (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
@@ -853,7 +852,7 @@ void on_properties (GtkAction *action, gpointer user_data)
     
     uint flags = fm_file_info_list_get_flags (files);
     
-    if ((flags & FM_PATH_IS_TRASH) || (flags & FM_PATH_IS_VIRTUAL))
+    if ((flags & FM_PATH_IS_TRASH_FILE) || (flags & FM_PATH_IS_VIRTUAL))
     {
         // TODO_axl: printf ("NEEDS A VIRTUAL DIALOG !!!!!\n");
         return;

@@ -385,7 +385,7 @@ gboolean _fm_file_ops_job_untrash_run(FmFileOpsJob* job)
         GFile* gf;
         GFileInfo* inf;
         FmPath* path = FM_PATH(l->data);
-        if(!fm_path_is_trash(path))
+        if(!fm_path_is_trash_file(path))
             continue;
         gf = fm_path_to_gfile(path);
 _retry_get_orig_path:

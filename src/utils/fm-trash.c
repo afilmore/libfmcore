@@ -67,12 +67,7 @@ void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
     {
         case FM_DELETE_FLAGS_TRASH:
         {
-            if (!fm_config->confirm_delete
-                || fm_yes_no (parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
-            {
-                FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, path_list);
-                fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
-            }
+            _fm_trash_files (parent, path_list);
         }
         break;
         
@@ -90,13 +85,16 @@ void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
                 for (;l;l=l->next)
                 {
                     FmPath *path = FM_PATH (l->data);
-                    if (!fm_path_is_trash (path))
+                    if (!fm_path_is_trash_file (path))
                         all_in_trash = FALSE;
                 }
             }*/
 
             
             // files already in trash:/// should only be deleted and cannot be trashed again.
+            
+            
+            
             if (fm_config->use_trash_can && !fm_path_list_all_in_trash_can (path_list))
                 _fm_trash_files (parent, path_list);
             else
@@ -127,7 +125,7 @@ void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
             for (;l;l=l->next)
             {
                 FmPath *path = FM_PATH (l->data);
-                if (!fm_path_is_trash (path))
+                if (!fm_path_is_trash_file (path))
                     all_in_trash = FALSE;
             }
         }
@@ -153,7 +151,7 @@ void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
             for (;l;l=l->next)
             {
                 FmPath *path = FM_PATH (l->data);
-                if (!fm_path_is_trash (path))
+                if (!fm_path_is_trash_file (path))
                     all_in_trash = FALSE;
             }
         }

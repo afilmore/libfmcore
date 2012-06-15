@@ -88,7 +88,7 @@ gboolean fm_path_list_all_in_trash_can (FmPathList *path_list)
     for ( ; l; l = l->next)
     {
         FmPath *path = FM_PATH (l->data);
-        if (!fm_path_is_trash (path))
+        if (!fm_path_is_trash_file (path))
             return FALSE;
     }
     

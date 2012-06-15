@@ -109,7 +109,7 @@ uint fm_file_info_list_get_flags (FmFileInfoList *list)
         
         if (fm_path_is_trash_root (file_info->path))
         {
-            flags |= FM_PATH_IS_TRASH_CAN;
+            flags |= FM_PATH_IS_TRASH_ROOT;
             flags |= FM_PATH_IS_VIRTUAL;
         }
         else if (fm_path_is_virtual (file_info->path))

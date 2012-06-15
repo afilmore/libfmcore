@@ -65,13 +65,11 @@ enum _FmPathFlags
 {
     FM_PATH_NONE            = 0,
     FM_PATH_IS_NATIVE       = 1 << 0,     // This is a native path to UNIX, like /home
-    FM_PATH_IS_LOCAL        = 1 << 1,     // This path refers  to a file on local filesystem
+    FM_PATH_IS_LOCAL        = 1 << 1,     // This path refers to a file on local filesystem
     FM_PATH_IS_VIRTUAL      = 1 << 2,     // This path is virtual and it doesn't exist on real filesystem
-    FM_PATH_IS_TRASH        = 1 << 3,     // This path is under trash:///
-    FM_PATH_IS_XDG_MENU     = 1 << 4,     // This path is under menu:///
-    FM_PATH_IS_TRASH_CAN    = 1 << 5,     // Trash Can Virtual Path
-    FM_PATH_IS_RESERVED2    = 1 << 6,
-    FM_PATH_IS_RESERVED3    = 1 << 7,
+    FM_PATH_IS_TRASH_ROOT   = 1 << 3,     // Trash Can root...
+    FM_PATH_IS_TRASH_FILE   = 1 << 4,     // A file in the trash can (trash:///)...
+    FM_PATH_IS_XDG_MENU     = 1 << 5      // This path is under menu:///
 };
 typedef enum _FmPathFlags FmPathFlags;
 
@@ -83,7 +81,7 @@ struct _FmPath
     
     uint    flags;       // FmPathFlags flags : 32;
     
-    char    name[1];
+    char    name [1];
 };
 
 void _fm_path_init ();
@@ -118,7 +116,7 @@ gboolean fm_path_has_prefix             (FmPath *path, FmPath *prefix);
 #define fm_path_is_virtual(path)        (fm_path_get_flags(path) & FM_PATH_IS_VIRTUAL)
 #define fm_path_is_local(path)          (fm_path_get_flags(path) & FM_PATH_IS_LOCAL)
 #define fm_path_is_trash_root(path)     (path == fm_path_get_trash())
-#define fm_path_is_trash(path)          (fm_path_get_flags(path) & FM_PATH_IS_TRASH)
+#define fm_path_is_trash_file(path)     (fm_path_get_flags(path) & FM_PATH_IS_TRASH_FILE)
 #define fm_path_is_xdg_menu(path)       (fm_path_get_flags(path) & FM_PATH_IS_XDG_MENU)
 
 char *fm_path_to_str                    (FmPath *path);

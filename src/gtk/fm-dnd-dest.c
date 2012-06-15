@@ -528,7 +528,7 @@ GdkDragAction fm_dnd_dest_get_default_action (FmDndDest *dnd_dest,
     if (dnd_dest->src_files) // we have got drag source files
     {
         FmPath *dest_path = dest->path;
-        if (fm_path_is_trash (dest_path))
+        if (fm_path_is_trash_file (dest_path))
         {
             if (fm_path_is_trash_root (dest_path)) // we can only move files to trash can
                 action = GDK_ACTION_MOVE;

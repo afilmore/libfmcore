@@ -164,7 +164,7 @@ namespace Fm {
         
         public inline bool is_virtual ();
         public inline bool is_trash_root ();
-        public inline bool is_trash ();
+        public inline bool is_trash_file ();
         
         /*** Define these macros...
         #define fm_path_is_native(path) (fm_path_get_flags(path)&FM_PATH_IS_NATIVE)

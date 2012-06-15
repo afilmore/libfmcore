@@ -253,7 +253,7 @@ _retry_query_info:
         FmPath* fm_path = fm_path_new_for_gfile(gf);
         /* check if we need to decends into the dir. */
         /* trash:/// doesn't support deleting files recursively */
-        if(job->flags & FM_DC_JOB_PREPARE_DELETE && fm_path_is_trash(fm_path) && ! fm_path_is_trash_root(fm_path))
+        if(job->flags & FM_DC_JOB_PREPARE_DELETE && fm_path_is_trash_file(fm_path) && ! fm_path_is_trash_root(fm_path))
             descend = FALSE;
         else
         {
