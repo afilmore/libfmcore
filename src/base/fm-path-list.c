@@ -37,7 +37,7 @@ static FmListFuncs funcs = {fm_path_ref, fm_path_unref};
 
 FmPathList *fm_path_list_new ()
 {
-    return  (FmPathList*)fm_list_new (&funcs);
+    return (FmPathList*) fm_list_new (&funcs);
 }
 
 gboolean fm_list_is_path_list (FmList *list)
@@ -48,7 +48,7 @@ gboolean fm_list_is_path_list (FmList *list)
 FmPathList *fm_path_list_new_from_uris (const char **uris)
 {
     const char **uri;
-    FmPathList *pl = fm_path_list_new ();
+    FmPathList *path_list = fm_path_list_new ();
     for (uri = uris; *uri; ++uri)
     {
         const char *puri = *uri;
@@ -61,34 +61,47 @@ FmPathList *fm_path_list_new_from_uris (const char **uris)
                 path = fm_path_new_for_uri (puri);
             else // it's not a valid path or URI
                 continue;
-            fm_list_push_tail_noref (pl, path);
+            fm_list_push_tail_noref (path_list, path);
         }
     }
-    return pl;
+    return path_list;
 }
 
 FmPathList *fm_path_list_new_from_uri_list (const char *uri_list)
 {
     char **uris = g_strsplit (uri_list, "\r\n", -1);
-    FmPathList *pl = fm_path_list_new_from_uris ( (const char **)uris);
+    FmPathList *path_list = fm_path_list_new_from_uris ( (const char **)uris);
     g_strfreev (uris);
-    return pl;
+    return path_list;
 }
 
-char *fm_path_list_to_uri_list (FmPathList *pl)
+char *fm_path_list_to_uri_list (FmPathList *path_list)
 {
     GString *buf = g_string_sized_new (4096);
-    fm_path_list_write_uri_list (pl, buf);
+    fm_path_list_write_uri_list (path_list, buf);
     return g_string_free (buf, FALSE);
 }
 
-/*
-char** fm_path_list_to_uris (FmPathList* pl)
+gboolean fm_path_list_all_in_trash_can (FmPathList *path_list)
 {
-    if ( G_LIKELY (!fm_list_is_empty (pl)) )
+    GList *l = fm_list_peek_head_link (path_list);
+    for ( ; l; l = l->next)
     {
-        GList* l = fm_list_peek_head_link (pl);
-        char** uris = g_new0 (char*, fm_list_get_length (pl) + 1);
+        FmPath *path = FM_PATH (l->data);
+        if (!fm_path_is_trash (path))
+            return FALSE;
+    }
+    
+    return TRUE;
+}
+
+/*
+char** fm_path_list_to_uris (FmPathList* path_list)
+{
+    if ( G_LIKELY (!fm_list_is_empty (path_list)) )
+    {
+        GList* l = fm_list_peek_head_link (path_list);
+        char** uris = g_new0 (char*, fm_list_get_length (path_list) + 1);
         for (i=0; l; ++i, l=l->next)
         {
             FmFileInfo* file_info =  (FmFileInfo*)l->data;
@@ -137,10 +150,10 @@ FmPathList *fm_path_list_new_from_file_info_gslist (GSList *fis)
     return list;
 }
 
-void fm_path_list_write_uri_list (FmPathList *pl, GString *buf)
+void fm_path_list_write_uri_list (FmPathList *path_list, GString *buf)
 {
     GList *l;
-    for (l = fm_list_peek_head_link (pl); l; l=l->next)
+    for (l = fm_list_peek_head_link (path_list); l; l=l->next)
     {
         FmPath *path =  (FmPath*)l->data;
         char *uri = fm_path_to_uri (path);

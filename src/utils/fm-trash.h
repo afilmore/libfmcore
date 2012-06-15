@@ -38,15 +38,15 @@ enum _FmDeleteFlags
 };
 typedef enum _FmDeleteFlags FmDeleteFlags;
 
-void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete_flags);
+void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags delete_flags);
 
-//void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files);
-//void fm_trash_files (GtkWindow *parent, FmPathList *files);
+//void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *path_list);
+//void fm_trash_files (GtkWindow *parent, FmPathList *path_list);
 
 
-//~ void fm_delete_files (GtkWindow *parent, FmPathList *files);
+//~ void fm_delete_files (GtkWindow *parent, FmPathList *path_list);
 
-void fm_untrash_files (GtkWindow *parent, FmPathList *files);
+void fm_untrash_files (GtkWindow *parent, FmPathList *path_list);
 
 void fm_empty_trash (GtkWindow *parent);
 

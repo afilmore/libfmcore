@@ -34,33 +34,33 @@
 #include "fm-msgbox.h"
 
 
-static void fm_delete_files_internal (GtkWindow *parent, FmPathList *files)
+static void fm_delete_files_internal (GtkWindow *parent, FmPathList *path_list)
 {
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_DELETE, files);
+    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_DELETE, path_list);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
 }
 
-static void _fm_delete_files (GtkWindow *parent, FmPathList *files)
+static void _fm_delete_files (GtkWindow *parent, FmPathList *path_list)
 {
     if (!fm_config->confirm_delete
         || fm_yes_no (parent, NULL, _("Do you want to delete the selected files?"), TRUE))
     {
-        fm_delete_files_internal (parent, files);
+        fm_delete_files_internal (parent, path_list);
     }
 }
 
-static void _fm_trash_files (GtkWindow *parent, FmPathList *files)
+static void _fm_trash_files (GtkWindow *parent, FmPathList *path_list)
 {
     if (!fm_config->confirm_delete
         || fm_yes_no (parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
     {
-        FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, files);
+        FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, path_list);
         fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
     }
 }
 
 
-void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete_flags)
+void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags delete_flags)
 {
     
     switch (delete_flags)
@@ -70,7 +70,7 @@ void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete
             if (!fm_config->confirm_delete
                 || fm_yes_no (parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
             {
-                FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, files);
+                FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, path_list);
                 fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
             }
         }
@@ -78,29 +78,29 @@ void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete
         
         case FM_DELETE_FLAGS_TRASH_OR_DELETE:
         {
-            if (fm_list_is_empty (files))
+            if (fm_list_is_empty (path_list))
                 return;
             
             
-            // TODO_axl: add a function to FmPath to do this...
-            gboolean all_in_trash = TRUE;
+            // TODO_axl: test and remove...
+/*            gboolean all_in_trash = TRUE;
             if (fm_config->use_trash_can)
             {
-                GList *l = fm_list_peek_head_link (files);
+                GList *l = fm_list_peek_head_link (path_list);
                 for (;l;l=l->next)
                 {
                     FmPath *path = FM_PATH (l->data);
                     if (!fm_path_is_trash (path))
                         all_in_trash = FALSE;
                 }
-            }
+            }*/
 
             
             // files already in trash:/// should only be deleted and cannot be trashed again.
-            if (fm_config->use_trash_can && !all_in_trash)
-                _fm_trash_files (parent, files);
+            if (fm_config->use_trash_can && !fm_path_list_all_in_trash_can (path_list))
+                _fm_trash_files (parent, path_list);
             else
-                _fm_delete_files (parent, files);
+                _fm_delete_files (parent, path_list);
         }
         break;
     }
@@ -109,13 +109,13 @@ void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete
     {
         if (!fm_config->confirm_delete || fm_yes_no (parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
         {
-            FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, files);
+            FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, path_list);
             fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
         }
     }
     else if (delete_flags == FM_DELETE_FLAGS_TRASH_OR_DELETE)
     {
-        if (fm_list_is_empty (files))
+        if (fm_list_is_empty (path_list))
             return;
         
         
@@ -123,7 +123,7 @@ void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete
         gboolean all_in_trash = TRUE;
         if (fm_config->use_trash_can)
         {
-            GList *l = fm_list_peek_head_link (files);
+            GList *l = fm_list_peek_head_link (path_list);
             for (;l;l=l->next)
             {
                 FmPath *path = FM_PATH (l->data);
@@ -135,21 +135,21 @@ void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete
         
         // files already in trash:/// should only be deleted and cannot be trashed again.
         if (fm_config->use_trash_can && !all_in_trash)
-            _fm_trash_files (parent, files);
+            _fm_trash_files (parent, path_list);
         else
-            _fm_delete_files (parent, files);
+            _fm_delete_files (parent, path_list);
     }**/
 }
 
 
-/*void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files)
+/*void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *path_list)
 {
-    if (!fm_list_is_empty (files))
+    if (!fm_list_is_empty (path_list))
     {
         gboolean all_in_trash = TRUE;
         if (fm_config->use_trash_can)
         {
-            GList *l = fm_list_peek_head_link (files);
+            GList *l = fm_list_peek_head_link (path_list);
             for (;l;l=l->next)
             {
                 FmPath *path = FM_PATH (l->data);
@@ -160,17 +160,17 @@ void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete
 
         // files already in trash:/// should only be deleted and cannot be trashed again.
         if (fm_config->use_trash_can && !all_in_trash)
-            fm_trash_files (parent, files);
+            fm_trash_files (parent, path_list);
         else
-            _fm_delete_files (parent, files);
+            _fm_delete_files (parent, path_list);
     }
 }*/
 
 
 
-void fm_untrash_files (GtkWindow *parent, FmPathList *files)
+void fm_untrash_files (GtkWindow *parent, FmPathList *path_list)
 {
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_UNTRASH, files);
+    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_UNTRASH, path_list);
     fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
 }
 

@@ -45,10 +45,12 @@ FmPathList *fm_path_list_new_from_file_info_gslist  (GSList *fis);
 
 gboolean fm_list_is_path_list                       (FmList *list);
 
-char *fm_path_list_to_uri_list                      (FmPathList *pl);
-void fm_path_list_write_uri_list                    (FmPathList *pl, GString *buf);
+char *fm_path_list_to_uri_list                      (FmPathList *path_list);
+void fm_path_list_write_uri_list                    (FmPathList *path_list, GString *buf);
 
-// char **fm_path_list_to_uris                      (FmPathList *pl);
+gboolean fm_path_list_all_in_trash_can (FmPathList *path_list);
+
+// char **fm_path_list_to_uris                      (FmPathList *path_list);
 
 G_END_DECLS
 #endif
