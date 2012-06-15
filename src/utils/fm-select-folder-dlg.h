@@ -30,7 +30,6 @@
 
 G_BEGIN_DECLS
 
-// Ask the user to select a folder.
 FmPath *fm_select_folder (GtkWindow *parent, const char *title);
 
 

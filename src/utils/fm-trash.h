@@ -30,11 +30,21 @@
 
 G_BEGIN_DECLS
 
-void fm_trash_files (GtkWindow *parent, FmPathList *files);
-void fm_delete_files (GtkWindow *parent, FmPathList *files);
+enum _FmDeleteFlags
+{
+    FM_DELETE_FLAGS_NONE,
+    FM_DELETE_FLAGS_TRASH_OR_DELETE,
+    FM_DELETE_FLAGS_TRASH
+};
+typedef enum _FmDeleteFlags FmDeleteFlags;
 
-// trash or delete files according to FmConfig::use_trash.
-void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files);
+void fm_delete_files (GtkWindow *parent, FmPathList *files, FmDeleteFlags delete_flags);
+
+//void fm_trash_or_delete_files (GtkWindow *parent, FmPathList *files);
+//void fm_trash_files (GtkWindow *parent, FmPathList *files);
+
+
+//~ void fm_delete_files (GtkWindow *parent, FmPathList *files);
 
 void fm_untrash_files (GtkWindow *parent, FmPathList *files);
 

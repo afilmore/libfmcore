@@ -26,20 +26,17 @@
 
 #include "fm-job.h"
 #include "fm-deep-count-job.h"
+
 #include "fm-file-info.h"
 #include "fm-path-list.h"
 
 G_BEGIN_DECLS
 
-#define FM_FILE_OPS_JOB_TYPE                (fm_file_ops_job_get_type())
-#define FM_FILE_OPS_JOB(obj)                (G_TYPE_CHECK_INSTANCE_CAST((obj),\
-            FM_FILE_OPS_JOB_TYPE, FmFileOpsJob))
-#define FM_FILE_OPS_JOB_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST((klass),\
-            FM_FILE_OPS_JOB_TYPE, FmFileOpsJobClass))
-#define IS_FM_FILE_OPS_JOB(obj)            (G_TYPE_CHECK_INSTANCE_TYPE((obj),\
-            FM_FILE_OPS_JOB_TYPE))
-#define IS_FM_FILE_OPS_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE((klass),\
-            FM_FILE_OPS_JOB_TYPE))
+#define FM_FILE_OPS_JOB_TYPE            (fm_file_ops_job_get_type())
+#define FM_FILE_OPS_JOB(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),  FM_FILE_OPS_JOB_TYPE, FmFileOpsJob))
+#define FM_FILE_OPS_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),   FM_FILE_OPS_JOB_TYPE, FmFileOpsJobClass))
+#define IS_FM_FILE_OPS_JOB(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),  FM_FILE_OPS_JOB_TYPE))
+#define IS_FM_FILE_OPS_JOB_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),   FM_FILE_OPS_JOB_TYPE))
 
 typedef struct _FmFileOpsJob            FmFileOpsJob;
 typedef struct _FmFileOpsJobClass        FmFileOpsJobClass;
@@ -75,9 +72,9 @@ struct _FmFileOpsJob
 {
     FmJob parent;
     FmFileOpType type;
-    FmPathList* srcs;
-    FmPath* dest;
-    const char* dest_fs_id;
+    FmPathList *srcs;
+    FmPath *dest;
+    const char *dest_fs_id;
 
     goffset total;
     goffset finished;
@@ -104,34 +101,36 @@ struct _FmFileOpsJob
     mode_t new_mode_mask;
 
     /* dummy file monitors, used to simulate file event for remote file systems */
-    GFileMonitor* src_folder_mon;
-    GFileMonitor* dest_folder_mon;
+    GFileMonitor *src_folder_mon;
+    GFileMonitor *dest_folder_mon;
 };
 
 struct _FmFileOpsJobClass
 {
     FmJobClass parent_class;
-    void (*cur_file)(FmFileOpsJob* job, FmPath* file);
-    void (*percent)(FmFileOpsJob* job, guint percent);
-    FmFileOpOption (*ask_rename)(FmFileOpsJob* job, FmFileInfo* src, FmFileInfo* dest, char** new_name);
+    void (*cur_file)(FmFileOpsJob *job, FmPath *file);
+    void (*percent)(FmFileOpsJob *job, guint percent);
+    FmFileOpOption (*ask_rename)(FmFileOpsJob *job, FmFileInfo *src, FmFileInfo *dest, char **new_name);
 };
 
-GType fm_file_ops_job_get_type        (void);
-FmJob* fm_file_ops_job_new(FmFileOpType type, FmPathList* files);
-void fm_file_ops_job_set_dest(FmFileOpsJob* job, FmPath* dest);
-FmPath* fm_file_ops_job_get_dest(FmFileOpsJob* job);
+GType           fm_file_ops_job_get_type        ();
+FmJob *         fm_file_ops_job_new             (FmFileOpType type, FmPathList *files);
+void            fm_file_ops_job_set_dest        (FmFileOpsJob *job, FmPath *dest);
+FmPath *        fm_file_ops_job_get_dest        (FmFileOpsJob *job);
 
 /* This only work for change attr jobs. */
-void fm_file_ops_job_set_recursive(FmFileOpsJob* job, gboolean recursive);
+void            fm_file_ops_job_set_recursive   (FmFileOpsJob *job, gboolean recursive);
 
-void fm_file_ops_job_set_chmod(FmFileOpsJob* job, mode_t new_mode, mode_t new_mode_mask);
-void fm_file_ops_job_set_chown(FmFileOpsJob* job, guint uid, guint gid);
+void            fm_file_ops_job_set_chmod       (FmFileOpsJob *job, mode_t new_mode, mode_t new_mode_mask);
+void            fm_file_ops_job_set_chown       (FmFileOpsJob *job, guint uid, guint gid);
 
-void fm_file_ops_job_emit_prepared(FmFileOpsJob* job);
-void fm_file_ops_job_emit_cur_file(FmFileOpsJob* job, const char* cur_file);
-void fm_file_ops_job_emit_percent(FmFileOpsJob* job);
-FmFileOpOption fm_file_ops_job_ask_rename(FmFileOpsJob* job, GFile* src, GFileInfo* src_inf, GFile* dest, GFile** new_dest);
+void            fm_file_ops_job_emit_prepared   (FmFileOpsJob *job);
+void            fm_file_ops_job_emit_cur_file   (FmFileOpsJob *job, const char *cur_file);
+void            fm_file_ops_job_emit_percent    (FmFileOpsJob *job);
+FmFileOpOption  fm_file_ops_job_ask_rename      (FmFileOpsJob *job, GFile *src, GFileInfo *src_inf, GFile *dest, GFile **new_dest);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_FILE_OPS_JOB_H__ */
+
+

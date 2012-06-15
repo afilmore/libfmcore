@@ -700,13 +700,29 @@ namespace Fm {
 	[CCode (cheader_filename = "fm.h")]
 	public static void rename_file (Gtk.Window parent, Fm.Path file);
 
-	[CCode (cheader_filename = "fm.h")]
-	public static void trash_files (Gtk.Window parent, Fm.PathList files);
 	
-    [CCode (cheader_filename = "fm.h")]
-	public static void trash_or_delete_files (Gtk.Window parent, Fm.PathList files);
     
-  	[CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm.h", cprefix = "FM_DELETE_FLAGS_")]
+    public enum DeleteFlags {
+        NONE,
+        TRASH_OR_DELETE,
+        TRASH,
+    }
+
+    [CCode (cheader_filename = "fm.h")]
+	public static void delete_files (Gtk.Window parent, Fm.PathList files, Fm.DeleteFlags delete_flags = Fm.DeleteFlags.TRASH_OR_DELETE);
+    
+//~     [CCode (cheader_filename = "fm.h")]
+//~ 	public static void trash_files (Gtk.Window parent, Fm.PathList files);
+//~ 	
+//~     [CCode (cheader_filename = "fm.h")]
+//~ 	public static void trash_or_delete_files (Gtk.Window parent, Fm.PathList files);
+    
+  	
+    
+    
+    
+    [CCode (cheader_filename = "fm.h")]
 	public static bool mount_volume (Gtk.Window parent, GLib.Volume vol, bool interactive);
 
 

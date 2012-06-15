@@ -30,29 +30,37 @@
 #include <glib/gi18n-lib.h>
 
 
-
 FmPath *fm_select_folder (GtkWindow *parent, const char *title)
 {
-    FmPath *path;
     GtkFileChooser *chooser;
-    chooser = (GtkFileChooser*)gtk_file_chooser_dialog_new (
-                                        title ? title : _ ("Please select a folder"),
-                                        parent, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                        GTK_STOCK_OK, GTK_RESPONSE_OK,
-                                        NULL);
-    gtk_dialog_set_alternative_button_order ((GtkDialog*)chooser,
-                                        GTK_RESPONSE_CANCEL,
-                                        GTK_RESPONSE_OK, NULL);
-    if (gtk_dialog_run ((GtkDialog*)chooser) == GTK_RESPONSE_OK)
+    
+    chooser = (GtkFileChooser*) gtk_file_chooser_dialog_new (title ? title : _("Please select a folder"),
+                                                             parent,
+                                                             GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+                                                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                                             GTK_STOCK_OK, GTK_RESPONSE_OK,
+                                                             NULL);
+    
+    gtk_dialog_set_alternative_button_order ((GtkDialog*) chooser,
+                                             GTK_RESPONSE_CANCEL,
+                                             GTK_RESPONSE_OK,
+                                             NULL);
+    
+    FmPath *path;
+    
+    if (gtk_dialog_run ((GtkDialog*) chooser) == GTK_RESPONSE_OK)
     {
         GFile *file = gtk_file_chooser_get_file (chooser);
         path = fm_path_new_for_gfile (file);
         g_object_unref (file);
     }
     else
+    {
         path = NULL;
-    gtk_widget_destroy ((GtkWidget*)chooser);
+    }
+    
+    gtk_widget_destroy ((GtkWidget*) chooser);
+    
     return path;
 }
 
