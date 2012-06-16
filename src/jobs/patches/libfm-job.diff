@@ -1,0 +1,1138 @@
+diff -rupw libfm-job-orig/configure.ac libfm-job/configure.ac
+--- libfm-job-orig/configure.ac	2012-06-15 16:19:25.240772991 +0200
++++ libfm-job/configure.ac	2012-06-15 10:37:31.929636046 +0200
+@@ -153,6 +153,8 @@ AC_CONFIG_FILES([
+     Makefile
+     src/Makefile
+     src/actions/Makefile
++    src/jobs/Makefile
+     src/tests/Makefile
+     data/Makefile
+     data/ui/Makefile
+diff -rupw libfm-job-orig/src/actions/Makefile.am libfm-job/src/actions/Makefile.am
+--- libfm-job-orig/src/actions/Makefile.am	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/actions/Makefile.am	2012-06-15 10:37:31.949636280 +0200
+@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
+ 	-DPACKAGE_DATA_DIR=\""$(datadir)/libfm"\" \
+ 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfm"\" \
+ 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
++	-include $(CONFIG_HEADER) \
+ 	$(NULL)
+ 
+ noinst_LTLIBRARIES = libfmactions.la
+@@ -29,6 +30,7 @@ libfmactions_la_CFLAGS = \
+ VALAFLAGS = \
+ 	--thread \
+ 	--vapidir=$(srcdir)/../vapi \
++	--pkg config \
+ 	--pkg gio-2.0 \
+     --pkg posix \
+     --pkg libfm \
+diff -rupw libfm-job-orig/src/base/fm-file-info.c libfm-job/src/base/fm-file-info.c
+--- libfm-job-orig/src/base/fm-file-info.c	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/base/fm-file-info.c	2012-06-15 10:37:31.949636280 +0200
+@@ -416,6 +416,11 @@ FmMimeType* fm_file_info_get_mime_type(
+     return fi->type ? fm_mime_type_ref(fi->type) : NULL;
+ }
+ 
++FmIcon* fm_file_info_get_icon(FmFileInfo* fi)
++{
++	return fi->icon ? fm_icon_ref(fi->icon) : NULL;
++}
++
+ mode_t fm_file_info_get_mode( FmFileInfo* fi )
+ {
+     return fi->mode;
+diff -rupw libfm-job-orig/src/base/fm-file-info.h libfm-job/src/base/fm-file-info.h
+--- libfm-job-orig/src/base/fm-file-info.h	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/base/fm-file-info.h	2012-06-15 10:37:31.949636280 +0200
+@@ -117,6 +117,7 @@ mode_t fm_file_info_get_mode( FmFileInfo
+ gboolean fm_file_info_is_dir( FmFileInfo* fi );
+ 
+ FmMimeType* fm_file_info_get_mime_type( FmFileInfo* fi );
++FmIcon* fm_file_info_get_icon(FmFileInfo* fi);
+ 
+ gboolean fm_file_info_is_dir( FmFileInfo* fi );
+ 
+diff -rupw libfm-job-orig/src/base/fm-folder.c libfm-job/src/base/fm-folder.c
+--- libfm-job-orig/src/base/fm-folder.c	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/base/fm-folder.c	2012-06-15 10:37:31.953636328 +0200
+@@ -226,6 +226,7 @@ void on_file_info_finished(FmFileInfoJob
+         g_signal_emit(folder, signals[CONTENT_CHANGED], 0);
+ 
+     folder->pending_jobs = g_slist_remove(folder->pending_jobs, job);
++    g_object_unref(job);
+ }
+ 
+ gboolean on_idle(FmFolder* folder)
+@@ -399,13 +400,14 @@ static void on_job_finished(FmDirListJob
+     if(job->dir_fi)
+         folder->dir_fi = fm_file_info_ref(job->dir_fi);
+ 
+-    folder->job = NULL; /* the job object will be freed in idle handler. */
++	g_object_unref(folder->job);
++    folder->job = NULL;
+     g_signal_emit(folder, signals[LOADED], 0);
+ }
+ 
+-static FmJobErrorAction on_job_err(FmDirListJob* job, GError* err, FmJobErrorSeverity severity, FmFolder* folder)
++static FmErrorAction on_job_err(FmDirListJob* job, GError* err, FmSeverity severity, FmFolder* folder)
+ {
+-    FmJobErrorAction ret;
++    FmErrorAction ret;
+     g_signal_emit(folder, signals[ERROR], 0, err, severity, &ret);
+     return ret;
+ }
+@@ -482,7 +484,7 @@ static void fm_folder_finalize(GObject *
+             FmJob* job = FM_JOB(l->data);
+             g_signal_handlers_disconnect_by_func(job, on_job_finished, folder);
+             fm_job_cancel(job);
+-            /* the job will be freed automatically in idle handler. */
++            g_object_unref(job);
+         }
+     }
+ 
+diff -rupw libfm-job-orig/src/base/fm-folder.h libfm-job/src/base/fm-folder.h
+--- libfm-job-orig/src/base/fm-folder.h	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/base/fm-folder.h	2012-06-15 10:37:31.953636328 +0200
+@@ -8,7 +8,8 @@
+  *      the Free Software Foundation; either version 2 of the License, or
+  *      (at your option) any later version.
+  *
+- *      This program is distributed in the hope that it will be useful,
++ *      Thi#ifndef LIBFM_COMPILATION
++s program is distributed in the hope that it will be useful,
+  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  *      GNU General Public License for more details.
+@@ -23,12 +24,16 @@
+ #ifndef __FM_FOLDER_H__
+ #define __FM_FOLDER_H__
+ 
++#if !defined(__LIBFM_H_INSIDE__) && !defined(LIBFM_COMPILATION)
++#error "Only <libfm/fm.h> can be included directly."
++#endif
++
+ #include <glib-object.h>
+ #include <gio/gio.h>
+ #include "fm-path.h"
+ #include "fm-dir-list-job.h"
+ #include "fm-file-info.h"
+-#include "fm-job.h"
++#include "fm-jobs.h"
+ #include "fm-file-info-job.h"
+ 
+ G_BEGIN_DECLS
+@@ -86,7 +91,7 @@ struct _FmFolderClass
+     void (*removed)(FmFolder* dir);
+     void (*content_changed)(FmFolder* dir);
+     void (*fs_info)(FmFolder* dir);
+-    FmJobErrorAction (*error)(FmFolder* dir, GError* err, FmJobErrorSeverity severity);
++    FmErrorAction (*error)(FmFolder* dir, GError* err, FmSeverity severity);
+ };
+ 
+ GType       fm_folder_get_type      (void);
+diff -rupw libfm-job-orig/src/base/fm-path.c libfm-job/src/base/fm-path.c
+--- libfm-job-orig/src/base/fm-path.c	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/base/fm-path.c	2012-06-15 10:37:31.953636328 +0200
+@@ -745,6 +745,77 @@ char* fm_path_display_basename(FmPath* p
+     return g_filename_display_name(path->name);
+ }
+ 
++/* translate gvfs trash:///path to real path of the trashed file on disk.
++ * this only works when path is a trashed file and gvfs is active.
++ */
++char* fm_path_get_trash_real_path(FmPath* path)
++{
++    char* path_str, *p;
++    GString* result;
++    /* The filenames listed in trash:/// by gvfs are carefully encoded 
++     * to carry important information.
++     * Handling of trashed file name can be found in gvfs source code:
++     * gvfs/daemon/trashlib/trashitem.c: trash_item_escape_name().
++     * The filename listed under trash:/// are encoded according to the 
++     * real path on disk. */
++    if(!fm_path_is_trash(path)) /* this only works for files in trash:/// */
++        return NULL;
++
++	/* converting it to string first for ease of handling */
++    path_str = fm_path_to_str(path);
++    p = path_str + 9; /* skip "trash:///" */
++    result = g_string_sized_new(1024);
++    if(*p == '\\') /* files not in home trash */
++    {
++		/* the basename is an encoded full path */
++		for(; *p; ++p)
++		{
++			if(*p == '\\') /* translate all \ to / */
++				g_string_append_c(result, '/');
++			else if(*p == '`') /* special handling for ` */
++			{
++				++p;
++				if(*p == '\\') /* translate `\ to \ */
++					g_string_append_c(result, '\\');
++				else if(*p == '`') /* translate `` to ` */
++					g_string_append_c(result, '`');
++				else
++				{
++					g_string_append_c(result, '`');
++					g_string_append_c(result, *p);
++				}
++			}
++			else
++				g_string_append_c(result, *p);			
++		}
++	}
++	else /* files in home trash */
++	{
++		g_string_append(result, g_get_user_data_dir());
++		g_string_append_c(result, '/');
++		g_string_append(result, "Trash/files/");
++		if(*p == '`') /* special handling of the first character */
++		{
++			++p;
++			if(*p == '`') /* translate `` to ` */
++			{
++				g_string_append_c(result, '`');
++				++p;
++			}
++			else if(*p == '\\') /* translate `\ to \ */
++			{
++				g_string_append_c(result, '\\');
++				++p;
++			}
++			else
++				g_string_append_c(result, '`'); /* don't translate anything */
++		}
++		g_string_append(result, p); /* append the remaining part */
++	}
++    return g_string_free(result, FALSE);
++}
++
++
+ GFile* fm_path_to_gfile(FmPath* path)
+ {
+     GFile* gf;
+diff -rupw libfm-job-orig/src/base/fm-path.h libfm-job/src/base/fm-path.h
+--- libfm-job-orig/src/base/fm-path.h	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/base/fm-path.h	2012-06-15 10:37:31.953636328 +0200
+@@ -104,6 +104,8 @@ GFile* fm_path_to_gfile(FmPath* path);
+ char* fm_path_display_name(FmPath* path, gboolean human_readable);
+ char* fm_path_display_basename(FmPath* path);
+ 
++char* fm_path_get_trash_real_path(FmPath* path);
++
+ /* For used in hash tables */
+ guint fm_path_hash(FmPath* path);
+ gboolean fm_path_equal(FmPath* p1, FmPath* p2);
+diff -rupw libfm-job-orig/src/demo/main-win.c libfm-job/src/demo/main-win.c
+--- libfm-job-orig/src/demo/main-win.c	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/demo/main-win.c	2012-06-15 10:37:31.953636328 +0200
+@@ -36,6 +36,7 @@
+ #include "fm-file-properties.h"
+ #include "fm-side-pane.h"
+ 
++static void fm_main_win_dispose(GObject *object);
+ static void fm_main_win_finalize              (GObject *object);
+ G_DEFINE_TYPE(FmMainWin, fm_main_win, GTK_TYPE_WINDOW);
+ 
+@@ -91,6 +92,7 @@ static void fm_main_win_class_init(FmMai
+ {
+     GObjectClass *g_object_class;
+     g_object_class = G_OBJECT_CLASS(klass);
++    g_object_class->dispose = fm_main_win_dispose;
+     g_object_class->finalize = fm_main_win_finalize;
+     fm_main_win_parent_class = (GtkWindowClass*)g_type_class_peek(GTK_TYPE_WINDOW);
+ }
+@@ -445,7 +447,6 @@ static void fm_main_win_init(FmMainWin *
+     win->statusbar_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(win->statusbar), "status");
+     win->statusbar_ctx2 = gtk_statusbar_get_context_id(GTK_STATUSBAR(win->statusbar), "status2");
+ 
+-
+     g_object_unref(act_grp);
+     win->ui = ui;
+ 
+@@ -464,28 +465,47 @@ GtkWidget* fm_main_win_new(void)
+     return (GtkWidget*)g_object_new(FM_MAIN_WIN_TYPE, NULL);
+ }
+ 
+-
+-static void fm_main_win_finalize(GObject *object)
++static void fm_main_win_dispose(GObject *object)
+ {
+-    FmMainWin *win;
+-    FmFolder* folder;
+-
+-    g_return_if_fail(object != NULL);
+-    g_return_if_fail(IS_FM_MAIN_WIN(object));
+-
+-    --n_wins;
+-
+-    win = FM_MAIN_WIN(object);
++    FmMainWin *win = FM_MAIN_WIN(object);
+ 
++	if(win->nav_history)
++	{
+     g_object_unref(win->nav_history);
++		win->nav_history = NULL;
++	}
++
++	if(win->ui)
++	{
+     g_object_unref(win->ui);
++		win->ui = NULL;
++	}
++
++	if(win->bookmarks)
++	{
+     g_object_unref(win->bookmarks);
++		win->bookmarks = NULL;
++	}
+ 
+     if(win->folder)
+     {
+         g_signal_handlers_disconnect_by_func(win->folder, on_folder_fs_info, win);
+         g_object_unref(win->folder);
++        win->folder = NULL;
+     }
++    if(G_OBJECT_CLASS(fm_main_win_parent_class)->dispose)
++        (*G_OBJECT_CLASS(fm_main_win_parent_class)->dispose)(object);
++}
++
++static void fm_main_win_finalize(GObject *object)
++{
++    FmMainWin *win;
++    g_return_if_fail(object != NULL);
++    g_return_if_fail(IS_FM_MAIN_WIN(object));
++
++    --n_wins;
++
++    win = FM_MAIN_WIN(object);
+ 
+     if (G_OBJECT_CLASS(fm_main_win_parent_class)->finalize)
+         (* G_OBJECT_CLASS(fm_main_win_parent_class)->finalize)(object);
+diff -rupw libfm-job-orig/src/fm-gtk.h libfm-job/src/fm-gtk.h
+--- libfm-job-orig/src/fm-gtk.h	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/fm-gtk.h	2012-06-15 10:37:31.953636328 +0200
+@@ -22,6 +22,8 @@
+ #ifndef __FM_GTK_H__
+ #define __FM_GTK_H__
+ 
++#define __LIBFM_GTK_H_INSIDE__
++
+ #include "fm.h"
+ #include "fm-app-chooser-combo-box.h"
+ #include "fm-app-chooser-dlg.h"
+@@ -46,11 +48,12 @@
+ #include "fm-path-entry.h"
+ #include "fm-places-model.h"
+ #include "fm-places-view.h"
+-#include "fm-progress-dlg.h"
+ #include "fm-side-pane.h"
+ #include "fm-tab-label.h"
+ #include "fm-thumbnail.h"
+ 
++#undef __LIBFM_GTK_H_INSIDE__
++
+ G_BEGIN_DECLS
+ 
+ gboolean fm_gtk_init(FmConfig* config);
+diff -rupw libfm-job-orig/src/fm.h libfm-job/src/fm.h
+--- libfm-job-orig/src/fm.h	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/fm.h	2012-06-15 10:37:31.953636328 +0200
+@@ -22,6 +22,8 @@
+ #ifndef __LIBFM_FM_H__
+ #define __LIBFM_FM_H__
+ 
++#define __LIBFM_H_INSIDE__
++
+ #include "fm-app-info.h"
+ #include "fm-archiver.h"
+ #include "fm-bookmarks.h"
+@@ -41,11 +43,9 @@
+ #include "fm-deep-count-job.h"
+ #include "fm-dir-list-job.h"
+ #include "fm-file-info-job.h"
+-#include "fm-file-ops-job-change-attr.h"
+-#include "fm-file-ops-job-delete.h"
+-#include "fm-file-ops-job.h"
+-#include "fm-file-ops-job-xfer.h"
+-#include "fm-job.h"
++#include "fm-jobs.h"
++
++#undef __LIBFM_H_INSIDE__
+ 
+ G_BEGIN_DECLS
+ 
+diff -rupw libfm-job-orig/src/gtk/fm-file-properties.c libfm-job/src/gtk/fm-file-properties.c
+--- libfm-job-orig/src/gtk/fm-file-properties.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/gtk/fm-file-properties.c	2012-06-15 10:37:31.961636431 +0200
+@@ -35,11 +35,10 @@
+ #include "fm-file-info.h"
+ #include "fm-file-properties.h"
+ #include "fm-deep-count-job.h"
+-#include "fm-file-ops-job.h"
++#include "fm-jobs.h"
+ #include "fm-utils.h"
+ #include "fm-path.h"
+ 
+-#include "fm-progress-dlg.h"
+ #include "fm-gtk-utils.h"
+ 
+ #include "fm-app-chooser-combo-box.h"
+@@ -135,6 +134,7 @@ static void on_finished(FmDeepCountJob*
+         g_source_remove(data->timeout);
+         data->timeout = 0;
+     }
++    g_object_unref(data->dc_job);
+     data->dc_job = NULL;
+ }
+ 
+@@ -302,7 +302,7 @@ static void on_response(GtkDialog* dlg,
+         }
+         else
+             data->group_perm_sel = NO_CHANGE;
+-
++#if 0
+         sel = gtk_combo_box_get_active(GTK_COMBO_BOX(data->other_perm));
+         if( sel != NO_CHANGE ) /* need to change other permission */
+         {
+@@ -392,6 +392,7 @@ static void on_response(GtkDialog* dlg,
+                 /* FIXME: rename the file or set display name for it. */
+             }
+         }
++#endif
+     }
+     gtk_widget_destroy(GTK_WIDGET(dlg));
+ }
+diff -rupw libfm-job-orig/src/gtk/fm-folder-view.c libfm-job/src/gtk/fm-folder-view.c
+--- libfm-job-orig/src/gtk/fm-folder-view.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/gtk/fm-folder-view.c	2012-06-15 10:37:31.961636431 +0200
+@@ -61,7 +61,7 @@ static gboolean on_folder_view_focus_in(
+ static void on_chdir(FmFolderView* fv, FmPath* dir_path);
+ static void on_loaded(FmFolderView* fv, FmPath* dir_path);
+ static void on_model_loaded(FmFolderModel* model, FmFolderView* fv);
+-static FmJobErrorAction on_folder_err(FmFolder* folder, GError* err, FmJobErrorSeverity severity, FmFolderView* fv);
++static FmErrorAction on_folder_err(FmFolder* folder, GError* err, FmSeverity severity, FmFolderView* fv);
+ 
+ static gboolean on_btn_pressed(GtkWidget* view, GdkEventButton* evt, FmFolderView* fv);
+ static void on_sel_changed(GObject* obj, FmFolderView* fv);
+@@ -177,19 +177,19 @@ void on_model_loaded(FmFolderModel* mode
+     g_signal_emit(fv, signals[LOADED], 0, folder->dir_path);
+ }
+ 
+-FmJobErrorAction on_folder_err(FmFolder* folder, GError* err, FmJobErrorSeverity severity, FmFolderView* fv)
++FmErrorAction on_folder_err(FmFolder* folder, GError* err, FmSeverity severity, FmFolderView* fv)
+ {
+     GtkWindow* parent = (GtkWindow*)gtk_widget_get_toplevel((GtkWidget*)fv);
+     if( err->domain == G_IO_ERROR )
+     {
+-        if( err->code == G_IO_ERROR_NOT_MOUNTED && severity < FM_JOB_ERROR_CRITICAL )
++        if( err->code == G_IO_ERROR_NOT_MOUNTED && severity < FM_SEVERITY_CRITICAL )
+             if(fm_mount_path(parent, folder->dir_path, TRUE))
+-                return FM_JOB_RETRY;
++                return FM_ERROR_ACTION_RETRY;
+         else if(err->code == G_IO_ERROR_FAILED_HANDLED)
+-            return FM_JOB_CONTINUE;
++            return FM_ERROR_ACTION_CONTINUE;
+     }
+     fm_show_error(parent, NULL, err->message);
+-    return FM_JOB_CONTINUE;
++    return FM_ERROR_ACTION_CONTINUE;
+ }
+ 
+ void on_single_click_changed(FmConfig* cfg, FmFolderView* fv)
+diff -rupw libfm-job-orig/src/gtk/fm-gtk-utils.c libfm-job/src/gtk/fm-gtk-utils.c
+--- libfm-job-orig/src/gtk/fm-gtk-utils.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/gtk/fm-gtk-utils.c	2012-06-15 10:37:31.965636472 +0200
+@@ -27,11 +27,12 @@
+ #include <gio/gdesktopappinfo.h>
+ 
+ #include "fm-gtk-utils.h"
+-#include "fm-file-ops-job.h"
+-#include "fm-progress-dlg.h"
+ #include "fm-path-entry.h"
+ #include "fm-app-chooser-dlg.h"
+ 
++#include "fm-jobs.h"
++#include "fm-gtk-ui.h"
++
+ #include "fm-config.h"
+ 
+ static GtkDialog*   _fm_get_user_input_dialog   (GtkWindow* parent, const char* title, const char* msg);
+@@ -514,37 +515,45 @@ gboolean fm_eject_volume(GtkWindow* pare
+ 
+ void fm_copy_files(GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
+ {
+-    FmJob* job = fm_file_ops_job_new(FM_FILE_OP_COPY, files);
+-    fm_file_ops_job_set_dest(FM_FILE_OPS_JOB(job), dest_dir);
+-    fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
++	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
++	FmJob* job = fm_copy_files_to_dir(files, dest_dir, ui);
++	g_object_unref(ui);
++	g_object_unref(job);
+ }
+ 
+ void fm_move_files(GtkWindow* parent, FmPathList* files, FmPath* dest_dir)
+ {
+-    FmJob* job = fm_file_ops_job_new(FM_FILE_OP_MOVE, files);
+-    fm_file_ops_job_set_dest(FM_FILE_OPS_JOB(job), dest_dir);
+-    fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
++	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
++	FmJob* job = fm_move_files_to_dir(files, dest_dir, ui);
++	g_object_unref(ui);
++	g_object_unref(job);
+ }
+ 
+ void fm_trash_files(GtkWindow* parent, FmPathList* files)
+ {
+     if(!fm_config->confirm_del || fm_yes_no(parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
+     {
+-        FmJob* job = fm_file_ops_job_new(FM_FILE_OP_TRASH, files);
+-        fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
++		FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
++		FmJob* job = fm_trash_files2(files, ui);
++		g_object_unref(ui);
++		g_object_unref(job);
+     }
+ }
+ 
+ void fm_untrash_files(GtkWindow* parent, FmPathList* files)
+ {
+-    FmJob* job = fm_file_ops_job_new(FM_FILE_OP_UNTRASH, files);
+-    fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
++	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
++	FmJob* job = fm_untrash_files2(files, ui);
++	g_object_unref(ui);
++	g_object_unref(job);
+ }
+ 
+ static void fm_delete_files_internal(GtkWindow* parent, FmPathList* files)
+ {
+-    FmJob* job = fm_file_ops_job_new(FM_FILE_OP_DELETE, files);
+-    fm_file_ops_job_run_with_progress(parent, FM_FILE_OPS_JOB(job));
++	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
++	FmJob* job = fm_delete_files2(files, ui);
++	g_object_unref(ui);
++	g_object_unref(job);
+ }
+ 
+ void fm_delete_files(GtkWindow* parent, FmPathList* files)
+@@ -598,6 +607,9 @@ void fm_rename_file(GtkWindow* parent, F
+     gchar* new_name = fm_get_user_input_rename( parent, _("Rename File"), _("Please enter a new name:"), file->name);
+     if( !new_name )
+         return;
++
++	// FIXME: replace this with new FmCopyJob(FM_COPY_JOB_MODE_MOVE)
++
+     parent_gf = g_file_get_parent(gf);
+     dest = g_file_get_child(G_FILE(parent_gf), new_name);
+     g_object_unref(parent_gf);
+diff -rupw libfm-job-orig/src/gtk/fm-gtk-utils.h libfm-job/src/gtk/fm-gtk-utils.h
+--- libfm-job-orig/src/gtk/fm-gtk-utils.h	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/gtk/fm-gtk-utils.h	2012-06-15 10:37:31.965636472 +0200
+@@ -28,7 +28,6 @@
+ #include <stdarg.h>
+ 
+ #include "fm-path.h"
+-#include "fm-file-ops-job.h"
+ #include "fm-utils.h"
+ #include "fm-file-launcher.h"
+ 
+diff -rupw libfm-job-orig/src/gtk/fm-places-model.c libfm-job/src/gtk/fm-places-model.c
+--- libfm-job-orig/src/gtk/fm-places-model.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/gtk/fm-places-model.c	2012-06-15 10:37:31.965636472 +0200
+@@ -55,6 +55,7 @@ static void on_file_info_job_finished(Fm
+     FmFileInfo* fi;
+ 
+     /* g_debug("file info job finished"); */
++    g_object_unref(job);
+     model->jobs = g_slist_remove(model->jobs, job);
+ 
+     if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &it))
+Only in libfm-job-orig/src/gtk: fm-progress-dlg.c
+Only in libfm-job-orig/src/gtk: fm-progress-dlg.h
+Only in libfm-job/src/gtk: ui
+diff -rupw libfm-job-orig/src/job/fm-deep-count-job.c libfm-job/src/job/fm-deep-count-job.c
+--- libfm-job-orig/src/job/fm-deep-count-job.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/job/fm-deep-count-job.c	2012-06-15 10:37:31.965636472 +0200
+@@ -71,7 +71,6 @@ static void fm_deep_count_job_finalize(G
+ 
+ static void fm_deep_count_job_init(FmDeepCountJob *self)
+ {
+-    fm_job_init_cancellable(FM_JOB(self));
+ }
+ 
+ 
+@@ -144,10 +143,10 @@ _retry_stat:
+     else
+     {
+         GError* err = g_error_new(G_IO_ERROR, g_io_error_from_errno(errno), g_strerror(errno));
+-        FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++        FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+         g_error_free(err);
+         err = NULL;
+-        if(act == FM_JOB_RETRY)
++        if(act == FM_ERROR_ACTION_RETRY)
+             goto _retry_stat;
+         return FALSE;
+     }
+@@ -207,10 +206,10 @@ _retry_query_info:
+                     fm_job_get_cancellable(fmjob), &err);
+         if(!inf)
+         {
+-            FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++            FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+             g_error_free(err);
+             err = NULL;
+-            if(act == FM_JOB_RETRY)
++            if(act == FM_ERROR_ACTION_RETRY)
+                 goto _retry_query_info;
+             return FALSE;
+         }
+@@ -289,8 +288,8 @@ _retry_query_info:
+                     {
+                         if(err) /* error! */
+                         {
+-                            /* FM_JOB_RETRY is not supported */
+-                            FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++                            /* FM_ERROR_ACTION_RETRY is not supported */
++                            FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+                             g_error_free(err);
+                             err = NULL;
+                         }
+@@ -306,10 +305,10 @@ _retry_query_info:
+             }
+             else
+             {
+-                FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++                FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+                 g_error_free(err);
+                 err = NULL;
+-                if(act == FM_JOB_RETRY)
++                if(act == FM_ERROR_ACTION_RETRY)
+                     goto _retry_enum_children;
+             }
+         }
+diff -rupw libfm-job-orig/src/job/fm-deep-count-job.h libfm-job/src/job/fm-deep-count-job.h
+--- libfm-job-orig/src/job/fm-deep-count-job.h	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/job/fm-deep-count-job.h	2012-06-15 10:37:31.965636472 +0200
+@@ -23,7 +23,7 @@
+ #ifndef __FM_DEEP_COUNT_JOB_H__
+ #define __FM_DEEP_COUNT_JOB_H__
+ 
+-#include "fm-job.h"
++#include "fm-jobs.h"
+ #include "fm-path.h"
+ #include <gio/gio.h>
+ #include <sys/types.h>
+diff -rupw libfm-job-orig/src/job/fm-dir-list-job.c libfm-job/src/job/fm-dir-list-job.c
+--- libfm-job-orig/src/job/fm-dir-list-job.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/job/fm-dir-list-job.c	2012-06-15 10:37:31.965636472 +0200
+@@ -53,7 +53,6 @@ static void fm_dir_list_job_class_init(F
+ 
+ static void fm_dir_list_job_init(FmDirListJob *self)
+ {
+-    fm_job_init_cancellable(FM_JOB(self));
+ }
+ 
+ 
+@@ -101,7 +100,7 @@ static void fm_dir_list_job_finalize(GOb
+ /* defined in fm-file-info.c */
+ FmFileInfo* _fm_file_info_new_from_menu_cache_item(FmPath* path, MenuCacheItem* item);
+ 
+-static gpointer list_menu_items(FmJob* fmjob, gpointer user_data)
++static gboolean list_menu_items(FmJob* fmjob, gpointer user_data)
+ {
+     FmDirListJob* job = (FmDirListJob*)fmjob;
+     FmFileInfo* fi;
+@@ -202,13 +201,14 @@ static gpointer list_menu_items(FmJob* f
+     menu_cache_unref(mc);
+ 
+     g_free(path_str);
+-    return NULL;
++    return TRUE;
+ }
+ 
+ gboolean fm_dir_list_job_list_xdg_menu(FmDirListJob* job)
+ {
+     /* Calling libmenu-cache is only allowed in main thread. */
+-    fm_job_call_main_thread(FM_JOB(job), list_menu_items, NULL);
++    g_io_scheduler_job_send_to_mainloop(FM_JOB(job)->job, 
++		(GSourceFunc)list_menu_items, NULL, NULL);
+     return TRUE;
+ }
+ 
+@@ -230,7 +230,7 @@ static gboolean fm_dir_list_job_run_posi
+         {
+             err = g_error_new(G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
+             fm_file_info_unref(fi);
+-            fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_CRITICAL);
++            fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_CRITICAL);
+             g_error_free(err);
+             return FALSE;
+         }
+@@ -239,7 +239,7 @@ static gboolean fm_dir_list_job_run_posi
+     {
+         err = g_error_new(G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
+         fm_file_info_unref(fi);
+-        fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_CRITICAL);
++        fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_CRITICAL);
+         g_error_free(err);
+         return FALSE;
+     }
+@@ -277,10 +277,10 @@ static gboolean fm_dir_list_job_run_posi
+                 fm_list_push_tail_noref(job->files, fi);
+             else /* failed! */
+             {
+-                FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++                FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+                 g_error_free(err);
+                 err = NULL;
+-                if(act == FM_JOB_RETRY)
++                if(act == FM_ERROR_ACTION_RETRY)
+                     goto _retry;
+ 
+                 fm_file_info_unref(fi);
+@@ -291,7 +291,7 @@ static gboolean fm_dir_list_job_run_posi
+     }
+     else
+     {
+-        fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_CRITICAL);
++        fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_CRITICAL);
+         g_error_free(err);
+     }
+     g_free(dir_path);
+@@ -317,8 +317,8 @@ _retry:
+     inf = g_file_query_info(gf, gfile_info_query_attribs, 0, fm_job_get_cancellable(fmjob), &err);
+     if(!inf )
+     {
+-        FmJobErrorAction act = fm_job_emit_error(fmjob, err, FM_JOB_ERROR_MODERATE);
+-        if( act == FM_JOB_RETRY )
++        FmErrorAction act = fm_job_emit_error(fmjob, err, FM_SEVERITY_MODERATE);
++        if( act == FM_ERROR_ACTION_RETRY )
+         {
+             g_error_free(err);
+             err = NULL;
+@@ -335,7 +335,7 @@ _retry:
+     if( g_file_info_get_file_type(inf) != G_FILE_TYPE_DIRECTORY)
+     {
+         err = g_error_new(G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
+-        fm_job_emit_error(fmjob, err, FM_JOB_ERROR_CRITICAL);
++        fm_job_emit_error(fmjob, err, FM_SEVERITY_CRITICAL);
+         g_error_free(err);
+         g_object_unref(gf);
+         g_object_unref(inf);
+@@ -387,10 +387,10 @@ _retry:
+             {
+                 if(err)
+                 {
+-                    FmJobErrorAction act = fm_job_emit_error(fmjob, err, FM_JOB_ERROR_MILD);
++                    FmErrorAction act = fm_job_emit_error(fmjob, err, FM_SEVERITY_MILD);
+                     g_error_free(err);
+-                    /* FM_JOB_RETRY is not supported. */
+-                    if(act == FM_JOB_ABORT)
++                    /* FM_ERROR_ACTION_RETRY is not supported. */
++                    if(act == FM_ERROR_ACTION_ABORT)
+                         fm_job_cancel(FM_JOB(job));
+                 }
+                 break; /* FIXME: error handling */
+@@ -402,7 +402,7 @@ _retry:
+     }
+     else
+     {
+-        fm_job_emit_error(fmjob, err, FM_JOB_ERROR_CRITICAL);
++        fm_job_emit_error(fmjob, err, FM_SEVERITY_CRITICAL);
+         g_error_free(err);
+         return FALSE;
+     }
+diff -rupw libfm-job-orig/src/job/fm-dir-list-job.h libfm-job/src/job/fm-dir-list-job.h
+--- libfm-job-orig/src/job/fm-dir-list-job.h	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/job/fm-dir-list-job.h	2012-06-15 10:37:31.965636472 +0200
+@@ -23,7 +23,7 @@
+ #ifndef __FM_DIR_LIST_JOB_H__
+ #define __FM_DIR_LIST_JOB_H__
+ 
+-#include "fm-job.h"
++#include "fm-jobs.h"
+ #include "fm-path.h"
+ #include "fm-file-info.h"
+ 
+diff -rupw libfm-job-orig/src/job/fm-file-info-job.c libfm-job/src/job/fm-file-info-job.c
+--- libfm-job-orig/src/job/fm-file-info-job.c	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/job/fm-file-info-job.c	2012-06-15 10:37:31.965636472 +0200
+@@ -1,7 +1,7 @@
+ /*
+  *      fm-file-info-job.c
+  *
+- *      Copyright 2009 PCMan <pcman.tw@gmail.com>
++ *      Copyright 2009 - 2011 PCMan <pcman.tw@gmail.com>
+  *
+  *      This program is free software; you can redistribute it and/or modify
+  *      it under the terms of the GNU General Public License as published by
+@@ -66,7 +66,6 @@ static void fm_file_info_job_finalize(GO
+ static void fm_file_info_job_init(FmFileInfoJob *self)
+ {
+ 	self->file_infos = fm_file_info_list_new();
+-    fm_job_init_cancellable(FM_JOB(self));
+ }
+ 
+ FmJob* fm_file_info_job_new(FmPathList* files_to_query, FmFileInfoJobFlags flags)
+@@ -110,10 +109,10 @@ gboolean fm_file_info_job_run(FmJob* fmj
+ 			char* path_str = fm_path_to_str(fi->path);
+ 			if(!_fm_file_info_job_get_info_for_native_file(FM_JOB(job), fi, path_str, &err))
+             {
+-                FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++                FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+                 g_error_free(err);
+                 err = NULL;
+-                if(act == FM_JOB_RETRY)
++                if(act == FM_ERROR_ACTION_RETRY)
+                     continue; /* retry */
+ 
+                 next = l->next;
+@@ -170,10 +169,10 @@ gboolean fm_file_info_job_run(FmJob* fmj
+ 			gf = fm_path_to_gfile(fi->path);
+ 			if(!_fm_file_info_job_get_info_for_gfile(FM_JOB(job), fi, gf, &err))
+             {
+-                FmJobErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_JOB_ERROR_MILD);
++                FmErrorAction act = fm_job_emit_error(FM_JOB(job), err, FM_SEVERITY_MILD);
+                 g_error_free(err);
+                 err = NULL;
+-                if(act == FM_JOB_RETRY)
++                if(act == FM_ERROR_ACTION_RETRY)
+                     continue; /* retry */
+ 
+                 next = l->next;
+@@ -219,6 +218,8 @@ _retry:
+         fi->uid = st.st_uid;
+         fi->gid = st.st_gid;
+ 
++		/* FIXME: need to port FmDirJob to FmJob here. */
++
+ 		if( ! fm_job_is_cancelled(FM_JOB(job)) )
+ 		{
+             /* FIXME: handle symlinks */
+diff -rupw libfm-job-orig/src/job/fm-file-info-job.h libfm-job/src/job/fm-file-info-job.h
+--- libfm-job-orig/src/job/fm-file-info-job.h	2012-06-15 16:19:25.248773074 +0200
++++ libfm-job/src/job/fm-file-info-job.h	2012-06-15 10:37:31.965636472 +0200
+@@ -23,7 +23,7 @@
+ #ifndef __FM_FILE_INFO_JOB_H__
+ #define __FM_FILE_INFO_JOB_H__
+ 
+-#include "fm-job.h"
++#include "fm-jobs.h"
+ #include "fm-file-info.h"
+ 
+ G_BEGIN_DECLS
+Only in libfm-job-orig/src/job: fm-file-ops-job.c
+Only in libfm-job-orig/src/job: fm-file-ops-job-change-attr.c
+Only in libfm-job-orig/src/job: fm-file-ops-job-change-attr.h
+Only in libfm-job-orig/src/job: fm-file-ops-job-delete.c
+Only in libfm-job-orig/src/job: fm-file-ops-job-delete.h
+Only in libfm-job-orig/src/job: fm-file-ops-job.h
+Only in libfm-job-orig/src/job: fm-file-ops-job-xfer.c
+Only in libfm-job-orig/src/job: fm-file-ops-job-xfer.h
+Only in libfm-job-orig/src/job: fm-job.c
+Only in libfm-job-orig/src/job: fm-job.h
+Only in libfm-job-orig/src/job: fm-simple-job.c
+Only in libfm-job-orig/src/job: fm-simple-job.h
+Only in libfm-job/src: jobs
+diff -rupw libfm-job-orig/src/Makefile.am libfm-job/src/Makefile.am
+--- libfm-job-orig/src/Makefile.am	2012-06-15 16:19:25.244773029 +0200
++++ libfm-job/src/Makefile.am	2012-06-15 10:37:31.949636280 +0200
+@@ -6,6 +6,8 @@ NULL=
+ # current dir needs to be built before tests
+ SUBDIRS= \
+ 	actions \
++	jobs \
++	gtk/ui \
+ 	. \
+ 	tests \
+ 	$(NULL)
+@@ -15,8 +17,11 @@ AM_CPPFLAGS = \
+ 	-I$(srcdir)/base \
+ 	-I$(srcdir)/actions \
+ 	-I$(srcdir)/job \
++	-I$(srcdir)/jobs \
+ 	-I$(srcdir)/gtk \
++	-I$(srcdir)/gtk/ui \
+ 	-I$(srcdir)/demo \
++	-DLIBFM_COMPILATION \
+ 	-DPACKAGE_DATA_DIR=\""$(datadir)/libfm"\" \
+ 	-DPACKAGE_UI_DIR=\""$(datadir)/libfm/ui"\" \
+ 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfm"\" \
+@@ -75,15 +80,9 @@ base_SOURCES = \
+ 	$(NULL)
+ 
+ job_SOURCES = \
+-	job/fm-job.c \
+-	job/fm-simple-job.c \
+ 	job/fm-dir-list-job.c \
+ 	job/fm-deep-count-job.c  \
+-	job/fm-file-ops-job.c \
+ 	job/fm-file-info-job.c \
+-	job/fm-file-ops-job-xfer.c \
+-	job/fm-file-ops-job-delete.c \
+-	job/fm-file-ops-job-change-attr.c \
+ 	$(NULL)
+ 
+ libfm_SOURCES = \
+@@ -125,7 +124,6 @@ libfm_gtk_SOURCES = \
+ 	gtk/fm-file-menu.c \
+ 	gtk/fm-file-properties.c \
+ 	gtk/fm-clipboard.c \
+-	gtk/fm-progress-dlg.c \
+ 	gtk/fm-icon-pixbuf.c \
+ 	gtk/fm-cell-renderer-text.c \
+ 	gtk/fm-cell-renderer-pixbuf.c \
+@@ -159,15 +157,10 @@ libfminclude_HEADERS = \
+ 	base/fm-archiver.h \
+ 	base/fm-app-info.h \
+ 	base/fm-marshal.h \
+-	job/fm-job.h \
+-	job/fm-simple-job.h \
+ 	job/fm-dir-list-job.h \
+ 	job/fm-deep-count-job.h \
+-	job/fm-file-ops-job.h \
+ 	job/fm-file-info-job.h \
+-	job/fm-file-ops-job-xfer.h \
+-	job/fm-file-ops-job-delete.h \
+-	job/fm-file-ops-job-change-attr.h \
++	jobs/fm-jobs.h \
+ 	$(NULL)
+ 
+ libfmgtkincludedir = $(includedir)/libfm/libfm
+@@ -187,7 +180,6 @@ libfmgtkinclude_HEADERS = \
+ 	gtk/fm-file-menu.h \
+ 	gtk/fm-file-properties.h \
+ 	gtk/fm-clipboard.h \
+-	gtk/fm-progress-dlg.h \
+ 	gtk/fm-icon-pixbuf.h \
+ 	gtk/fm-cell-renderer-text.h \
+ 	gtk/fm-cell-renderer-pixbuf.h \
+@@ -225,6 +217,7 @@ libfm_la_LIBADD = \
+ 	$(DBUS_LIBS) \
+ 	$(INTLLIBS) \
+ 	$(srcdir)/actions/libfmactions.la \
++	$(srcdir)/jobs/libfmjobs.la \
+ 	$(NULL)
+ 
+ libfm_la_LDFLAGS = \
+@@ -246,7 +239,9 @@ libfm_gtk_la_CFLAGS = \
+ 	-I$(srcdir) \
+ 	-I$(srcdir)/base \
+ 	-I$(srcdir)/job \
+-	-Werror-implicit-function-declaration
++	-I$(srcdir)/gtk \
++	-Werror-implicit-function-declaration \
++	$(NULL)
+ 
+ libfm_gtk_la_LIBADD = \
+ 	$(GTK_LIBS) \
+@@ -255,6 +250,7 @@ libfm_gtk_la_LIBADD = \
+ 	$(MENU_CACHE_LIBS) \
+ 	$(INTLLIBS) \
+ 	libfm.la \
++	$(srcdir)/gtk/ui/libfmgtkui.la \
+ 	$(NULL)
+ 
+ libfm_gtk_la_LDFLAGS = \
+diff -rupw libfm-job-orig/src/tests/Makefile.am libfm-job/src/tests/Makefile.am
+--- libfm-job-orig/src/tests/Makefile.am	2012-06-15 16:19:25.252773124 +0200
++++ libfm-job/src/tests/Makefile.am	2012-06-15 10:37:31.969636516 +0200
+@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
+ 	-I../base \
+ 	-I../actions \
+ 	-I../job \
++	-I../jobs \
+ 	-I../gtk \
+ 	$(GIO_CFLAGS) \
+ 	$(MENU_CACHE_CFLAGS) \
+Only in libfm-job/src/vapi: config.vapi
+diff -rupw libfm-job-orig/src/vapi/libfm.vapi libfm-job/src/vapi/libfm.vapi
+--- libfm-job-orig/src/vapi/libfm.vapi	2012-06-15 16:19:25.252773124 +0200
++++ libfm-job/src/vapi/libfm.vapi	2012-06-15 10:37:31.969636516 +0200
+@@ -4,11 +4,23 @@ namespace Fm {
+ 	[Compact]
+ 	[CCode (ref_function = "fm_path_ref", unref_function = "fm_path_unref", cname = "FmPath", cprefix = "fm_path_", cheader_filename = "fm-path.h")]
+ 	public class Path {
+-		public Path();
++		public Path.for_str(string str);
++		public Path.for_path(string path);
++		public Path.for_uri(string uri);
++		public Path.for_gfile(GLib.File file);
++		public Path.child(Path parent, string name);
++		public Path.child_len(Path parent, string name, int len);
++		public Path.relative(Path parent, string relative);
+ 
+ 		public unowned Path get_parent();
+ 		public unowned string get_basename();
+ 
++		public static unowned Path get_root(); // /
++		public static unowned Path get_home(); // home directory
++		public static unowned Path get_desktop(); // $HOME/Desktop
++		public static unowned Path get_trash(); // trash:///
++		public static unowned Path get_apps_menu(); // menu://applications.menu/
++
+ 		// FmPathFlags get_flags();
+ 		public bool has_prefix(Path prefix);
+ 		public bool is_native();
+@@ -25,6 +37,8 @@ namespace Fm {
+ 		public string display_name(bool human_readable);
+ 		public string display_basename();
+ 
++		public string? get_trash_real_path();
++
+ 		public uint hash();
+ 		public bool equal(Path* p2);
+ 
+@@ -33,6 +47,62 @@ namespace Fm {
+ 	}
+ 
+ 	[Compact]
++	[CCode (ref_function = "fm_list_ref", unref_function = "fm_list_unref", cname = "FmList", cprefix = "fm_list_", cheader_filename = "fm-path.h")]
++	public class PathList {
++
++		[CCode (cname = "fm_path_list_new", cheader_filename = "fm-path.h")]
++		public PathList();
++
++		public void clear();
++		public bool is_empty();
++		public int get_length();
++
++		public void reverse();
++		// public void @foreach(Func<Path> data);
++		public unowned GLib.List<Path> find(Path data);
++		public unowned GLib.List<Path> find_custom(Path data, GLib.CompareFunc<Path> func);
++		public void sort(GLib.CompareDataFunc<Path> func);
++
++		public void push_head(Path data);
++		public void push_tail(Path data);
++		public void push_nth(Path data, int n);
++
++		public Path pop_head();
++		public Path pop_tail();
++		public Path pop_nth(int n);
++
++		public unowned Path peek_head();
++		public unowned Path peek_tail();
++		public unowned Path peek_nth(int n);
++
++		public int index(Path data);
++
++		public void remove(Path data);
++		public void remove_all(Path data);
++
++		public void insert_before(GLib.List<Path> sibling, Path data);
++		public void insert_after(GLib.List<Path> sibling, Path data);
++		public void insert_sorted(GLib.List<Path> sibling, Path data, GLib.CompareDataFunc<Path> func);
++
++		public void push_head_link(GLib.List<Path> l);
++		public void push_tail_link(GLib.List<Path> l);
++		public void push_nth_link(int n, GLib.List<Path> l);
++
++		public GLib.List<Path> pop_head_link();
++		public GLib.List<Path> pop_tail_link();
++		public GLib.List<Path> pop_nth_link(int n);
++
++		public unowned GLib.List<Path> peek_head_link();
++		public unowned GLib.List<Path> peek_tail_link();
++		public unowned GLib.List<Path> peek_nth_link(int n);
++
++		public int link_index(GLib.List<Path> l);
++		public void unlink(GLib.List<Path> l);
++		public void delete_link(GLib.List<Path> l);
++	}
++
++
++	[Compact]
+ 	[CCode (ref_function = "fm_icon_ref", unref_function = "fm_icon_unref", cname = "FmIcon", cprefix = "fm_icon_", cheader_filename = "fm-icon.h")]
+ 	public class Icon {
+ 		public uint n_ref;
+@@ -52,6 +122,7 @@ namespace Fm {
+ 	[CCode (ref_function = "fm_file_info_ref", unref_function = "fm_file_info_unref", cname = "FmFileInfo", cprefix = "fm_file_info_", cheader_filename = "fm-file-info.h")]
+ 	public class FileInfo {
+ 		public FileInfo ();
++		public FileInfo.from_gfileinfo(Path path, GLib.FileInfo inf);
+ 
+ 		public unowned Path get_path();
+ 		public unowned string? get_name();
+@@ -68,6 +139,7 @@ namespace Fm {
+ 		public Posix.mode_t get_mode();
+ 
+ 		public unowned MimeType get_mime_type();
++		public unowned Icon? get_icon();
+ 
+ 		public bool is_dir();
+ 		public bool is_symlink();
+@@ -90,6 +162,69 @@ namespace Fm {
+ 		public bool can_thumbnail();
+ 	}
+ 
++	[Compact]
++	[CCode (ref_function = "fm_list_ref", unref_function = "fm_list_unref", cname = "FmList", cprefix = "fm_list_", cheader_filename = "fm-file-info.h")]
++	public class FileInfoList {
++
++		[CCode (cname = "fm_file_info_list_new", cheader_filename = "fm-file-info.h")]
++		public FileInfoList();
++
++		public void clear();
++		public bool is_empty();
++		public int get_length();
++
++		public void reverse();
++		// public void @foreach(Func<FileInfo> data);
++		public unowned GLib.List<FileInfo> find(FileInfo data);
++		public unowned GLib.List<FileInfo> find_custom(FileInfo data, GLib.CompareFunc<FileInfo> func);
++		public void sort(GLib.CompareDataFunc<FileInfo> func);
++
++		public void push_head(FileInfo data);
++		public void push_tail(FileInfo data);
++		public void push_nth(FileInfo data, int n);
++
++		public FileInfo pop_head();
++		public FileInfo pop_tail();
++		public FileInfo pop_nth(int n);
++
++		public unowned FileInfo peek_head();
++		public unowned FileInfo peek_tail();
++		public unowned FileInfo peek_nth(int n);
++
++		public int index(FileInfo data);
++
++		public void remove(FileInfo data);
++		public void remove_all(FileInfo data);
++
++		public void insert_before(GLib.List<FileInfo> sibling, FileInfo data);
++		public void insert_after(GLib.List<FileInfo> sibling, FileInfo data);
++		public void insert_sorted(GLib.List<FileInfo> sibling, FileInfo data, GLib.CompareDataFunc<FileInfo> func);
++
++		public void push_head_link(GLib.List<FileInfo> l);
++		public void push_tail_link(GLib.List<FileInfo> l);
++		public void push_nth_link(int n, GLib.List<FileInfo> l);
++
++		public GLib.List<FileInfo> pop_head_link();
++		public GLib.List<FileInfo> pop_tail_link();
++		public GLib.List<FileInfo> pop_nth_link(int n);
++
++		public unowned GLib.List<FileInfo> peek_head_link();
++		public unowned GLib.List<FileInfo> peek_tail_link();
++		public unowned GLib.List<FileInfo> peek_nth_link(int n);
++
++		public int link_index(GLib.List<FileInfo> l);
++		public void unlink(GLib.List<FileInfo> l);
++		public void delete_link(GLib.List<FileInfo> l);
++	}
++
++	// FmMonitor
++	[CCode (cheader_filename = "fm-monitor.h")]
++	public GLib.FileMonitor? monitor_directory(GLib.File gf) throws GLib.Error;
++	[CCode (cheader_filename = "fm-monitor.h")]
++	public GLib.FileMonitor? monitor_lookup_monitor(GLib.File gf);
++	[CCode (cheader_filename = "fm-monitor.h")]
++	public GLib.FileMonitor? monitor_lookup_dummy_monitor(GLib.File gf);
++
+ 	[CCode (cname = "FmAppInfo", cprefix = "fm_app_info_", cheader_filename = "fm-app-info.h")]
+ 	namespace AppInfo {
+ 		public bool launch(GLib.List<GLib.File> files, GLib.AppLaunchContext launch_context) throws GLib.Error;

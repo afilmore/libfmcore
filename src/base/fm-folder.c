@@ -60,8 +60,8 @@ static gboolean         on_idle                             (FmFolder *folder);
 static void             on_folder_changed                   (GFileMonitor *file_monitor, GFile *gfile, GFile *other,
                                                              GFileMonitorEvent evt, FmFolder *folder);
 static void             on_job_finished                     (FmDirListJob *dir_list_job, FmFolder *folder);
-static FmJobErrorAction on_job_err                          (FmDirListJob *dir_list_job, GError *err,
-                                                             FmJobErrorSeverity severity, FmFolder *folder);
+static FmErrorAction on_job_err                          (FmDirListJob *dir_list_job, GError *err,
+                                                             FmSeverity severity, FmFolder *folder);
 
 
 // FIXME_pcm: should this be guarded with a mutex ?
@@ -311,7 +311,7 @@ static void fm_folder_finalize (GObject *object)
             FmJob *job = FM_JOB (l->data);
             g_signal_handlers_disconnect_by_func (job, on_job_finished, folder);
             fm_job_cancel (job);
-            // the job will be freed automatically in idle handler.
+            g_object_unref(job);
         }
     }
 
@@ -488,15 +488,16 @@ static void on_job_finished (FmDirListJob *dir_list_job, FmFolder *folder)
     if (dir_list_job->dir_fi)
         folder->dir_fi = fm_file_info_ref (dir_list_job->dir_fi);
 
-    folder->dir_list_job = NULL; // the job object will be freed in idle handler.
+    g_object_unref (folder->dir_list_job);
+    folder->dir_list_job = NULL;
     
     // Emit the folder loaded signal...
     g_signal_emit (folder, signals [LOADED], 0);
 }
 
-static FmJobErrorAction on_job_err (FmDirListJob *dir_list_job, GError *err, FmJobErrorSeverity severity, FmFolder *folder)
+static FmErrorAction on_job_err (FmDirListJob *dir_list_job, GError *err, FmSeverity severity, FmFolder *folder)
 {
-    FmJobErrorAction ret;
+    FmErrorAction ret;
     g_signal_emit (folder, signals [ERROR], 0, err, severity, &ret);
     return ret;
 }
@@ -559,6 +560,7 @@ static void on_file_info_finished (FmFileInfoJob *file_info_job, FmFolder *folde
         g_signal_emit (folder, signals [CONTENT_CHANGED], 0);
 
     folder->pending_jobs = g_slist_remove (folder->pending_jobs, file_info_job);
+    g_object_unref(file_info_job);
 }
 
 

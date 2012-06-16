@@ -29,7 +29,6 @@
 // Fm Base...
 #include "fm-app-info.h"
 #include "fm-archiver.h"
-#include "fm-debug.h"
 #include "fm-dummy-monitor.h"
 #include "fm-file-info.h"
 #include "fm-file-info-list.h"
@@ -62,12 +61,20 @@
 #include "fm-app-menu-view.h"
 #include "fm-file-properties.h"
 #include "fm-gtk-launcher.h"
-#include "fm-progress-dlg.h"
+
+//~ #include "fm-progress-dlg.h"
 
 // Fm Job
+//~ #include "fm-deep-count-job.h"
+//~ #include "fm-dir-list-job.h"
+//~ #include "fm-file-info-job.h"
+
+// Fm Jobs
+//#include "fm-jobs.h"
 #include "fm-deep-count-job.h"
 #include "fm-dir-list-job.h"
 #include "fm-file-info-job.h"
+
 
 // Fm Utils
 #include "fm-debug.h"

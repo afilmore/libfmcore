@@ -30,7 +30,7 @@
 #include "fm-path-list.h"
 #include "fm-dir-list-job.h"
 #include "fm-file-info-list.h"
-#include "fm-job.h"
+#include "fm-jobs.h"
 #include "fm-file-info-job.h"
 
 G_BEGIN_DECLS
@@ -88,7 +88,7 @@ struct _FmFolderClass
     void                (*content_changed)  (FmFolder *folder);
     void                (*fs_info)          (FmFolder *folder);
     
-    FmJobErrorAction    (*error)            (FmFolder *folder, GError *err, FmJobErrorSeverity severity);
+    FmErrorAction    (*error)            (FmFolder *folder, GError *err, FmSeverity severity);
 };
 
 GType           fm_folder_get_type              (void);

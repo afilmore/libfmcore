@@ -38,13 +38,15 @@
 #include "fm-file-info-list.h"
 #include "fm-file-properties.h"
 #include "fm-deep-count-job.h"
-#include "fm-file-ops-job.h"
+//~ #include "fm-file-ops-job.h"
 #include "fm-utils.h"
 #include "fm-msgbox.h"
 #include "fm-path.h"
 
-#include "fm-progress-dlg.h"
+//~ #include "fm-progress-dlg.h"
 #include "fm-utils.h"
+
+#include "fm-jobs.h"
 
 #include "fm-app-chooser-combo-box.h"
 
@@ -794,6 +796,7 @@ static void on_finished (FmDeepCountJob *job, FmFilePropData *data)
         g_source_remove (data->timeout);
         data->timeout = 0;
     }
+    g_object_unref(data->dc_job);
     data->dc_job = NULL;
 }
 
@@ -962,6 +965,7 @@ static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
         else
             data->group_perm_sel = NO_CHANGE;
 
+        #if 0
         sel = gtk_combo_box_get_active (GTK_COMBO_BOX (data->other_perm));
         if ( sel != NO_CHANGE ) // need to change other permission
         {
@@ -1051,6 +1055,7 @@ static void on_response (GtkDialog *dlg, int response, FmFilePropData *data)
                 // FIXME_pcm: rename the file or set display name for it.
             }
         }
+    #endif
     }
     gtk_widget_destroy (GTK_WIDGET (dlg));
 }

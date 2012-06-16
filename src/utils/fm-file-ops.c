@@ -2,7 +2,7 @@
  * 
  *      fm-file-ops.c
  *
- *      Copyright 2009 PCMan <pcman@debian>
+ *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -31,7 +31,8 @@
 
 #include "fm-select-folder-dlg.h"
 #include "fm-user-input-dlg.h"
-#include "fm-progress-dlg.h"
+//~ #include "fm-progress-dlg.h"
+#include "fm-jobs.h"
 #include "fm-msgbox.h"
 
 
@@ -41,18 +42,18 @@
 
 void fm_copy_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
 {
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_COPY, files);
-    
-    fm_file_ops_job_set_dest (FM_FILE_OPS_JOB (job), dest_dir);
-    fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
+	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+	FmJob* job = fm_copy_files_to_dir(files, dest_dir, ui);
+	g_object_unref(ui);
+	g_object_unref(job);
 }
 
 void fm_move_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
 {
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_MOVE, files);
-    
-    fm_file_ops_job_set_dest (FM_FILE_OPS_JOB (job), dest_dir);
-    fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
+	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+	FmJob* job = fm_move_files_to_dir(files, dest_dir, ui);
+	g_object_unref(ui);
+	g_object_unref(job);
 }
 
 void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move)

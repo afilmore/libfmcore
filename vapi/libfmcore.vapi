@@ -29,7 +29,7 @@ namespace Fm {
 	public static void finalize ();
 	
     
-	[CCode (cheader_filename = "fm.h", type = "FmConfig*")]
+	[CCode (cheader_filename = "fm-vala.h", type = "FmConfig*")]
 	public class Config : GLib.Object {
 		
 		public bool         use_trash_can;
@@ -62,7 +62,7 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-	[CCode (cheader_filename =  "fm.h",
+	[CCode (cheader_filename =  "fm-list.h",
             cprefix =           "fm_",
             ref_function =      "fm_list_ref",
             unref_function =    "fm_list_unref")]
@@ -85,7 +85,7 @@ namespace Fm {
         public inline unowned GLib.List? peek_head_link ();
 	}
 
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-list.h")]
 	[Compact]
 	public class ListFuncs {
 		
@@ -102,7 +102,7 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-	[CCode (cheader_filename =  "fm.h",
+	[CCode (cheader_filename =  "fm-path.h",
             cname =             "FmPath",
             cprefix =           "fm_path_",
             ref_function =      "fm_path_ref",
@@ -173,7 +173,7 @@ namespace Fm {
         ***/
 	}
 
-	[CCode (cheader_filename = "fm.h")]
+	/**[CCode (cheader_filename = "fm.h")]
 	[Compact]
 	public class PathList {
 		
@@ -197,9 +197,66 @@ namespace Fm {
 		
         public unowned string to_uri_list ();
 		public void write_uri_list (GLib.StringBuilder buf);
+	}**/
+    
+	[Compact]
+	[CCode (cheader_filename = "fm-path-list.h", ref_function = "fm_list_ref", unref_function = "fm_list_unref", cname = "FmList", cprefix = "fm_list_")]
+	public class PathList {
+
+		[CCode (cname = "fm_path_list_new", cheader_filename = "fm-path-list.h")]
+		public PathList();
+
+		public void clear();
+		public bool is_empty();
+		public int get_length();
+
+		public void reverse();
+		// public void @foreach(Func<Path> data);
+		public unowned GLib.List<Path> find(Path data);
+		public unowned GLib.List<Path> find_custom(Path data, GLib.CompareFunc<Path> func);
+		public void sort(GLib.CompareDataFunc<Path> func);
+
+		public void push_head(Path data);
+		public void push_tail(Path data);
+		public void push_nth(Path data, int n);
+
+		public Path pop_head();
+		public Path pop_tail();
+		public Path pop_nth(int n);
+
+		public unowned Path peek_head();
+		public unowned Path peek_tail();
+		public unowned Path peek_nth(int n);
+
+		public int index(Path data);
+
+		public void remove(Path data);
+		public void remove_all(Path data);
+
+		public void insert_before(GLib.List<Path> sibling, Path data);
+		public void insert_after(GLib.List<Path> sibling, Path data);
+		public void insert_sorted(GLib.List<Path> sibling, Path data, GLib.CompareDataFunc<Path> func);
+
+		public void push_head_link(GLib.List<Path> l);
+		public void push_tail_link(GLib.List<Path> l);
+		public void push_nth_link(int n, GLib.List<Path> l);
+
+		public GLib.List<Path> pop_head_link();
+		public GLib.List<Path> pop_tail_link();
+		public GLib.List<Path> pop_nth_link(int n);
+
+		public unowned GLib.List<Path> peek_head_link();
+		public unowned GLib.List<Path> peek_tail_link();
+		public unowned GLib.List<Path> peek_nth_link(int n);
+
+		public int link_index(GLib.List<Path> l);
+		public void unlink(GLib.List<Path> l);
+		public void delete_link(GLib.List<Path> l);
 	}
 
-	[CCode (cheader_filename =  "fm.h",
+    
+
+	[CCode (cheader_filename =  "fm-icon.h",
             ref_function =      "fm_icon_ref",
             unref_function =    "fm_icon_unref")]
 	[Compact]
@@ -219,7 +276,7 @@ namespace Fm {
 		public static void unload_user_data_cache ();
 	}
 
-	[CCode (cheader_filename =  "fm.h",
+	[CCode (cheader_filename =  "fm-mime-type.h",
             ref_function =      "fm_mime_type_ref",
             unref_function =    "fm_mime_type_unref")]
 	[Compact]
@@ -240,7 +297,7 @@ namespace Fm {
         public unowned Fm.Icon get_icon ();
 	}
 
-    [CCode (cheader_filename =  "fm.h",
+    [CCode (cheader_filename =  "fm-file-info.h",
             ref_function =      "fm_file_info_ref",
             unref_function =    "fm_file_info_unref")]
 	[Compact]
@@ -304,7 +361,7 @@ namespace Fm {
 		public bool                 is_text             ();
 	}
     
-	[CCode (cheader_filename = "fm.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
+	[CCode (cheader_filename = "fm-file-info-list.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
 	[Compact]
 	public class FileInfoList<G> : Fm.List<G> {
 		
@@ -324,7 +381,7 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-    [CCode (cheader_filename = "fm.h", cprefix = "COL_FILE_")]
+    [CCode (cheader_filename = "fm-folder-model.h", cprefix = "COL_FILE_")]
     public enum FileColumn {
         GICON = 0,
         ICON,
@@ -335,7 +392,7 @@ namespace Fm {
         OWNER,
         MTIME,
         INFO,
-        [CCode (cheader_filename = "gtk/fm-folder-model.h", cprefix = "")]
+        [CCode (cheader_filename = "fm-folder-model.h", cprefix = "")]
         N_FOLDER_MODEL_COLS
     }
 
@@ -345,7 +402,7 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-folder.h")]
 	public class Folder : GLib.Object {
 		
 		public weak Fm.FileInfo         dir_fi;     /* FIXME_axl: avoid direct member access... */
@@ -387,7 +444,7 @@ namespace Fm {
 	}
     
     
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-folder-model.h")]
 	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
 
 		// FIXME_axl: avoid direct member access...
@@ -423,7 +480,7 @@ namespace Fm {
      * 
      * 
      * 
-     ************************************************************************************/
+     ***********************************************************************************
 	[CCode (cheader_filename = "fm.h")]
 	public class Job : GLib.Object {
 		
@@ -462,16 +519,64 @@ namespace Fm {
 		public virtual signal void cancelled ();
 		public virtual signal int error (void* err, int severity);
 		public virtual signal void finished ();
-	}
+	}*/
 
-    [CCode (cheader_filename = "fm.h", cprefix = "FM_FILE_INFO_JOB_")]
+    [CCode (cheader_filename = "fm-jobs.h")]
+    public enum Severity {
+        NONE,
+        WARNING,
+        MILD,
+        MODERATE,
+        SEVERE,
+        CRITICAL
+    }
+
+    [CCode (cheader_filename = "fm-jobs.h")]
+    public enum ErrorAction {
+        CONTINUE,
+        RETRY,
+        ABORT
+    }
+
+    [CCode (cheader_filename = "fm-jobs.h")]
+    public abstract class Job : GLib.Object {
+
+        public Job();
+
+        public bool run_sync();
+
+        public bool run_sync_with_mainloop();
+
+        public virtual void run_async();
+
+        protected abstract bool run();
+
+        private bool job_func(GLib.IOSchedulerJob job, GLib.Cancellable? cancellable);
+
+        public void cancel();
+
+        public bool is_cancelled();
+
+        public bool is_running();
+
+        protected unowned GLib.Cancellable get_cancellable();
+
+        public Fm.ErrorAction emit_error(GLib.Error err, Fm.Severity severity);
+
+        public virtual signal void finished();
+
+        public signal Fm.ErrorAction error(GLib.Error err, Fm.Severity severity);
+
+    }
+
+    [CCode (cheader_filename = "fm-file-info-job.h", cprefix = "FM_FILE_INFO_JOB_")]
     public enum FileInfoJobFlags {
         NONE = 0,
         FOLLOW_SYMLINK = 1 << 0,        // FIXME_pcm: not yet implemented
         EMIT_FOR_EACH_FILE = 1 << 1     // FIXME_pcm: not yet implemented
     }
 
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-file-info-job.h")]
 	public class FileInfoJob : Fm.Job {
         
         // FIXME_axl: avoid direct member access...
@@ -507,19 +612,19 @@ namespace Fm {
                                               void* user_data) throws GLib.Error;
     */
 
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-gtk-launcher.h")]
 	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
                                            GLib.List<Fm.FileInfo> folder_infos,
                                            void *user_data,
                                            GLib.Error error);
 
-	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
+	[CCode (cheader_filename = "fm-gtk-launcher.h", cprefix = "fm_")]
 	public static bool launch_file (Gtk.Window parent,
                                            GLib.AppLaunchContext? ctx,
                                            Fm.FileInfo file_info,
                                            Fm.LaunchFolderFunc? func);
 
-	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
+	[CCode (cheader_filename = "fm-gtk-launcher.h", cprefix = "fm_")]
 	public static bool launch_multiple_files (Gtk.Window parent,
                                                  GLib.AppLaunchContext ctx,
                                                  GLib.List file_infos,
@@ -561,7 +666,7 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-	[CCode (cheader_filename =  "fm.h",
+	[CCode (cheader_filename =  "fm-file-menu.h",
             cprefix =           "fm_file_menu_",
             cname =             "FmFileMenu",
             free_function =     "fm_file_menu_destroy")]
@@ -594,10 +699,10 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
+	[CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_")]
     extern Gtk.TargetEntry default_dnd_dest_targets[];
 
-	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
+	[CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_")]
     public inline bool drag_context_has_target (Gdk.DragContext drag_context, Gdk.Atom target);
 
     /*** Define this macros...
@@ -605,16 +710,16 @@ namespace Fm {
         fm_drag_context_has_target(ctx, gdk_atom_intern_static_string(name))
     ***/
 
-    [CCode (cheader_filename = "fm.h", cprefix = "FM_DND_DEST_TARGET_")]
+    [CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "FM_DND_DEST_TARGET_")]
     public enum DndDestTarget {
         FM_LIST,
         URI_LIST,
         XDS,
-        [CCode (cheader_filename = "fm.h", cname = "N_FM_DND_DEST_DEFAULT_TARGETS", cprefix = "")]
+        [CCode (cheader_filename = "fm-dnd-dest.h", cname = "N_FM_DND_DEST_DEFAULT_TARGETS", cprefix = "")]
         DEFAULT
     }
     
-    [CCode (cheader_filename = "fm.h", cprefix = "fm_dnd_dest_", cname = "FmDndDest")]
+    [CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_dnd_dest_", cname = "FmDndDest")]
 	public class DndDest : GLib.Object {
 		
         [CCode (has_construct_function = false)]
@@ -640,7 +745,7 @@ namespace Fm {
 		public virtual signal bool files_dropped (int x, int y, uint action, uint info_type, void* files);
 	}
 	
-    [CCode (cheader_filename = "fm.h", cprefix = "fm_dnd_src_", cname = "FmDndSrc")]
+    [CCode (cheader_filename = "fm-dnd-src.h", cprefix = "fm_dnd_src_", cname = "FmDndSrc")]
 	public class DndSrc : GLib.Object {
 		
         [CCode (has_construct_function = false)]
@@ -659,57 +764,57 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-user-input-dlg.h")]
     public static string? get_user_input (Gtk.Window? parent, string title, string msg, string default_text);
 
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-msgbox.h")]
 	public static void show_error (Gtk.Window? parent, string? title, string msg);
 
     namespace Clipboard {
         
-        [CCode (cheader_filename = "fm.h", cprefix = "fm_clipboard_")]
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
         public inline bool cut_files (Gtk.Widget src_widget, Fm.PathList files);
         
-        [CCode (cheader_filename = "fm.h", cprefix = "fm_clipboard_")]
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
         public inline bool copy_files (Gtk.Widget src_widget, Fm.PathList files);
         
-        [CCode (cheader_filename = "fm.h", cprefix = "fm_clipboard_")]
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
         public bool cut_or_copy_files (Gtk.Widget src_widget, Fm.PathList files, bool _is_cut);
         
-        [CCode (cheader_filename = "fm.h", cprefix = "fm_clipboard_")]
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
         public bool paste_files (Gtk.Widget dest_widget, Fm.Path dest_dir);
     }
 
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-file-ops.h")]
 	public inline void copy_file (Gtk.Window parent, Fm.Path files, Fm.Path dest_dir);
 
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-file-ops.h")]
 	public static void copy_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
 
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-file-ops.h")]
 	public static void move_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
 	
     //#define fm_move_files_to(parent, files)   fm_move_or_copy_files_to(parent, files, TRUE)
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-file-ops.h")]
 	public inline void move_files_to (Gtk.Window parent, Fm.PathList files);
 	
     //#define fm_copy_files_to(parent, files)   fm_move_or_copy_files_to(parent, files, FALSE)
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-file-ops.h")]
 	public inline void copy_files_to (Gtk.Window parent, Fm.PathList files);
 
-	[CCode (cheader_filename = "fm.h")]
+	[CCode (cheader_filename = "fm-file-ops.h")]
 	public static void rename_file (Gtk.Window parent, Fm.Path file);
 
 	
     
-    [CCode (cheader_filename = "fm.h", cprefix = "FM_DELETE_FLAGS_")]
+    [CCode (cheader_filename = "fm-trash.h", cprefix = "FM_DELETE_FLAGS_")]
     public enum DeleteFlags {
         NONE,
         TRASH_OR_DELETE,
         TRASH,
     }
 
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-trash.h")]
 	public static void delete_files (Gtk.Window parent,
                                      Fm.PathList files,
                                      Fm.DeleteFlags delete_flags = Fm.DeleteFlags.TRASH_OR_DELETE,
@@ -725,8 +830,16 @@ namespace Fm {
     
     
     
-    [CCode (cheader_filename = "fm.h")]
+    [CCode (cheader_filename = "fm-mount.h")]
 	public static bool mount_volume (Gtk.Window parent, GLib.Volume vol, bool interactive);
+
+	// FmMonitor
+	[CCode (cheader_filename = "fm-monitor.h")]
+	public GLib.FileMonitor? monitor_directory(GLib.File gf) throws GLib.Error;
+	[CCode (cheader_filename = "fm-monitor.h")]
+	public GLib.FileMonitor? monitor_lookup_monitor(GLib.File gf);
+	[CCode (cheader_filename = "fm-monitor.h")]
+	public GLib.FileMonitor? monitor_lookup_dummy_monitor(GLib.File gf);
 
 
 }

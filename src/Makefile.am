@@ -6,16 +6,17 @@ NULL=
 # current dir needs to be built before tests
 SUBDIRS= \
 	fm-vala \
+	jobs \
 	. \
 	$(NULL)
 
 AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(srcdir)/fm-vala \
+	-I$(srcdir)/jobs \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
 	-I$(srcdir)/gtk-dlg \
-	-I$(srcdir)/job \
 	-I$(srcdir)/utils \
 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
@@ -49,7 +50,6 @@ base_SOURCES = \
 	gtk-dlg/fm-app-menu-view.c \
 	gtk-dlg/fm-gtk-launcher.c \
 	gtk-dlg/fm-file-properties.c \
-	gtk-dlg/fm-progress-dlg.c \
 	utils/fm-file-ops.c \
 	utils/fm-mount.c \
 	utils/fm-msgbox.c \
@@ -59,21 +59,26 @@ base_SOURCES = \
 	utils/fm-utils.c \
 	$(NULL)
 
-job_SOURCES = \
-	job/fm-job.c \
-	job/fm-dir-list-job.c \
-	job/fm-deep-count-job.c  \
-	job/fm-file-ops-job.c \
-	job/fm-file-info-job.c \
-	job/fm-file-ops-job-xfer.c \
-	job/fm-file-ops-job-delete.c \
-	job/fm-file-ops-job-change-attr.c \
+	##gtk-dlg/fm-progress-dlg.c \
+	
+	
+jobs_SOURCES = \
+	jobs/fm-dir-list-job.c \
+	jobs/fm-deep-count-job.c  \
+	jobs/fm-file-info-job.c \
 	$(NULL)
 
+	##job/fm-job.c \
+	##job/fm-file-ops-job.c \
+	##job/fm-file-ops-job-xfer.c \
+	##job/fm-file-ops-job-delete.c \
+	##job/fm-file-ops-job-change-attr.c \
+	
+	
 libfmcore_SOURCES = \
 	fm.c \
 	$(base_SOURCES) \
-	$(job_SOURCES) \
+	$(jobs_SOURCES) \
 	$(NULL)
 
 libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
@@ -93,14 +98,10 @@ libfmcoreinclude_HEADERS = \
 	base/fm-monitor.h \
 	base/fm-path.h \
 	base/fm-path-list.h \
-	job/fm-deep-count-job.h \
-	job/fm-dir-list-job.h \
-	job/fm-file-info-job.h \
-	job/fm-file-ops-job.h \
-	job/fm-file-ops-job-change-attr.h \
-	job/fm-file-ops-job-delete.h \
-	job/fm-file-ops-job-xfer.h \
-	job/fm-job.h \
+	jobs/fm-deep-count-job.h \
+	jobs/fm-dir-list-job.h \
+	jobs/fm-file-info-job.h \
+	jobs/fm-jobs.h \
 	gtk/fm-clipboard.h \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \
@@ -115,7 +116,6 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-menu-view.h \
 	gtk-dlg/fm-file-properties.h \
 	gtk-dlg/fm-gtk-launcher.h \
-	gtk-dlg/fm-progress-dlg.h \
 	utils/fm-debug.h \
 	utils/fm-file-ops.h \
 	utils/fm-mount.h \
@@ -125,6 +125,13 @@ libfmcoreinclude_HEADERS = \
 	utils/fm-user-input-dlg.h \
 	utils/fm-utils.h \
 	$(NULL)
+
+	##gtk-dlg/fm-progress-dlg.h \
+	##job/fm-file-ops-job.h \
+	##job/fm-file-ops-job-change-attr.h \
+	##job/fm-file-ops-job-delete.h \
+	##job/fm-file-ops-job-xfer.h \
+
 
 pkginclude_HEADERS = \
 	$(LIBFMCORE_INCLUDES) \
@@ -152,8 +159,9 @@ libfmcore_@LIBFMCORE_API_VERSION@_la_LIBADD = \
 	$(PANGO_LIBS) \
 	$(MENU_CACHE_LIBS) \
 	$(DBUS_LIBS) \
-	$(srcdir)/fm-vala/libfmvala.la \
 	$(INTLLIBS) \
+	$(srcdir)/fm-vala/libfmvala.la \
+	$(srcdir)/jobs/libfmjobs.la \
 	$(NULL)
 
 libfmcore_@LIBFMCORE_API_VERSION@_la_LDFLAGS = \

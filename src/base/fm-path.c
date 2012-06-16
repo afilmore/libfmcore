@@ -916,4 +916,74 @@ int fm_path_depth (FmPath *path)
     return depth;
 }
 
+/* translate gvfs trash:///path to real path of the trashed file on disk.
+ * this only works when path is a trashed file and gvfs is active.
+ */
+char* fm_path_get_trash_real_path(FmPath* path)
+{
+    char* path_str, *p;
+    GString* result;
+    /* The filenames listed in trash:/// by gvfs are carefully encoded 
+     * to carry important information.
+     * Handling of trashed file name can be found in gvfs source code:
+     * gvfs/daemon/trashlib/trashitem.c: trash_item_escape_name().
+     * The filename listed under trash:/// are encoded according to the 
+     * real path on disk. */
+    if(!fm_path_is_trash_file(path)) /* this only works for files in trash:/// */
+        return NULL;
+
+	/* converting it to string first for ease of handling */
+    path_str = fm_path_to_str(path);
+    p = path_str + 9; /* skip "trash:///" */
+    result = g_string_sized_new(1024);
+    if(*p == '\\') /* files not in home trash */
+    {
+		/* the basename is an encoded full path */
+		for(; *p; ++p)
+		{
+			if(*p == '\\') /* translate all \ to / */
+				g_string_append_c(result, '/');
+			else if(*p == '`') /* special handling for ` */
+			{
+				++p;
+				if(*p == '\\') /* translate `\ to \ */
+					g_string_append_c(result, '\\');
+				else if(*p == '`') /* translate `` to ` */
+					g_string_append_c(result, '`');
+				else
+				{
+					g_string_append_c(result, '`');
+					g_string_append_c(result, *p);
+				}
+			}
+			else
+				g_string_append_c(result, *p);			
+		}
+	}
+	else /* files in home trash */
+	{
+		g_string_append(result, g_get_user_data_dir());
+		g_string_append_c(result, '/');
+		g_string_append(result, "Trash/files/");
+		if(*p == '`') /* special handling of the first character */
+		{
+			++p;
+			if(*p == '`') /* translate `` to ` */
+			{
+				g_string_append_c(result, '`');
+				++p;
+			}
+			else if(*p == '\\') /* translate `\ to \ */
+			{
+				g_string_append_c(result, '\\');
+				++p;
+			}
+			else
+				g_string_append_c(result, '`'); /* don't translate anything */
+		}
+		g_string_append(result, p); /* append the remaining part */
+	}
+    return g_string_free(result, FALSE);
+}
+
 

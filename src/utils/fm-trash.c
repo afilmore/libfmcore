@@ -2,7 +2,7 @@
  * 
  *      fm-trash.c
  *
- *      Copyright 2009 PCMan <pcman@debian>
+ *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -30,7 +30,8 @@
 #include <glib/gi18n-lib.h>
 
 #include "fm-vala.h"
-#include "fm-progress-dlg.h"
+//~ #include "fm-progress-dlg.h"
+#include "fm-jobs.h"
 #include "fm-msgbox.h"
 
 
@@ -40,8 +41,10 @@ static void fm_delete_files_internal (GtkWindow *parent, FmPathList *path_list, 
         || !fm_config->confirm_delete
         || fm_yes_no (parent, NULL, _("Do you want to delete the selected files?"), TRUE))
     {
-        FmJob *job = fm_file_ops_job_new (FM_FILE_OP_DELETE, path_list);
-        fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
+        FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+        FmJob* job = fm_delete_files2(path_list, (FmFileJobUI*) ui);
+        g_object_unref(ui);
+        g_object_unref(job);
     }
 }
 
@@ -51,8 +54,10 @@ static void fm_trash_files (GtkWindow *parent, FmPathList *path_list, gboolean c
         || !fm_config->confirm_delete
         || fm_yes_no (parent, NULL, _("Do you want to move the selected files to trash can?"), TRUE))
     {
-        FmJob *job = fm_file_ops_job_new (FM_FILE_OP_TRASH, path_list);
-        fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
+		FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+		FmJob* job = fm_trash_files2(path_list, (FmFileJobUI*) ui);
+		g_object_unref(ui);
+		g_object_unref(job);
     }
 }
 
@@ -84,8 +89,10 @@ void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
 
 void fm_untrash_files (GtkWindow *parent, FmPathList *path_list)
 {
-    FmJob *job = fm_file_ops_job_new (FM_FILE_OP_UNTRASH, path_list);
-    fm_file_ops_job_run_with_progress (parent, FM_FILE_OPS_JOB (job));
+	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+	FmJob* job = fm_untrash_files2(path_list, (FmFileJobUI*) ui);
+	g_object_unref(ui);
+	g_object_unref(job);
 }
 
 void fm_empty_trash (GtkWindow *parent)

@@ -138,6 +138,8 @@ gboolean fm_path_equal_str              (FmPath *path, const gchar *str, int n);
 // calculate how many elements are in this path.
 int fm_path_depth                       (FmPath *path);
 
+char* fm_path_get_trash_real_path(FmPath* path);
+
 G_END_DECLS
 #endif
 

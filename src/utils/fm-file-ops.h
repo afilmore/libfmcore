@@ -2,7 +2,7 @@
  * 
  *      fm-files-ops.h
  *
- *      Copyright 2009 PCMan <pcman@debian>
+ *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -29,7 +29,8 @@
 #include <stdarg.h>
 
 #include "fm-path-list.h"
-#include "fm-file-ops-job.h"
+//~ #include "fm-file-ops-job.h"
+#include "fm-jobs.h"
 
 G_BEGIN_DECLS
 
