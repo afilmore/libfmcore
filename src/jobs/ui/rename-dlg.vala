@@ -29,7 +29,6 @@ namespace Fm {
             <property name="border_width">10</property>
             <property name="title" translatable="yes">Confirm to replace files</property>
             <property name="type_hint">normal</property>
-            <property name="has_separator">False</property>
             <child internal-child="vbox">
               <object class="GtkVBox" id="dialog-vbox">
                 <property name="visible">True</property>
