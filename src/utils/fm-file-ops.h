@@ -25,41 +25,19 @@
 #define __FM_FILE_OPS_H__
 
 #include <gtk/gtk.h>
-#include <gio/gio.h>
-#include <stdarg.h>
 
 #include "fm-path-list.h"
-//~ #include "fm-file-ops-job.h"
 #include "fm-jobs.h"
 
 G_BEGIN_DECLS
 
 // File operations
-void fm_copy_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir);
-void fm_move_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir);
-
-#define fm_copy_file(parent, file, dest_dir) \
-    G_STMT_START {    \
-        FmPathList *files = fm_path_list_new (); \
-        fm_list_push_tail (files, file); \
-        fm_copy_files (parent, files, dest_dir); \
-        fm_list_unref (files);   \
-    } G_STMT_END
-
-#define fm_move_file(parent, file, dest_dir) \
-    G_STMT_START {    \
-    FmPathList *files = fm_path_list_new (); \
-    fm_list_push_tail (files, file); \
-    fm_move_files (parent, files, dest_dir); \
-    fm_list_unref (files);   \
-    } G_STMT_END
-
-void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move);
-#define fm_move_files_to(parent, files) fm_move_or_copy_files_to (parent, files, TRUE)
-#define fm_copy_files_to(parent, files) fm_move_or_copy_files_to (parent, files, FALSE)
-
-// void fm_rename_files (FmPathList *files);
+void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, FmCopyJobMode copy_job_mode);
 void fm_rename_file (GtkWindow *parent, FmPath *file);
+
+//~ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir);
+//~ void fm_move_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir);
+
 
 
 

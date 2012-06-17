@@ -16,7 +16,6 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libfmjobs.la
 
 libfmjobs_la_SOURCES = \
-	jobs.vala \
 	job.vala \
 	file-job.vala \
 	copy-job.vala \

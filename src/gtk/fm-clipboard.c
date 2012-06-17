@@ -253,9 +253,10 @@ gboolean fm_clipboard_paste_files (GtkWidget *dest_widget, FmPath *dest_dir)
             if (!fm_list_is_empty (files))
             {
                 if (_cut_files)
-                    fm_move_files (parent, files, dest_dir);
+                    //~ fm_move_files (parent, files, dest_dir);
+                    fm_copy_files (parent, files, dest_dir, FM_COPY_JOB_MODE_MOVE);
                 else
-                    fm_copy_files (parent, files, dest_dir);
+                    fm_copy_files (parent, files, dest_dir, FM_COPY_JOB_MODE_COPY);
             }
             
             fm_list_unref (files);

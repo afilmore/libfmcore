@@ -1,3 +1,45 @@
+fm-file-ops.h
+
+//~ #define fm_copy_file(parent, file, dest_dir) \
+    //~ G_STMT_START {    \
+        //~ FmPathList *files = fm_path_list_new (); \
+        //~ fm_list_push_tail (files, file); \
+        //~ fm_copy_files (parent, files, dest_dir); \
+        //~ fm_list_unref (files);   \
+    //~ } G_STMT_END
+
+//~ #define fm_move_file(parent, file, dest_dir) \
+    //~ G_STMT_START {    \
+    //~ FmPathList *files = fm_path_list_new (); \
+    //~ fm_list_push_tail (files, file); \
+    //~ fm_move_files (parent, files, dest_dir); \
+    //~ fm_list_unref (files);   \
+    //~ } G_STMT_END
+
+//~ void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move);
+//~ 
+//~ #define fm_move_files_to (parent, files) fm_move_or_copy_files_to (parent, files, TRUE)
+//~ #define fm_copy_files_to (parent, files) fm_move_or_copy_files_to (parent, files, FALSE)
+//~ 
+
+/**
+void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move)
+{
+    FmPath *dest = fm_select_folder (parent, NULL);
+    if (dest)
+    {
+        if (is_move)
+            fm_move_files (parent, files, dest);
+        else
+            fm_copy_files (parent, files, dest);
+        fm_path_unref (dest);
+    }
+}**/
+
+
+
+
+
 vapi file...
 
 	/**[CCode (cheader_filename = "fm.h")]

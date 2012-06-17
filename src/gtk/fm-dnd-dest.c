@@ -196,11 +196,12 @@ gboolean fm_dnd_dest_files_dropped (FmDndDest *dnd_dest, int x, int y, GdkDragAc
             if (fm_path_is_trash_root (fm_dnd_dest_get_dest_path (dnd_dest)))
                 fm_trash_delete (GTK_WINDOW (parent), files, FM_DELETE_FLAGS_TRASH, FALSE);
             else
-                fm_move_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest));
+                //~ fm_move_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest));
+                fm_copy_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest), FM_COPY_JOB_MODE_MOVE);
         break;
         
         case GDK_ACTION_COPY:
-            fm_copy_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest));
+            fm_copy_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest), FM_COPY_JOB_MODE_COPY);
         break;
         
         case GDK_ACTION_LINK:

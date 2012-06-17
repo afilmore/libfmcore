@@ -29,47 +29,60 @@
 
 #include <glib/gi18n-lib.h>
 
+#include "fm-jobs.h"
+
 #include "fm-select-folder-dlg.h"
 #include "fm-user-input-dlg.h"
-//~ #include "fm-progress-dlg.h"
-#include "fm-jobs.h"
 #include "fm-msgbox.h"
 
 
-// File operations
-/*FIXME_pcm: only show the progress dialog if the job isn't finished
-  *in 1 sec. */
-
-void fm_copy_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
+void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, FmCopyJobMode copy_job_mode)
 {
-	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
-	FmJob* job = fm_copy_files_to_dir(files, dest_dir, ui);
-	g_object_unref(ui);
-	g_object_unref(job);
-}
+	g_return_if_fail (path_list != NULL);
+	g_return_if_fail (dest_dir != NULL);
+    
+	FmGtkFileJobUI *ui = fm_gtk_file_job_ui_new (parent);
+	
+    //~ FmJob* job = fm_copy_files_to_dir(path_list, dest_dir, ui);
+	
+    FmList* dest_paths = fm_path_list_new ();
+	
+    GList* list = fm_list_peek_head_link (path_list);
 
-void fm_move_files (GtkWindow *parent, FmPathList *files, FmPath *dest_dir)
-{
-	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
-	FmJob* job = fm_move_files_to_dir(files, dest_dir, ui);
-	g_object_unref(ui);
-	g_object_unref(job);
-}
-
-void fm_move_or_copy_files_to (GtkWindow *parent, FmPathList *files, gboolean is_move)
-{
-    FmPath *dest = fm_select_folder (parent, NULL);
-    if (dest)
-    {
-        if (is_move)
-            fm_move_files (parent, files, dest);
-        else
-            fm_copy_files (parent, files, dest);
-        fm_path_unref (dest);
+    GList* src_path_it;
+    for (src_path_it = list; src_path_it != NULL; src_path_it = src_path_it->next) {
+        
+        const gchar* _tmp5_  = fm_path_get_basename ((FmPath*) src_path_it->data);
+        
+        FmPath* dest_path = fm_path_new_child (dest_dir, _tmp5_);
+        
+        fm_list_push_tail (dest_paths, dest_path);
+        
+        fm_path_unref (dest_path);
     }
+	
+	
+    //~ FmJob* job = (FmJob*) fm_copy_job_new (FM_COPY_JOB_MODE_COPY, path_list, dest_paths, ui);
+    FmJob* job = (FmJob*) fm_copy_job_new (copy_job_mode, path_list, dest_paths, ui);
+	fm_job_run_async ((FmJob*) job);
+	
+    fm_list_unref (dest_paths);
+	
+    
+    g_object_unref (ui);
+	g_object_unref (job);
 }
 
-
+//~ void fm_move_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir)
+//~ {
+	//~ FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+	//~ 
+    //~ FmJob* job = fm_move_files_to_dir(path_list, dest_dir, ui);
+	//~ 
+    //~ g_object_unref(ui);
+	//~ g_object_unref(job);
+//~ }
+//~ 
 void fm_rename_file (GtkWindow *parent, FmPath *file)
 {
     GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;
