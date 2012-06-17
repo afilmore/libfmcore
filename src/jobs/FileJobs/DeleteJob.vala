@@ -46,10 +46,8 @@ public class DeleteJob : FileJob {
 				if(child_info == null) // end of file list
 					break;
 				
-//~                 try {
                 var child = file.get_child(child_info.get_name());
-//~                 } catch (Error error) {
-//~                 }
+
 				delete_file(child, child_info);
 			}
 			enu.close();

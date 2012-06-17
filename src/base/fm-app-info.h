@@ -44,5 +44,7 @@ GAppInfo *fm_app_info_create_from_commandline (const char *commandline,
                                               GError **error);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_APP_INFO_H__ */
+
+

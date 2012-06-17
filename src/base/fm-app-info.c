@@ -329,3 +329,6 @@ GAppInfo *fm_app_info_create_from_commandline (const char *commandline,
     g_object_set_data (G_OBJECT (app), "flags", GUINT_TO_POINTER (flags));
     return app;
 }
+
+
+
