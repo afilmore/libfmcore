@@ -28,8 +28,11 @@
 #include <gtk/gtk.h>
 
 #include "fm-file-info-list.h"
+
 #include "fm-gtk-launcher.h"
-#include "fm-utils.h"
+
+//#include "fm-utils.h"
+
 
 G_BEGIN_DECLS
 
@@ -62,6 +65,7 @@ struct _FmFileMenu
     
 };
 
+
 FmFileMenu      *fm_file_menu_new_for_files         (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd,
                                                      gboolean auto_destroy);
                                             
@@ -80,14 +84,14 @@ gboolean        fm_file_menu_is_single_file_type    (FmFileMenu *file_menu);
 
 
 /*****************************************************************************************
- * Note: Call fm_list_ref () if you need to own reference to the returned list.
+ *  Note: Call fm_list_ref () if you need to own a reference to the returned list...
  * 
  * 
  ****************************************************************************************/
-FmFileInfoList  *fm_file_menu_get_file_info_list (FmFileMenu *file_menu);
+FmFileInfoList  *fm_file_menu_get_file_info_list    (FmFileMenu *file_menu);
 
 G_END_DECLS
-
 #endif
+
 
 

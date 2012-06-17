@@ -1,3 +1,269 @@
+vapi file...
+
+	/**[CCode (cheader_filename = "fm.h")]
+	[Compact]
+	public class PathList {
+		
+        [CCode (has_construct_function = false)]
+		public PathList ();
+		
+        [CCode (has_construct_function = false)]
+		public PathList.from_file_info_glist (GLib.List fis);
+		
+        [CCode (has_construct_function = false)]
+		public PathList.from_file_info_gslist (GLib.SList fis);
+		
+        [CCode (has_construct_function = false)]
+		public PathList.from_file_info_list (Fm.List fis);
+		
+        [CCode (has_construct_function = false)]
+		public PathList.from_uri_list (string uri_list);
+		
+        [CCode (has_construct_function = false)]
+		public PathList.from_uris (out unowned string uris);
+		
+        public unowned string to_uri_list ();
+		public void write_uri_list (GLib.StringBuilder buf);
+	}**/
+    
+
+    /*************************************************************************************
+     * 
+     * 
+     * 
+     ***********************************************************************************
+	[CCode (cheader_filename = "fm.h")]
+	public class Job : GLib.Object {
+		
+        [CCode (has_construct_function = false)]
+		protected Job ();
+		
+        public int ask (string question);
+		public int ask_valist (string question, void* options);
+		public int askv (string question, out unowned string options);
+        
+//		public void* call_main_thread (Fm.JobCallMainThreadFunc func);
+		
+		public void init_cancellable ();
+        public unowned GLib.Cancellable get_cancellable ();
+        public virtual void cancel ();
+		public void emit_cancelled ();
+		public bool is_cancelled ();
+		
+        public int emit_error (GLib.Error err, int severity);
+		
+        public void emit_finished ();
+		public void finish ();
+		
+        [NoWrapper]
+		public virtual bool run ();
+		public virtual bool run_async ();
+		public bool run_sync ();
+		public bool run_sync_with_mainloop ();
+		
+        public bool is_running ();
+		
+        public void set_cancellable (GLib.Cancellable cancellable);
+		
+        // FIXME_axl: rename this signal...
+        public virtual signal int ask2 (void* question, void* options);
+		public virtual signal void cancelled ();
+		public virtual signal int error (void* err, int severity);
+		public virtual signal void finished ();
+	}*/
+
+
+
+
+
+
+fm-file-menu...
+
+// TODO_axl: move this to a TEMP_file...
+/*** Needs a rework...
+FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
+{
+    // Special handling for some virtual filesystems
+    g_string_append (xml, "<popup><placeholder name='ph1'>\n");
+    if (file_menu->all_virtual)
+    {
+        // if all of the files are in trash
+        if (file_menu->all_trash)
+        {
+            gboolean can_restore = TRUE;
+            GList *l;
+            
+            // only immediate children of trash:/// can be restored.
+            for (l = fm_list_peek_head_link (files);l;l=l->next)
+            {
+                FmPath *trash_path = FM_FILE_INFO (l->data)->path;
+                if (!trash_path->parent || !fm_path_is_trash_root (trash_path->parent))
+                {
+                    can_restore = FALSE;
+                    break;
+                }
+            }
+
+            if (can_restore)
+            {
+                action = gtk_action_new ("UnTrash",
+                                    _("_Restore"),
+                                    _("Restore trashed files to original paths"),
+                            NULL);
+                
+                g_signal_connect (action, "activate", G_CALLBACK (on_restaure), file_menu);
+                
+                gtk_action_group_add_action (action_group, action);
+                
+                g_string_append (xml, "<menuitem action='UnTrash'/>\n");
+            }
+
+            action = gtk_ui_manager_get_action (ui, "/popup/Open");
+            gtk_action_set_visible (action, FALSE);
+        }
+        else
+        {
+            // do not provide these items for other virtual files
+            action = gtk_ui_manager_get_action (ui, "/popup/Cut");
+            gtk_action_set_visible (action, FALSE);
+            action = gtk_ui_manager_get_action (ui, "/popup/Copy");
+            gtk_action_set_visible (action, FALSE);
+            action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+            gtk_action_set_visible (action, FALSE);
+            action = gtk_ui_manager_get_action (ui, "/popup/Delete");
+            gtk_action_set_visible (action, FALSE);
+        }
+        
+        action = gtk_ui_manager_get_action (ui, "/popup/Rename");
+        gtk_action_set_visible (action, FALSE);
+    }
+    g_string_append (xml, "</placeholder></popup>\n");
+}
+***/
+
+/***
+ * Add Custom Actions Later...
+ * #include "fm-actions.h"
+ * 
+ ***/
+
+
+FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
+    #if 0
+	// add custom file actions
+	if (show_custom_actions)
+        fm_file_menu_add_custom_actions (file_menu, xml, files);
+    #endif
+
+
+/*****************************************************************************************
+ * Customs Actions...
+ *
+ * Add This Later...
+ *
+ *
+ ****************************************************************************************/
+#if 0
+static void add_custom_action_item (FmFileMenu *file_menu, GString *xml, FmFileActionItem *item)
+{
+	GtkAction *action;
+	if (!item) // separator
+	{
+		g_string_append (xml, "<separator/>");
+		return;
+	}
+
+	if (fm_file_action_item_is_action (item))
+	{
+		if (! (fm_file_action_item_get_target (item) & FM_FILE_ACTION_TARGET_CONTEXT))
+			return;
+	}
+
+	action = gtk_action_new (fm_file_action_item_get_id (item),
+						  fm_file_action_item_get_name (item),
+						  fm_file_action_item_get_desc (item),
+						  NULL);
+
+	if (fm_file_action_item_is_action (item))
+		g_signal_connect (action, "activate", G_CALLBACK (on_custom_action), file_menu);
+
+	gtk_action_set_icon_name (action, fm_file_action_item_get_icon (item));
+	gtk_action_group_add_action (file_menu->action_group, action);
+	
+    // associate the app info object with the action
+	g_object_set_qdata_full (G_OBJECT (action), fm_qdata_id, fm_file_action_item_ref (item),
+							 (GDestroyNotify) fm_file_action_item_unref);
+	
+    if (fm_file_action_item_is_menu (item))
+	{
+		GList *subitems = fm_file_action_item_get_sub_items (item);
+		GList *l;
+		
+        g_string_append_printf (xml, "<menu action='%s'>", fm_file_action_item_get_id (item));
+		
+        for (l=subitems; l; l=l->next)
+		{
+			FmFileActionItem *subitem = FM_FILE_ACTION_ITEM (l->data);
+			add_custom_action_item (file_menu, xml, subitem);
+		}
+		g_string_append (xml, "</menu>");
+	}
+	else
+	{
+		g_string_append_printf (xml, "<menuitem action='%s'/>", fm_file_action_item_get_id (item));
+	}
+}
+
+static void fm_file_menu_add_custom_actions (FmFileMenu *file_menu, GString *xml, FmFileInfoList *files)
+{
+	GList *files_list = fm_list_peek_head_link (files);
+	GList *items = fm_get_actions_for_files (files_list);
+
+    if (items)
+    {
+		g_string_append (xml, "<popup><placeholder name='ARCHIVER'>");
+		GList *l;
+		for (l=items; l; l=l->next)
+		{
+			FmFileActionItem *item = FM_FILE_ACTION_ITEM (l->data);
+			add_custom_action_item (file_menu, xml, item);
+		}
+		g_string_append (xml, "</placeholder></popup>");
+    }
+	
+    g_list_foreach (items, (GSourceFunc) fm_file_action_item_unref, NULL);
+	g_list_free (items);
+}
+
+static void on_custom_action (GtkAction *action, FmFileMenu *file_menu)
+{
+    FmFileActionItem *item = FM_FILE_ACTION_ITEM (g_object_get_qdata (action, fm_qdata_id));
+    GdkAppLaunchContext *ctx = gdk_app_launch_context_new ();
+    GList *files = fm_list_peek_head_link (file_menu->file_infos);
+    char **output = NULL;
+    gboolean ret;
+    gdk_app_launch_context_set_screen (ctx, gtk_widget_get_screen (file_menu->menu));
+    gdk_app_launch_context_set_timestamp (ctx, gtk_get_current_event_time ());
+
+	g_debug ("item: %s is activated, id:%s", fm_file_action_item_get_name (item),
+			fm_file_action_item_get_id (item));
+	ret = fm_file_action_item_launch (item, ctx, files, output);
+	if (output)
+	{
+		fm_show_error (NULL, "output", output);
+		g_free (output);
+	}
+}
+
+#endif
+
+
+
+
+
+
+
+
 
 
 

@@ -29,9 +29,8 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "fm-vala.h"
-//~ #include "fm-progress-dlg.h"
 #include "fm-jobs.h"
+#include "fm-vala.h"
 #include "fm-msgbox.h"
 
 
@@ -62,7 +61,7 @@ static void fm_trash_files (GtkWindow *parent, FmPathList *path_list, gboolean c
 }
 
 
-void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags delete_flags, gboolean confim_delete)
+void fm_trash_delete (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags delete_flags, gboolean confim_delete)
 {
     if (fm_list_is_empty (path_list))
         return;
@@ -87,7 +86,7 @@ void fm_delete_files (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
     }
 }
 
-void fm_untrash_files (GtkWindow *parent, FmPathList *path_list)
+void fm_trash_restaure (GtkWindow *parent, FmPathList *path_list)
 {
 	FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
 	FmJob* job = fm_untrash_files2(path_list, (FmFileJobUI*) ui);
@@ -95,7 +94,7 @@ void fm_untrash_files (GtkWindow *parent, FmPathList *path_list)
 	g_object_unref(job);
 }
 
-void fm_empty_trash (GtkWindow *parent)
+void fm_trash_empty (GtkWindow *parent)
 {
     if (!fm_yes_no (parent, NULL, _("Are you sure you want to empty the trash can?"), TRUE))
         return;

@@ -1,13 +1,14 @@
 /***********************************************************************************************************************
  * 
- *      fm-trash.h
+ *      fm-qdata.h
  *
- *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
+ *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
- *       (at your option) any later version.
+ *      (at your option) any later version.
  *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,27 +22,20 @@
  *
  * 
  **********************************************************************************************************************/
-#ifndef __FM_TRASH_H__
-#define __FM_TRASH_H__
+#ifndef __LIBFM_FM_QDATA_H__
+#define __LIBFM_FM_QDATA_H__
 
-#include <gtk/gtk.h>
+#include <glib.h>
 
-#include "fm-path-list.h"
 
 G_BEGIN_DECLS
 
-enum _FmDeleteFlags
-{
-    FM_DELETE_FLAGS_NONE,
-    FM_DELETE_FLAGS_TRASH_OR_DELETE,
-    FM_DELETE_FLAGS_TRASH
-};
-typedef enum _FmDeleteFlags FmDeleteFlags;
-
-
-void fm_trash_delete    (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags delete_flags, gboolean confim_delete);
-void fm_trash_restaure  (GtkWindow *parent, FmPathList *path_list);
-void fm_trash_empty     (GtkWindow *parent);
+/***********************************************************
+ *  A quark value used to associate data with objects...
+ * 
+ * 
+ **********************************************************/
+extern GQuark fm_qdata_id;
 
 
 G_END_DECLS

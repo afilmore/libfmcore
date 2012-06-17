@@ -26,61 +26,46 @@
 #include <config.h>
 #endif
 
+#include "fm-file-menu.h"
+
 #include <glib/gi18n-lib.h>
 
-#include "fm.h"
-//~ #include "fm-vala.h"
-//~ 
-//~ #include "fm-file-menu.h"
-//~ #include "fm-path.h"
-//~ 
-//~ #include "fm-clipboard.h"
-//~ #include "fm-file-properties.h"
-//~ 
-//~ #include "fm-file-ops.h"
-//~ #include "fm-trash.h"
-//~ 
-//~ #include "fm-app-chooser-dlg.h"
-//~ #include "fm-archiver.h"
-//~ #include "fm-app-info.h"
-//~ #include "fm-gtk-launcher.h"
+#include "fm-qdata.h"
+
+#include "fm-archiver.h"
+#include "fm-clipboard.h"
+#include "fm-app-info.h"
+
+#include "fm-app-chooser-dlg.h"
+#include "fm-file-properties.h"
+
+#include "fm-trash.h"
+#include "fm-file-ops.h"
 
 
-/***
- * Add Custom Actions Later...
- * #include "fm-actions.h"
- * 
- ***/
-
-
-/*****************************************************************************************
- * Popup Menu Definition...
- * 
- *
- * 
- ****************************************************************************************/
 // Forward declarations...
-static void on_open             (GtkAction *action, gpointer user_data);
-static void on_restaure         (GtkAction *action, gpointer user_data);
+static void fm_file_menu_open_with_app  (FmFileMenu *file_menu, GAppInfo *app);
 
-static void on_open_with_app    (GtkAction *action, gpointer user_data);
-static void on_open_with        (GtkAction *action, gpointer user_data);
+static void action_open                 (GtkAction *action, gpointer user_data);
+static void action_restaure             (GtkAction *action, gpointer user_data);
 
-static void on_cut              (GtkAction *action, gpointer user_data);
-static void on_copy             (GtkAction *action, gpointer user_data);
-static void on_paste            (GtkAction *action, gpointer user_data);
-static void on_delete           (GtkAction *action, gpointer user_data);
-static void on_rename           (GtkAction *action, gpointer user_data);
+static void action_open_with_app        (GtkAction *action, gpointer user_data);
+static void action_open_with            (GtkAction *action, gpointer user_data);
 
-static void on_empty_trash      (GtkAction *action, gpointer user_data);
+static void action_cut                  (GtkAction *action, gpointer user_data);
+static void action_copy                 (GtkAction *action, gpointer user_data);
+static void action_paste                (GtkAction *action, gpointer user_data);
+static void action_delete               (GtkAction *action, gpointer user_data);
+static void action_rename               (GtkAction *action, gpointer user_data);
 
-static void on_compress         (GtkAction *action, gpointer user_data);
-static void on_extract_here     (GtkAction *action, gpointer user_data);
-static void on_extract_to       (GtkAction *action, gpointer user_data);
+static void action_empty_trash          (GtkAction *action, gpointer user_data);
 
-static void on_properties       (GtkAction *action, gpointer user_data);
+static void action_compress             (GtkAction *action, gpointer user_data);
+static void action_extract_here         (GtkAction *action, gpointer user_data);
+static void action_extract_to           (GtkAction *action, gpointer user_data);
 
-static void open_with_app (FmFileMenu *file_menu, GAppInfo *app);
+static void action_properties           (GtkAction *action, gpointer user_data);
+
 
 
 const char filefolder_popup_xml [] =
@@ -115,31 +100,31 @@ const char filefolder_popup_xml [] =
 
 GtkActionEntry file_menu_actions [] =
 {
-    {"Open",            GTK_STOCK_OPEN, NULL, NULL, NULL,               G_CALLBACK (on_open)},
+    {"Open",            GTK_STOCK_OPEN, NULL, NULL, NULL,               G_CALLBACK (action_open)},
     
-    {"EmptyTrash",      NULL, N_("Empty Trash"), NULL, NULL,            G_CALLBACK (on_empty_trash)},
+    {"EmptyTrash",      NULL, N_("Empty Trash"), NULL, NULL,            G_CALLBACK (action_empty_trash)},
     
     {"OpenWithMenu",    NULL, N_("Open With..."), NULL, NULL,           NULL},
-    {"OpenWith",        NULL, N_("Open With..."), NULL, NULL,           G_CALLBACK (on_open_with)},
+    {"OpenWith",        NULL, N_("Open With..."), NULL, NULL,           G_CALLBACK (action_open_with)},
     
-    {"Cut",             GTK_STOCK_CUT, NULL, "<Ctrl>X", NULL,           G_CALLBACK (on_cut)},
-    {"Copy",            GTK_STOCK_COPY, NULL, "<Ctrl>C", NULL,          G_CALLBACK (on_copy)},
-    {"Paste",           GTK_STOCK_PASTE, NULL, "<Ctrl>V", NULL,         G_CALLBACK (on_paste)},
-    {"Delete",          GTK_STOCK_DELETE, NULL, NULL, NULL,             G_CALLBACK (on_delete)},
+    {"Cut",             GTK_STOCK_CUT, NULL, "<Ctrl>X", NULL,           G_CALLBACK (action_cut)},
+    {"Copy",            GTK_STOCK_COPY, NULL, "<Ctrl>C", NULL,          G_CALLBACK (action_copy)},
+    {"Paste",           GTK_STOCK_PASTE, NULL, "<Ctrl>V", NULL,         G_CALLBACK (action_paste)},
     
-    {"Rename",          NULL, N_("Rename"), "F2", NULL,                 G_CALLBACK (on_rename)},
+    {"Delete",          GTK_STOCK_DELETE, NULL, NULL, NULL,             G_CALLBACK (action_delete)},
+    {"Rename",          NULL, N_("Rename"), "F2", NULL,                 G_CALLBACK (action_rename)},
     
     /** TODO_axl
     {"Link",            NULL, N_("Create Symlink"), NULL, NULL,         NULL},
     {"SendTo",          NULL, N_("Send To"), NULL, NULL,                NULL},
     **/
     
-    {"Compress",        NULL, N_("Compress..."), NULL, NULL,            G_CALLBACK (on_compress)},
+    {"Compress",        NULL, N_("Compress..."), NULL, NULL,            G_CALLBACK (action_compress)},
     
-    {"Extract",         NULL, N_("Extract Here"), NULL, NULL,           G_CALLBACK (on_extract_here)},
-    {"Extract2",        NULL, N_("Extract To..."), NULL, NULL,          G_CALLBACK (on_extract_to)},
+    {"Extract",         NULL, N_("Extract Here"), NULL, NULL,           G_CALLBACK (action_extract_here)},
+    {"Extract2",        NULL, N_("Extract To..."), NULL, NULL,          G_CALLBACK (action_extract_to)},
     
-    {"Properties",      GTK_STOCK_PROPERTIES, NULL, NULL, NULL,         G_CALLBACK (on_properties)}
+    {"Properties",      GTK_STOCK_PROPERTIES, NULL, NULL, NULL,         G_CALLBACK (action_properties)}
 };
 
 
@@ -210,8 +195,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     // Hide all items and show only the needed ones...
     action = gtk_ui_manager_get_action (ui, "/popup/Open");
     gtk_action_set_visible (action, FALSE);
+    
     //~ action = gtk_ui_manager_get_action (ui, "/popup/OpenWith");
     //~ gtk_action_set_visible (action, FALSE);
+    
     action = gtk_ui_manager_get_action (ui, "/popup/Cut");
     gtk_action_set_visible (action, FALSE);
     action = gtk_ui_manager_get_action (ui, "/popup/Copy");
@@ -241,7 +228,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         && !file_menu->all_virtual )
     {
         GList *apps = g_app_info_get_all_for_type (fi_mime_type->type);
-        GList *l;
+        GList *app_list;
         gboolean use_sub = g_list_length (apps) > 5;
         
         g_string_append (xml, "<popup>\n<placeholder name='OPEN_WITH'>\n");
@@ -249,9 +236,9 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         if (use_sub)
             g_string_append (xml, "<menu action='OpenWithMenu'>\n");
 
-        for (l=apps;l;l=l->next)
+        for (app_list = apps; app_list; app_list = app_list->next)
         {
-            GAppInfo *app = l->data;
+            GAppInfo *app = app_list->data;
 
             /*g_debug ("app %s, executable %s, command %s\n",
                 g_app_info_get_name (app),
@@ -267,7 +254,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             action = gtk_action_new (g_app_info_get_id (app), g_app_info_get_name (app), g_app_info_get_description (app),
                                   NULL);
             
-            g_signal_connect (action, "activate", G_CALLBACK (on_open_with_app), file_menu);
+            g_signal_connect (action, "activate", G_CALLBACK (action_open_with_app), file_menu);
             gtk_action_set_gicon (action, g_app_info_get_icon (app));
             gtk_action_group_add_action (action_group, action);
             
@@ -317,8 +304,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     action = gtk_ui_manager_get_action (ui, "/popup/Open");
     gtk_action_set_visible (action, !trash_can);
+    
     //~ action = gtk_ui_manager_get_action (ui, "/popup/OpenWith");
     //~ gtk_action_set_visible (action, !trash_can);
+    
     action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
     gtk_action_set_visible (action, trash_can);
     
@@ -329,8 +318,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         gtk_action_set_visible (action, TRUE);
         action = gtk_ui_manager_get_action (ui, "/popup/Copy");
         gtk_action_set_visible (action, TRUE);
+    
         //~ action = gtk_ui_manager_get_action (ui, "/popup/Paste");
         //~ gtk_action_set_visible (action, TRUE);
+    
         action = gtk_ui_manager_get_action (ui, "/popup/Delete");
         gtk_action_set_visible (action, TRUE);
         action = gtk_ui_manager_get_action (ui, "/popup/Rename");
@@ -339,14 +330,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     
     action = gtk_ui_manager_get_action (ui, "/popup/Properties");
+    
     //~ gtk_action_set_visible (action, !have_virtual);
+    
     gtk_action_set_visible (action, TRUE);
-
-    #if 0
-	// add custom file actions
-	if (show_custom_actions)
-        fm_file_menu_add_custom_actions (file_menu, xml, files);
-    #endif
 
     
     // Archiver integration
@@ -386,68 +373,6 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     return file_menu;
 }
-
-// TODO_axl: move this to a TEMP_file...
-/*** Needs a rework...
-FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
-{
-    // Special handling for some virtual filesystems
-    g_string_append (xml, "<popup><placeholder name='ph1'>\n");
-    if (file_menu->all_virtual)
-    {
-        // if all of the files are in trash
-        if (file_menu->all_trash)
-        {
-            gboolean can_restore = TRUE;
-            GList *l;
-            
-            // only immediate children of trash:/// can be restored.
-            for (l = fm_list_peek_head_link (files);l;l=l->next)
-            {
-                FmPath *trash_path = FM_FILE_INFO (l->data)->path;
-                if (!trash_path->parent || !fm_path_is_trash_root (trash_path->parent))
-                {
-                    can_restore = FALSE;
-                    break;
-                }
-            }
-
-            if (can_restore)
-            {
-                action = gtk_action_new ("UnTrash",
-                                    _("_Restore"),
-                                    _("Restore trashed files to original paths"),
-                            NULL);
-                
-                g_signal_connect (action, "activate", G_CALLBACK (on_restaure), file_menu);
-                
-                gtk_action_group_add_action (action_group, action);
-                
-                g_string_append (xml, "<menuitem action='UnTrash'/>\n");
-            }
-
-            action = gtk_ui_manager_get_action (ui, "/popup/Open");
-            gtk_action_set_visible (action, FALSE);
-        }
-        else
-        {
-            // do not provide these items for other virtual files
-            action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-            gtk_action_set_visible (action, FALSE);
-            action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-            gtk_action_set_visible (action, FALSE);
-            action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-            gtk_action_set_visible (action, FALSE);
-            action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-            gtk_action_set_visible (action, FALSE);
-        }
-        
-        action = gtk_ui_manager_get_action (ui, "/popup/Rename");
-        gtk_action_set_visible (action, FALSE);
-    }
-    g_string_append (xml, "</placeholder></popup>\n");
-}
-***/
 
 void fm_file_menu_set_folder_func (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data)
 {
@@ -524,114 +449,12 @@ FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu)
 
 
 /*****************************************************************************************
- * Customs Actions...
- *
- * Add This Later...
- *
- *
- ****************************************************************************************/
-#if 0
-static void add_custom_action_item (FmFileMenu *file_menu, GString *xml, FmFileActionItem *item)
-{
-	GtkAction *action;
-	if (!item) // separator
-	{
-		g_string_append (xml, "<separator/>");
-		return;
-	}
-
-	if (fm_file_action_item_is_action (item))
-	{
-		if (! (fm_file_action_item_get_target (item) & FM_FILE_ACTION_TARGET_CONTEXT))
-			return;
-	}
-
-	action = gtk_action_new (fm_file_action_item_get_id (item),
-						  fm_file_action_item_get_name (item),
-						  fm_file_action_item_get_desc (item),
-						  NULL);
-
-	if (fm_file_action_item_is_action (item))
-		g_signal_connect (action, "activate", G_CALLBACK (on_custom_action), file_menu);
-
-	gtk_action_set_icon_name (action, fm_file_action_item_get_icon (item));
-	gtk_action_group_add_action (file_menu->action_group, action);
-	
-    // associate the app info object with the action
-	g_object_set_qdata_full (G_OBJECT (action), fm_qdata_id, fm_file_action_item_ref (item),
-							 (GDestroyNotify) fm_file_action_item_unref);
-	
-    if (fm_file_action_item_is_menu (item))
-	{
-		GList *subitems = fm_file_action_item_get_sub_items (item);
-		GList *l;
-		
-        g_string_append_printf (xml, "<menu action='%s'>", fm_file_action_item_get_id (item));
-		
-        for (l=subitems; l; l=l->next)
-		{
-			FmFileActionItem *subitem = FM_FILE_ACTION_ITEM (l->data);
-			add_custom_action_item (file_menu, xml, subitem);
-		}
-		g_string_append (xml, "</menu>");
-	}
-	else
-	{
-		g_string_append_printf (xml, "<menuitem action='%s'/>", fm_file_action_item_get_id (item));
-	}
-}
-
-static void fm_file_menu_add_custom_actions (FmFileMenu *file_menu, GString *xml, FmFileInfoList *files)
-{
-	GList *files_list = fm_list_peek_head_link (files);
-	GList *items = fm_get_actions_for_files (files_list);
-
-    if (items)
-    {
-		g_string_append (xml, "<popup><placeholder name='ARCHIVER'>");
-		GList *l;
-		for (l=items; l; l=l->next)
-		{
-			FmFileActionItem *item = FM_FILE_ACTION_ITEM (l->data);
-			add_custom_action_item (file_menu, xml, item);
-		}
-		g_string_append (xml, "</placeholder></popup>");
-    }
-	
-    g_list_foreach (items, (GSourceFunc) fm_file_action_item_unref, NULL);
-	g_list_free (items);
-}
-
-static void on_custom_action (GtkAction *action, FmFileMenu *file_menu)
-{
-    FmFileActionItem *item = FM_FILE_ACTION_ITEM (g_object_get_qdata (action, fm_qdata_id));
-    GdkAppLaunchContext *ctx = gdk_app_launch_context_new ();
-    GList *files = fm_list_peek_head_link (file_menu->file_infos);
-    char **output = NULL;
-    gboolean ret;
-    gdk_app_launch_context_set_screen (ctx, gtk_widget_get_screen (file_menu->menu));
-    gdk_app_launch_context_set_timestamp (ctx, gtk_get_current_event_time ());
-
-	g_debug ("item: %s is activated, id:%s", fm_file_action_item_get_name (item),
-			fm_file_action_item_get_id (item));
-	ret = fm_file_action_item_launch (item, ctx, files, output);
-	if (output)
-	{
-		fm_show_error (NULL, "output", output);
-		g_free (output);
-	}
-}
-
-#endif
-
-
-/*****************************************************************************************
  *  Menu Actions
  *
  *
  *
  ****************************************************************************************/
-void on_open (GtkAction *action, gpointer user_data)
+void action_open (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
@@ -642,18 +465,18 @@ void on_open (GtkAction *action, gpointer user_data)
     fm_launch_multiple_files (file_menu->parent, NULL, files_list, file_menu->folder_func, file_menu->folder_func_data);
 }
 
-void on_restaure (GtkAction *action, gpointer user_data)
+void action_restaure (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     
-    fm_untrash_files (file_menu->parent, files);
+    fm_trash_restaure (file_menu->parent, files);
     
     fm_list_unref (files);
 }
 
-void on_open_with_app (GtkAction *action, gpointer user_data)
+void action_open_with_app (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
@@ -661,10 +484,10 @@ void on_open_with_app (GtkAction *action, gpointer user_data)
     
     g_debug ("%s", gtk_action_get_name (action));
     
-    open_with_app (file_menu, app);
+    fm_file_menu_open_with_app (file_menu, app);
 }
 
-void on_open_with (GtkAction *action, gpointer user_data)
+void action_open_with (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmFileInfoList *files = file_menu->file_infos;
@@ -684,7 +507,7 @@ void on_open_with (GtkAction *action, gpointer user_data)
     if (!app)
         return;
         
-    open_with_app (file_menu, app);
+    fm_file_menu_open_with_app (file_menu, app);
     
     // Add to applications that support this file type.
     if (mime_type)
@@ -693,7 +516,7 @@ void on_open_with (GtkAction *action, gpointer user_data)
     g_object_unref (app);
 }
 
-static void open_with_app (FmFileMenu *file_menu, GAppInfo *app)
+static void fm_file_menu_open_with_app (FmFileMenu *file_menu, GAppInfo *app)
 {
     GdkAppLaunchContext *ctx;
     
@@ -727,7 +550,7 @@ static void open_with_app (FmFileMenu *file_menu, GAppInfo *app)
     g_list_free (uris);
 }
 
-void on_cut (GtkAction *action, gpointer user_data)
+void action_cut (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmPathList *files;
@@ -738,7 +561,7 @@ void on_cut (GtkAction *action, gpointer user_data)
     fm_list_unref (files);
 }
 
-void on_copy (GtkAction *action, gpointer user_data)
+void action_copy (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmPathList *files;
@@ -749,7 +572,7 @@ void on_copy (GtkAction *action, gpointer user_data)
     fm_list_unref (files);
 }
 
-void on_paste (GtkAction *action, gpointer user_data)
+void action_paste (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
@@ -760,19 +583,18 @@ void on_paste (GtkAction *action, gpointer user_data)
      ***/
 }
 
-void on_delete (GtkAction *action, gpointer user_data)
+void action_delete (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmPathList *files;
     files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     
-    //~ fm_trash_or_delete_files (file_menu->parent, files);
-    fm_delete_files (GTK_WINDOW (file_menu->parent), files, FM_DELETE_FLAGS_TRASH_OR_DELETE, TRUE);
+    fm_trash_delete (GTK_WINDOW (file_menu->parent), files, FM_DELETE_FLAGS_TRASH_OR_DELETE, TRUE);
     
     fm_list_unref (files);
 }
 
-void on_rename (GtkAction *action, gpointer user_data)
+void action_rename (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
@@ -781,13 +603,13 @@ void on_rename (GtkAction *action, gpointer user_data)
         fm_rename_file (file_menu->parent, first_file_info->path);
 }
 
-void on_empty_trash (GtkAction *action, gpointer user_data)
+void action_empty_trash (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    fm_empty_trash (file_menu->parent);
+    fm_trash_empty (file_menu->parent);
 }
 
-void on_compress (GtkAction *action, gpointer user_data)
+void action_compress (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmPathList *files;
@@ -805,7 +627,7 @@ void on_compress (GtkAction *action, gpointer user_data)
     g_object_unref (ctx);
 }
 
-void on_extract_here (GtkAction *action, gpointer user_data)
+void action_extract_here (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmPathList *files;
@@ -823,7 +645,7 @@ void on_extract_here (GtkAction *action, gpointer user_data)
     g_object_unref (ctx);
 }
 
-void on_extract_to (GtkAction *action, gpointer user_data)
+void action_extract_to (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     FmPathList *files;
@@ -842,7 +664,7 @@ void on_extract_to (GtkAction *action, gpointer user_data)
     g_object_unref (ctx);
 }
 
-void on_properties (GtkAction *action, gpointer user_data)
+void action_properties (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     

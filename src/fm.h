@@ -62,15 +62,8 @@
 #include "fm-file-properties.h"
 #include "fm-gtk-launcher.h"
 
-//~ #include "fm-progress-dlg.h"
-
-// Fm Job
-//~ #include "fm-deep-count-job.h"
-//~ #include "fm-dir-list-job.h"
-//~ #include "fm-file-info-job.h"
 
 // Fm Jobs
-//#include "fm-jobs.h"
 #include "fm-deep-count-job.h"
 #include "fm-dir-list-job.h"
 #include "fm-file-info-job.h"
@@ -89,7 +82,6 @@
 
 G_BEGIN_DECLS
 
-extern GQuark fm_qdata_id;  /* a quark value used to associate data with objects */
 
 gboolean fm_init (FmConfig *config);
 void fm_finalize ();

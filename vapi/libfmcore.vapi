@@ -10,7 +10,7 @@
  * 
  *      Purpose: Binding file for libfmcore.
  * 
- *      Version: 0.3
+ *      Version: 0.4
  * 
  * 
  **********************************************************************************************************************/
@@ -30,6 +30,11 @@ namespace Fm {
 	public static void finalize ();
 	
     
+    /*************************************************************************************
+     *  
+     * 
+     * 
+     ************************************************************************************/
 	[CCode (cheader_filename = "fm-vala.h", type = "FmConfig*")]
 	public class Config : GLib.Object {
 		
@@ -168,38 +173,12 @@ namespace Fm {
         public inline bool is_trash_file ();
         
         /*** Define these macros...
-        #define fm_path_is_native(path) (fm_path_get_flags(path)&FM_PATH_IS_NATIVE)
-        #define fm_path_is_local(path) (fm_path_get_flags(path)&FM_PATH_IS_LOCAL)
-        #define fm_path_is_xdg_menu(path) (fm_path_get_flags(path)&FM_PATH_IS_XDG_MENU)
+        public inline bool is_native ();
+        public inline bool is_local ();
+        public inline bool is_xdg_menu ();
         ***/
 	}
 
-	/**[CCode (cheader_filename = "fm.h")]
-	[Compact]
-	public class PathList {
-		
-        [CCode (has_construct_function = false)]
-		public PathList ();
-		
-        [CCode (has_construct_function = false)]
-		public PathList.from_file_info_glist (GLib.List fis);
-		
-        [CCode (has_construct_function = false)]
-		public PathList.from_file_info_gslist (GLib.SList fis);
-		
-        [CCode (has_construct_function = false)]
-		public PathList.from_file_info_list (Fm.List fis);
-		
-        [CCode (has_construct_function = false)]
-		public PathList.from_uri_list (string uri_list);
-		
-        [CCode (has_construct_function = false)]
-		public PathList.from_uris (out unowned string uris);
-		
-        public unowned string to_uri_list ();
-		public void write_uri_list (GLib.StringBuilder buf);
-	}**/
-    
 	[Compact]
 	[CCode (cheader_filename = "fm-path-list.h", ref_function = "fm_list_ref", unref_function = "fm_list_unref", cname = "FmList", cprefix = "fm_list_")]
 	public class PathList {
@@ -254,7 +233,6 @@ namespace Fm {
 		public void unlink(GLib.List<Path> l);
 		public void delete_link(GLib.List<Path> l);
 	}
-
     
 
 	[CCode (cheader_filename =  "fm-icon.h",
@@ -378,27 +356,6 @@ namespace Fm {
 
     
     /*************************************************************************************
-     * Gtk Folder Model.
-     * 
-     * 
-     ************************************************************************************/
-    [CCode (cheader_filename = "fm-folder-model.h", cprefix = "COL_FILE_")]
-    public enum FileColumn {
-        GICON = 0,
-        ICON,
-        NAME,
-        SIZE,
-        DESC,
-        PERM,
-        OWNER,
-        MTIME,
-        INFO,
-        [CCode (cheader_filename = "fm-folder-model.h", cprefix = "")]
-        N_FOLDER_MODEL_COLS
-    }
-
-    
-    /*************************************************************************************
      * Fm.Folder.
      * 
      * 
@@ -445,6 +402,40 @@ namespace Fm {
 	}
     
     
+    /*************************************************************************************
+     *  
+     * 
+     * 
+     ************************************************************************************/
+	[CCode (cheader_filename = "fm-monitor.h")]
+	public GLib.FileMonitor? monitor_directory(GLib.File gf) throws GLib.Error;
+	[CCode (cheader_filename = "fm-monitor.h")]
+	public GLib.FileMonitor? monitor_lookup_monitor(GLib.File gf);
+	[CCode (cheader_filename = "fm-monitor.h")]
+	public GLib.FileMonitor? monitor_lookup_dummy_monitor(GLib.File gf);
+
+    
+    /*************************************************************************************
+     * Gtk Folder Model.
+     * 
+     * 
+     ************************************************************************************/
+    [CCode (cheader_filename = "fm-folder-model.h", cprefix = "COL_FILE_")]
+    public enum FileColumn {
+        GICON = 0,
+        ICON,
+        NAME,
+        SIZE,
+        DESC,
+        PERM,
+        OWNER,
+        MTIME,
+        INFO,
+        [CCode (cheader_filename = "fm-folder-model.h", cprefix = "")]
+        N_FOLDER_MODEL_COLS
+    }
+
+    
     [CCode (cheader_filename = "fm-folder-model.h")]
 	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
 
@@ -478,56 +469,17 @@ namespace Fm {
     
     
     /*************************************************************************************
+     *  
      * 
      * 
-     * 
-     ***********************************************************************************
-	[CCode (cheader_filename = "fm.h")]
-	public class Job : GLib.Object {
-		
-        [CCode (has_construct_function = false)]
-		protected Job ();
-		
-        public int ask (string question);
-		public int ask_valist (string question, void* options);
-		public int askv (string question, out unowned string options);
-        
-//		public void* call_main_thread (Fm.JobCallMainThreadFunc func);
-		
-		public void init_cancellable ();
-        public unowned GLib.Cancellable get_cancellable ();
-        public virtual void cancel ();
-		public void emit_cancelled ();
-		public bool is_cancelled ();
-		
-        public int emit_error (GLib.Error err, int severity);
-		
-        public void emit_finished ();
-		public void finish ();
-		
-        [NoWrapper]
-		public virtual bool run ();
-		public virtual bool run_async ();
-		public bool run_sync ();
-		public bool run_sync_with_mainloop ();
-		
-        public bool is_running ();
-		
-        public void set_cancellable (GLib.Cancellable cancellable);
-		
-        // FIXME_axl: rename this signal...
-        public virtual signal int ask2 (void* question, void* options);
-		public virtual signal void cancelled ();
-		public virtual signal int error (void* err, int severity);
-		public virtual signal void finished ();
-	}*/
-
+     ************************************************************************************/
     [CCode (cheader_filename = "fm-file-info-job.h", cprefix = "FM_FILE_INFO_JOB_")]
     public enum FileInfoJobFlags {
         NONE = 0,
         FOLLOW_SYMLINK = 1 << 0,        // FIXME_pcm: not yet implemented
         EMIT_FOR_EACH_FILE = 1 << 1     // FIXME_pcm: not yet implemented
     }
+
 
     [CCode (cheader_filename = "fm-file-info-job.h")]
 	public class FileInfoJob : Fm.Job {
@@ -545,26 +497,11 @@ namespace Fm {
 	}
     
     
-    /* ***********************************************************************************
+    /*************************************************************************************
      * File Launcher functions.
-     * 
-     * WARNING !!!! there's a problem in the delegate function definition.....
-     * see lxdesktop/src/DesktopWindow.vala: action_open_folder_func ()
      * 
      * 
      ************************************************************************************/
-    /* C definition :
-                        typedef gboolean (*FmLaunchFolderFunc) (GAppLaunchContext* ctx,
-                                                                GList* folder_infos,
-                                                                gpointer user_data,
-                                                                GError** err);
-    */
-                                           
-	/* public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
-                                              GLib.List<Fm.FileInfo> folder_infos,
-                                              void* user_data) throws GLib.Error;
-    */
-
 	[CCode (cheader_filename = "fm-gtk-launcher.h")]
 	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
                                            GLib.List<Fm.FileInfo> folder_infos,
@@ -759,7 +696,11 @@ namespace Fm {
 	public static void rename_file (Gtk.Window parent, Fm.Path file);
 
 	
-    
+    /*************************************************************************************
+     *  Trash Can Support...
+     * 
+     * 
+     ************************************************************************************/
     [CCode (cheader_filename = "fm-trash.h", cprefix = "FM_DELETE_FLAGS_")]
     public enum DeleteFlags {
         NONE,
@@ -768,33 +709,22 @@ namespace Fm {
     }
 
     [CCode (cheader_filename = "fm-trash.h")]
-	public static void delete_files (Gtk.Window parent,
+	public static void trash_delete (Gtk.Window parent,
                                      Fm.PathList files,
                                      Fm.DeleteFlags delete_flags = Fm.DeleteFlags.TRASH_OR_DELETE,
                                      bool confim_delete = true);
-    
-//~     [CCode (cheader_filename = "fm.h")]
-//~ 	public static void trash_files (Gtk.Window parent, Fm.PathList files);
-//~ 	
-//~     [CCode (cheader_filename = "fm.h")]
-//~ 	public static void trash_or_delete_files (Gtk.Window parent, Fm.PathList files);
-    
   	
     
-    
-    
+    /*************************************************************************************
+     *  
+     * 
+     * 
+     ************************************************************************************/
     [CCode (cheader_filename = "fm-mount.h")]
 	public static bool mount_volume (Gtk.Window parent, GLib.Volume vol, bool interactive);
 
-	// FmMonitor
-	[CCode (cheader_filename = "fm-monitor.h")]
-	public GLib.FileMonitor? monitor_directory(GLib.File gf) throws GLib.Error;
-	[CCode (cheader_filename = "fm-monitor.h")]
-	public GLib.FileMonitor? monitor_lookup_monitor(GLib.File gf);
-	[CCode (cheader_filename = "fm-monitor.h")]
-	public GLib.FileMonitor? monitor_lookup_dummy_monitor(GLib.File gf);
-
 
 }
+
 
 
