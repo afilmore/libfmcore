@@ -16,14 +16,14 @@ AM_CPPFLAGS = \
 noinst_LTLIBRARIES = libfmjobs.la
 
 libfmjobs_la_SOURCES = \
-	job.vala \
-	file-job.vala \
-	copy-job.vala \
-	delete-job.vala \
-	trash-job.vala \
-	ui/ui.vala \
-	ui/gtk-ui.vala \
-	ui/rename-dlg.vala \
+	Base/Job.vala \
+	Base/FileJob.vala \
+	FileJobs/CopyJob.vala \
+	FileJobs/DeleteJob.vala \
+	FileJobs/TrashJob.vala \
+	UI/UI.vala \
+	UI/GtkUI.vala \
+	UI/RenameDialog.vala \
 	$(NULL)
 
 libfmjobs_la_CFLAGS = \

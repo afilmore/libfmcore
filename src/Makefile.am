@@ -14,6 +14,7 @@ AM_CPPFLAGS = \
 	-I$(srcdir) \
 	-I$(srcdir)/fm-vala \
 	-I$(srcdir)/jobs \
+	-I$(srcdir)/jobs/FmJobs \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
 	-I$(srcdir)/gtk-dlg \
@@ -59,27 +60,20 @@ base_SOURCES = \
 	utils/fm-utils.c \
 	$(NULL)
 
-	##gtk-dlg/fm-progress-dlg.c \
-	
 	
 jobs_SOURCES = \
-	jobs/fm-dir-list-job.c \
-	jobs/fm-deep-count-job.c  \
-	jobs/fm-file-info-job.c \
+	jobs/FmJobs/fm-dir-list-job.c \
+	jobs/FmJobs/fm-deep-count-job.c  \
+	jobs/FmJobs/fm-file-info-job.c \
 	$(NULL)
 
-	##job/fm-job.c \
-	##job/fm-file-ops-job.c \
-	##job/fm-file-ops-job-xfer.c \
-	##job/fm-file-ops-job-delete.c \
-	##job/fm-file-ops-job-change-attr.c \
-	
-	
+
 libfmcore_SOURCES = \
 	fm.c \
 	$(base_SOURCES) \
 	$(jobs_SOURCES) \
 	$(NULL)
+
 
 libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
@@ -98,10 +92,10 @@ libfmcoreinclude_HEADERS = \
 	base/fm-monitor.h \
 	base/fm-path.h \
 	base/fm-path-list.h \
-	jobs/fm-deep-count-job.h \
-	jobs/fm-dir-list-job.h \
-	jobs/fm-file-info-job.h \
 	jobs/fm-jobs.h \
+	jobs/FmJobs/fm-deep-count-job.h \
+	jobs/FmJobs/fm-dir-list-job.h \
+	jobs/FmJobs/fm-file-info-job.h \
 	gtk/fm-clipboard.h \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \
@@ -125,12 +119,6 @@ libfmcoreinclude_HEADERS = \
 	utils/fm-user-input-dlg.h \
 	utils/fm-utils.h \
 	$(NULL)
-
-	##gtk-dlg/fm-progress-dlg.h \
-	##job/fm-file-ops-job.h \
-	##job/fm-file-ops-job-change-attr.h \
-	##job/fm-file-ops-job-delete.h \
-	##job/fm-file-ops-job-xfer.h \
 
 
 pkginclude_HEADERS = \
