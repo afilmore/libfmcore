@@ -31,11 +31,10 @@
 #include <string.h>
 
 #include "fm-gtk-marshal.h"
+
 #include "fm-file-ops.h"
 #include "fm-trash.h"
 #include "fm-msgbox.h"
-#include "fm-file-info-list.h"
-#include "fm-file-info-job.h"
 
 
 struct _FmDndDest
