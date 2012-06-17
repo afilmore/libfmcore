@@ -24,8 +24,6 @@ AM_CPPFLAGS = \
 	$(NULL)
 
 base_SOURCES = \
-	base/fm-app-info.c \
-	base/fm-archiver.c \
 	base/fm-dummy-monitor.c \
 	base/fm-file-info.c \
 	base/fm-file-info-list.c \
@@ -37,6 +35,7 @@ base_SOURCES = \
 	base/fm-monitor.c \
 	base/fm-path.c \
 	base/fm-path-list.c \
+	base/fm-utils.c \
 	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
@@ -51,13 +50,14 @@ base_SOURCES = \
 	gtk-dlg/fm-app-menu-view.c \
 	gtk-dlg/fm-gtk-launcher.c \
 	gtk-dlg/fm-file-properties.c \
+	utils/fm-app-info.c \
+	utils/fm-archiver.c \
 	utils/fm-file-ops.c \
 	utils/fm-mount.c \
 	utils/fm-msgbox.c \
 	utils/fm-select-folder-dlg.c \
 	utils/fm-trash.c \
 	utils/fm-user-input-dlg.c \
-	utils/fm-utils.c \
 	$(NULL)
 
 	
@@ -79,8 +79,6 @@ libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
 	fm-vala/fm-vala.h \
-	base/fm-app-info.h \
-	base/fm-archiver.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
 	base/fm-file-info-list.h \
@@ -92,6 +90,7 @@ libfmcoreinclude_HEADERS = \
 	base/fm-monitor.h \
 	base/fm-path.h \
 	base/fm-path-list.h \
+	base/fm-utils.h \
 	jobs/fm-jobs.h \
 	jobs/FmJobs/fm-deep-count-job.h \
 	jobs/FmJobs/fm-dir-list-job.h \
@@ -110,6 +109,8 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-menu-view.h \
 	gtk-dlg/fm-file-properties.h \
 	gtk-dlg/fm-gtk-launcher.h \
+	utils/fm-app-info.h \
+	utils/fm-archiver.h \
 	utils/fm-debug.h \
 	utils/fm-file-ops.h \
 	utils/fm-mount.h \
@@ -117,7 +118,6 @@ libfmcoreinclude_HEADERS = \
 	utils/fm-select-folder-dlg.h \
 	utils/fm-trash.h \
 	utils/fm-user-input-dlg.h \
-	utils/fm-utils.h \
 	$(NULL)
 
 
