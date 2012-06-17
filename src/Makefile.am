@@ -36,7 +36,6 @@ base_SOURCES = \
 	base/fm-path.c \
 	base/fm-path-list.c \
 	base/fm-utils.c \
-	gtk/fm-clipboard.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
@@ -53,6 +52,7 @@ base_SOURCES = \
 	gtk-dlg/fm-user-input-dlg.c \
 	utils/fm-app-info.c \
 	utils/fm-archiver.c \
+	utils/fm-clipboard.c \
 	utils/fm-file-menu.c \
 	utils/fm-file-ops.c \
 	utils/fm-mount.c \
@@ -96,7 +96,6 @@ libfmcoreinclude_HEADERS = \
 	jobs/FmJobs/fm-deep-count-job.h \
 	jobs/FmJobs/fm-dir-list-job.h \
 	jobs/FmJobs/fm-file-info-job.h \
-	gtk/fm-clipboard.h \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-src.h \
@@ -113,6 +112,7 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-user-input-dlg.h \
 	utils/fm-app-info.h \
 	utils/fm-archiver.h \
+	utils/fm-clipboard.h \
 	utils/fm-file-menu.h \
 	utils/fm-file-ops.h \
 	utils/fm-mount.h \
