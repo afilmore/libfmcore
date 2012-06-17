@@ -293,6 +293,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     gboolean trash_can = FALSE;
     
+    
     // Trash Can...
     if (!multiple_files && (flags & FM_PATH_IS_TRASH_ROOT))
         trash_can = TRUE;
@@ -301,6 +302,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gboolean have_virtual = FALSE;
     if (flags & FM_PATH_IS_VIRTUAL)
         have_virtual = TRUE;
+    
     
     action = gtk_ui_manager_get_action (ui, "/popup/Open");
     gtk_action_set_visible (action, !trash_can);
@@ -319,8 +321,11 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         action = gtk_ui_manager_get_action (ui, "/popup/Copy");
         gtk_action_set_visible (action, TRUE);
     
-        //~ action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-        //~ gtk_action_set_visible (action, TRUE);
+        // Only if a single folder/drive is selected...
+        if (!multiple_files && fm_file_info_is_dir (first_file_info))
+        {   action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+            gtk_action_set_visible (action, TRUE);
+        }
     
         action = gtk_ui_manager_get_action (ui, "/popup/Delete");
         gtk_action_set_visible (action, TRUE);
@@ -576,11 +581,11 @@ void action_paste (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
-    /*** Commented In Original Code... how it works then ? :-D
-     
-     fm_clipboard_paste_files (file_menu->menu, );
-     
-     ***/
+    FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
+    if (first_file_info)
+    {
+        fm_clipboard_paste_files (file_menu->parent, first_file_info->path);
+    }
 }
 
 void action_delete (GtkAction *action, gpointer user_data)
