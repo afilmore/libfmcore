@@ -40,7 +40,6 @@ base_SOURCES = \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
-	gtk/fm-file-menu.c \
 	gtk/fm-folder-model.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-icon-pixbuf.c \
@@ -54,6 +53,7 @@ base_SOURCES = \
 	gtk-dlg/fm-user-input-dlg.c \
 	utils/fm-app-info.c \
 	utils/fm-archiver.c \
+	utils/fm-file-menu.c \
 	utils/fm-file-ops.c \
 	utils/fm-mount.c \
 	utils/fm-msgbox.c \
@@ -100,7 +100,6 @@ libfmcoreinclude_HEADERS = \
 	gtk/fm-dnd-auto-scroll.h \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-src.h \
-	gtk/fm-file-menu.h \
 	gtk/fm-folder-model.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-icon-pixbuf.h \
@@ -114,6 +113,7 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-user-input-dlg.h \
 	utils/fm-app-info.h \
 	utils/fm-archiver.h \
+	utils/fm-file-menu.h \
 	utils/fm-file-ops.h \
 	utils/fm-mount.h \
 	utils/fm-msgbox.h \
