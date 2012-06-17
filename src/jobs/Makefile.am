@@ -21,9 +21,6 @@ libfmjobs_la_SOURCES = \
 	copy-job.vala \
 	delete-job.vala \
 	trash-job.vala \
-	change-attr-job.vala \
-	query-info-job.vala \
-	create-file-job.vala \
 	ui/ui.vala \
 	ui/gtk-ui.vala \
 	ui/rename-dlg.vala \
