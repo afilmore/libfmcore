@@ -79,6 +79,7 @@ libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
 	fm-vala/fm-vala.h \
+	base/fm-debug.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
 	base/fm-file-info-list.h \
@@ -111,7 +112,6 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-gtk-launcher.h \
 	utils/fm-app-info.h \
 	utils/fm-archiver.h \
-	utils/fm-debug.h \
 	utils/fm-file-ops.h \
 	utils/fm-mount.h \
 	utils/fm-msgbox.h \
