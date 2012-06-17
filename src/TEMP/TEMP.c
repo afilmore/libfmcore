@@ -1,5 +1,16 @@
 fm-file-ops.h
 
+//~ void fm_move_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir)
+//~ {
+	//~ FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
+	//~ 
+    //~ FmJob* job = fm_move_files_to_dir(path_list, dest_dir, ui);
+	//~ 
+    //~ g_object_unref(ui);
+	//~ g_object_unref(job);
+//~ }
+//~ 
+
 //~ #define fm_copy_file(parent, file, dest_dir) \
     //~ G_STMT_START {    \
         //~ FmPathList *files = fm_path_list_new (); \

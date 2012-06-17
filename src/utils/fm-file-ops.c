@@ -31,7 +31,6 @@
 
 #include "fm-jobs.h"
 
-#include "fm-select-folder-dlg.h"
 #include "fm-user-input-dlg.h"
 #include "fm-msgbox.h"
 
@@ -73,16 +72,6 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
 	g_object_unref (job);
 }
 
-//~ void fm_move_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir)
-//~ {
-	//~ FmGtkFileJobUI* ui = fm_gtk_file_job_ui_new(parent);
-	//~ 
-    //~ FmJob* job = fm_move_files_to_dir(path_list, dest_dir, ui);
-	//~ 
-    //~ g_object_unref(ui);
-	//~ g_object_unref(job);
-//~ }
-//~ 
 void fm_rename_file (GtkWindow *parent, FmPath *file)
 {
     GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;

@@ -50,14 +50,14 @@ base_SOURCES = \
 	gtk-dlg/fm-app-menu-view.c \
 	gtk-dlg/fm-gtk-launcher.c \
 	gtk-dlg/fm-file-properties.c \
+	gtk-dlg/fm-select-folder-dlg.c \
+	gtk-dlg/fm-user-input-dlg.c \
 	utils/fm-app-info.c \
 	utils/fm-archiver.c \
 	utils/fm-file-ops.c \
 	utils/fm-mount.c \
 	utils/fm-msgbox.c \
-	utils/fm-select-folder-dlg.c \
 	utils/fm-trash.c \
-	utils/fm-user-input-dlg.c \
 	$(NULL)
 
 	
@@ -110,14 +110,14 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-menu-view.h \
 	gtk-dlg/fm-file-properties.h \
 	gtk-dlg/fm-gtk-launcher.h \
+	gtk-dlg/fm-select-folder-dlg.h \
+	gtk-dlg/fm-user-input-dlg.h \
 	utils/fm-app-info.h \
 	utils/fm-archiver.h \
 	utils/fm-file-ops.h \
 	utils/fm-mount.h \
 	utils/fm-msgbox.h \
-	utils/fm-select-folder-dlg.h \
 	utils/fm-trash.h \
-	utils/fm-user-input-dlg.h \
 	$(NULL)
 
 
