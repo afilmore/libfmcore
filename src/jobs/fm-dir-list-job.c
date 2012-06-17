@@ -105,11 +105,12 @@ static void fm_dir_list_job_finalize (GObject *object)
 /* defined in fm-file-info.c 
 FmFileInfo* fm_file_info_new_from_menu_cache_item (FmPath* path, MenuCacheItem* item);*/
 
-static gboolean list_menu_items (FmJob *fmjob, gpointer user_data)
+static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
 {
-    g_return_val_if_fail (fmjob != NULL, FALSE);
+    // it's tested in the public function...
+    //g_return_val_if_fail (user_data != NULL, FALSE);
     
-    FmDirListJob *job =  (FmDirListJob*)fmjob;
+    FmDirListJob *job =  (FmDirListJob*) user_data;
     FmFileInfo *file_info;
     MenuCache *mc;
     MenuCacheDir *dir;
@@ -219,7 +220,7 @@ gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob *job)
     
     // Calling libmenu-cache is only allowed in main thread.
     //~ fm_job_call_main_thread (FM_JOB (job), list_menu_items, NULL);
-    g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items, NULL, NULL);    
+    g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items, job, NULL);    
     return TRUE;
 }
 
