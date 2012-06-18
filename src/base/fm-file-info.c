@@ -540,7 +540,7 @@ FmFileInfo *fm_file_info_new_computer ()
     fm_file_info_set_path (file_info, path);
     
     // ensures that it's set as virtual...
-    path->flags |= FM_PATH_IS_VIRTUAL;
+    //~ path->flags |= FM_PATH_IS_VIRTUAL;
 
     fm_path_unref (path);
     
@@ -554,9 +554,9 @@ FmFileInfo *fm_file_info_new_trash_can ()
     fm_file_info_set_path (file_info, path);
 
     // fm_path_new_for_uri may also define FM_PATH_IS_LOCAL
-    path->flags |= FM_PATH_IS_VIRTUAL;
-    path->flags |= FM_PATH_IS_TRASH_FILE;
-    path->flags |= FM_PATH_IS_TRASH_ROOT;
+    //~ path->flags |= FM_PATH_IS_VIRTUAL;
+    //~ path->flags |= FM_PATH_IS_TRASH_FILE;
+    //~ path->flags |= FM_PATH_IS_TRASH_ROOT;
     
     fm_path_unref (path);
     

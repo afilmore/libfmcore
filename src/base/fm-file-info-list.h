@@ -37,16 +37,19 @@ G_BEGIN_DECLS
 typedef FmList FmFileInfoList;
 
 
-gboolean fm_list_is_file_info_list              (FmList *list);
+gboolean        fm_list_is_file_info_list               (FmList *list);
 FmFileInfoList *fm_file_info_list_new ();
-FmFileInfoList *fm_file_info_list_new_from_glist ();
+FmFileInfoList *fm_file_info_list_new_from_glist        ();
 
 // Return TRUE if all files in the list are of the same type
-gboolean fm_file_info_list_is_same_type         (FmFileInfoList *list);
-// Return TRUE if all files in the list are on the same fs
-gboolean fm_file_info_list_is_same_fs           (FmFileInfoList *list);
+// used by file properties and file popup...
+gboolean        fm_file_info_list_is_same_type          (FmFileInfoList *list);
 
-uint fm_file_info_list_get_flags                (FmFileInfoList *list);
+// Return TRUE if all files in the list are on the same fs
+// used by popup menu...
+gboolean        fm_file_info_list_is_same_fs            (FmFileInfoList *list);
+
+int             fm_file_info_list_get_flags             (FmFileInfoList *list, uint *or_flags, uint *and_flags);
 
 
 G_END_DECLS

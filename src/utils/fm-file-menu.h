@@ -59,9 +59,9 @@ struct _FmFileMenu
 
     // Internal Cooking...
     gboolean            same_type : 1;
-    gboolean            same_fs : 1;
-    gboolean            all_virtual : 1;
-    gboolean            all_trash : 1;
+    //~ gboolean            same_fs : 1;
+    //~ gboolean            all_virtual : 1;
+//    gboolean            all_trash : 1;
     
 };
 
@@ -80,7 +80,7 @@ void            fm_file_menu_destroy                (FmFileMenu *file_menu);
 // May be removed...
 GtkUIManager    *fm_file_menu_get_ui                (FmFileMenu *file_menu);
 GtkActionGroup  *fm_file_menu_get_action_group      (FmFileMenu *file_menu);
-gboolean        fm_file_menu_is_single_file_type    (FmFileMenu *file_menu);
+//~ gboolean        fm_file_menu_is_single_file_type    (FmFileMenu *file_menu);
 
 
 /*****************************************************************************************

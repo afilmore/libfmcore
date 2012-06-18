@@ -58,7 +58,7 @@ gboolean fm_file_info_list_is_same_type (FmFileInfoList *list)
         FmFileInfo *file_info2 = (FmFileInfo*) l->data;
         
         if (fm_file_info_get_mime_type (file_info, FALSE)
-            != fm_file_info_get_mime_type (file_info, FALSE))
+            != fm_file_info_get_mime_type (file_info2, FALSE))
             return FALSE;
     }
     
@@ -93,31 +93,38 @@ gboolean fm_file_info_list_is_same_fs (FmFileInfoList *list)
     return TRUE;
 }
 
-uint fm_file_info_list_get_flags (FmFileInfoList *list)
+
+int fm_file_info_list_get_flags (FmFileInfoList *list, uint *or_flags, uint *and_flags)
 {
-    uint flags = FM_PATH_NONE;
+    uint _or_flags = FM_PATH_NONE;
+    uint _and_flags = ~FM_PATH_NONE;
+    
+    int count = 0;
     
     if (fm_list_is_empty (list))
-        return flags;
+        return count;
     
     GList *l;
-    for (l = fm_list_peek_head_link (list); l; l=l->next)
+    for (l = fm_list_peek_head_link (list); l; l = l->next)
     {
-        FmFileInfo *file_info = (FmFileInfo*)l->data;
+        FmFileInfo *file_info = (FmFileInfo*) l->data;
+        FmPath *path = fm_file_info_get_path (file_info);
         
-        //printf ("fm_file_info_list_get_flags: path name = %s\n", file_info->path->name);
+        uint flags = fm_path_get_flags (path);
         
-        if (fm_path_is_trash_root (file_info->path))
-        {
-            flags |= FM_PATH_IS_TRASH_ROOT;
-            flags |= FM_PATH_IS_VIRTUAL;
-        }
-        else if (fm_path_is_virtual (file_info->path))
-        {
-            flags |= FM_PATH_IS_VIRTUAL;
-        }
+        _or_flags |= flags;
+        _and_flags &= flags;
+        
+        count++;
     }
-    return flags;
+    
+    if (or_flags)
+        *or_flags = _or_flags;
+    
+    if (and_flags)
+        *and_flags = _and_flags;
+    
+    return count;
 }
 
 

@@ -25,33 +25,20 @@
 #include <config.h>
 #endif
 
-
 #include "fm-path.h"
-#include "fm-file-info.h"
 
+#include <glib/gi18n-lib.h>
 #include <string.h>
 #include <limits.h>
-#include <glib/gi18n-lib.h>
+
+#include "fm-file-info.h"
 
 
-static FmPath *root = NULL;
 static FmPath *root_path = NULL;
-
-static FmPath *home = NULL;
-static char *home_dir = NULL;
-static int home_len = 0;
 static FmPath *home_path = NULL;
-
-static char *desktop_dir = NULL;
-static int desktop_len = 0;
 static FmPath *desktop_path = NULL;
-
-static FmPath *trash_root = NULL;
 static FmPath *trash_root_path = NULL;
-
 static FmPath *apps_root_path = NULL;
-
-// static FmPath *network_root = NULL;
 
 
 static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, int name_len, int flags);
@@ -59,59 +46,74 @@ static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, i
 
 void _fm_path_init ()
 {
-    const char *sep, *name;
-    FmPath *tmp, *parent;
+    const char *name;
+    const char *sep;
+    
+    FmPath *tmp;
+    FmPath *parent;
 
-    // path object of root_path dir
-    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-    home_dir = (char*) g_get_home_dir ();
-    home_len = strlen (home_dir);
-    while (home_dir[home_len - 1] == '/')
+
+    // Root Path...
+    root_path = _fm_path_new_internal (NULL, "/", 1, /*FM_PATH_IS_ROOT |*/ FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    
+    
+    // Home Path...
+    char *home_dir = (char*) g_get_home_dir ();
+    int home_len = strlen (home_dir);
+    while (home_dir [home_len - 1] == '/')
         --home_len;
 
-    // build path object for home dir
     name = home_dir + 1; // skip leading /
     parent = root_path;
-    while ( sep = strchr (name, '/') )
+    while (sep = strchr (name, '/'))
     {
         int len =  (sep - name);
         if (len > 0)
         {
             /* ref counting is not a problem here since this path component
              * will exist till the termination of the program. So mem leak is ok. */
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
         name = sep + 1;
     }
-    home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+    home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
 
-    desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-    desktop_len = strlen (desktop_dir);
+
+    // Desktop Path...
+    char *desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+    int desktop_len = strlen (desktop_dir);
     while (desktop_dir[desktop_len - 1] == '/')
         --desktop_len;
 
-    // build path object for desktop_path dir
     name = desktop_dir + home_len + 1; // skip home_path dir part /
     parent = home_path;
-    while ( sep = strchr (name, '/') )
+    while (sep = strchr (name, '/'))
     {
         int len =  (sep - name);
         if (len > 0)
         {
             /* ref counting is not a problem here since this path component
              * will exist till the termination of the program. So mem leak is ok. */
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
         name = sep + 1;
     }
-    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_LOCAL|FM_PATH_IS_NATIVE);
-//    printf  ("Desktop Dir: parent = %s, name = %s\n", parent->name, name);
-    // build path object for trash can
-    // FIXME_pcm: currently there are problems with URIs. using trash:/ here will cause problems.
-    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH_FILE|FM_PATH_IS_VIRTUAL|FM_PATH_IS_LOCAL);
-    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
+    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+
+    
+    // Trash Can Root...
+    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, /*FM_PATH_IS_ROOT
+                                                                   |*/ FM_PATH_IS_TRASH
+                                                                   | FM_PATH_IS_VIRTUAL
+                                                                   | FM_PATH_IS_LOCAL);
+    
+    
+    // Applications Root...
+    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, /*FM_PATH_IS_ROOT
+                                                                              |*/ FM_PATH_IS_XDG_MENU
+                                                                              | FM_PATH_IS_VIRTUAL);
 }
 
 FmPath *fm_path_ref (FmPath *path)
@@ -134,12 +136,14 @@ void fm_path_unref (FmPath *path)
 
 static FmPath *_fm_path_alloc (FmPath *parent, int name_len, int flags)
 {
-    FmPath *path;
-    path =  (FmPath*)g_malloc (sizeof (FmPath) + name_len);
+    FmPath *path = (FmPath*) g_malloc (sizeof(FmPath) + name_len);
     path->n_ref = 1;
-    path->flags = flags;
+    
+    //~ path->flags = flags;
+    path->flags = parent ? flags : (flags | FM_PATH_IS_ROOT);
+    
     path->parent = parent ? fm_path_ref (parent) : NULL;
-    path->flags = flags;
+    
     return path;
 }
 
@@ -147,7 +151,7 @@ static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, i
 {
     FmPath *path = _fm_path_alloc (parent, name_len, flags);
     memcpy (path->name, name, name_len);
-    path->name[name_len] = '\0';
+    path->name [name_len] = '\0';
     return path;
 }
 
@@ -216,11 +220,13 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
     }
     else if (scheme_len == 8 && g_ascii_strncasecmp (uri, "computer", 8) == 0)
     {
+//        flags |= FM_PATH_IS_ROOT;
         flags |= FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
     else if (scheme_len == 7 && g_ascii_strncasecmp (uri, "network", 7) == 0)
     {
+//        flags |= FM_PATH_IS_ROOT;
         flags |= FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
@@ -263,7 +269,7 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
                 return fm_path_ref (apps_root_path);
             }
             
-            flags |= (FM_PATH_IS_VIRTUAL|FM_PATH_IS_XDG_MENU);
+            flags |= (FM_PATH_IS_VIRTUAL | FM_PATH_IS_XDG_MENU);
         }
 
         if (need_unescape)
@@ -337,7 +343,10 @@ FmPath *fm_path_new_child_len (FmPath *parent, const char *basename, int name_le
         }
         #endif
 
-        flags = parent->flags; // inherit flags of parent
+        // inherit flags of parent
+        //flags = parent->flags;
+        flags = parent->flags & (~FM_PATH_IS_ROOT);
+        
         while (basename[0] == '/')
         {
             ++basename;
@@ -376,15 +385,17 @@ FmPath *fm_path_new_child_len (FmPath *parent, const char *basename, int name_le
     if (name_len == 0)
         return parent ? fm_path_ref (parent) : NULL;
 
-    path = _fm_path_alloc (parent,  (G_UNLIKELY (append_slash) ? name_len + 1 : name_len), flags);
+    path = _fm_path_alloc (parent, (G_UNLIKELY (append_slash) ? name_len + 1 : name_len), flags);
+    
     memcpy (path->name, basename, name_len);
     if (G_UNLIKELY (append_slash))
     {
-        path->name[name_len] = '/';
-        path->name[name_len + 1] = '\0';
+        path->name [name_len] = '/';
+        path->name [name_len + 1] = '\0';
     }
     else
-        path->name[name_len] = '\0';
+        path->name [name_len] = '\0';
+    
     return path;
 }
 
@@ -420,7 +431,7 @@ FmPath *fm_path_new_for_gfile (GFile *gf)
 {
     FmPath *path;
     char *str;
-    if ( g_file_is_native (gf) )
+    if (g_file_is_native (gf))
     {
         str = g_file_get_path (gf);
         path = fm_path_new_for_path (str);
@@ -549,7 +560,7 @@ static FmPath *_fm_path_new_for_uri_internal (const char *uri, gboolean need_une
         path = fm_path_new_relative (root, rel_path);
         fm_path_unref (root);
         if (need_unescape)
-            g_free ( (char*)rel_path);
+            g_free ((char*)rel_path);
     }
     else
         path = root;
@@ -588,7 +599,7 @@ FmPath *fm_path_new_for_uri (const char *uri)
 FmPath *fm_path_new_for_display_name (const char *path_name)
 {
     FmPath *path;
-    if (!path_name || !*path_name ||  (path_name[0]=='/' && path_name[1] == '\0') )
+    if (!path_name || !*path_name ||  (path_name[0]=='/' && path_name[1] == '\0'))
         return fm_path_ref (root_path);
     if (path_name[0] == '/') // native path
     {
@@ -694,7 +705,7 @@ static int fm_path_strlen (FmPath *path)
     for (;;)
     {
         len += strlen (path->name);
-        if (G_UNLIKELY (!path->parent ))
+        if (G_UNLIKELY (!path->parent))
             break;
         if (path->parent->parent)
             ++len; // add a character for separator
@@ -712,16 +723,16 @@ static gchar *fm_path_to_str_int (FmPath *path, gchar **ret, gint str_len)
 
     if  (!path->parent)
     {
-        *ret = g_new0 (gchar, str_len + name_len + 1 );
+        *ret = g_new0 (gchar, str_len + name_len + 1);
         pbuf = *ret;
     }
     else
     {
-        pbuf = fm_path_to_str_int ( path->parent, ret, str_len + name_len + 1 );
+        pbuf = fm_path_to_str_int (path->parent, ret, str_len + name_len + 1);
         if  (path->parent->parent) // if parent dir is not root_path
             *pbuf++ = G_DIR_SEPARATOR;
     }
-    memcpy ( pbuf, path->name, name_len );
+    memcpy (pbuf, path->name, name_len);
     return pbuf + name_len;
 }
 
@@ -731,7 +742,7 @@ char *fm_path_to_str (FmPath *path)
     g_return_val_if_fail (path != NULL, NULL);
     
     gchar *ret;
-    fm_path_to_str_int ( path, &ret, 0 );
+    fm_path_to_str_int (path, &ret, 0);
     return ret;
 }
 
@@ -739,7 +750,7 @@ char *fm_path_to_uri (FmPath *path)
 {
     char *uri = NULL;
     char *str = fm_path_to_str (path);
-    if ( G_LIKELY (str) )
+    if (G_LIKELY (str))
     {
         if (str[0] == '/') // absolute path
             uri = g_filename_to_uri (str, NULL, NULL);
@@ -763,7 +774,7 @@ char *fm_path_display_name (FmPath *path, gboolean human_readable)
         {
             char *disp_parent = fm_path_display_name (path->parent, TRUE);
             char *disp_base = fm_path_display_basename (path);
-            disp = g_build_filename ( disp_parent, disp_base, NULL);
+            disp = g_build_filename (disp_parent, disp_base, NULL);
             g_free (disp_parent);
             g_free (disp_base);
         }
@@ -784,7 +795,7 @@ char *fm_path_display_basename (FmPath *path)
 {
     if (G_UNLIKELY (!path->parent)) // root_path element
     {
-        if ( !fm_path_is_native (path) && fm_path_is_virtual (path) )
+        if (!fm_path_is_native (path) && fm_path_is_virtual (path))
         {
             if (fm_path_is_trash_root (path))
                 return g_strdup (_("Trash Can"));
@@ -868,9 +879,9 @@ gboolean fm_path_equal (FmPath *p1, FmPath *p2)
         return !p2 ? TRUE:FALSE;
     if (!p2)
         return !p1 ? TRUE:FALSE;
-    if ( strcmp (p1->name, p2->name) != 0 )
+    if (strcmp (p1->name, p2->name) != 0)
         return FALSE;
-    return fm_path_equal ( p1->parent, p2->parent);
+    return fm_path_equal (p1->parent, p2->parent);
 }
 
 // Check if this path contains absolute pathname str*/
@@ -883,10 +894,10 @@ gboolean fm_path_equal_str (FmPath *path, const gchar *str, int n)
 
     // default compare str len
     if  (n == -1)
-        n = strlen ( str );
+        n = strlen (str);
 
     // end of recursion
-    if  ( (path->parent == NULL) && g_str_equal  ( path->name, "/" ) && n == 0 )
+    if  ((path->parent == NULL) && g_str_equal  (path->name, "/") && n == 0)
         return TRUE;
 
     // must also contain leading slash
@@ -895,13 +906,13 @@ gboolean fm_path_equal_str (FmPath *path, const gchar *str, int n)
 
     // check for current part mismatch
     last_part  = str + n - strlen (path->name) - 1;
-    if  ( strncmp ( last_part + 1, path->name, strlen (path->name)) != 0 )
+    if  (strncmp (last_part + 1, path->name, strlen (path->name)) != 0)
         return FALSE;
-    if  ( *last_part != G_DIR_SEPARATOR )
+    if  (*last_part != G_DIR_SEPARATOR)
         return FALSE;
 
     // tail-end recursion
-    return fm_path_equal_str ( path->parent, str, n - strlen (path->name) - 1 );
+    return fm_path_equal_str (path->parent, str, n - strlen (path->name) - 1);
 }
 
 // calculate how many elements are in this path.

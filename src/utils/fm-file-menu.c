@@ -140,13 +140,20 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     GtkWidget       *menu;
     
     GtkActionGroup  *action_group;
-    //GtkAccelGroup   *accel_group;
     
     GtkAction       *action;
     FmFileMenu      *file_menu;
     GString         *xml;
     
-    g_return_val_if_fail (files && !fm_list_is_empty (files), NULL);
+    // Paths flags...
+    uint            have_flags; // OR
+    uint            all_flags;  // AND
+
+    g_return_val_if_fail (files != NULL, NULL);
+    
+    int num_files = fm_file_info_list_get_flags (files, &have_flags, &all_flags);
+    
+    g_return_val_if_fail (num_files > 0, NULL);
     
     /***
      * NOTE: It may be possible to connect to the "destroy" signal of the parent
@@ -160,17 +167,18 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
 
     
     
+    
+    
     // really needed ?
-
-    // check if the files are of the same type
     file_menu->same_type = fm_file_info_list_is_same_type (files);
-    // check if the files are on the same filesystem
-    file_menu->same_fs = fm_file_info_list_is_same_fs (files);
+    gboolean same_fs = fm_file_info_list_is_same_fs (files);
     
     FmFileInfo *first_file_info = (FmFileInfo*) fm_list_peek_head (files);
     
-    file_menu->all_virtual = file_menu->same_fs && fm_path_is_virtual (first_file_info->path);
-    file_menu->all_trash = file_menu->same_fs && fm_path_is_trash_file (first_file_info->path);
+    
+    gboolean all_virtual = same_fs && fm_path_is_virtual (first_file_info->path);
+    //file_menu->all_virtual = file_menu->same_fs && fm_path_is_virtual (first_file_info->path);
+    //file_menu->all_trash = file_menu->same_fs && fm_path_is_trash_file (first_file_info->path);
     
 
 
@@ -192,13 +200,9 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gtk_ui_manager_add_ui_from_string (ui, filefolder_popup_xml, -1, NULL);
     gtk_ui_manager_insert_action_group (ui, action_group, 0);
 
-    // Hide all items and show only the needed ones...
+    /* Hide all items and show only the needed ones...
     action = gtk_ui_manager_get_action (ui, "/popup/Open");
     gtk_action_set_visible (action, FALSE);
-    
-    //~ action = gtk_ui_manager_get_action (ui, "/popup/OpenWith");
-    //~ gtk_action_set_visible (action, FALSE);
-    
     action = gtk_ui_manager_get_action (ui, "/popup/Cut");
     gtk_action_set_visible (action, FALSE);
     action = gtk_ui_manager_get_action (ui, "/popup/Copy");
@@ -212,7 +216,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
     gtk_action_set_visible (action, FALSE);
     action = gtk_ui_manager_get_action (ui, "/popup/Properties");
-    gtk_action_set_visible (action, FALSE);
+    gtk_action_set_visible (action, FALSE);*/
         
 
     // OpenWith items...
@@ -222,10 +226,11 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     FmMimeType *fi_mime_type = fm_file_info_get_mime_type (first_file_info, FALSE);
     
-    if (file_menu->same_type
-        && fi_mime_type
-        && !fm_file_info_is_dir (first_file_info)
-        && !file_menu->all_virtual )
+    
+    gboolean show_open_with = (file_menu->same_type && fi_mime_type && !fm_file_info_is_dir (first_file_info)
+                               && !all_virtual);
+    
+    if (show_open_with)
     {
         GList *apps = g_app_info_get_all_for_type (fi_mime_type->type);
         GList *app_list;
@@ -287,60 +292,73 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     }
 
     
-    // Get paths flags...
-    uint flags = fm_file_info_list_get_flags (files);
-    gboolean multiple_files = (fm_list_get_length (files) > 1);
+    printf ("have flags (OR) = %d, or all flags (AND) = %d\n", have_flags, all_flags);
     
-    gboolean trash_can = FALSE;
-    
-    
-    // Trash Can...
-    if (!multiple_files && (flags & FM_PATH_IS_TRASH_ROOT))
-        trash_can = TRUE;
-    
-    
-    gboolean have_virtual = FALSE;
-    if (flags & FM_PATH_IS_VIRTUAL)
-        have_virtual = TRUE;
-    
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/Open");
-    gtk_action_set_visible (action, !trash_can);
-    
-    //~ action = gtk_ui_manager_get_action (ui, "/popup/OpenWith");
-    //~ gtk_action_set_visible (action, !trash_can);
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
-    gtk_action_set_visible (action, trash_can);
-    
-
-    if (!have_virtual)
+    if (have_flags & FM_PATH_IS_NATIVE)
     {
-        action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-        gtk_action_set_visible (action, TRUE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-        gtk_action_set_visible (action, TRUE);
+        printf ("FM_PATH_IS_NATIVE\n");
+    }
     
-        // Only if a single folder/drive is selected...
-        if (!multiple_files && fm_file_info_is_dir (first_file_info))
-        {   action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-            gtk_action_set_visible (action, TRUE);
-        }
+    if (have_flags & FM_PATH_IS_VIRTUAL)
+    {
+        printf ("FM_PATH_IS_VIRTUAL\n");
+    }
     
-        action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-        gtk_action_set_visible (action, TRUE);
-        action = gtk_ui_manager_get_action (ui, "/popup/Rename");
-        gtk_action_set_visible (action, !multiple_files);
+    if (have_flags & FM_PATH_IS_LOCAL)
+    {
+        printf ("FM_PATH_IS_LOCAL\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_ROOT)
+    {
+        printf ("FM_PATH_IS_ROOT\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_TRASH)
+    {
+        printf ("FM_PATH_IS_TRASH\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_XDG_MENU)
+    {
+        printf ("FM_PATH_IS_XDG_MENU\n");
+    }
+    
+    if (have_flags != all_flags)
+    {
+        printf ("different flags\n");
     }
     
     
-    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
+    gboolean multiple_files = (num_files > 1);
+    gboolean have_virtual = (have_flags & FM_PATH_IS_VIRTUAL);
     
-    //~ gtk_action_set_visible (action, !have_virtual);
+    action = gtk_ui_manager_get_action (ui, "/popup/Open");
+    gtk_action_set_visible (action, !have_virtual);
     
-    gtk_action_set_visible (action, TRUE);
+    gboolean trash_root = (!multiple_files && (all_flags & FM_PATH_IS_ROOT) && (all_flags & FM_PATH_IS_TRASH));
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
+    gtk_action_set_visible (action, trash_root);
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Cut");
+    gtk_action_set_visible (action, !have_virtual);
+    action = gtk_ui_manager_get_action (ui, "/popup/Copy");
+    gtk_action_set_visible (action, !have_virtual);
 
+    action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+    gtk_action_set_visible (action, (!multiple_files && fm_file_info_is_dir (first_file_info) && !have_virtual));
+
+    action = gtk_ui_manager_get_action (ui, "/popup/Delete");
+    gtk_action_set_visible (action, !have_virtual);
     
+    action = gtk_ui_manager_get_action (ui, "/popup/Rename");
+    gtk_action_set_visible (action, (!multiple_files && !have_virtual));
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
+    gtk_action_set_visible (action, !have_virtual);
+    
+
     // Archiver integration
     if (!have_virtual)
     {
@@ -350,7 +368,6 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             FmArchiver *archiver = fm_archiver_get_default ();
             if (archiver)
             {
-                first_file_info = (FmFileInfo*)fm_list_peek_head (files);
                 if (fm_archiver_is_mime_type_supported (archiver, fi_mime_type->type))
                 {
                     if (file_menu->cwd && archiver->extract_to_cmd)
@@ -442,10 +459,10 @@ GtkActionGroup *fm_file_menu_get_action_group (FmFileMenu *menu)
     return menu->action_group;
 }
 
-gboolean fm_file_menu_is_single_file_type (FmFileMenu *menu)
+/*gboolean fm_file_menu_is_single_file_type (FmFileMenu *menu)
 {
     return menu->same_type;
-}
+}*/
 
 FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu)
 {
@@ -677,9 +694,12 @@ void action_properties (GtkAction *action, gpointer user_data)
     
     FmFileInfoList *files = file_menu->file_infos;
     
-    uint flags = fm_file_info_list_get_flags (files);
+    //~ uint flags = fm_file_info_list_get_flags (files);
     
-    if ((flags & FM_PATH_IS_TRASH_FILE) || (flags & FM_PATH_IS_VIRTUAL))
+    uint flags;
+    fm_file_info_list_get_flags (files, &flags, NULL);
+    
+    if (flags & FM_PATH_IS_VIRTUAL)
     {
         // TODO_axl: printf ("NEEDS A VIRTUAL DIALOG !!!!!\n");
         return;

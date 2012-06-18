@@ -84,37 +84,40 @@ char *fm_path_list_to_uri_list (FmPathList *path_list)
 
 
 
-uint fm_path_list_get_flags (FmPathList *path_list)
+int fm_path_list_get_flags (FmPathList *path_list, uint *or_flags, uint *and_flags)
 {
-    uint flags = FM_PATH_NONE;
+    uint _or_flags = FM_PATH_NONE;
+    uint _and_flags = ~FM_PATH_NONE;
+    
+    int count = 0;
     
     if (fm_list_is_empty (path_list))
-        return flags;
+        return count;
     
     GList *l;
     for (l = fm_list_peek_head_link (path_list); l; l = l->next)
     {
         FmPath *path = (FmPath*) l->data;
         
-        //printf ("fm_file_info_list_get_flags: path name = %s\n", file_info->path->name);
+        uint flags = fm_path_get_flags (path);
         
-        flags |= fm_path_get_flags (path);
+        _or_flags |= flags;
+        _and_flags &= flags;
         
-        //~ if (fm_path_is_trash_root (file_info->path))
-        //~ {
-            //~ flags |= FM_PATH_IS_TRASH_ROOT;
-            //~ flags |= FM_PATH_IS_VIRTUAL;
-        //~ }
-        //~ else if (fm_path_is_virtual (file_info->path))
-        //~ {
-            //~ flags |= FM_PATH_IS_VIRTUAL;
-        //~ }
+        count++;
     }
-    return flags;
+    
+    if (or_flags)
+        *or_flags = _or_flags;
+    
+    if (and_flags)
+        *and_flags = _and_flags;
+    
+    return count;
 }
 
 
-
+// TODO_axl: replace with fm_path_list_get_flags....
 gboolean fm_path_list_all_in_trash_can (FmPathList *path_list)
 {
     GList *l = fm_list_peek_head_link (path_list);
