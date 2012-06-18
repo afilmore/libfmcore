@@ -26,7 +26,7 @@ namespace Fm {
         public DeleteJob (PathList paths, FileJobUI? ui) {
             base (ui);
             src_paths = paths;
-            unowned string title = _ ("Deleting files");
+            unowned string title = _("Deleting files");
             ui.init_with_job (this, title, title, false);
         }
 

@@ -107,9 +107,9 @@ namespace Fm {
                 var disp_size = src_info.get_disp_size ();
                 string text;
                 if (disp_size != null)
-                    text = _ ("Type: %s\nSize: %s\nModified: %s").printf (src_info.get_desc (), disp_size, src_info.get_disp_mtime ());
+                    text = _("Type: %s\nSize: %s\nModified: %s").printf (src_info.get_desc (), disp_size, src_info.get_disp_mtime ());
                 else
-                    text = _ ("Type: %s\nModified: %s").printf (src_info.get_desc (), src_info.get_disp_mtime ());
+                    text = _("Type: %s\nModified: %s").printf (src_info.get_desc (), src_info.get_disp_mtime ());
                 src_fi_label.set_text (text);
             }
             else {
@@ -124,9 +124,9 @@ namespace Fm {
                 var disp_size = dest_info.get_disp_size ();
                 string text;
                 if (disp_size != null)
-                    text = _ ("Type: %s\nSize: %s\nModified: %s").printf (dest_info.get_desc (), disp_size, dest_info.get_disp_mtime ());
+                    text = _("Type: %s\nSize: %s\nModified: %s").printf (dest_info.get_desc (), disp_size, dest_info.get_disp_mtime ());
                 else
-                    text = _ ("Type: %s\nModified: %s").printf (dest_info.get_desc (), dest_info.get_disp_mtime ());
+                    text = _("Type: %s\nModified: %s").printf (dest_info.get_desc (), dest_info.get_disp_mtime ());
                 dest_fi_label.set_text (text);
 
                 old_name = dest_info.get_path ().display_basename ();

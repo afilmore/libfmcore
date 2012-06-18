@@ -28,7 +28,7 @@ namespace Fm {
         public TrashJob (PathList paths, FileJobUI? ui) {
             base (ui);
             src_paths = paths;
-            unowned string title = _ ("Trashing files");
+            unowned string title = _("Trashing files");
             ui.init_with_job (this, title, title, false);
         }
 

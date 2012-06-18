@@ -35,10 +35,10 @@ namespace Fm {
         private GLib.FileInfo? current_src_info;
         private File? current_dest_file;
 
-        private uint64 total_size;
-        private int total_n_files;
-        private int total_n_dirs;
-        private time_t time_remaining;
+//~         private uint64 total_size;
+//~         private int total_n_files;
+//~         private int total_n_dirs;
+//~         private time_t time_remaining;
         
         private RenameResult default_rename_result;
 
@@ -94,12 +94,12 @@ namespace Fm {
             msg_label.show ();
             icon_widget.set_from_stock (Gtk.Stock.DIALOG_WARNING, Gtk.IconSize.DIALOG);
             if (job.is_cancelled ()) {
-                msg_label.set_text (_ ("The file operation is cancelled and there are some errors."));
-                dlg.set_title (_ ("Cancelled"));
+                msg_label.set_text (_("The file operation is cancelled and there are some errors."));
+                dlg.set_title (_("Cancelled"));
             }
             else {
-                msg_label.set_text (_ ("The file operation is finished, but there are some errors."));
-                dlg.set_title (_ ("Finished"));
+                msg_label.set_text (_("The file operation is finished, but there are some errors."));
+                dlg.set_title (_("Finished"));
             }
         }
 
