@@ -59,8 +59,8 @@ struct _FmFileMenu
 };
 
 
-FmFileMenu      *fm_file_menu_new_for_files         (GtkWindow *parent, FmFileInfoList *files, FmPath *current_directory,
-                                                     gboolean auto_destroy);
+FmFileMenu      *fm_file_menu_new_for_files         (GtkWindow *parent, FmFileInfoList *files,
+                                                     FmPath *current_directory, gboolean auto_destroy);
                                             
 void            fm_file_menu_set_folder_func        (FmFileMenu *file_menu,
                                                      FmLaunchFolderFunc func, gpointer user_data);

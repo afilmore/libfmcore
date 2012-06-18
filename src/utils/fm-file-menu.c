@@ -133,7 +133,8 @@ GtkActionEntry file_menu_actions [] =
  *
  *
  ****************************************************************************************/
-FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *current_directory, gboolean auto_destroy)
+FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *current_directory,
+                                        gboolean auto_destroy)
 {
     GtkUIManager    *ui;
     
@@ -183,12 +184,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gboolean trash_root = (!multiple_files && (all_flags & FM_PATH_IS_ROOT) && (all_flags & FM_PATH_IS_TRASH));
     
 
-    
-    // the current working directory is used to extract archives.
+    // The current working directory is used to extract archives.
     if (current_directory)
         file_menu->current_directory = fm_path_ref (current_directory);
 
-    
     
     // Add Default Menu Items...
     file_menu->ui = ui = gtk_ui_manager_new ();
@@ -347,8 +346,9 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             {
                 if (fm_archiver_is_mime_type_supported (archiver, fi_mime_type->type))
                 {
-                    if (file_menu->current_directory && archiver->extract_to_cmd)
+                    if (current_directory && archiver->extract_to_cmd)
                         g_string_append (xml, "<menuitem action='Extract'/>\n");
+                    
                     if (archiver->extract_cmd)
                         g_string_append (xml, "<menuitem action='Extract2'/>\n");
                 }

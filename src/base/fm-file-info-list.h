@@ -49,7 +49,7 @@ gboolean        fm_file_info_list_is_same_type          (FmFileInfoList *list);
 // used by popup menu...
 gboolean        fm_file_info_list_is_same_fs            (FmFileInfoList *list);
 
-int             fm_file_info_list_get_flags             (FmFileInfoList *list, uint *or_flags, uint *and_flags);
+int             fm_file_info_list_get_flags             (FmFileInfoList *list, uint *have_flags, uint *all_flags);
 
 
 G_END_DECLS

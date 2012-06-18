@@ -53,12 +53,12 @@ gboolean fm_file_info_list_is_same_type (FmFileInfoList *list)
     FmFileInfo *file_info = (FmFileInfo*) l->data;
     l = l->next;
     
-    for (; l; l=l->next)
+    for ( ; l; l=l->next)
     {
-        FmFileInfo *file_info2 = (FmFileInfo*) l->data;
+        FmFileInfo *next_file_info = (FmFileInfo*) l->data;
         
         if (fm_file_info_get_mime_type (file_info, FALSE)
-            != fm_file_info_get_mime_type (file_info2, FALSE))
+            != fm_file_info_get_mime_type (next_file_info, FALSE))
             return FALSE;
     }
     
@@ -67,37 +67,41 @@ gboolean fm_file_info_list_is_same_type (FmFileInfoList *list)
 
 gboolean fm_file_info_list_is_same_fs (FmFileInfoList *list)
 {
-    if (! fm_list_is_empty (list))
+    if (fm_list_is_empty (list))
+        return TRUE;
+        
+    GList *l = fm_list_peek_head_link (list);
+    FmFileInfo *file_info = (FmFileInfo*) l->data;
+    gboolean is_native = fm_path_is_native (file_info->path);
+    
+    l = l->next;
+    
+    for ( ; l; l = l->next)
     {
-        GList *l = fm_list_peek_head_link (list);
-        FmFileInfo *file_info = (FmFileInfo*)l->data;
-        l = l->next;
-        for (;l;l=l->next)
+        FmFileInfo *next_file_info = (FmFileInfo*) l->data;
+        
+        if (is_native != fm_path_is_native (next_file_info->path))
+            return FALSE;
+        
+        if (is_native)
         {
-            FmFileInfo *file_info2 = (FmFileInfo*)l->data;
-            gboolean is_native = fm_path_is_native (file_info->path);
-            if (is_native != fm_path_is_native (file_info2->path))
+            if (file_info->dev != next_file_info->dev)
                 return FALSE;
-            if (is_native)
-            {
-                if (file_info->dev != file_info2->dev)
-                    return FALSE;
-            }
-            else
-            {
-                if (file_info->fs_id != file_info2->fs_id)
-                    return FALSE;
-            }
+        }
+        else if (file_info->fs_id != next_file_info->fs_id)
+        {
+                return FALSE;
         }
     }
+    
     return TRUE;
 }
 
 
-int fm_file_info_list_get_flags (FmFileInfoList *list, uint *or_flags, uint *and_flags)
+int fm_file_info_list_get_flags (FmFileInfoList *list, uint *have_flags, uint *all_flags)
 {
-    uint _or_flags = FM_PATH_NONE;
-    uint _and_flags = ~FM_PATH_NONE;
+    uint _have_flags = FM_PATH_NONE;
+    uint _all_flags = ~FM_PATH_NONE;
     
     int count = 0;
     
@@ -112,17 +116,17 @@ int fm_file_info_list_get_flags (FmFileInfoList *list, uint *or_flags, uint *and
         
         uint flags = fm_path_get_flags (path);
         
-        _or_flags |= flags;
-        _and_flags &= flags;
+        _have_flags |= flags;
+        _all_flags &= flags;
         
         count++;
     }
     
-    if (or_flags)
-        *or_flags = _or_flags;
+    if (have_flags)
+        *have_flags = _have_flags;
     
-    if (and_flags)
-        *and_flags = _and_flags;
+    if (all_flags)
+        *all_flags = _all_flags;
     
     return count;
 }
