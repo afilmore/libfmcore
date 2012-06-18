@@ -23,6 +23,8 @@ namespace Fm {
 
     public class TrashJob : FileJob {
 
+        PathList? failed_paths;
+
         public TrashJob(PathList paths, FileJobUI? ui) {
             base(ui);
             src_paths = paths;
@@ -98,7 +100,6 @@ namespace Fm {
             return failed_paths;
         }
 
-        PathList? failed_paths;
     }
 
 }

@@ -30,6 +30,9 @@ namespace Fm {
 
     public class CopyJob : FileJob {
 
+        private CopyJobMode mode;
+        protected PathList? dest_paths;
+        
         public CopyJob (CopyJobMode mode,
                          PathList src_paths,
                          PathList? dest_paths,
@@ -700,8 +703,6 @@ namespace Fm {
             return true;
         }
 
-        private CopyJobMode mode;
-        protected PathList? dest_paths;
     }
 
 }

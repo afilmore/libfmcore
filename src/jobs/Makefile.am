@@ -23,8 +23,10 @@ libfmjobs_la_SOURCES = \
 	FileJobs/TrashJob.vala \
 	UI/FileJobUI.vala \
 	UI/GtkFileJobUI.vala \
+	UI/GtkFileJobUIXML.vala \
 	UI/GtkUI.vala \
 	UI/RenameDialog.vala \
+	UI/RenameDialogXML.vala \
 	UI/UI.vala \
 	$(NULL)
 

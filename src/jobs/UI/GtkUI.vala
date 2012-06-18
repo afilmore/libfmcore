@@ -24,6 +24,8 @@ namespace Fm {
 
     public class GtkUI : Object, UI {
         
+        protected weak Gtk.Window? parent_win;
+        
         public GtkUI(Gtk.Window? parent_window = null) {
             parent_win = parent_window;
             if(parent_win != null) {
@@ -60,7 +62,6 @@ namespace Fm {
             return parent_win;
         }
 
-        protected weak Gtk.Window? parent_win;
     }
 
 }

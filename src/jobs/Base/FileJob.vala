@@ -21,6 +21,7 @@
 
 namespace Fm {
 
+    
     public abstract class FileJob : Job {
 
         [Flags]
@@ -32,6 +33,28 @@ namespace Fm {
             ALL_TEXT = (CURRENT_SRC_DEST|CURRENTLY_PROCESSED|TIME)
         }
 
+        protected FileJobUI? ui; // ui used to interact with users
+        protected uint64 total_size; // total size of source file
+        protected uint64 processed_size; // currently processed size
+        protected uint64 current_file_size; // size of current file being processed
+        protected uint64 current_file_processed_size; // size processed of current file
+        protected int n_total_files; // total number of files
+        protected int n_total_dirs; // total number of dirs
+        protected int n_processed_files; // number of processed files
+        protected int n_processed_dirs; // number of processed dirs
+        protected int percent; // percent (0-100), for progress bar display
+        protected double finished_fraction; // (0.0 - 1.0)
+        protected unowned Path current_src_path;
+        protected unowned Path current_dest_path;
+        protected File? current_src_file; // current source file being processed
+        protected GLib.FileInfo? current_src_info;
+        protected File? current_dest_file; // current destination file being processed
+        protected PathList? src_paths; // source file paths
+        private Timer? timer;
+        private double last_elapsed;
+        private uint remaining_time;
+        private UpdateFlags update_flags;
+
         // FIXME: different job should requires different attributes
         protected static unowned string file_attributes = 
             "standard::type,standard::size,standard::allocated-size,standard::name,standard::display-name,standard::symlink-target,unix::*,id::*";
@@ -42,12 +65,12 @@ namespace Fm {
             this.ui = ui;
         }
 
-        public override void dispose() {
-            ui = null;
-        }
-
         ~FileJob() {
             stdout.printf("job is deleted!!!\n");
+        }
+
+        public override void dispose() {
+            ui = null;
         }
 
         public unowned FileJobUI get_ui() {
@@ -313,27 +336,6 @@ namespace Fm {
             }
         }
 
-        protected FileJobUI? ui; // ui used to interact with users
-        protected uint64 total_size; // total size of source file
-        protected uint64 processed_size; // currently processed size
-        protected uint64 current_file_size; // size of current file being processed
-        protected uint64 current_file_processed_size; // size processed of current file
-        protected int n_total_files; // total number of files
-        protected int n_total_dirs; // total number of dirs
-        protected int n_processed_files; // number of processed files
-        protected int n_processed_dirs; // number of processed dirs
-        protected int percent; // percent (0-100), for progress bar display
-        protected double finished_fraction; // (0.0 - 1.0)
-        protected unowned Path current_src_path;
-        protected unowned Path current_dest_path;
-        protected File? current_src_file; // current source file being processed
-        protected GLib.FileInfo? current_src_info;
-        protected File? current_dest_file; // current destination file being processed
-        protected PathList? src_paths; // source file paths
-        private Timer? timer;
-        private double last_elapsed;
-        private uint remaining_time;
-        private UpdateFlags update_flags;
     }
 
 

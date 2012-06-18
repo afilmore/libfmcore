@@ -40,6 +40,11 @@ namespace Fm {
 
     public abstract class Job : Object {
 
+        protected unowned IOSchedulerJob? job;
+        protected Cancellable cancellable;
+        protected bool running;
+        private ulong cancelled_handler;
+
         public Job() {
             this.cancellable = new Cancellable();
         }
@@ -149,10 +154,6 @@ namespace Fm {
 
         public signal ErrorAction error(Error err, Severity severity);
 
-        protected unowned IOSchedulerJob? job;
-        protected Cancellable cancellable;
-        protected bool running;
-        private ulong cancelled_handler;
     }
 
 }
