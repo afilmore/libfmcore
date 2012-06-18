@@ -133,7 +133,7 @@ GtkActionEntry file_menu_actions [] =
  *
  *
  ****************************************************************************************/
-FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
+FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *current_directory, gboolean auto_destroy)
 {
     GtkUIManager    *ui;
     
@@ -169,23 +169,24 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     
     
-    // really needed ?
     file_menu->same_type = fm_file_info_list_is_same_type (files);
     gboolean same_fs = fm_file_info_list_is_same_fs (files);
     
     FmFileInfo *first_file_info = (FmFileInfo*) fm_list_peek_head (files);
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (first_file_info, FALSE);
     
-    
-    gboolean all_virtual = same_fs && fm_path_is_virtual (first_file_info->path);
-    //file_menu->all_virtual = file_menu->same_fs && fm_path_is_virtual (first_file_info->path);
-    //file_menu->all_trash = file_menu->same_fs && fm_path_is_trash_file (first_file_info->path);
-    
+    //~ gboolean all_virtual = same_fs && fm_path_is_virtual (first_file_info->path);
 
+    gboolean multiple_files = (num_files > 1);
+    gboolean have_virtual = (have_flags & FM_PATH_IS_VIRTUAL);
+    
+    gboolean trash_root = (!multiple_files && (all_flags & FM_PATH_IS_ROOT) && (all_flags & FM_PATH_IS_TRASH));
+    
 
     
     // the current working directory is used to extract archives.
-    if (cwd)
-        file_menu->cwd = fm_path_ref (cwd);
+    if (current_directory)
+        file_menu->current_directory = fm_path_ref (current_directory);
 
     
     
@@ -200,35 +201,16 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gtk_ui_manager_add_ui_from_string (ui, filefolder_popup_xml, -1, NULL);
     gtk_ui_manager_insert_action_group (ui, action_group, 0);
 
-    /* Hide all items and show only the needed ones...
-    action = gtk_ui_manager_get_action (ui, "/popup/Open");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/Rename");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
-    gtk_action_set_visible (action, FALSE);
-    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
-    gtk_action_set_visible (action, FALSE);*/
-        
 
     // OpenWith items...
     xml = g_string_new ("");
     
-    /***the file has a valid mime-type, its not virtual, it's no a directory ***/
     
-    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (first_file_info, FALSE);
-    
-    
+    //~ gboolean show_open_with = (file_menu->same_type && fi_mime_type && !fm_file_info_is_dir (first_file_info)
+                               //~ && !all_virtual);
+    //~ 
     gboolean show_open_with = (file_menu->same_type && fi_mime_type && !fm_file_info_is_dir (first_file_info)
-                               && !all_virtual);
+                               && !have_virtual);
     
     if (show_open_with)
     {
@@ -330,13 +312,8 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     }
     
     
-    gboolean multiple_files = (num_files > 1);
-    gboolean have_virtual = (have_flags & FM_PATH_IS_VIRTUAL);
-    
     action = gtk_ui_manager_get_action (ui, "/popup/Open");
     gtk_action_set_visible (action, !have_virtual);
-    
-    gboolean trash_root = (!multiple_files && (all_flags & FM_PATH_IS_ROOT) && (all_flags & FM_PATH_IS_TRASH));
     
     action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
     gtk_action_set_visible (action, trash_root);
@@ -370,7 +347,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
             {
                 if (fm_archiver_is_mime_type_supported (archiver, fi_mime_type->type))
                 {
-                    if (file_menu->cwd && archiver->extract_to_cmd)
+                    if (file_menu->current_directory && archiver->extract_to_cmd)
                         g_string_append (xml, "<menuitem action='Extract'/>\n");
                     if (archiver->extract_cmd)
                         g_string_append (xml, "<menuitem action='Extract2'/>\n");
@@ -437,8 +414,8 @@ void fm_file_menu_destroy (FmFileMenu *menu)
     if (menu->file_infos)
         fm_list_unref (menu->file_infos);
 
-    if (menu->cwd)
-        fm_path_unref (menu->cwd);
+    if (menu->current_directory)
+        fm_path_unref (menu->current_directory);
 
     if (menu->action_group)
         g_object_unref (menu->action_group);
@@ -458,11 +435,6 @@ GtkActionGroup *fm_file_menu_get_action_group (FmFileMenu *menu)
 {
     return menu->action_group;
 }
-
-/*gboolean fm_file_menu_is_single_file_type (FmFileMenu *menu)
-{
-    return menu->same_type;
-}*/
 
 FmFileInfoList *fm_file_menu_get_file_info_list (FmFileMenu *menu)
 {
@@ -661,7 +633,7 @@ void action_extract_here (GtkAction *action, gpointer user_data)
     GAppLaunchContext *ctx = (GAppLaunchContext*) gdk_display_get_app_launch_context (gdk_display_get_default ());
     
     files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
-    fm_archiver_extract_archives_to (archiver, ctx, files, file_menu->cwd);
+    fm_archiver_extract_archives_to (archiver, ctx, files, file_menu->current_directory);
     
     fm_list_unref (files);
     g_object_unref (ctx);
@@ -693,8 +665,6 @@ void action_properties (GtkAction *action, gpointer user_data)
     g_return_if_fail (file_menu || file_menu->file_infos);
     
     FmFileInfoList *files = file_menu->file_infos;
-    
-    //~ uint flags = fm_file_info_list_get_flags (files);
     
     uint flags;
     fm_file_info_list_get_flags (files, &flags, NULL);

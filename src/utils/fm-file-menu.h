@@ -28,10 +28,7 @@
 #include <gtk/gtk.h>
 
 #include "fm-file-info-list.h"
-
 #include "fm-gtk-launcher.h"
-
-//#include "fm-utils.h"
 
 
 G_BEGIN_DECLS
@@ -42,7 +39,7 @@ struct _FmFileMenu
 {
     // Input Parameters...
     GtkWindow           *parent;
-    FmPath              *cwd;
+    FmPath              *current_directory;
     FmFileInfoList      *file_infos;
     gboolean            auto_destroy : 1;
     
@@ -57,16 +54,12 @@ struct _FmFileMenu
     // Returned Menu...
     GtkMenu             *menu;
 
-    // Internal Cooking...
+    // Same MimeType...
     gboolean            same_type : 1;
-    //~ gboolean            same_fs : 1;
-    //~ gboolean            all_virtual : 1;
-//    gboolean            all_trash : 1;
-    
 };
 
 
-FmFileMenu      *fm_file_menu_new_for_files         (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd,
+FmFileMenu      *fm_file_menu_new_for_files         (GtkWindow *parent, FmFileInfoList *files, FmPath *current_directory,
                                                      gboolean auto_destroy);
                                             
 void            fm_file_menu_set_folder_func        (FmFileMenu *file_menu,
@@ -76,11 +69,8 @@ GtkMenu         *fm_file_menu_get_menu              (FmFileMenu *file_menu);
 
 void            fm_file_menu_destroy                (FmFileMenu *file_menu);
 
-
-// May be removed...
 GtkUIManager    *fm_file_menu_get_ui                (FmFileMenu *file_menu);
 GtkActionGroup  *fm_file_menu_get_action_group      (FmFileMenu *file_menu);
-//~ gboolean        fm_file_menu_is_single_file_type    (FmFileMenu *file_menu);
 
 
 /*****************************************************************************************
