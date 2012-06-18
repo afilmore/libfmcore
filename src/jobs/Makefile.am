@@ -21,9 +21,11 @@ libfmjobs_la_SOURCES = \
 	FileJobs/CopyJob.vala \
 	FileJobs/DeleteJob.vala \
 	FileJobs/TrashJob.vala \
-	UI/UI.vala \
+	UI/FileJobUI.vala \
+	UI/GtkFileJobUI.vala \
 	UI/GtkUI.vala \
 	UI/RenameDialog.vala \
+	UI/UI.vala \
 	$(NULL)
 
 libfmjobs_la_CFLAGS = \
