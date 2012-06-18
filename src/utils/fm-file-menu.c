@@ -333,33 +333,6 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     }
     
     
-    action = gtk_ui_manager_get_action (ui, "/popup/Open");
-    gtk_action_set_visible (action, !have_virtual);
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
-    gtk_action_set_visible (action, trash_root);
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/Restore");
-    gtk_action_set_visible (action, all_trash_files && can_restore);
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-    gtk_action_set_visible (action, !have_virtual);
-    action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-    gtk_action_set_visible (action, !have_virtual);
-
-    action = gtk_ui_manager_get_action (ui, "/popup/Paste");
-    gtk_action_set_visible (action, (!multiple_files && fm_file_info_is_dir (first_file_info) && !have_virtual));
-
-    action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-    gtk_action_set_visible (action, !have_virtual);
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/Rename");
-    gtk_action_set_visible (action, (!multiple_files && !have_virtual));
-    
-    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
-    gtk_action_set_visible (action, !have_virtual);
-    
-
     // Archiver integration
     if (!have_virtual)
     {
@@ -394,7 +367,36 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     g_string_free (xml, TRUE);
 
     
+    action = gtk_ui_manager_get_action (ui, "/popup/Open");
+    gtk_action_set_visible (action, !all_trash_files);
     
+    action = gtk_ui_manager_get_action (ui, "/popup/Restore");
+    gtk_action_set_visible (action, all_trash_files && can_restore);
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
+    gtk_action_set_visible (action, trash_root);
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/OPEN_WITH/OpenWith");
+    gtk_action_set_visible (action, !have_virtual);
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Cut");
+    gtk_action_set_visible (action, !have_virtual);
+    action = gtk_ui_manager_get_action (ui, "/popup/Copy");
+    gtk_action_set_visible (action, !have_virtual);
+
+    action = gtk_ui_manager_get_action (ui, "/popup/Paste");
+    gtk_action_set_visible (action, (!multiple_files && fm_file_info_is_dir (first_file_info) && !have_virtual));
+
+    action = gtk_ui_manager_get_action (ui, "/popup/Delete");
+    gtk_action_set_visible (action, !have_virtual);
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Rename");
+    gtk_action_set_visible (action, (!multiple_files && !have_virtual));
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Properties");
+    gtk_action_set_visible (action, !have_virtual);
+    
+   
     return file_menu;
 }
 
