@@ -25,7 +25,7 @@ namespace Fm {
 
         public DeleteJob (PathList paths, FileJobUI? ui) {
             base (ui);
-            src_paths = paths;
+            _src_paths = paths;
             unowned string title = _("Deleting files");
             ui.init_with_job (this, title, title, false);
         }
@@ -40,7 +40,7 @@ namespace Fm {
                 
                 FileEnumerator enu;
                 try {
-                    enu = file.enumerate_children (file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    enu = file.enumerate_children (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                 while (cancellable.is_cancelled () == false) {
                     GLib.FileInfo child_info = enu.next_file (cancellable);
                     if (child_info == null) // end of file list
@@ -51,14 +51,14 @@ namespace Fm {
                     delete_file (child, child_info);
                 }
                 enu.close ();
-                ++n_processed_dirs;
+                ++_n_processed_dirs;
                 } catch  (Error error) {
                 }
             }
             else {
-                ++n_processed_files;
+                ++_n_processed_files;
             }
-            processed_size += get_file_size (info);
+            _processed_size += get_file_size (info);
             try {
                 file.delete (cancellable);
                 ret = true;
@@ -67,7 +67,7 @@ namespace Fm {
             }
 
             // calculate percent;
-            double fraction =  (double) (n_processed_files + n_processed_dirs) /  (n_total_dirs + n_total_files);
+            double fraction =  (double) (_n_processed_files + _n_processed_dirs) /  (_n_total_dirs + _n_total_files);
             set_percent (fraction);
             update_progress_display ();
 
@@ -77,7 +77,7 @@ namespace Fm {
         protected override bool run () {
 
             // show the first file in the UI
-            set_current_src_dest (src_paths.peek_head (), null);
+            set_current_src_dest (_src_paths.peek_head (), null);
             update_progress_display ();
 
             // calculate total amount of work for progress display
@@ -86,13 +86,13 @@ namespace Fm {
 
             // inform the UI that we're ready
             set_ready ();
-            stdout.printf ("total: %llu, %d, %d\n", total_size, n_total_files, n_total_dirs);
+            stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
 
             // delete all source files one by one
-            foreach (unowned Path src_path in src_paths.peek_head_link ()) {
+            foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                 File file = src_path.to_gfile ();
                 try {
-                    var info = file.query_info (file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    var info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                     // show currently processed file in UI
                     set_current_src_dest (src_path, null);
                     set_currently_processed (file, info, null);

@@ -1,3 +1,5 @@
+
+
 //      ui.vala
 //      
 //      Copyright 2011 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
@@ -67,5 +69,7 @@ namespace Fm {
         // false to cancel the job.
         public abstract ErrorAction handle_error (Error err, Severity severity);
     }
-
 }
+
+
+

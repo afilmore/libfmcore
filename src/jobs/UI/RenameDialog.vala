@@ -1,3 +1,5 @@
+
+
 //      rename-dlg.vala
 //      
 //      Copyright 2011 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
@@ -141,20 +143,20 @@ namespace Fm {
 
             switch (dlg.run ())
             {
-            case RESPONSE_RENAME:
-                new_name = filename_entry.get_text ();
-                if (new_name == null || new_name == "") // is this possible?
-                    new_name = old_name; // just don't leave it null
-                ret = RenameResult.RENAME;
-                break;
-            case RESPONSE_OVERWRITE:
-                ret = RenameResult.OVERWRITE;
-                break;
-            case RESPONSE_SKIP:
-                ret = RenameResult.SKIP;
-                break;
-            default:
-                ret = RenameResult.CANCEL;
+                case RESPONSE_RENAME:
+                    new_name = filename_entry.get_text ();
+                    if (new_name == null || new_name == "") // is this possible?
+                        new_name = old_name; // just don't leave it null
+                    ret = RenameResult.RENAME;
+                    break;
+                case RESPONSE_OVERWRITE:
+                    ret = RenameResult.OVERWRITE;
+                    break;
+                case RESPONSE_SKIP:
+                    ret = RenameResult.SKIP;
+                    break;
+                default:
+                    ret = RenameResult.CANCEL;
                 break;
             }
 

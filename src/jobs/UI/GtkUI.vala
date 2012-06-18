@@ -27,7 +27,9 @@ namespace Fm {
         protected weak Gtk.Window? parent_win;
         
         public GtkUI (Gtk.Window? parent_window = null) {
+            
             parent_win = parent_window;
+            
             if (parent_win != null) {
                 parent_win.destroy.connect ( () => {
                     parent_win = null;
@@ -61,7 +63,8 @@ namespace Fm {
         public Gtk.Window? get_parent_window () {
             return parent_win;
         }
-
     }
-
 }
+
+
+

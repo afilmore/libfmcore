@@ -41,7 +41,7 @@ namespace Fm {
             
             base (ui);
             
-            this.src_paths = src_paths;
+            this._src_paths = src_paths;
             this._dest_path_list = dest_paths;
             
             this._copy_mode = mode;
@@ -123,7 +123,7 @@ namespace Fm {
                     // different filesystems/devices are involved.
                     unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
                     
-                    foreach (unowned Path src_path in src_paths.peek_head_link ()) {
+                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                         
                         File src_file = src_path.to_gfile ();
                         
@@ -132,7 +132,7 @@ namespace Fm {
                         File dest_dir = dest_path.get_parent ().to_gfile (); // FIXME: get_parent () might return null?
                         
                         try {
-                            GLib.FileInfo src_info = src_file.query_info (file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                            GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                             
                             // NOTE: we cannot use FileQueryInfoFlags.NOFOLLOW_SYMLINKS here for dest dir
                             
@@ -142,22 +142,22 @@ namespace Fm {
 
                             if (src_fs == dest_fs) { // on the same filesystem
                                 
-                                // total_size += get_file_size (src_info);
+                                // _total_size += get_file_size (src_info);
                                 // time taken by rename () is not related to file size.
-                                total_size += DEFAULT_PROCESSED_AMOUNT;
+                                _total_size += _DEFAULT_PROCESSED_AMOUNT;
                                 
                                 if (src_info.get_file_type () == FileType.DIRECTORY)
-                                    ++n_total_dirs;
+                                    ++_n_total_dirs;
                                 else
-                                    ++n_total_files;
+                                    ++_n_total_files;
                             
                             } else { // not on the same filesystem
                                 
                                 // treat as copy
                                 int n_dirs, n_files;
-                                total_size += calculate_total_for_file (src_file, src_info, out n_dirs, out n_files);
-                                n_total_dirs += n_dirs;
-                                n_total_files += n_files;
+                                _total_size += calculate_total_for_file (src_file, src_info, out n_dirs, out n_files);
+                                _n_total_dirs += n_dirs;
+                                _n_total_files += n_files;
                             }
                         }
                         catch (Error err) {
@@ -174,15 +174,15 @@ namespace Fm {
                 case CopyJobMode.LINK:
                 case CopyJobMode.UNTRASH:
                     // create symlinks for every source file
-                    foreach (unowned Path src_path in src_paths.peek_head_link ()) {
+                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                         File file = src_path.to_gfile ();
                         try {
-                            var info = file.query_info (file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-                            total_size += get_file_size (info);
+                            var info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                            _total_size += get_file_size (info);
                             if (info.get_file_type () == FileType.DIRECTORY)
-                                ++n_total_dirs;
+                                ++_n_total_dirs;
                             else
-                                ++n_total_files;
+                                ++_n_total_files;
                         }
                         catch (Error err) {
                         }
@@ -253,7 +253,7 @@ namespace Fm {
                 dest_file.set_attribute_uint32 ("unix::mode", unix_mode, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
 
                 // copy files in the directory recursively
-                var enu = src_file.enumerate_children (file_attributes, 0, cancellable);
+                var enu = src_file.enumerate_children (_file_attributes, 0, cancellable);
                 
                 while (!cancellable.is_cancelled ()) {
                     
@@ -278,7 +278,7 @@ namespace Fm {
                 }
                 
                 enu.close ();
-                ++n_processed_dirs;
+                ++_n_processed_dirs;
 
                 // if this is actually a cross-device move operation, delete the source file.
                 if (_copy_mode == CopyJobMode.MOVE) {
@@ -296,7 +296,7 @@ namespace Fm {
         private void copy_progress_cb (int64 current_num_bytes, int64 total_num_bytes) {
             
             // calculate percent;
-            double fraction =  (double) (processed_size + current_num_bytes) / total_size;
+            double fraction =  (double) (_processed_size + current_num_bytes) / _total_size;
             set_percent (fraction);
             update_progress_display ();
         }
@@ -452,8 +452,8 @@ namespace Fm {
                         }
                         
                         retry_copy = false;
-                        ++n_processed_files;
-                        processed_size += get_file_size (src_info);
+                        ++_n_processed_files;
+                        _processed_size += get_file_size (src_info);
                     
                     } catch (Error err) {
                         
@@ -476,7 +476,7 @@ namespace Fm {
                                 
                                 case RenameResult.SKIP: // skip the file
                                     // retry_copy = false;
-                                    processed_size += get_file_size (src_info);
+                                    _processed_size += get_file_size (src_info);
                                 break;
                                 
                                 case RenameResult.CANCEL: // cancel the job
@@ -496,7 +496,7 @@ namespace Fm {
             }
 
             // calculate percent;
-            double fraction =  (double)processed_size / total_size;
+            double fraction =  (double)_processed_size / _total_size;
             set_percent (fraction);
             update_progress_display ();
 
@@ -520,11 +520,11 @@ namespace Fm {
                     var type = src_info.get_file_type ();
                     ret = src_file.move (dest_file, flags, cancellable, copy_progress_cb);
                     if (type == FileType.DIRECTORY)
-                        ++n_processed_files;
+                        ++_n_processed_files;
                     else
-                        ++n_processed_files;
+                        ++_n_processed_files;
                     retry_move = false;
-                    processed_size += get_file_size (src_info);
+                    _processed_size += get_file_size (src_info);
                 }
                 catch (Error err) {
                     if (err is IOError.EXISTS) { // destination file already exists
@@ -541,7 +541,7 @@ namespace Fm {
                             break;
                         case RenameResult.SKIP: // skip the file
                             // retry_move = false;
-                            processed_size += get_file_size (src_info);
+                            _processed_size += get_file_size (src_info);
                             break;
                         case RenameResult.CANCEL: // cancel the job
                             cancel ();
@@ -554,12 +554,12 @@ namespace Fm {
                             return false;
                         }
                     }
-                    // processed_size += ...;
+                    // _processed_size += ...;
                 }
             }while (retry_move == true);
 
             // calculate percent;
-            double fraction =  (double)processed_size / total_size;
+            double fraction =  (double)_processed_size / _total_size;
             set_percent (fraction);
             update_progress_display ();
 
@@ -581,8 +581,8 @@ namespace Fm {
             try {
                 file.trash (cancellable);
                 ret = true;
-                ++n_processed_files;
-                processed_size += get_file_size (info);
+                ++_n_processed_files;
+                _processed_size += get_file_size (info);
             }
             catch (IOError err) {
                 if (handle_error (err) == ErrorAction.ABORT)
@@ -590,7 +590,7 @@ namespace Fm {
             }
 
             // calculate percent;
-            double fraction =  (double) (n_processed_files + n_processed_dirs) /  (n_total_dirs + n_total_files);
+            double fraction =  (double) (_n_processed_files + _n_processed_dirs) /  (_n_total_dirs + _n_total_files);
             set_percent (fraction);
             update_progress_display ();
 
@@ -639,7 +639,7 @@ namespace Fm {
                     var home_file = File.new_for_path (Environment.get_home_dir ());
                     var home_mount = home_file.find_enclosing_mount (cancellable);
                     debug ("home_mount = %p",  (void*)home_mount);
-                    foreach (unowned Path src_path in src_paths.peek_head_link ()) {
+                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                         if (is_cancelled ())
                             break;
                         // FIXME: the dest path is not correct, but since we do not use it
@@ -658,7 +658,7 @@ namespace Fm {
                     _dest_path_list = new PathList ();
                     
                     // get original paths of the trashed files
-                    foreach  (unowned Fm.Path path in src_paths.peek_head_link ()) {
+                    foreach  (unowned Fm.Path path in _src_paths.peek_head_link ()) {
                         
                         if (is_cancelled ())
                             break;
@@ -703,12 +703,12 @@ namespace Fm {
                 return false;
 
             set_ready (); // tell the UI that we're ready
-            stdout.printf ("total: %llu, %d, %d\n", total_size, n_total_files, n_total_dirs);
+            stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
 
             // ready to copy/move files
             unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
             
-            foreach (unowned Path src_path in src_paths.peek_head_link ()) {
+            foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                 
                 if (is_cancelled ())
                     break;
@@ -720,7 +720,7 @@ namespace Fm {
                 
                 try {
                     // query info of source file and update progress display
-                    var src_info = src_file.query_info (file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    var src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                     set_current_src_dest (src_path, dest_path);
                     set_currently_processed (src_file, src_info, dest_file);
                     update_progress_display ();
