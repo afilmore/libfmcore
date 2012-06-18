@@ -54,7 +54,7 @@ void _fm_path_init ()
 
 
     // Root Path...
-    root_path = _fm_path_new_internal (NULL, "/", 1, /*FM_PATH_IS_ROOT |*/ FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
     
     
     // Home Path...
@@ -104,15 +104,13 @@ void _fm_path_init ()
 
     
     // Trash Can Root...
-    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, /*FM_PATH_IS_ROOT
-                                                                   |*/ FM_PATH_IS_TRASH
+    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH
                                                                    | FM_PATH_IS_VIRTUAL
                                                                    | FM_PATH_IS_LOCAL);
     
     
     // Applications Root...
-    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, /*FM_PATH_IS_ROOT
-                                                                              |*/ FM_PATH_IS_XDG_MENU
+    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_XDG_MENU
                                                                               | FM_PATH_IS_VIRTUAL);
 }
 
@@ -139,9 +137,7 @@ static FmPath *_fm_path_alloc (FmPath *parent, int name_len, int flags)
     FmPath *path = (FmPath*) g_malloc (sizeof(FmPath) + name_len);
     path->n_ref = 1;
     
-    //~ path->flags = flags;
     path->flags = parent ? flags : (flags | FM_PATH_IS_ROOT);
-    
     path->parent = parent ? fm_path_ref (parent) : NULL;
     
     return path;
@@ -220,13 +216,11 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
     }
     else if (scheme_len == 8 && g_ascii_strncasecmp (uri, "computer", 8) == 0)
     {
-//        flags |= FM_PATH_IS_ROOT;
         flags |= FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
     else if (scheme_len == 7 && g_ascii_strncasecmp (uri, "network", 7) == 0)
     {
-//        flags |= FM_PATH_IS_ROOT;
         flags |= FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
@@ -343,8 +337,7 @@ FmPath *fm_path_new_child_len (FmPath *parent, const char *basename, int name_le
         }
         #endif
 
-        // inherit flags of parent
-        //flags = parent->flags;
+        // Inherit of parent flags without the root flag...
         flags = parent->flags & (~FM_PATH_IS_ROOT);
         
         while (basename[0] == '/')

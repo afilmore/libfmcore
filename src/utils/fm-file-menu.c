@@ -76,6 +76,7 @@ const char filefolder_popup_xml [] =
         "<placeholder name='SPECIAL_ACTIONS'/>"
         "<separator/>"
         
+        "<menuitem action='Restaure'/>"
         "<menuitem action='EmptyTrash'/>"
         "<separator/>"
         
@@ -102,6 +103,7 @@ GtkActionEntry file_menu_actions [] =
 {
     {"Open",            GTK_STOCK_OPEN, NULL, NULL, NULL,               G_CALLBACK (action_open)},
     
+    {"Restaure",        NULL, N_("Restore"), NULL, NULL,                G_CALLBACK (action_restaure)},
     {"EmptyTrash",      NULL, N_("Empty Trash"), NULL, NULL,            G_CALLBACK (action_empty_trash)},
     
     {"OpenWithMenu",    NULL, N_("Open With..."), NULL, NULL,           NULL},
@@ -180,9 +182,29 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
 
     gboolean multiple_files = (num_files > 1);
     gboolean have_virtual = (have_flags & FM_PATH_IS_VIRTUAL);
+    gboolean all_trash_files = ((all_flags & FM_PATH_IS_TRASH) && !(all_flags & FM_PATH_IS_ROOT));
     
     gboolean trash_root = (!multiple_files && (all_flags & FM_PATH_IS_ROOT) && (all_flags & FM_PATH_IS_TRASH));
     
+    gboolean can_restore = TRUE;
+    if (all_trash_files)
+    {
+        GList *l;
+        
+        // only immediate children of trash:/// can be restored.
+        for (l = fm_list_peek_head_link (files); l; l = l->next)
+        {
+            FmPath *trash_path = fm_file_info_get_path (FM_FILE_INFO (l->data));
+            FmPath *parent = fm_path_get_parent (trash_path);
+            if (!parent || !fm_path_is_trash_root (parent))
+            {
+                can_restore = FALSE;
+                break;
+            }
+        }
+        
+    }
+
 
     // The current working directory is used to extract archives.
     if (current_directory)
@@ -316,6 +338,9 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     
     action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
     gtk_action_set_visible (action, trash_root);
+    
+    action = gtk_ui_manager_get_action (ui, "/popup/Restaure");
+    gtk_action_set_visible (action, all_trash_files && can_restore);
     
     action = gtk_ui_manager_get_action (ui, "/popup/Cut");
     gtk_action_set_visible (action, !have_virtual);

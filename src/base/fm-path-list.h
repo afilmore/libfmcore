@@ -43,15 +43,15 @@ FmPathList *fm_path_list_new_from_file_info_list    (FmList *fis);
 FmPathList *fm_path_list_new_from_file_info_glist   (GList *fis);
 FmPathList *fm_path_list_new_from_file_info_gslist  (GSList *fis);
 
-gboolean fm_list_is_path_list                       (FmList *list);
+gboolean    fm_list_is_path_list                    (FmList *list);
 
-char *fm_path_list_to_uri_list                      (FmPathList *path_list);
-void fm_path_list_write_uri_list                    (FmPathList *path_list, GString *buf);
+char *      fm_path_list_to_uri_list                (FmPathList *path_list);
+void        fm_path_list_write_uri_list             (FmPathList *path_list, GString *buf);
 
-gboolean fm_path_list_all_in_trash_can (FmPathList *path_list);
-int fm_path_list_get_flags (FmPathList *path_list, uint *or_flags, uint *and_flags);
+int         fm_path_list_get_flags                  (FmPathList *path_list, uint *or_flags, uint *and_flags);
+gboolean    fm_path_list_all_in_trash_can           (FmPathList *path_list);
 
-// char **fm_path_list_to_uris                      (FmPathList *path_list);
+// char **  fm_path_list_to_uris                      (FmPathList *path_list);
 
 G_END_DECLS
 #endif
