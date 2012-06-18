@@ -47,7 +47,7 @@
 static void fm_file_menu_open_with_app  (FmFileMenu *file_menu, GAppInfo *app);
 
 static void action_open                 (GtkAction *action, gpointer user_data);
-static void action_restaure             (GtkAction *action, gpointer user_data);
+static void action_restore              (GtkAction *action, gpointer user_data);
 
 static void action_open_with_app        (GtkAction *action, gpointer user_data);
 static void action_open_with            (GtkAction *action, gpointer user_data);
@@ -76,7 +76,7 @@ const char filefolder_popup_xml [] =
         "<placeholder name='SPECIAL_ACTIONS'/>"
         "<separator/>"
         
-        "<menuitem action='Restaure'/>"
+        "<menuitem action='Restore'/>"
         "<menuitem action='EmptyTrash'/>"
         "<separator/>"
         
@@ -103,7 +103,7 @@ GtkActionEntry file_menu_actions [] =
 {
     {"Open",            GTK_STOCK_OPEN, NULL, NULL, NULL,               G_CALLBACK (action_open)},
     
-    {"Restaure",        NULL, N_("Restore"), NULL, NULL,                G_CALLBACK (action_restaure)},
+    {"Restore",         NULL, N_("Restore"), NULL, NULL,                G_CALLBACK (action_restore)},
     {"EmptyTrash",      NULL, N_("Empty Trash"), NULL, NULL,            G_CALLBACK (action_empty_trash)},
     
     {"OpenWithMenu",    NULL, N_("Open With..."), NULL, NULL,           NULL},
@@ -339,7 +339,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     action = gtk_ui_manager_get_action (ui, "/popup/EmptyTrash");
     gtk_action_set_visible (action, trash_root);
     
-    action = gtk_ui_manager_get_action (ui, "/popup/Restaure");
+    action = gtk_ui_manager_get_action (ui, "/popup/Restore");
     gtk_action_set_visible (action, all_trash_files && can_restore);
     
     action = gtk_ui_manager_get_action (ui, "/popup/Cut");
@@ -484,13 +484,13 @@ void action_open (GtkAction *action, gpointer user_data)
     fm_launch_multiple_files (file_menu->parent, NULL, files_list, file_menu->folder_func, file_menu->folder_func_data);
 }
 
-void action_restaure (GtkAction *action, gpointer user_data)
+void action_restore (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     
-    fm_trash_restaure (file_menu->parent, files);
+    fm_trash_restore (file_menu->parent, files);
     
     fm_list_unref (files);
 }

@@ -40,7 +40,7 @@ typedef enum _FmDeleteFlags FmDeleteFlags;
 
 
 void fm_trash_delete    (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags delete_flags, gboolean confim_delete);
-void fm_trash_restaure  (GtkWindow *parent, FmPathList *path_list);
+void fm_trash_restore   (GtkWindow *parent, FmPathList *path_list);
 void fm_trash_empty     (GtkWindow *parent);
 
 

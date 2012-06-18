@@ -32,6 +32,7 @@
 #include <limits.h>
 
 #include "fm-file-info.h"
+#include "fm-utils.h"
 
 
 static FmPath *root_path = NULL;
@@ -813,13 +814,23 @@ char *fm_path_display_basename (FmPath *path)
 GFile *fm_path_to_gfile (FmPath *path)
 {
     GFile *gf;
-    char *str;
-    str = fm_path_to_str (path);
+    
+    char *str = fm_path_to_str (path);
+    
     if (fm_path_is_native (path))
+    {
         gf = g_file_new_for_path (str);
+    }
     else
-        gf = g_file_new_for_uri (str);
+    {
+        char *tmp_str = fm_str_replace (str, "%20", " ");
+        printf ("fm_path_to_gfile %s\n", tmp_str);
+        gf = g_file_new_for_uri (tmp_str);
+        g_free (tmp_str);
+    }
+    
     g_free (str);
+    
     return gf;
 }
 

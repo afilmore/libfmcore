@@ -236,13 +236,16 @@ char *fm_str_replace (char *str, char *old, char *new)
 {
     int i;
     int len = strlen (str);
-    char *found;
+    int old_len = strlen (old);
+    
     GString *buf = g_string_sized_new (len);
+    
+    char *found;
     while (found = strstr (str, old))
     {
         g_string_append_len (buf, str,  (found - str));
         g_string_append (buf, new);
-        str = found + 1;
+        str = found + old_len;
     }
     for (; *str; ++str)
         g_string_append_c (buf, *str);

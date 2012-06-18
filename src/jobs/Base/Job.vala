@@ -78,7 +78,10 @@ public abstract class Job : Object {
 	// The default implementation of FmJob::run_async() create a working
 	// thread in thread pool, and calls FmJob::run() in it.
  	public virtual void run_async() {
-		running = true;
+		
+        stdout.printf ("Fm.Job.run_async\n");
+        
+        running = true;
 		//g_io_scheduler_push_job(job_func, Priority.DEFAULT, cancellable);
 		IOSchedulerJob.push (job_func, Priority.DEFAULT, cancellable);
 	}
@@ -88,6 +91,7 @@ public abstract class Job : Object {
 	protected abstract bool run();
 
 	private bool job_func(IOSchedulerJob job, Cancellable? cancellable) {
+        stdout.printf ("Fm.Job.job_func\n");
 		this.job = job;
 		run();
 		this.job = null;

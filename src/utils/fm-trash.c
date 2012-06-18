@@ -96,7 +96,7 @@ void fm_trash_delete (GtkWindow *parent, FmPathList *path_list, FmDeleteFlags de
     }
 }
 
-void fm_trash_restaure (GtkWindow *parent, FmPathList *path_list)
+void fm_trash_restore (GtkWindow *parent, FmPathList *path_list)
 {
 	FmGtkFileJobUI *ui = fm_gtk_file_job_ui_new (parent);
 	
