@@ -177,7 +177,7 @@ namespace Fm {
                     foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                         File file = src_path.to_gfile ();
                         try {
-                            var info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                            GLib.FileInfo info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                             _total_size += get_file_size (info);
                             if (info.get_file_type () == FileType.DIRECTORY)
                                 ++_n_total_dirs;
@@ -253,12 +253,12 @@ namespace Fm {
                 dest_file.set_attribute_uint32 ("unix::mode", unix_mode, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
 
                 // copy files in the directory recursively
-                var enu = src_file.enumerate_children (_file_attributes, 0, cancellable);
+                FileEnumerator enu = src_file.enumerate_children (_file_attributes, 0, cancellable);
                 
                 while (!cancellable.is_cancelled ()) {
                     
                     try {
-                        var child_info = enu.next_file (cancellable);
+                        GLib.FileInfo child_info = enu.next_file (cancellable);
                         
                         if (child_info == null) // end of list
                             break;
@@ -306,33 +306,34 @@ namespace Fm {
             bool ret = false;
             
             // only handle FIFO for local files
-            if (src_file.is_native () && dest_file.is_native ())
-            {
+            if (src_file.is_native () && dest_file.is_native ()) {
+                
                 string src_path = src_file.get_path ();
                 Posix.Stat src_st;
                 int r = Posix.lstat (src_path, out src_st);
-                if (r == 0)
-                {
+                
+                if (r == 0) {
                     // Handle FIFO on native file systems.
-                    if (Posix.S_ISFIFO (src_st.st_mode))
-                    {
-                        var dest_path = dest_file.get_path ();
+                    if (Posix.S_ISFIFO (src_st.st_mode)) {
+                        
+                        string dest_path = dest_file.get_path ();
                         r = Posix.mkfifo (dest_path, src_st.st_mode);
-                        if ( r == 0)
+                        
+                        if ( r == 0) {
                             ret = true;
-                        else {
+                        } else {
                             // g_io_error_from_errno (errno);
                             // FIXME: Vala bug: g_io_error_from_errno doesn't work.
                             throw new IOError.FAILED (strerror (errno));
                         }
-                    }
-                    else {
+                    
+                    } else {
                         // FIXME: how about blcok device, char device, and socket?
                         // FIXME: add proper error message
                         throw new IOError.NOT_SUPPORTED ("");
                     }
-                }
-                else {
+                
+                } else {
                     // FIXME: error handling
                     // g_io_error_from_errno (errno);
                     // FIXME: Vala bug: g_io_error_from_errno doesn't work.
@@ -443,11 +444,13 @@ namespace Fm {
                             break;
                             
                             default:
+
                                 ret = src_file.copy (dest_file, flags, cancellable, copy_progress_cb);
+
                                 // if this is a cross-device move, delete the source file
-                                if (ret == true && _copy_mode == CopyJobMode.MOVE) {
+                                if (ret == true && _copy_mode == CopyJobMode.MOVE)
                                     src_file.delete (cancellable);
-                                }
+
                             break;
                         }
                         
@@ -514,49 +517,60 @@ namespace Fm {
 
             // Thread.usleep (2000); // delay for ease of debugging
             bool retry_move = false;
-            FileCopyFlags flags = FileCopyFlags.ALL_METADATA|FileCopyFlags.NOFOLLOW_SYMLINKS;
+            
+            FileCopyFlags flags = FileCopyFlags.ALL_METADATA | FileCopyFlags.NOFOLLOW_SYMLINKS;
+            
             do {
                 try {
-                    var type = src_info.get_file_type ();
+                    FileType type = src_info.get_file_type ();
+                    
                     ret = src_file.move (dest_file, flags, cancellable, copy_progress_cb);
                     if (type == FileType.DIRECTORY)
                         ++_n_processed_files;
                     else
                         ++_n_processed_files;
+                    
                     retry_move = false;
                     _processed_size += get_file_size (src_info);
-                }
-                catch (Error err) {
+                
+                } catch (Error err) {
+                    
                     if (err is IOError.EXISTS) { // destination file already exists
                         flags &= ~FileCopyFlags.OVERWRITE; // clear overwrite flag
                         File new_dest;
+                        
                         switch (ask_rename (src_file, dest_file, out new_dest)) { // ask for rename
-                        case RenameResult.RENAME:
-                            dest_file = new_dest;
-                            retry_move = true;
+                            
+                            case RenameResult.RENAME:
+                                dest_file = new_dest;
+                                retry_move = true;
                             break;
-                        case RenameResult.OVERWRITE: // overwrite existing file
-                            flags |= FileCopyFlags.OVERWRITE;
-                            retry_move = true;
+                            
+                            case RenameResult.OVERWRITE: // overwrite existing file
+                                flags |= FileCopyFlags.OVERWRITE;
+                                retry_move = true;
                             break;
-                        case RenameResult.SKIP: // skip the file
-                            // retry_move = false;
-                            _processed_size += get_file_size (src_info);
+                            
+                            case RenameResult.SKIP: // skip the file
+                                // retry_move = false;
+                                _processed_size += get_file_size (src_info);
                             break;
-                        case RenameResult.CANCEL: // cancel the job
-                            cancel ();
+                            
+                            case RenameResult.CANCEL: // cancel the job
+                                cancel ();
                             return false;
                         }
-                    }
-                    else {
+                    
+                    } else {
+                        
                         // present the error to the user
-                        if (handle_error (err, Severity.MODERATE) == ErrorAction.ABORT) {
+                        if (handle_error (err, Severity.MODERATE) == ErrorAction.ABORT)
                             return false;
-                        }
                     }
                     // _processed_size += ...;
                 }
-            }while (retry_move == true);
+            
+            } while (retry_move == true);
 
             // calculate percent;
             double fraction =  (double)_processed_size / _total_size;
@@ -600,19 +614,19 @@ namespace Fm {
         // get the real path of the trashed file
         private Path? get_dest_for_trash (Mount home_mount, Path src_path) {
             Path? ret = null;
-            var src_file = src_path.to_gfile ();
+            File src_file = src_path.to_gfile ();
             if (src_file.is_native ()) {
                 try {
                     Path? trash_dir = null;
-                    // var info = file.query_info ("unix::*", 0, null);
-                    var mount = src_file.find_enclosing_mount (cancellable);
+                    // GLib.FileInfo info = file.query_info ("unix::*", 0, null);
+                    Mount mount = src_file.find_enclosing_mount (cancellable);
                     if (mount != home_mount) { // not in home
                         // try top dir
                         
                     }
                     // fallback to home trash dir
                     if (trash_dir == null) {
-                        var trash_dir_name = GLib.Path.build_filename (Environment.get_user_data_dir (), "Trash", "files", null);
+                        string trash_dir_name = GLib.Path.build_filename (Environment.get_user_data_dir (), "Trash", "files", null);
                         trash_dir = new Path.for_path (trash_dir_name);
                     }
                     
@@ -636,9 +650,10 @@ namespace Fm {
                 /*
                 case CopyJobMode.TRASH:
                     _dest_path_list = new PathList ();
-                    var home_file = File.new_for_path (Environment.get_home_dir ());
-                    var home_mount = home_file.find_enclosing_mount (cancellable);
+                    File home_file = File.new_for_path (Environment.get_home_dir ());
+                    Mount home_mount = home_file.find_enclosing_mount (cancellable);
                     debug ("home_mount = %p",  (void*)home_mount);
+                    
                     foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                         if (is_cancelled ())
                             break;
@@ -708,21 +723,25 @@ namespace Fm {
             // ready to copy/move files
             unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
             
-            foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
+            foreach (unowned Fm.Path src_path in _src_paths.peek_head_link ()) {
                 
                 if (is_cancelled ())
                     break;
                 
-                unowned Path dest_path = dest_l.data;
+                unowned Fm.Path dest_path = dest_l.data;
                 
-                var src_file = src_path.to_gfile ();
-                var dest_file = dest_path.to_gfile ();
+                File src_file = src_path.to_gfile ();
+                File dest_file = dest_path.to_gfile ();
                 
                 try {
+                    
                     // query info of source file and update progress display
-                    var src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    
                     set_current_src_dest (src_path, dest_path);
+                    
                     set_currently_processed (src_file, src_info, dest_file);
+                    
                     update_progress_display ();
 
                     // check if the operation is valid. for example, one cannot
@@ -738,16 +757,20 @@ namespace Fm {
                         break;
                         
                         case CopyJobMode.MOVE: {
-                            var dest_dir = dest_file.get_parent ();
-                            var dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
-                            var src_fs = src_info.get_attribute_string ("id::filesystem");
-                            var dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
+                            
+                            File dest_dir = dest_file.get_parent ();
+                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
+                            
+                            string src_fs = src_info.get_attribute_string ("id::filesystem");
+                            string dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
+                            
                             if (src_fs == dest_fs) // on the same filesystem
                                 move_file (src_file, src_info, dest_file);
                             else // cross-device move = copy + delete source
                                 copy_file (src_file, src_info, dest_file);
-                        break;
+                        
                         }
+                        break;
                         
                         case CopyJobMode.LINK: // TODO: create symlinks
                             link_file (src_file, src_info, dest_file);
@@ -765,14 +788,14 @@ namespace Fm {
                     }
                 
                 } catch (Error err) {
-                    if (handle_error (err, Severity.MODERATE) == ErrorAction.ABORT) {
+
+                    if (handle_error (err, Severity.MODERATE) == ErrorAction.ABORT)
                         return false;
-                    }
                 }
 
                 // emit a fake notification signal for file creation for
                 // filesystems which don't have file monitor support.
-                var dest_dir = dest_file.get_parent (); // get parent folder of dest file
+                File dest_dir = dest_file.get_parent (); // get parent folder of dest file
                 
                 var dest_mon = monitor_lookup_dummy_monitor (dest_dir);
                 

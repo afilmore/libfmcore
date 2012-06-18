@@ -40,10 +40,10 @@ namespace Fm {
 
     public abstract class Job : Object {
 
-        protected unowned IOSchedulerJob? job;
-        protected Cancellable cancellable;
-        protected bool running;
-        private ulong cancelled_handler;
+        protected unowned IOSchedulerJob?   job;
+        protected Cancellable               cancellable;
+        protected bool                      running;
+        private ulong                       cancelled_handler;
 
         public Job () {
             this.cancellable = new Cancellable ();
@@ -56,7 +56,7 @@ namespace Fm {
         // Run a job in current thread in a blocking fashion.
         public bool run_sync () {
             running = true;
-            var ret = run ();
+            bool ret = run ();
             running = false;
             finished ();
             return ret;
@@ -67,8 +67,9 @@ namespace Fm {
         // A job running synchronously with this function should be unrefed
         // later with g_object_unref when no longer needed.
         public bool run_sync_with_mainloop () {
+            
             bool ret = true;
-            var mainloop = new MainLoop ();
+            MainLoop mainloop = new MainLoop ();
             run_async ();
             ulong handler_id = finished.connect ( () => {
                 mainloop.quit ();
@@ -155,5 +156,7 @@ namespace Fm {
         public signal ErrorAction error (Error err, Severity severity);
 
     }
-
 }
+
+
+

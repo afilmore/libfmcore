@@ -75,21 +75,24 @@ namespace Fm {
             stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
 
             // trash all source files one by one
-            foreach (unowned Path _src_path in _src_paths.peek_head_link ()) {
-                File file = _src_path.to_gfile ();
+            foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
+                
+                File file = src_path.to_gfile ();
+                
                 try {
-                    var info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    
+                    GLib.FileInfo info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                     // show currently processed file in UI
-                    set_current_src_dest (_src_path, null);
+                    set_current_src_dest (src_path, null);
                     set_currently_processed (file, info, null);
                     update_progress_display ();
 
                     trash_file (file, info);
-                }
-                catch (Error err) {
+                
+                } catch (Error err) {
                     if (failed_paths == null)
                         failed_paths = new PathList ();
-                    failed_paths.push_tail (_src_path);
+                    failed_paths.push_tail (src_path);
                 }
             }
 
@@ -99,7 +102,8 @@ namespace Fm {
         public unowned PathList? get_failed_paths () {
             return failed_paths;
         }
-
     }
-
 }
+
+
+

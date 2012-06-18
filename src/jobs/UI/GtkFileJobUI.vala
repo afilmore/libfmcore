@@ -225,28 +225,28 @@ namespace Fm {
 
             show_dialog (); // show the progress dialog and use it as the parent window
 
-            var rename_dlg = new RenameDialog (dlg);
+            Fm.RenameDialog rename_dlg = new Fm.RenameDialog (dlg);
             
             if (src_info != null) { // display info of the source file
                 
-                var src_path = new Path.for_gfile (src_file);
-                var fi = new Fm.FileInfo.from_gfileinfo (src_path, src_info);
+                Fm.Path src_path = new Fm.Path.for_gfile (src_file);
+                Fm.FileInfo fi = new Fm.FileInfo.from_gfileinfo (src_path, src_info);
                 rename_dlg.set_src_info (fi);
             }
             
             if (dest_info != null) { // display info of the destination file which already exists
                 
-                var dest_path = new Path.for_gfile (dest_file);
-                var fi = new Fm.FileInfo.from_gfileinfo (dest_path, dest_info);
+                Fm.Path dest_path = new Fm.Path.for_gfile (dest_file);
+                Fm.FileInfo fi = new Fm.FileInfo.from_gfileinfo (dest_path, dest_info);
                 rename_dlg.set_dest_info (fi);
             }
 
             // show a dialog for the user to enter a new filename
-            var result = rename_dlg.run ();
+            Fm.RenameResult result = rename_dlg.run ();
             
             if (result == RenameResult.RENAME) {
                 
-                var new_name = rename_dlg.get_new_name ();
+                string new_name = rename_dlg.get_new_name ();
                 
                 if (new_name != null)
                     new_dest = dest_file.get_parent ().get_child (new_name);
@@ -273,7 +273,9 @@ namespace Fm {
             error_buf.get_end_iter (out it);
             
             if (current_src_info != null) {
-                var filename = current_src_info.get_display_name ();
+                
+                string filename = current_src_info.get_display_name ();
+                
                 error_buf.insert_with_tags (it, filename, -1, bold_tag, null);
                 error_buf.get_end_iter (out it);
                 error_buf.insert_with_tags (it, ": ", 2, bold_tag, null);
@@ -321,7 +323,7 @@ namespace Fm {
                 return;
             }
 
-            var builder = new Gtk.Builder ();
+            Gtk.Builder builder = new Gtk.Builder ();
             
             //const string ui_file = Config.PACKAGE_UI_DIR + "/progress.ui";
             
@@ -332,11 +334,14 @@ namespace Fm {
             dlg = (Gtk.Dialog)builder.get_object ("dlg");
             dlg.response.connect (on_dlg_response);
 
-            var dest_label = (Gtk.Label)builder.get_object ("to_label");
+            Gtk.Label dest_label = builder.get_object ("to_label") as Gtk.Label;
+            
             dest_path_label = (Gtk.Label)builder.get_object ("dest");
             icon_widget = (Gtk.Image)builder.get_object ("icon");
             msg_label = (Gtk.Label)builder.get_object ("msg");
-            var action_label = (Gtk.Label)builder.get_object ("action");
+            
+            Gtk.Label action_label = builder.get_object ("action") as Gtk.Label;
+            
             src_path_label = (Gtk.Label)builder.get_object ("src");
             current_file_label = (Gtk.Label)builder.get_object ("current");
             progress_bar = (Gtk.ProgressBar)builder.get_object ("progress");
@@ -344,10 +349,13 @@ namespace Fm {
             error_msg_text_view = (Gtk.TextView)builder.get_object ("error_msg");
             remaining_time_label = (Gtk.Label)builder.get_object ("remaining_time");
 
-            var tag_table = new Gtk.TextTagTable ();
+            Gtk.TextTagTable tag_table = new Gtk.TextTagTable ();
+            
             bold_tag = new Gtk.TextTag ("bold");
             bold_tag.weight = Pango.Weight.BOLD;
+            
             tag_table.add (bold_tag);
+            
             error_buf = new Gtk.TextBuffer (tag_table);
             error_msg_text_view.set_buffer (error_buf);
 

@@ -39,19 +39,23 @@ namespace Fm {
             if (info.get_file_type () == FileType.DIRECTORY) {
                 
                 FileEnumerator enu;
+                
                 try {
                     enu = file.enumerate_children (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-                while (cancellable.is_cancelled () == false) {
-                    GLib.FileInfo child_info = enu.next_file (cancellable);
-                    if (child_info == null) // end of file list
-                        break;
-                    
-                    var child = file.get_child (child_info.get_name ());
+                
+                    while (cancellable.is_cancelled () == false) {
+                        
+                        GLib.FileInfo child_info = enu.next_file (cancellable);
+                        if (child_info == null) // end of file list
+                            break;
+                        
+                        File child = file.get_child (child_info.get_name ());
 
-                    delete_file (child, child_info);
-                }
-                enu.close ();
-                ++_n_processed_dirs;
+                        delete_file (child, child_info);
+                    }
+                    enu.close ();
+                    ++_n_processed_dirs;
+                
                 } catch  (Error error) {
                 }
             }
@@ -92,7 +96,7 @@ namespace Fm {
             foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                 File file = src_path.to_gfile ();
                 try {
-                    var info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    GLib.FileInfo info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                     // show currently processed file in UI
                     set_current_src_dest (src_path, null);
                     set_currently_processed (file, info, null);
@@ -109,15 +113,16 @@ namespace Fm {
                 // emit a fake notification signal for file deletion for
                 // filesystems which don't have file monitor support.
                 // FIXME: should we do this to regular GFileMonitor as well?
-                var parent_dir = file.get_parent (); // get parent folder of src file
+                File parent_dir = file.get_parent (); // get parent folder of src file
+
                 var parent_mon = monitor_lookup_dummy_monitor (parent_dir);
-                if (parent_mon != null) {
+                if (parent_mon != null)
                     parent_mon.changed (file, null, FileMonitorEvent.DELETED);
-                }
             }
 
             return true;
         }
     }
-
 }
+
+

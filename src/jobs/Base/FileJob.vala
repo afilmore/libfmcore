@@ -38,19 +38,25 @@ namespace Fm {
         protected uint64                _processed_size;                 // currently processed size
         protected uint64                _current_file_size;              // size of current file being processed
         protected uint64                _current_file_processed_size;    // size processed of current file
+        
         protected int                   _n_total_files;                  // total number of files
         protected int                   _n_total_dirs;                   // total number of dirs
         protected int                   _n_processed_files;              // number of processed files
         protected int                   _n_processed_dirs;               // number of processed dirs
+        
         protected int                   _percent;                // percent  (0-100), for progress bar display
         protected double                _finished_fraction;      //  (0.0 - 1.0)
+        
         protected unowned Path          _current_src_path;
         protected unowned Path          _current_dest_path;
         protected File?                 _current_src_file;       // current source file being processed
         protected GLib.FileInfo?        _current_src_info;
         protected File?                 _current_dest_file;      // current destination file being processed
+        
         protected PathList?             _src_paths;              // source file paths
+        
         private Timer?                  _timer;
+        
         private double                  _last_elapsed;
         private uint                    _remaining_time;
         private UpdateFlags             _update_flags;
@@ -251,20 +257,28 @@ namespace Fm {
 
         // recursively calculate total size of a file/dir and its children
         protected uint64 calculate_total_for_file (File file, GLib.FileInfo info, out int n_dirs, out int n_files) {
+            
             FileType type = info.get_file_type ();
             uint64 size = get_file_size (info);
 
             if (type == FileType.DIRECTORY) {
+                
                 try {
-                    var enu = file.enumerate_children (_file_attributes, 0, cancellable);
+                    FileEnumerator enu = file.enumerate_children (_file_attributes, 0, cancellable);
+                    
                     while (cancellable.is_cancelled () == false) {
-                        var child_info = enu.next_file (cancellable);
+                        
+                        GLib.FileInfo child_info = enu.next_file (cancellable);
+                        
                         if (child_info == null) // end of file list
                             break;
-                        var child = file.get_child (child_info.get_name ());
+                        
+                        File child = file.get_child (child_info.get_name ());
                         int child_n_dirs, child_n_files;
+                        
                         uint64 child_size = calculate_total_for_file (child, child_info, out child_n_dirs, out child_n_files);
                         size += child_size;
+                        
                         n_dirs += child_n_dirs;
                         n_files += child_n_files;
                     }
@@ -282,10 +296,12 @@ namespace Fm {
 
         // calculate total amount of the job for progress display
         protected bool calculate_total () {
-            foreach (unowned Path _src_path in _src_paths.peek_head_link ()) {
-                File file = _src_path.to_gfile ();
+            
+            foreach (unowned Fm.Path src_path in _src_paths.peek_head_link ()) {
+                
+                File file = src_path.to_gfile ();
                 try {
-                    var info = file.query_info (_file_attributes, 0, cancellable);
+                    GLib.FileInfo info = file.query_info (_file_attributes, 0, cancellable);
                     int n_dirs, n_files;
                     _total_size += calculate_total_for_file (file, info, out n_dirs, out n_files);
                     _n_total_dirs += n_dirs;
@@ -300,6 +316,7 @@ namespace Fm {
         }
 
         protected void set_ready () {
+            
             if (_file_job_ui != null) {
                 job.send_to_mainloop (() => {
                     _file_job_ui.set_ready (); // inform the UI that we're ready to do the real work
@@ -313,8 +330,11 @@ namespace Fm {
         }
 
         protected ErrorAction handle_error (Error err, Severity severity = Severity.MODERATE) {
+            
             _timer.stop ();
+            
             ErrorAction ret = ErrorAction.CONTINUE;
+            
             if (_file_job_ui != null) {
                 job.send_to_mainloop (() => {
                     // set src and dest paths prior to showing the error.
@@ -329,17 +349,17 @@ namespace Fm {
                 if (ret == ErrorAction.ABORT || severity == Severity.CRITICAL)
                     cancel (); // cancel the job
             }
+            
             _timer.continue ();
             return ret;
         }
 
         public override /*signal*/ void finished () {
-            if (_file_job_ui != null) {
+            if (_file_job_ui != null)
                 _file_job_ui.finish ();
-            }
         }
-
     }
-
-
 }
+
+
+
