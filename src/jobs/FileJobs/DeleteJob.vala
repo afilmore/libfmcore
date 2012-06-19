@@ -94,8 +94,11 @@ namespace Fm {
 
             // delete all source files one by one
             foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
+                
                 File file = src_path.to_gfile ();
+                
                 try {
+                    
                     GLib.FileInfo info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                     // show currently processed file in UI
                     set_current_src_dest (src_path, null);
@@ -103,8 +106,8 @@ namespace Fm {
                     update_progress_display ();
 
                     delete_file (file, info);
-                }
-                catch (Error err) {
+                
+                } catch (Error err) {
                     if (handle_error (err) == ErrorAction.ABORT)
                         return false;
                     // TODO: handle ErrorAction.RETRY later
@@ -115,7 +118,8 @@ namespace Fm {
                 // FIXME: should we do this to regular GFileMonitor as well?
                 File parent_dir = file.get_parent (); // get parent folder of src file
 
-                var parent_mon = monitor_lookup_dummy_monitor (parent_dir);
+                FileMonitor parent_mon = monitor_lookup_dummy_monitor (parent_dir);
+                
                 if (parent_mon != null)
                     parent_mon.changed (file, null, FileMonitorEvent.DELETED);
             }

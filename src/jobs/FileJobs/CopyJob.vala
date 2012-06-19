@@ -266,13 +266,13 @@ namespace Fm {
                         File child_src_file = src_file.get_child (child_info.get_name ());
                         File child_dest_file = dest_file.get_child (child_info.get_name ());
                         
-                        if (copy_file (child_src_file, child_info, child_dest_file)) {
+                        if (this.copy_file (child_src_file, child_info, child_dest_file)) {
                         
                         } else {
                         
                         }
-                    }
-                    catch (Error err) {
+                    
+                    } catch (Error err) {
                         stdout.printf ("error: %s\n", err.message);
                     }
                 }
@@ -281,9 +281,8 @@ namespace Fm {
                 ++_n_processed_dirs;
 
                 // if this is actually a cross-device move operation, delete the source file.
-                if (_copy_mode == CopyJobMode.MOVE) {
+                if (_copy_mode == CopyJobMode.MOVE)
                     src_file.delete (cancellable);
-                }
             
             } catch (Error err) {
                 // FIXME: report the error to the user
@@ -660,8 +659,8 @@ namespace Fm {
                         // FIXME: the dest path is not correct, but since we do not use it
                         //   this won't cause problems. However, if we implement trashing
                         //   ourselves later, this path should be correct.
-                        // var dest_path = new Path.child (Path.get_trash (), path.get_basename ());
-                        var dest_path = get_dest_for_trash (home_mount, src_path);
+                        // Fm.Path dest_path = new Path.child (Path.get_trash (), path.get_basename ());
+                        Fm.Path dest_path = get_dest_for_trash (home_mount, src_path);
                         debug ("trash dest: %s", dest_path != null ? dest_path.to_str ():"null");
                         _dest_path_list.push_tail (dest_path);
                     }
@@ -753,7 +752,7 @@ namespace Fm {
                     switch (_copy_mode) {
                         
                         case CopyJobMode.COPY:
-                            copy_file (src_file, src_info, dest_file);
+                            this.copy_file (src_file, src_info, dest_file);
                         break;
                         
                         case CopyJobMode.MOVE: {
@@ -765,25 +764,25 @@ namespace Fm {
                             string dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
                             
                             if (src_fs == dest_fs) // on the same filesystem
-                                move_file (src_file, src_info, dest_file);
+                                this.move_file (src_file, src_info, dest_file);
                             else // cross-device move = copy + delete source
-                                copy_file (src_file, src_info, dest_file);
+                                this.copy_file (src_file, src_info, dest_file);
                         
                         }
                         break;
                         
                         case CopyJobMode.LINK: // TODO: create symlinks
-                            link_file (src_file, src_info, dest_file);
+                            this.link_file (src_file, src_info, dest_file);
                         break;
                         
                         /*
                         case CopyJobMode.TRASH:
-                            trash_file (src_file, src_info);
+                            this.trash_file (src_file, src_info);
                             break;
                         */
                         
                         case CopyJobMode.UNTRASH:
-                            move_file (src_file, src_info, dest_file);
+                            this.move_file (src_file, src_info, dest_file);
                         break;
                     }
                 
@@ -797,7 +796,7 @@ namespace Fm {
                 // filesystems which don't have file monitor support.
                 File dest_dir = dest_file.get_parent (); // get parent folder of dest file
                 
-                var dest_mon = monitor_lookup_dummy_monitor (dest_dir);
+                FileMonitor dest_mon = monitor_lookup_dummy_monitor (dest_dir);
                 
                 if (dest_mon != null)
                     dest_mon.changed (dest_file, null, FileMonitorEvent.CREATED);

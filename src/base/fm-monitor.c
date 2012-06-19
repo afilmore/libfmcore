@@ -22,13 +22,16 @@
  * 
  **********************************************************************************************************************/
 #include "fm-monitor.h"
-#include "fm-dummy-monitor.h"
+
 #include <string.h>
+
+#include "fm-dummy-monitor.h"
 
 #define MONITOR_RATE_LIMIT 5000
 
 static GHashTable *hash = NULL;
 static GHashTable *dummy_hash = NULL;
+
 G_LOCK_DEFINE_STATIC (hash);
 
 static void on_monitor_destroy (GFile *gf, GFileMonitor *mon)
@@ -126,8 +129,10 @@ GFileMonitor *fm_monitor_lookup_dummy_monitor (GFile *gf)
 {
     GFileMonitor *mon;
     char *scheme;
+    
     if (G_LIKELY (!gf || g_file_is_native (gf)))
         return NULL;
+    
     scheme = g_file_get_uri_scheme (gf);
     if (scheme)
     {
@@ -142,17 +147,26 @@ GFileMonitor *fm_monitor_lookup_dummy_monitor (GFile *gf)
         }
         g_free (scheme);
     }
+    
     G_LOCK (hash);
-    mon =  (GFileMonitor*)g_hash_table_lookup (dummy_hash, gf);
+    mon = (GFileMonitor*) g_hash_table_lookup (dummy_hash, gf);
+    
     if (mon)
+    {
         g_object_ref (mon);
+    }
     else
     {
         //create a fake file monitor
         mon = fm_dummy_monitor_new ();
-        g_object_weak_ref (G_OBJECT (mon),  (GWeakNotify)on_dummy_monitor_destroy, gf);
+        g_object_weak_ref (G_OBJECT (mon), (GWeakNotify) on_dummy_monitor_destroy, gf);
         g_hash_table_insert (dummy_hash, g_object_ref (gf), mon);
     }
+    
     G_UNLOCK (hash);
     return mon;
 }
+
+
+
+

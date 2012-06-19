@@ -24,18 +24,18 @@
 #ifndef __FM_FILE_MONITOR_H__
 #define __FM_FILE_MONITOR_H__
 
+
 #include <glib.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
 
-GFileMonitor *fm_monitor_directory (GFile *gf, GError **err);
-
 void _fm_monitor_init ();
 void _fm_monitor_finalize ();
 
-GFileMonitor *fm_monitor_lookup_monitor (GFile *gf);
-GFileMonitor *fm_monitor_lookup_dummy_monitor (GFile *gf);
+GFileMonitor *fm_monitor_directory              (GFile *gf, GError **err);
+GFileMonitor *fm_monitor_lookup_monitor         (GFile *gf);
+GFileMonitor *fm_monitor_lookup_dummy_monitor   (GFile *gf);
 
 G_END_DECLS
 #endif
