@@ -253,7 +253,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
                 g_app_info_get_executable (app),
                 g_app_info_get_commandline (app));*/
 
-            gchar  *program_path = g_find_program_in_path (g_app_info_get_executable (app));
+            gchar *program_path = g_find_program_in_path (g_app_info_get_executable (app));
             if (!program_path)
                 continue;
             

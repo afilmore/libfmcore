@@ -1,24 +1,26 @@
-//      file-job.vala
-//      
-//      Copyright 2011 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
-//      
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//       (at your option) any later version.
-//      
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//      
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-//      
-//      
-
+/***********************************************************************************************************************
+ * 
+ *      FileJob.vala
+ *
+ *      Copyright 2011 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
+ *
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 2 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
+ *
+ * 
+ **********************************************************************************************************************/
 namespace Fm {
 
     
@@ -34,6 +36,18 @@ namespace Fm {
         }
 
         protected FileJobUI?            _file_job_ui;
+        
+        protected PathList?             _src_paths;              // source file paths
+        
+        private Timer?                  _timer;
+        
+        protected unowned Path          _current_src_path;
+        protected File?                 _current_src_file;       // current source file being processed
+        protected GLib.FileInfo?        _current_src_info;
+
+        protected unowned Path          _current_dest_path;
+        protected File?                 _current_dest_file;      // current destination file being processed
+        
         protected uint64                _total_size;                     // total size of source file
         protected uint64                _processed_size;                 // currently processed size
         protected uint64                _current_file_size;              // size of current file being processed
@@ -47,26 +61,18 @@ namespace Fm {
         protected int                   _percent;                // percent  (0-100), for progress bar display
         protected double                _finished_fraction;      //  (0.0 - 1.0)
         
-        protected unowned Path          _current_src_path;
-        protected unowned Path          _current_dest_path;
-        protected File?                 _current_src_file;       // current source file being processed
-        protected GLib.FileInfo?        _current_src_info;
-        protected File?                 _current_dest_file;      // current destination file being processed
-        
-        protected PathList?             _src_paths;              // source file paths
-        
-        private Timer?                  _timer;
-        
         private double                  _last_elapsed;
         private uint                    _remaining_time;
         private UpdateFlags             _update_flags;
 
+        
         // FIXME: different job should requires different attributes
         protected static unowned string _file_attributes = 
             "standard::type,standard::size,standard::allocated-size,standard::name,standard::display-name,standard::symlink-target,unix::*,id::*";
 
         protected const uint64          _DEFAULT_PROCESSED_AMOUNT = 4096;
 
+        
         public FileJob (FileJobUI? ui = null) {
             this._file_job_ui = ui;
         }
@@ -86,6 +92,7 @@ namespace Fm {
         protected RenameResult ask_rename (File src_file, File dest_file, out File new_dest) {
             
             _timer.stop ();
+            
             RenameResult ret = RenameResult.CANCEL;
             File out_new_dest = null;
             
@@ -109,66 +116,85 @@ namespace Fm {
                     handle_error (err);
                 }
             }
+            
             new_dest = out_new_dest;
+            
             _timer.continue ();
+            
             return ret;
         }
 
         protected void show_error (string message, string? title = null, bool use_markup = true) {
             
             _timer.stop ();
+            
             if (_file_job_ui != null) {
                 job.send_to_mainloop (() => {
                     _file_job_ui.show_error (message, title, use_markup);
                     return true;
                 });
             }
+            
             _timer.continue ();
         }
 
         protected bool ask_ok_cancel (string question, string? title = null, bool use_markup = true) {
+            
             _timer.stop ();
             bool ret = false;
+            
             if (_file_job_ui != null) {
                 ret = job.send_to_mainloop (() => {
                     return _file_job_ui.ask_ok_cancel (question, title, use_markup);
                 });
             }
+            
             _timer.@continue ();
             return ret;
         }
 
         protected bool ask_yes_no (string question, string? title = null, bool use_markup = true) {
+            
             _timer.stop ();
             bool ret = false;
+            
             if (_file_job_ui != null) {
                 ret = job.send_to_mainloop (() => {
                     return _file_job_ui.ask_yes_no (question, title, use_markup);
                 });
             }
+            
             _timer.@continue ();
             return ret;
         }
 
         protected void set_current_src_dest (Path src_path, Path? dest_path) {
+            
             _current_src_path = src_path;
             _current_dest_path = dest_path;
+            
             _update_flags |= UpdateFlags.CURRENT_SRC_DEST;
         }
 
         protected void set_currently_processed (File src, GLib.FileInfo? src_info, File? dest) {
+            
             _current_src_file = src;
             _current_src_info = src_info;
             _current_dest_file = dest;
+            
             _update_flags |= UpdateFlags.CURRENTLY_PROCESSED;
         }
 
         protected void set_percent (double fraction) {
+            
             _finished_fraction = fraction;
             fraction *= 100;
+            
             int new_percent =  (int)fraction;
+            
             if (new_percent > 100)
                 new_percent = 100;
+            
             if (new_percent != _percent) {
                 _percent = new_percent;
                 // stdout.printf ("%d, %d, percent: %d\n", n_processed_files, n_processed_dirs, _percent);
@@ -176,6 +202,7 @@ namespace Fm {
             }
         }
 
+        
         // Call UI to update current progress display, "if needed".
         // to improve performance, update_progress_display () check the timer
         // and only really update the progress display in UI when
@@ -188,41 +215,54 @@ namespace Fm {
         // The function then check if enough time has passed and really 
         // update the UI display periodically at interval > 0.6 sec.
         protected void update_progress_display () {
+            
             double elapsed = _timer.elapsed ();
-            bool enough_time_elapsed =  ((elapsed - _last_elapsed) > 0.6);
+            
+            bool enough_time_elapsed = ((elapsed - _last_elapsed) > 0.6);
             bool need_update_text = false;
+            
             if (enough_time_elapsed) {
+                
                 // estimate remaining time
                 double total_time = elapsed / _finished_fraction;
                 double remaining = total_time *  (1 - _finished_fraction);
+                
                 // FIXME: need to find out a better way to update estimated time
-                _remaining_time =  (uint)remaining;
+                _remaining_time = (uint) remaining;
                 // stdout.printf ("remaining: %u, %lf, %lf, %lf\n", _remaining_time, total_time, remaining, _finished_fraction);
+                
                 _update_flags |= UpdateFlags.TIME;
                 if ((_update_flags & UpdateFlags.ALL_TEXT) !=0)
                     need_update_text = true;
             }
 
             // stdout.printf ("update_progress: %d\n",  (_update_flags & UpdateFlags.CURRENT_SRC_DEST));
-            if (need_update_text	||  (_update_flags & UpdateFlags.PERCENT) !=0) {
+            if (need_update_text || (_update_flags & UpdateFlags.PERCENT) !=0) {
+                
                 if (_file_job_ui != null) {
+                    
                     // call the UI to update display, "in main thread"
                     job.send_to_mainloop (() => {
+                        
                         if (enough_time_elapsed) {
+                            
                             if ((_update_flags & UpdateFlags.CURRENT_SRC_DEST) != 0) {
                                 _file_job_ui.set_current_src_dest (_current_src_path, _current_dest_path);
                                 _update_flags &= ~UpdateFlags.CURRENT_SRC_DEST;
                             }
+                            
                             if ((_update_flags & UpdateFlags.CURRENTLY_PROCESSED) !=0) {
                                 _file_job_ui.set_currently_processed (_current_src_file, _current_src_info, _current_dest_file);
                                 _update_flags &= ~UpdateFlags.CURRENTLY_PROCESSED;
                             }
+                            
                             if ((_update_flags & UpdateFlags.TIME) != 0) {
                                 // set remaining time
                                 _file_job_ui.set_times ((uint)elapsed, _remaining_time);
                                 _update_flags &= ~UpdateFlags.TIME;
                             }
                         }
+                        
                         if ((_update_flags & UpdateFlags.PERCENT) != 0) {
                             _file_job_ui.set_percent (_percent);
                             _update_flags &= ~UpdateFlags.PERCENT;
@@ -230,28 +270,35 @@ namespace Fm {
                         return true;
                     });
                 }
+                
                 if (enough_time_elapsed)
                     _last_elapsed = elapsed;
             }
         }
 
         public override void run_async () {
+            
             // this function is still called from main thread
             _timer = new Timer ();
-            if (_file_job_ui != null) {
+            
+            if (_file_job_ui != null)
                 _file_job_ui.start (); // inform the ui that we started the job
-            }
+            
             // chain up base to really launch the job thread
             base.run_async ();
         }
 
         protected inline static uint64 get_file_size (GLib.FileInfo info) {
+            
             // prefer block_size x blocks, and fallback to size or DEFAULT_PROCESSED_AMOUNT
             uint64 size = info.get_attribute_uint32 ("unix::block_size") * info.get_attribute_uint64 ("unix::blocks");
+            
             if (size == 0)
                 size = info.get_size ();
+            
             if (size == 0)
                 size = _DEFAULT_PROCESSED_AMOUNT;
+            
             return size;
         }
 
@@ -283,14 +330,15 @@ namespace Fm {
                         n_files += child_n_files;
                     }
                     enu.close ();
-                }
-                catch (Error err) {
+                
+                } catch (Error err) {
                 }
                 ++n_dirs;
-            }
-            else {
+            
+            } else {
                 ++n_files;
             }
+            
             return size;
         }
 
@@ -300,15 +348,20 @@ namespace Fm {
             foreach (unowned Fm.Path src_path in _src_paths.peek_head_link ()) {
                 
                 File file = src_path.to_gfile ();
+                
                 try {
+                    
                     GLib.FileInfo info = file.query_info (_file_attributes, 0, cancellable);
+                    
                     int n_dirs, n_files;
+                    
                     _total_size += calculate_total_for_file (file, info, out n_dirs, out n_files);
                     _n_total_dirs += n_dirs;
                     _n_total_files += n_files;
+                
+                } catch (Error err) {
                 }
-                catch (Error err) {
-                }
+                
                 if (cancellable.is_cancelled () == true)
                     return false;
             }
@@ -318,6 +371,7 @@ namespace Fm {
         protected void set_ready () {
             
             if (_file_job_ui != null) {
+                
                 job.send_to_mainloop (() => {
                     _file_job_ui.set_ready (); // inform the UI that we're ready to do the real work
                     return true;
@@ -336,7 +390,9 @@ namespace Fm {
             ErrorAction ret = ErrorAction.CONTINUE;
             
             if (_file_job_ui != null) {
+                
                 job.send_to_mainloop (() => {
+                    
                     // set src and dest paths prior to showing the error.
                     _file_job_ui.set_current_src_dest (_current_src_path, _current_dest_path);
                     _file_job_ui.set_currently_processed (_current_src_file, _current_src_info, _current_dest_file);
@@ -355,6 +411,7 @@ namespace Fm {
         }
 
         public override /*signal*/ void finished () {
+            
             if (_file_job_ui != null)
                 _file_job_ui.finish ();
         }

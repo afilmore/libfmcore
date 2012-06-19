@@ -8,6 +8,7 @@ SUBDIRS= \
 	fm-vala \
 	jobs \
 	. \
+	tests \
 	$(NULL)
 
 AM_CPPFLAGS = \

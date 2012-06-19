@@ -207,12 +207,13 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 #*****************************************************************************************
 
 AC_CONFIG_FILES([
+    Makefile
     data/Makefile
+    src/Makefile
     src/fm-vala/Makefile
     src/jobs/Makefile
-    src/Makefile
+    src/tests/Makefile
     vapi/Makefile
-    Makefile
     libfmcore-${LIBFMCORE_API_VERSION}.pc
 ])
 

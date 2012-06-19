@@ -1,26 +1,26 @@
-
-
-//      rename-dlg.vala
-//      
-//      Copyright 2011 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
-//      
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//       (at your option) any later version.
-//      
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//      
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-//      
-//      
-
+/***********************************************************************************************************************
+ * 
+ *      RenameDialog.vala
+ *
+ *      Copyright 2011 Hong Jen Yee  (PCMan) <pcman.tw@gmail.com>
+ *
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 2 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
+ *
+ * 
+ **********************************************************************************************************************/
 namespace Fm {
 
 
@@ -67,7 +67,7 @@ namespace Fm {
             unowned string _new_name =  ((Gtk.Entry) entry).get_text ();
             
             // the new name should not be empty, the same as the old one, or contain '/'.
-            bool can_rename =  (_new_name != "" && _old_name != _new_name && _new_name.index_of_char ('/') == -1);
+            bool can_rename = (_new_name != "" && _old_name != _new_name && _new_name.index_of_char ('/') == -1);
             
             _dlg.set_response_sensitive (RESPONSE_RENAME, can_rename);
             
@@ -75,6 +75,7 @@ namespace Fm {
                 _dlg.set_default_response (RESPONSE_RENAME);
         }
 
+// unused...
 //~         private void on_parent_destroy (Object parent_win) {
 //~             _parent = null;
 //~         }
@@ -114,8 +115,8 @@ namespace Fm {
             if (_src_info != null) {
                 
                 
-    // !!!!
-    //			src_icon.set_from_gicon (_src_info.get_icon ().gicon, Gtk.IconSize.DIALOG);
+                // TODO_axl: set the icon...                
+                //~ src_icon.set_from_gicon (_src_info.get_icon ().gicon, Gtk.IconSize.DIALOG);
                 
                 string disp_size = _src_info.get_disp_size ();
                 string text;
@@ -134,9 +135,8 @@ namespace Fm {
 
             if (_dest_info != null) {
                 
-                
-    // !!!!!			
-    //            dest_icon.set_from_gicon (_dest_info.get_icon ().gicon, Gtk.IconSize.DIALOG);
+                // TODO_axl: set the icon...                
+                //~ dest_icon.set_from_gicon (_dest_info.get_icon ().gicon, Gtk.IconSize.DIALOG);
                 
                 
                 string disp_size = _dest_info.get_disp_size ();
