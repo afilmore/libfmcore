@@ -175,6 +175,7 @@ namespace Fm {
                 
                 case CopyJobMode.LINK:
                 case CopyJobMode.UNTRASH:
+                    
                     // create symlinks for every source file
                     foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
                         File file = src_path.to_gfile ();

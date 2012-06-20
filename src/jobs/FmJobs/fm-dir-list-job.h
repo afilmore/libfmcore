@@ -30,30 +30,27 @@
 
 G_BEGIN_DECLS
 
-#define FM_TYPE_DIR_LIST_JOB				(fm_dir_list_job_get_type())
-#define FM_DIR_LIST_JOB(obj)				(G_TYPE_CHECK_INSTANCE_CAST((obj),\
-			FM_TYPE_DIR_LIST_JOB, FmDirListJob))
-#define FM_DIR_LIST_JOB_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST((klass),\
-			FM_TYPE_DIR_LIST_JOB, FmDirListJobClass))
-#define FM_IS_DIR_LIST_JOB(obj)			(G_TYPE_CHECK_INSTANCE_TYPE((obj),\
-			FM_TYPE_DIR_LIST_JOB))
-#define FM_IS_DIR_LIST_JOB_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE((klass),\
-			FM_TYPE_DIR_LIST_JOB))
+#define FM_TYPE_DIR_LIST_JOB            (fm_dir_list_job_get_type())
+#define FM_DIR_LIST_JOB(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj),  FM_TYPE_DIR_LIST_JOB, FmDirListJob))
+#define FM_DIR_LIST_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),   FM_TYPE_DIR_LIST_JOB, FmDirListJobClass))
+#define FM_IS_DIR_LIST_JOB(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),  FM_TYPE_DIR_LIST_JOB))
+#define FM_IS_DIR_LIST_JOB_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),   FM_TYPE_DIR_LIST_JOB))
 
-typedef struct _FmDirListJob			FmDirListJob;
-typedef struct _FmDirListJobClass		FmDirListJobClass;
+typedef struct _FmDirListJob            FmDirListJob;
+typedef struct _FmDirListJobClass       FmDirListJobClass;
+
 
 struct _FmDirListJob
 {
 	FmJob parent;
 	
-    FmPath* dir_path;
+    FmPath *dir_path;
     
     gboolean dir_only;
     
-    FmFileInfo* dir_fi;
+    FmFileInfo *dir_fi;
 	
-    FmFileInfoList* files;
+    FmFileInfoList *files;
 };
 
 struct _FmDirListJobClass
@@ -61,13 +58,15 @@ struct _FmDirListJobClass
 	FmJobClass parent_class;
 };
 
-GType		fm_dir_list_job_get_type		(void);
-FmJob*	    fm_dir_list_job_new			 (FmPath* path, gboolean dir_only);
-FmJob*	    fm_dir_list_job_new_for_gfile(GFile* gf);
-FmFileInfoList* fm_dir_dist_job_get_files(FmDirListJob* job);
+
+GType           fm_dir_list_job_get_type		();
+
+FmJob*	        fm_dir_list_job_new			    (FmPath *path, gboolean dir_only);
+FmJob*          fm_dir_list_job_new_for_gfile   (GFile *gf);
+FmFileInfoList* fm_dir_dist_job_get_files       (FmDirListJob *job);
 
 G_END_DECLS
+#endif
 
-#endif /* __FM-DIR-LIST-JOB_H__ */
 
 

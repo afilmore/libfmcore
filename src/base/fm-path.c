@@ -823,8 +823,11 @@ GFile *fm_path_to_gfile (FmPath *path)
     }
     else
     {
-        char *tmp_str = fm_str_replace (str, "%20", " ");
-        printf ("fm_path_to_gfile %s\n", tmp_str);
+        //char *tmp_str = fm_str_replace (str, "%20", " ");
+        char *tmp_str = g_uri_escape_string (str, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
+        
+        //printf ("fm_path_to_gfile %s\n", tmp_str);
+        
         gf = g_file_new_for_uri (tmp_str);
         g_free (tmp_str);
     }
