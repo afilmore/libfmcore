@@ -35,6 +35,11 @@
 #include "fm-utils.h"
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 static FmPath *root_path = NULL;
 static FmPath *home_path = NULL;
 static FmPath *desktop_path = NULL;
@@ -328,6 +333,14 @@ on_error: // this is not a valid URI
 }
 
 
+
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
+
 /**
  * fm_path_new_for_str
  * @path_str: a string representing the file path in its native
@@ -517,6 +530,13 @@ FmPath *fm_path_new_for_gfile (GFile *gf)
 }
 
 
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
+
 /**
  * fm_path_new_child
  * @parent: a parent path
@@ -689,6 +709,11 @@ FmPath *fm_path_new_relative (FmPath *parent, const char *rel)
 
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 
 FmPath *fm_path_get_root ()
 {
@@ -717,6 +742,11 @@ FmPath *fm_path_get_apps_menu ()
 
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 
 /**
  * fm_path_has_prefix
@@ -822,6 +852,13 @@ char *fm_path_display_basename (FmPath *path)
 
 
 
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
+
 // FIXME_pcm: handle display name and real file name  (maybe non-UTF8) issue
 char *fm_path_to_str (FmPath *path)
 {
@@ -920,6 +957,11 @@ GFile *fm_path_to_gfile (FmPath *path)
 
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 
 // For used in hash tables
 
@@ -980,6 +1022,14 @@ gboolean fm_path_equal_str (FmPath *path, const gchar *str, int n)
     // tail-end recursion
     return fm_path_equal_str (path->parent, str, n - strlen (path->name) - 1);
 }
+
+
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 
 /* translate gvfs trash:///path to real path of the trashed file on disk.
  * this only works when path is a trashed file and gvfs is active.
@@ -1050,5 +1100,7 @@ char* fm_path_get_trash_real_path(FmPath* path)
 	}
     return g_string_free(result, FALSE);
 }
+
+
 
 
