@@ -42,8 +42,6 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
     
 	FmGtkFileJobUI *ui = fm_gtk_file_job_ui_new (parent);
 	
-    //~ FmJob* job = fm_copy_files_to_dir(path_list, dest_dir, ui);
-	
     FmList* dest_paths = fm_path_list_new ();
 	
     GList* list = fm_list_peek_head_link (path_list);
@@ -61,7 +59,6 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
     }
 	
 	
-    //~ FmJob* job = (FmJob*) fm_copy_job_new (FM_COPY_JOB_MODE_COPY, path_list, dest_paths, ui);
     FmJob* job = (FmJob*) fm_copy_job_new (copy_job_mode, path_list, dest_paths, ui);
 	fm_job_run_async ((FmJob*) job);
 	
@@ -105,6 +102,41 @@ void fm_rename_file (GtkWindow *parent, FmPath *file)
 
 void fm_link (GtkWindow *parent, FmPath *file)
 {
+    GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;
+    GError *err = NULL;
+    
+    //~ gchar *new_name = fm_get_user_input_rename (parent, _("Rename File"), _("Please enter a new name:"), file->name);
+    //~ if (!new_name)
+        //~ return;
+    //~ 
+    
+    gchar *new_name = g_build_filename ("Link to ", file->name);
+    if (!new_name)
+        return;
+    
+    parent_gf = g_file_get_parent (gf);
+    dest = g_file_get_child (G_FILE (parent_gf), new_name);
+    g_object_unref (parent_gf);
+    
+    //~ if (!g_file_make_symbolic_link (gf,
+                      //~ dest,
+                      //~ G_FILE_COPY_ALL_METADATA
+                      //~ | G_FILE_COPY_NO_FALLBACK_FOR_MOVE
+                      //~ | G_FILE_COPY_NOFOLLOW_SYMLINKS,
+                      //~ NULL, // make this cancellable later.
+                      //~ NULL,
+                      //~ NULL,
+                      //~ &err))
+    //~ {
+        //~ fm_show_error (parent, NULL, err->message);
+        //~ g_error_free (err);
+    //~ }
+    
+    g_object_unref (dest);
+    g_object_unref (gf);
+    
+    //
+    
 }
 
 
