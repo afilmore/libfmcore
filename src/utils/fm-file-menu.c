@@ -59,6 +59,7 @@ static void action_delete               (GtkAction *action, gpointer user_data);
 static void action_rename               (GtkAction *action, gpointer user_data);
 
 static void action_link                 (GtkAction *action, gpointer user_data);
+static void action_send_to              (GtkAction *action, gpointer user_data);
 
 static void action_empty_trash          (GtkAction *action, gpointer user_data);
 
@@ -67,7 +68,6 @@ static void action_extract_here         (GtkAction *action, gpointer user_data);
 static void action_extract_to           (GtkAction *action, gpointer user_data);
 
 static void action_properties           (GtkAction *action, gpointer user_data);
-
 
 
 const char filefolder_popup_xml [] =
@@ -93,6 +93,7 @@ const char filefolder_popup_xml [] =
         "<menuitem action='Delete'/>"
         "<menuitem action='Rename'/>"
         "<menuitem action='Link'/>"
+        "<menuitem action='SendTo'/>"
         "<separator/>"
         
         "<placeholder name='ARCHIVER'/>"
@@ -101,6 +102,7 @@ const char filefolder_popup_xml [] =
         "<menuitem action='Properties'/>"
     "</popup>"
 ;
+
 
 GtkActionEntry file_menu_actions [] =
 {
@@ -120,10 +122,7 @@ GtkActionEntry file_menu_actions [] =
     {"Rename",          NULL, N_("Rename"), "F2", NULL,                 G_CALLBACK (action_rename)},
     
     {"Link",            NULL, N_("Create Symlink"), NULL, NULL,         G_CALLBACK (action_link)},
-    
-    /** TODO_axl
-    {"SendTo",          NULL, N_("Send To"), NULL, NULL,                NULL},
-    **/
+    {"SendTo",          NULL, N_("Send To"), NULL, NULL,                G_CALLBACK (action_send_to)},
     
     {"Compress",        NULL, N_("Compress..."), NULL, NULL,            G_CALLBACK (action_compress)},
     
@@ -152,53 +151,62 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     FmFileMenu      *file_menu;
     GString         *xml;
     
-    // Paths flags...
+    
+    g_return_val_if_fail (files != NULL, NULL);
+    
+    
+    // Get Paths flags...
     uint            have_flags; // OR
     uint            all_flags;  // AND
 
-    g_return_val_if_fail (files != NULL, NULL);
-    
     int num_files = fm_file_info_list_get_flags (files, &have_flags, &all_flags);
     
     g_return_val_if_fail (num_files > 0, NULL);
     
-    /***
-     * NOTE: It may be possible to connect to the "destroy" signal of the parent
-     * and set file_menu->parent to NULL when it's detroyed...
+    
+    /*****************************************************************
+     * NOTE: It may be possible to connect to the "destroy" signal
+     * of the parent and set file_menu->parent to NULL when it's
+     * detroyed...
      * 
-     ***/
+     ****************************************************************/
     file_menu = g_slice_new0 (FmFileMenu);
     file_menu->parent = g_object_ref (parent);
     file_menu->file_infos = fm_list_ref (files);
     file_menu->auto_destroy = auto_destroy;
 
-    // The current working directory is used to extract archives.
+    // The current working directory is used to extract archives...
     if (current_directory)
         file_menu->current_directory = fm_path_ref (current_directory);
 
     
-    
-    
+    /*****************************************************************
+     * 
+     * 
+     * 
+     ****************************************************************/
     file_menu->same_type = fm_file_info_list_is_same_type (files);
     gboolean same_fs = fm_file_info_list_is_same_fs (files);
     
-    FmFileInfo *first_file_info = (FmFileInfo*) fm_list_peek_head (files);
-    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (first_file_info, FALSE);
-    
-    //~ gboolean all_virtual = same_fs && fm_path_is_virtual (first_file_info->path);
-
     gboolean multiple_files = (num_files > 1);
     gboolean have_virtual = (have_flags & FM_PATH_IS_VIRTUAL);
     gboolean all_trash_files = ((all_flags & FM_PATH_IS_TRASH) && !(all_flags & FM_PATH_IS_ROOT));
     
     gboolean trash_root = (!multiple_files && (all_flags & FM_PATH_IS_ROOT) && (all_flags & FM_PATH_IS_TRASH));
     
+    FmFileInfo *first_file_info = (FmFileInfo*) fm_list_peek_head (files);
+    FmMimeType *fi_mime_type = fm_file_info_get_mime_type (first_file_info, FALSE);
+    
+    gboolean show_open_with = (file_menu->same_type && fi_mime_type && !fm_file_info_is_dir (first_file_info)
+                               && !have_virtual);
+    
     gboolean can_restore = TRUE;
+    
     if (all_trash_files)
     {
         GList *l;
         
-        // only immediate children of trash:/// can be restored.
+        // Only immediate children of "trash:///" can be restored...
         for (l = fm_list_peek_head_link (files); l; l = l->next)
         {
             FmPath *trash_path = fm_file_info_get_path (FM_FILE_INFO (l->data));
@@ -209,12 +217,14 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
                 break;
             }
         }
-        
     }
 
 
-    
-    // Add Default Menu Items...
+    /*****************************************************************
+     * Add Default Menu Items...
+     * 
+     * 
+     ****************************************************************/
     file_menu->ui = ui = gtk_ui_manager_new ();
     file_menu->action_group = action_group = gtk_action_group_new ("Popup");
     gtk_action_group_set_translation_domain (action_group, GETTEXT_PACKAGE);
@@ -226,15 +236,12 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gtk_ui_manager_insert_action_group (ui, action_group, 0);
 
 
-    // OpenWith items...
+    /*****************************************************************
+     * OpenWith items...
+     * 
+     * 
+     ****************************************************************/
     xml = g_string_new ("");
-    
-    
-    //~ gboolean show_open_with = (file_menu->same_type && fi_mime_type && !fm_file_info_is_dir (first_file_info)
-                               //~ && !all_virtual);
-    //~ 
-    gboolean show_open_with = (file_menu->same_type && fi_mime_type && !fm_file_info_is_dir (first_file_info)
-                               && !have_virtual);
     
     if (show_open_with)
     {
@@ -251,10 +258,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         {
             GAppInfo *app = app_list->data;
 
-            /*g_debug ("app %s, executable %s, command %s\n",
+            /**g_debug ("app %s, executable %s, command %s\n",
                 g_app_info_get_name (app),
                 g_app_info_get_executable (app),
-                g_app_info_get_commandline (app));*/
+                g_app_info_get_commandline (app));**/
 
             gchar *program_path = g_find_program_in_path (g_app_info_get_executable (app));
             if (!program_path)
@@ -297,7 +304,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         g_string_append (xml, "</placeholder>\n</popup>\n");
     }
 
-    
+    /**
     printf ("have flags (OR) = %d, or all flags (AND) = %d\n", have_flags, all_flags);
     
     if (have_flags & FM_PATH_IS_NATIVE)
@@ -333,7 +340,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     if (have_flags != all_flags)
     {
         printf ("different flags\n");
-    }
+    }**/
     
     
     // Archiver integration
@@ -399,6 +406,9 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     action = gtk_ui_manager_get_action (ui, "/popup/Link");
     gtk_action_set_visible (action, TRUE);
     
+    action = gtk_ui_manager_get_action (ui, "/popup/SendTo");
+    gtk_action_set_visible (action, TRUE);
+    
     action = gtk_ui_manager_get_action (ui, "/popup/Properties");
     gtk_action_set_visible (action, !have_virtual);
     
@@ -408,8 +418,8 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
 
 void fm_file_menu_set_folder_func (FmFileMenu *menu, FmLaunchFolderFunc func, gpointer user_data)
 {
-    menu->folder_func = func;
-    menu->folder_func_data = user_data;
+    menu->folder_func =         func;
+    menu->folder_func_data =    user_data;
 }
 
 GtkMenu *fm_file_menu_get_menu (FmFileMenu *menu)
@@ -422,9 +432,7 @@ GtkMenu *fm_file_menu_get_menu (FmFileMenu *menu)
     gtk_menu_attach_to_widget (GTK_MENU (menu->menu), GTK_WIDGET (menu->parent), NULL);
 
     if (menu->auto_destroy)
-    {
         g_signal_connect_swapped (menu->menu, "selection-done", G_CALLBACK (fm_file_menu_destroy), menu);
-    }
     
     return menu->menu;
 }
@@ -508,8 +516,6 @@ void action_open_with_app (GtkAction *action, gpointer user_data)
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
     GAppInfo *app = (GAppInfo*) g_object_get_qdata (G_OBJECT(action), fm_qdata_id);
-    
-    g_debug ("%s", gtk_action_get_name (action));
     
     fm_file_menu_open_with_app (file_menu, app);
 }
@@ -643,6 +649,10 @@ void action_link (GtkAction *action, gpointer user_data)
     fm_list_unref (files);
 }
 
+void action_send_to (GtkAction *action, gpointer user_data)
+{
+}
+
 void action_empty_trash (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
@@ -712,14 +722,14 @@ void action_properties (GtkAction *action, gpointer user_data)
     
     FmFileInfoList *files = file_menu->file_infos;
     
-    uint flags;
+    /**uint flags;
     fm_file_info_list_get_flags (files, &flags, NULL);
     
     if (flags & FM_PATH_IS_VIRTUAL)
     {
         // TODO_axl: printf ("NEEDS A VIRTUAL DIALOG !!!!!\n");
         return;
-    }
+    }**/
     
     fm_show_file_properties (file_menu->parent, files);
 }
