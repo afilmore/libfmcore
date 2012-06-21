@@ -33,8 +33,8 @@ G_BEGIN_DECLS
 
 // File operations
 void fm_copy_files  (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, FmCopyJobMode copy_job_mode);
+void fm_link_files  (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir);
 void fm_rename_file (GtkWindow *parent, FmPath *file);
-void fm_link_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, FmCopyJobMode copy_job_mode);
 
 
 

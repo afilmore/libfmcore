@@ -638,7 +638,7 @@ void action_link (GtkAction *action, gpointer user_data)
     g_return_if_fail (file_menu->current_directory != NULL);
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
-    fm_link_files (file_menu->parent, files, file_menu->current_directory, FM_COPY_JOB_MODE_LINK);
+    fm_link_files (file_menu->parent, files, file_menu->current_directory);
     
     fm_list_unref (files);
 }

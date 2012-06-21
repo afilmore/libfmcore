@@ -66,7 +66,7 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
 	g_object_unref (job);
 }
 
-void fm_link_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, FmCopyJobMode copy_job_mode)
+void fm_link_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir)
 {
 	g_return_if_fail (path_list != NULL);
 	g_return_if_fail (dest_dir != NULL);
@@ -79,35 +79,24 @@ void fm_link_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
         const gchar *basename  = fm_path_get_basename ((FmPath*) l->data);
         
         char buf[1024];
-        
         sprintf (buf, "Link To %s", basename);
         
-        //FmPath *dest_path = fm_path_new_for_str (buf);
         FmPath *dest_path = fm_path_new_child (dest_dir, buf);
-        
-        //g_free (buf);
         
         fm_list_push_tail (dest_paths, dest_path);
         
         fm_path_unref (dest_path);
     }
 	
-	
 	FmGtkFileJobUI *ui = fm_gtk_file_job_ui_new (parent);
 	
-    FmJob *job = (FmJob*) fm_copy_job_new (copy_job_mode, path_list, dest_paths, ui);
+    FmJob *job = (FmJob*) fm_copy_job_new (FM_COPY_JOB_MODE_LINK, path_list, dest_paths, ui);
 	fm_job_run_async ((FmJob*) job);
 	
     fm_list_unref (dest_paths);
     
     g_object_unref (ui);
 	g_object_unref (job);
-
-
-
-
-
-
 }
 
 void fm_rename_file (GtkWindow *parent, FmPath *file)
@@ -128,7 +117,7 @@ void fm_rename_file (GtkWindow *parent, FmPath *file)
                       G_FILE_COPY_ALL_METADATA
                       | G_FILE_COPY_NO_FALLBACK_FOR_MOVE
                       | G_FILE_COPY_NOFOLLOW_SYMLINKS,
-                      NULL, // make this cancellable later.
+                      NULL,
                       NULL,
                       NULL,
                       &err))
