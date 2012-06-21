@@ -85,6 +85,7 @@ namespace Fm {
                 return false;
 
             set_ready (); // tell the UI that we're ready
+            
             stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
 
             // ready to copy/move files
@@ -98,6 +99,7 @@ namespace Fm {
                 unowned Fm.Path dest_path = dest_l.data;
                 
                 File src_file = src_path.to_gfile ();
+                
                 File dest_file = dest_path.to_gfile ();
                 
                 try {
@@ -656,7 +658,8 @@ namespace Fm {
         }
 
         private bool _link_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
-            stdout.printf ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
+            stdout.printf ("_link_file\n");
+//            stdout.printf ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
             return false;
         }
 
@@ -783,7 +786,7 @@ namespace Fm {
                     }
                 break;
                 
-                case CopyJobMode.LINK:
+                //case CopyJobMode.LINK:
                 case CopyJobMode.UNTRASH:
                     
                     // create symlinks for every source file

@@ -48,9 +48,9 @@ static FmPath *apps_root_path = NULL;
 
 
 // Forward Declarations...
-static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, int name_len, int flags);
-static FmPath *_fm_path_new_for_uri_internal (const char *uri, gboolean need_unescape);
-static gchar *fm_path_to_str_internal (FmPath *path, gchar **ret, gint str_len);
+static inline FmPath    *_fm_path_new_internal          (FmPath *parent, const char *name, int name_len, int flags);
+static FmPath           *_fm_path_new_for_uri_internal  (const char *uri, gboolean need_unescape);
+static gchar            *fm_path_to_str_internal        (FmPath *path, gchar **ret, gint str_len);
 
 
 /*****************************************************************************************
@@ -866,34 +866,22 @@ char *fm_path_to_str (FmPath *path)
     
     gchar *ret;
     fm_path_to_str_internal (path, &ret, 0);
+    
     return ret;
 }
-
-/**
-static int fm_path_strlen (FmPath *path)
-{
-    int len = 0;
-    for (;;)
-    {
-        len += strlen (path->name);
-        if (G_UNLIKELY (!path->parent))
-            break;
-        if (path->parent->parent)
-            ++len; // add a character for separator
-        path = path->parent;
-    }
-    return len;
-}**/
 
 
 /* recursive internal implem. of fm_path_to_str returns end of current
    build string */
 static gchar *fm_path_to_str_internal (FmPath *path, gchar **ret, gint str_len)
 {
+    
+    printf ("fm_path_to_str_internal: path->name = %s\n", path->name);
+    
     gint name_len = strlen (path->name);
     gchar *pbuf;
 
-    if  (!path->parent)
+    if (!path->parent)
     {
         *ret = g_new0 (gchar, str_len + name_len + 1);
         pbuf = *ret;
@@ -901,10 +889,14 @@ static gchar *fm_path_to_str_internal (FmPath *path, gchar **ret, gint str_len)
     else
     {
         pbuf = fm_path_to_str_internal (path->parent, ret, str_len + name_len + 1);
-        if  (path->parent->parent) // if parent dir is not root_path
+        
+        // if parent dir is not root_path
+        if (path->parent->parent)
             *pbuf++ = G_DIR_SEPARATOR;
     }
+    
     memcpy (pbuf, path->name, name_len);
+    
     return pbuf + name_len;
 }
 

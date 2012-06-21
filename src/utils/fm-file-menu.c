@@ -634,10 +634,14 @@ void action_rename (GtkAction *action, gpointer user_data)
 void action_link (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
     
-    if (first_file_info)
-        fm_link (file_menu->parent, first_file_info->path);
+    g_return_if_fail (file_menu->file_infos != NULL);
+    g_return_if_fail (file_menu->current_directory != NULL);
+    
+    //FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
+    
+    //if (first_file_info)
+        fm_copy_files (file_menu->parent, file_menu->file_infos, file_menu->current_directory, FM_COPY_JOB_MODE_LINK);
 }
 
 void action_empty_trash (GtkAction *action, gpointer user_data)

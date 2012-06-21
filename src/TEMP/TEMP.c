@@ -1,3 +1,26 @@
+fm-path.c
+
+
+/**
+static int fm_path_strlen (FmPath *path)
+{
+    int len = 0;
+    for (;;)
+    {
+        len += strlen (path->name);
+        if (G_UNLIKELY (!path->parent))
+            break;
+        if (path->parent->parent)
+            ++len; // add a character for separator
+        path = path->parent;
+    }
+    return len;
+}**/
+
+
+
+
+
 fm-file-ops.h
 
 //~ void fm_move_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir)
