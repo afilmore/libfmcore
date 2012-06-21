@@ -651,6 +651,15 @@ void action_link (GtkAction *action, gpointer user_data)
 
 void action_send_to (GtkAction *action, gpointer user_data)
 {
+    FmFileMenu *file_menu = (FmFileMenu*) user_data;
+    
+    g_return_if_fail (file_menu->file_infos != NULL);
+    g_return_if_fail (file_menu->current_directory != NULL);
+    
+    FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
+    fm_link_files (file_menu->parent, files, fm_path_get_desktop ());
+    
+    fm_list_unref (files);
 }
 
 void action_empty_trash (GtkAction *action, gpointer user_data)

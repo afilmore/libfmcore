@@ -876,7 +876,7 @@ char *fm_path_to_str (FmPath *path)
 static gchar *fm_path_to_str_internal (FmPath *path, gchar **ret, gint str_len)
 {
     
-    printf ("fm_path_to_str_internal: path->name = %s\n", path->name);
+    //~ printf ("fm_path_to_str_internal: path->name = %s\n", path->name);
     
     gint name_len = strlen (path->name);
     gchar *pbuf;

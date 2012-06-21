@@ -289,7 +289,7 @@ namespace Fm {
             uint32 unix_mode = src_info.get_attribute_uint32 ("unix::mode");
             
             // ensure that we have rw permission to this file.
-            unix_mode |=  (Posix.S_IRUSR|Posix.S_IWUSR);
+            unix_mode |= (Posix.S_IRUSR|Posix.S_IWUSR);
             
             try {
                 // set the file attributes and ensure that it's writable
@@ -551,47 +551,10 @@ namespace Fm {
 
         private bool _link_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
-//            stdout.printf ("_link_file\n");
             stdout.printf ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
             
             _dest_file.make_symbolic_link (src_file.get_parse_name (), null);
             
-            
-            /*GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;
-            GError *err = NULL;
-            
-            //~ gchar *new_name = fm_get_user_input_rename (parent, _("Rename File"), _("Please enter a new name:"), file->name);
-            //~ if (!new_name)
-                //~ return;
-            //~ 
-            
-            gchar *new_name = g_build_filename ("Link to ", file->name);
-            if (!new_name)
-                return;
-            
-            parent_gf = g_file_get_parent (gf);
-            dest = g_file_get_child (G_FILE (parent_gf), new_name);
-            g_object_unref (parent_gf);
-            
-            //~ if (!g_file_make_symbolic_link (gf,
-                              //~ dest,
-                              //~ G_FILE_COPY_ALL_METADATA
-                              //~ | G_FILE_COPY_NO_FALLBACK_FOR_MOVE
-                              //~ | G_FILE_COPY_NOFOLLOW_SYMLINKS,
-                              //~ NULL, // make this cancellable later.
-                              //~ NULL,
-                              //~ NULL,
-                              //~ &err))
-            //~ {
-                //~ fm_show_error (parent, NULL, err->message);
-                //~ g_error_free (err);
-            //~ }
-            
-            g_object_unref (dest);
-            g_object_unref (gf);*/
-            
-            //
-    
             return false;
         }
 
