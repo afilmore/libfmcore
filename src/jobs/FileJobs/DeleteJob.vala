@@ -87,7 +87,7 @@ namespace Fm {
             update_progress_display ();
 
             // calculate total amount of work for progress display
-            if (calculate_total () == false)
+            if (this._calculate_total () == false)
                 return false;
 
             // inform the UI that we're ready

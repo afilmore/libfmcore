@@ -343,7 +343,7 @@ namespace Fm {
         }
 
         // calculate total amount of the job for progress display
-        protected bool calculate_total () {
+        protected bool _calculate_total () {
             
             foreach (unowned Fm.Path src_path in _src_paths.peek_head_link ()) {
                 

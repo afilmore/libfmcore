@@ -58,6 +58,8 @@ static void action_paste                (GtkAction *action, gpointer user_data);
 static void action_delete               (GtkAction *action, gpointer user_data);
 static void action_rename               (GtkAction *action, gpointer user_data);
 
+static void action_link                 (GtkAction *action, gpointer user_data);
+
 static void action_empty_trash          (GtkAction *action, gpointer user_data);
 
 static void action_compress             (GtkAction *action, gpointer user_data);
@@ -90,6 +92,7 @@ const char filefolder_popup_xml [] =
 
         "<menuitem action='Delete'/>"
         "<menuitem action='Rename'/>"
+        "<menuitem action='Link'/>"
         "<separator/>"
         
         "<placeholder name='ARCHIVER'/>"
@@ -116,8 +119,9 @@ GtkActionEntry file_menu_actions [] =
     {"Delete",          GTK_STOCK_DELETE, NULL, NULL, NULL,             G_CALLBACK (action_delete)},
     {"Rename",          NULL, N_("Rename"), "F2", NULL,                 G_CALLBACK (action_rename)},
     
+    {"Link",            NULL, N_("Create Symlink"), NULL, NULL,         G_CALLBACK (action_link)},
+    
     /** TODO_axl
-    {"Link",            NULL, N_("Create Symlink"), NULL, NULL,         NULL},
     {"SendTo",          NULL, N_("Send To"), NULL, NULL,                NULL},
     **/
     
@@ -393,6 +397,9 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     action = gtk_ui_manager_get_action (ui, "/popup/Rename");
     gtk_action_set_visible (action, (!multiple_files && !have_virtual));
     
+    action = gtk_ui_manager_get_action (ui, "/popup/Link");
+    gtk_action_set_visible (action, TRUE);
+    
     action = gtk_ui_manager_get_action (ui, "/popup/Properties");
     gtk_action_set_visible (action, !have_virtual);
     
@@ -622,6 +629,15 @@ void action_rename (GtkAction *action, gpointer user_data)
     
     if (first_file_info)
         fm_rename_file (file_menu->parent, first_file_info->path);
+}
+
+void action_link (GtkAction *action, gpointer user_data)
+{
+    FmFileMenu *file_menu = (FmFileMenu*) user_data;
+    FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
+    
+    if (first_file_info)
+        fm_link (file_menu->parent, first_file_info->path);
 }
 
 void action_empty_trash (GtkAction *action, gpointer user_data)

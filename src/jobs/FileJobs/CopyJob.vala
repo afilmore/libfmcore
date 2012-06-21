@@ -77,8 +77,174 @@ namespace Fm {
             }
         }
 
+        protected override bool run () {
+            
+            stdout.printf  ("FmCopyJob.run\n");
+            
+            if (this._calculate_total () == false || this._ensure_dest () == false) // calculate total amount of work
+                return false;
 
-        private bool check_paths (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
+            set_ready (); // tell the UI that we're ready
+            stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
+
+            // ready to copy/move files
+            unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
+            
+            foreach (unowned Fm.Path src_path in _src_paths.peek_head_link ()) {
+                
+                if (is_cancelled ())
+                    break;
+                
+                unowned Fm.Path dest_path = dest_l.data;
+                
+                File src_file = src_path.to_gfile ();
+                File dest_file = dest_path.to_gfile ();
+                
+                try {
+                    
+                    // query info of source file and update progress display
+                    GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    
+                    set_current_src_dest (src_path, dest_path);
+                    
+                    set_currently_processed (src_file, src_info, dest_file);
+                    
+                    update_progress_display ();
+
+                    // check if the operation is valid. for example, one cannot
+                    // move a folder into itself.
+                    this._check_paths (src_file, src_info, dest_file);
+
+                    // maybe we don't need to call update_progress_display () here 
+                    // since it will soon be called inside copy_file ()/move_file ().
+                    switch (_copy_mode) {
+                        
+                        case CopyJobMode.COPY:
+                            this._copy_file (src_file, src_info, dest_file);
+                        break;
+                        
+                        case CopyJobMode.MOVE: {
+                            
+                            File dest_dir = dest_file.get_parent ();
+                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
+                            
+                            string src_fs = src_info.get_attribute_string ("id::filesystem");
+                            string dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
+                            
+                            if (src_fs == dest_fs) // on the same filesystem
+                                this._move_file (src_file, src_info, dest_file);
+                            else // cross-device move = copy + delete source
+                                this._copy_file (src_file, src_info, dest_file);
+                        
+                        }
+                        break;
+                        
+                        case CopyJobMode.LINK: // TODO: create symlinks
+                            this._link_file (src_file, src_info, dest_file);
+                        break;
+                        
+                        /*
+                        case CopyJobMode.TRASH:
+                            this.trash_file (src_file, src_info);
+                            break;
+                        */
+                        
+                        case CopyJobMode.UNTRASH:
+                            this._move_file (src_file, src_info, dest_file);
+                        break;
+                    }
+                
+                } catch (Error err) {
+
+                    if (handle_error (err, Severity.MODERATE) == ErrorAction.ABORT)
+                        return false;
+                }
+
+                // emit a fake notification signal for file creation for
+                // filesystems which don't have file monitor support.
+                File dest_dir = dest_file.get_parent (); // get parent folder of dest file
+                
+                FileMonitor dest_mon = monitor_lookup_dummy_monitor (dest_dir);
+                
+                if (dest_mon != null)
+                    dest_mon.changed (dest_file, null, FileMonitorEvent.CREATED);
+
+                dest_l = dest_l.next; // get next dest path
+            }
+
+            return true;
+        }
+
+        // ensure that we have proper dest paths
+        private bool _ensure_dest () {
+            
+            // FIXME: handle cancellable here
+            switch (_copy_mode) {
+                
+                /*
+                case CopyJobMode.TRASH:
+                    _dest_path_list = new PathList ();
+                    File home_file = File.new_for_path (Environment.get_home_dir ());
+                    Mount home_mount = home_file.find_enclosing_mount (cancellable);
+                    debug ("home_mount = %p",  (void*)home_mount);
+                    
+                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
+                        if (is_cancelled ())
+                            break;
+                        // FIXME: the dest path is not correct, but since we do not use it
+                        //   this won't cause problems. However, if we implement trashing
+                        //   ourselves later, this path should be correct.
+                        // Fm.Path dest_path = new Path.child (Path.get_trash (), path.get_basename ());
+                        Fm.Path dest_path = get_dest_for_trash (home_mount, src_path);
+                        debug ("trash dest: %s", dest_path != null ? dest_path.to_str ():"null");
+                        _dest_path_list.push_tail (dest_path);
+                    }
+                    break;
+                */
+                
+                case CopyJobMode.UNTRASH: {
+                    
+                    _dest_path_list = new PathList ();
+                    
+                    // get original paths of the trashed files
+                    foreach  (unowned Fm.Path path in _src_paths.peek_head_link ()) {
+                        
+                        if (is_cancelled ())
+                            break;
+                        
+                        //stdout.printf  ("Fm.CopyJob: untrash %s\n", path.to_str ());
+                        File file = path.to_gfile ();
+                        
+                        try {
+                            
+                            stdout.printf  ("Fm.CopyJob: file.query_info %s\n", path.to_str ());
+                            
+                            GLib.FileInfo info = file.query_info ("trash::*", 0, null);
+                            
+                            //stdout.printf  ("Fm.CopyJob: file.query_info %s\n", path.to_str ());
+                            
+                            unowned string dest_path_str = info.get_attribute_byte_string ("trash::orig-path");
+                            
+                            Fm.Path dest_path = new Fm.Path.for_str (dest_path_str);
+                            
+                            //stdout.printf  ("Fm.CopyJob: untrash orig path = orig-path: %s\n", dest_path.to_str ());
+                            
+                            _dest_path_list.push_tail (dest_path);
+                        }
+                        catch (Error err) {
+                            
+                            stdout.printf  ("Fm.CopyJob: error %s\n", err.message);
+                            // FIXME: emit the error properly
+                            return false;
+                        }
+                    }
+                }
+                break;
+            }
+            return true;
+        }
+        
+        private bool _check_paths (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
             
             IOError err = null;
             
@@ -106,100 +272,7 @@ namespace Fm {
         }
 
         
-        // calculate total amount of the job for progress display
-        protected new bool calculate_total () {
-            
-            bool ret = true;
-            
-            // calculate total size & file numbers
-            switch (_copy_mode) {
-                
-                case CopyJobMode.COPY:
-                    // default generic function provided by FileJob is suitable
-                    ret = base.calculate_total ();
-                break;
-                
-                case CopyJobMode.MOVE:
-                    
-                    // move operations is unique and works quite differently if
-                    // different filesystems/devices are involved.
-                    unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
-                    
-                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
-                        
-                        File src_file = src_path.to_gfile ();
-                        
-                        unowned Path dest_path = dest_l.data;
-                        
-                        File dest_dir = dest_path.get_parent ().to_gfile (); // FIXME: get_parent () might return null?
-                        
-                        try {
-                            GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-                            
-                            // NOTE: we cannot use FileQueryInfoFlags.NOFOLLOW_SYMLINKS here for dest dir
-                            
-                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
-                            unowned string src_fs = src_info.get_attribute_string ("id::filesystem");
-                            unowned string  dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
-
-                            if (src_fs == dest_fs) { // on the same filesystem
-                                
-                                // _total_size += get_file_size (src_info);
-                                // time taken by rename () is not related to file size.
-                                _total_size += _DEFAULT_PROCESSED_AMOUNT;
-                                
-                                if (src_info.get_file_type () == FileType.DIRECTORY)
-                                    ++_n_total_dirs;
-                                else
-                                    ++_n_total_files;
-                            
-                            } else { // not on the same filesystem
-                                
-                                // treat as copy
-                                int n_dirs, n_files;
-                                _total_size += calculate_total_for_file (src_file, src_info, out n_dirs, out n_files);
-                                _n_total_dirs += n_dirs;
-                                _n_total_files += n_files;
-                            }
-                        }
-                        catch (Error err) {
-                        }
-                        
-                        if (cancellable.is_cancelled () == true) {
-                            ret = false;
-                            break;
-                        }
-                        dest_l = dest_l.next;
-                    }
-                break;
-                
-                case CopyJobMode.LINK:
-                case CopyJobMode.UNTRASH:
-                    
-                    // create symlinks for every source file
-                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
-                        File file = src_path.to_gfile ();
-                        try {
-                            GLib.FileInfo info = file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-                            _total_size += get_file_size (info);
-                            if (info.get_file_type () == FileType.DIRECTORY)
-                                ++_n_total_dirs;
-                            else
-                                ++_n_total_files;
-                        }
-                        catch (Error err) {
-                        }
-                        if (cancellable.is_cancelled () == true) {
-                            ret = false;
-                            break;
-                        }
-                    }
-                break;
-            }
-            return ret;
-        }
-
-        private bool copy_dir (File src_file, GLib.FileInfo src_info, File _dest_file) {
+        private bool _copy_dir (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
             bool retry_mkdir = false;
             File dest_file = _dest_file;
@@ -269,7 +342,7 @@ namespace Fm {
                         File child_src_file = src_file.get_child (child_info.get_name ());
                         File child_dest_file = dest_file.get_child (child_info.get_name ());
                         
-                        if (this.copy_file (child_src_file, child_info, child_dest_file)) {
+                        if (this._copy_file (child_src_file, child_info, child_dest_file)) {
                         
                         } else {
                         
@@ -295,7 +368,7 @@ namespace Fm {
             return true;
         }
 
-        private void copy_progress_cb (int64 current_num_bytes, int64 total_num_bytes) {
+        private void _copy_progress_cb (int64 current_num_bytes, int64 total_num_bytes) {
             
             // calculate percent;
             double fraction =  (double) (_processed_size + current_num_bytes) / _total_size;
@@ -303,7 +376,7 @@ namespace Fm {
             update_progress_display ();
         }
 
-        private bool copy_special_file (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
+        private bool _copy_special_file (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
             
             bool ret = false;
             
@@ -383,7 +456,7 @@ namespace Fm {
                                 Posix.write (outfd, buf, read_size);
                                 current_file_processed_size += read_size;
                                 // call progress callback
-                                copy_progress_cb ( (int64)current_file_processed_size,  (int64)current_file_size);
+                                this._copy_progress_cb ( (int64)current_file_processed_size,  (int64)current_file_size);
                             }
                             Posix.close (outfd); // close output destination file
                         }
@@ -397,7 +470,7 @@ namespace Fm {
                     }
                 }
                 else { // special files, such as fifo, socket, and devide files
-                    ret = copy_special_file (src_file, src_info, dest_file);
+                    ret = this._copy_special_file (src_file, src_info, dest_file);
                 }
             }
             else {
@@ -407,7 +480,7 @@ namespace Fm {
         }**/
 
         
-        private bool copy_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
+        private bool _copy_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
             bool ret = false;
             File dest_file = _dest_file;
@@ -428,7 +501,7 @@ namespace Fm {
             FileType type = src_info.get_file_type ();
             
             if (type == FileType.DIRECTORY) {
-                ret = copy_dir (src_file, src_info, dest_file);
+                ret = this._copy_dir (src_file, src_info, dest_file);
             
             } else {
                 
@@ -442,12 +515,12 @@ namespace Fm {
                             
                             case FileType.SPECIAL:
                                 // handle special files
-                                ret = copy_special_file (src_file, src_info, dest_file);
+                                ret = this._copy_special_file (src_file, src_info, dest_file);
                             break;
                             
                             default:
 
-                                ret = src_file.copy (dest_file, flags, cancellable, copy_progress_cb);
+                                ret = src_file.copy (dest_file, flags, cancellable, this._copy_progress_cb);
 
                                 // if this is a cross-device move, delete the source file
                                 if (ret == true && _copy_mode == CopyJobMode.MOVE)
@@ -508,7 +581,7 @@ namespace Fm {
             return ret;
         }
 
-        private bool move_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
+        private bool _move_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
             bool ret = false;
             File dest_file = _dest_file;
@@ -526,7 +599,7 @@ namespace Fm {
                 try {
                     FileType type = src_info.get_file_type ();
                     
-                    ret = src_file.move (dest_file, flags, cancellable, copy_progress_cb);
+                    ret = src_file.move (dest_file, flags, cancellable, this._copy_progress_cb);
                     if (type == FileType.DIRECTORY)
                         ++_n_processed_files;
                     else
@@ -582,8 +655,8 @@ namespace Fm {
             return ret;
         }
 
-        private bool link_file (File src_file, GLib.FileInfo src_info, File dest_file) {
-            // TODO: implement symlink support later after 1.0 release.
+        private bool _link_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
+            stdout.printf ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
             return false;
         }
 
@@ -643,171 +716,103 @@ namespace Fm {
         }
         */
 
-        // ensure that we have proper dest paths
-        private bool ensure_dest () {
+        // calculate total amount of the job for progress display
+        protected new bool _calculate_total () {
             
-            // FIXME: handle cancellable here
+            bool ret = true;
+            
+            // calculate total size & file numbers
             switch (_copy_mode) {
                 
-                /*
-                case CopyJobMode.TRASH:
-                    _dest_path_list = new PathList ();
-                    File home_file = File.new_for_path (Environment.get_home_dir ());
-                    Mount home_mount = home_file.find_enclosing_mount (cancellable);
-                    debug ("home_mount = %p",  (void*)home_mount);
+                case CopyJobMode.COPY:
+                    // default generic function provided by FileJob is suitable
+                    ret = base._calculate_total ();
+                break;
+                
+                case CopyJobMode.MOVE:
+                    
+                    // move operations is unique and works quite differently if
+                    // different filesystems/devices are involved.
+                    unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
                     
                     foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
-                        if (is_cancelled ())
-                            break;
-                        // FIXME: the dest path is not correct, but since we do not use it
-                        //   this won't cause problems. However, if we implement trashing
-                        //   ourselves later, this path should be correct.
-                        // Fm.Path dest_path = new Path.child (Path.get_trash (), path.get_basename ());
-                        Fm.Path dest_path = get_dest_for_trash (home_mount, src_path);
-                        debug ("trash dest: %s", dest_path != null ? dest_path.to_str ():"null");
-                        _dest_path_list.push_tail (dest_path);
-                    }
-                    break;
-                */
-                
-                case CopyJobMode.UNTRASH: {
-                    
-                    _dest_path_list = new PathList ();
-                    
-                    // get original paths of the trashed files
-                    foreach  (unowned Fm.Path path in _src_paths.peek_head_link ()) {
                         
-                        if (is_cancelled ())
-                            break;
+                        File src_file = src_path.to_gfile ();
                         
-                        //stdout.printf  ("Fm.CopyJob: untrash %s\n", path.to_str ());
-                        File file = path.to_gfile ();
+                        unowned Path dest_path = dest_l.data;
+                        
+                        File dest_dir = dest_path.get_parent ().to_gfile (); // FIXME: get_parent () might return null?
                         
                         try {
+                            GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                             
-                            stdout.printf  ("Fm.CopyJob: file.query_info %s\n", path.to_str ());
+                            // NOTE: we cannot use FileQueryInfoFlags.NOFOLLOW_SYMLINKS here for dest dir
                             
-                            GLib.FileInfo info = file.query_info ("trash::*", 0, null);
+                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
+                            unowned string src_fs = src_info.get_attribute_string ("id::filesystem");
+                            unowned string  dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
+
+                            if (src_fs == dest_fs) { // on the same filesystem
+                                
+                                // _total_size += get_file_size (src_info);
+                                // time taken by rename () is not related to file size.
+                                _total_size += _DEFAULT_PROCESSED_AMOUNT;
+                                
+                                if (src_info.get_file_type () == FileType.DIRECTORY)
+                                    ++_n_total_dirs;
+                                else
+                                    ++_n_total_files;
                             
-                            //stdout.printf  ("Fm.CopyJob: file.query_info %s\n", path.to_str ());
-                            
-                            unowned string dest_path_str = info.get_attribute_byte_string ("trash::orig-path");
-                            
-                            Fm.Path dest_path = new Fm.Path.for_str (dest_path_str);
-                            
-                            //stdout.printf  ("Fm.CopyJob: untrash orig path = orig-path: %s\n", dest_path.to_str ());
-                            
-                            _dest_path_list.push_tail (dest_path);
+                            } else { // not on the same filesystem
+                                
+                                // treat as copy
+                                int n_dirs, n_files;
+                                _total_size += calculate_total_for_file (src_file, src_info, out n_dirs, out n_files);
+                                _n_total_dirs += n_dirs;
+                                _n_total_files += n_files;
+                            }
                         }
                         catch (Error err) {
-                            
-                            stdout.printf  ("Fm.CopyJob: error %s\n", err.message);
-                            // FIXME: emit the error properly
-                            return false;
+                        }
+                        
+                        if (cancellable.is_cancelled () == true) {
+                            ret = false;
+                            break;
+                        }
+                        dest_l = dest_l.next;
+                    }
+                break;
+                
+                case CopyJobMode.LINK:
+                case CopyJobMode.UNTRASH:
+                    
+                    // create symlinks for every source file
+                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
+                        
+                        File file = src_path.to_gfile ();
+                        
+                        try {
+                        
+                            GLib.FileInfo info = file.query_info (_file_attributes,
+                                                                  FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                            _total_size += get_file_size (info);
+                        
+                            if (info.get_file_type () == FileType.DIRECTORY)
+                                ++_n_total_dirs;
+                            else
+                                ++_n_total_files;
+                        }
+                        catch (Error err) {
+                        }
+                        
+                        if (cancellable.is_cancelled () == true) {
+                            ret = false;
+                            break;
                         }
                     }
-                }
                 break;
             }
-            return true;
-        }
-
-        protected override bool run () {
-            
-            stdout.printf  ("FmCopyJob.run\n");
-            
-            if (calculate_total () == false || ensure_dest () == false) // calculate total amount of work
-                return false;
-
-            set_ready (); // tell the UI that we're ready
-            stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
-
-            // ready to copy/move files
-            unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
-            
-            foreach (unowned Fm.Path src_path in _src_paths.peek_head_link ()) {
-                
-                if (is_cancelled ())
-                    break;
-                
-                unowned Fm.Path dest_path = dest_l.data;
-                
-                File src_file = src_path.to_gfile ();
-                File dest_file = dest_path.to_gfile ();
-                
-                try {
-                    
-                    // query info of source file and update progress display
-                    GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-                    
-                    set_current_src_dest (src_path, dest_path);
-                    
-                    set_currently_processed (src_file, src_info, dest_file);
-                    
-                    update_progress_display ();
-
-                    // check if the operation is valid. for example, one cannot
-                    // move a folder into itself.
-                    check_paths (src_file, src_info, dest_file);
-
-                    // maybe we don't need to call update_progress_display () here 
-                    // since it will soon be called inside copy_file ()/move_file ().
-                    switch (_copy_mode) {
-                        
-                        case CopyJobMode.COPY:
-                            this.copy_file (src_file, src_info, dest_file);
-                        break;
-                        
-                        case CopyJobMode.MOVE: {
-                            
-                            File dest_dir = dest_file.get_parent ();
-                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
-                            
-                            string src_fs = src_info.get_attribute_string ("id::filesystem");
-                            string dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
-                            
-                            if (src_fs == dest_fs) // on the same filesystem
-                                this.move_file (src_file, src_info, dest_file);
-                            else // cross-device move = copy + delete source
-                                this.copy_file (src_file, src_info, dest_file);
-                        
-                        }
-                        break;
-                        
-                        case CopyJobMode.LINK: // TODO: create symlinks
-                            this.link_file (src_file, src_info, dest_file);
-                        break;
-                        
-                        /*
-                        case CopyJobMode.TRASH:
-                            this.trash_file (src_file, src_info);
-                            break;
-                        */
-                        
-                        case CopyJobMode.UNTRASH:
-                            this.move_file (src_file, src_info, dest_file);
-                        break;
-                    }
-                
-                } catch (Error err) {
-
-                    if (handle_error (err, Severity.MODERATE) == ErrorAction.ABORT)
-                        return false;
-                }
-
-                // emit a fake notification signal for file creation for
-                // filesystems which don't have file monitor support.
-                File dest_dir = dest_file.get_parent (); // get parent folder of dest file
-                
-                FileMonitor dest_mon = monitor_lookup_dummy_monitor (dest_dir);
-                
-                if (dest_mon != null)
-                    dest_mon.changed (dest_file, null, FileMonitorEvent.CREATED);
-
-                dest_l = dest_l.next; // get next dest path
-            }
-
-            return true;
+            return ret;
         }
     }
 }

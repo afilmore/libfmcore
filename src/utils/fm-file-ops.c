@@ -85,12 +85,15 @@ void fm_rename_file (GtkWindow *parent, FmPath *file)
     dest = g_file_get_child (G_FILE (parent_gf), new_name);
     g_object_unref (parent_gf);
     
-    if (!g_file_move (gf, dest,
-                G_FILE_COPY_ALL_METADATA|
-                G_FILE_COPY_NO_FALLBACK_FOR_MOVE|
-                G_FILE_COPY_NOFOLLOW_SYMLINKS,
-                NULL, // make this cancellable later.
-                NULL, NULL, &err))
+    if (!g_file_move (gf,
+                      dest,
+                      G_FILE_COPY_ALL_METADATA
+                      | G_FILE_COPY_NO_FALLBACK_FOR_MOVE
+                      | G_FILE_COPY_NOFOLLOW_SYMLINKS,
+                      NULL, // make this cancellable later.
+                      NULL,
+                      NULL,
+                      &err))
     {
         fm_show_error (parent, NULL, err->message);
         g_error_free (err);
@@ -99,5 +102,11 @@ void fm_rename_file (GtkWindow *parent, FmPath *file)
     g_object_unref (dest);
     g_object_unref (gf);
 }
+
+void fm_link (GtkWindow *parent, FmPath *file)
+{
+}
+
+
 
 

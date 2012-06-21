@@ -252,3 +252,5 @@ char *fm_str_replace (char *str, char *old, char *new)
     return g_string_free (buf, FALSE);
 }
 
+
+

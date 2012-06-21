@@ -66,7 +66,7 @@ namespace Fm {
             update_progress_display ();
 
             // calculate total amount of work for progress display
-            // if (calculate_total () == false)
+            // if (this._calculate_total () == false)
                 // return false;
             // GLib.File.trash does not support progress display,
             // so we can just count file numbers and use it as total amount
