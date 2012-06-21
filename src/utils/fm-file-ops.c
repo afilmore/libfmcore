@@ -66,43 +66,48 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
 	g_object_unref (job);
 }
 
-void fm_link_files (GtkWindow *parent, FmPath *file)
+void fm_link_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, FmCopyJobMode copy_job_mode)
 {
-    GFile *gf = fm_path_to_gfile (file), *parent_gf, *dest;
-    GError *err = NULL;
+	g_return_if_fail (path_list != NULL);
+	g_return_if_fail (dest_dir != NULL);
     
-    //~ gchar *new_name = fm_get_user_input_rename (parent, _("Rename File"), _("Please enter a new name:"), file->name);
-    //~ if (!new_name)
-        //~ return;
-    //~ 
+    FmList *dest_paths = fm_path_list_new ();
+	
+    GList *l;
+    for (l = fm_list_peek_head_link (path_list); l; l = l->next) {
+        
+        const gchar *basename  = fm_path_get_basename ((FmPath*) l->data);
+        
+        char buf[1024];
+        
+        sprintf (buf, "Link To %s", basename);
+        
+        //FmPath *dest_path = fm_path_new_for_str (buf);
+        FmPath *dest_path = fm_path_new_child (dest_dir, buf);
+        
+        //g_free (buf);
+        
+        fm_list_push_tail (dest_paths, dest_path);
+        
+        fm_path_unref (dest_path);
+    }
+	
+	
+	FmGtkFileJobUI *ui = fm_gtk_file_job_ui_new (parent);
+	
+    FmJob *job = (FmJob*) fm_copy_job_new (copy_job_mode, path_list, dest_paths, ui);
+	fm_job_run_async ((FmJob*) job);
+	
+    fm_list_unref (dest_paths);
     
-    gchar *new_name = g_build_filename ("Link to ", file->name);
-    if (!new_name)
-        return;
-    
-    parent_gf = g_file_get_parent (gf);
-    dest = g_file_get_child (G_FILE (parent_gf), new_name);
-    g_object_unref (parent_gf);
-    
-    //~ if (!g_file_make_symbolic_link (gf,
-                      //~ dest,
-                      //~ G_FILE_COPY_ALL_METADATA
-                      //~ | G_FILE_COPY_NO_FALLBACK_FOR_MOVE
-                      //~ | G_FILE_COPY_NOFOLLOW_SYMLINKS,
-                      //~ NULL, // make this cancellable later.
-                      //~ NULL,
-                      //~ NULL,
-                      //~ &err))
-    //~ {
-        //~ fm_show_error (parent, NULL, err->message);
-        //~ g_error_free (err);
-    //~ }
-    
-    g_object_unref (dest);
-    g_object_unref (gf);
-    
-    //
-    
+    g_object_unref (ui);
+	g_object_unref (job);
+
+
+
+
+
+
 }
 
 void fm_rename_file (GtkWindow *parent, FmPath *file)
