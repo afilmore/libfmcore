@@ -42,9 +42,17 @@ static FmPath *trash_root_path = NULL;
 static FmPath *apps_root_path = NULL;
 
 
+// Forward Declarations...
 static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, int name_len, int flags);
+static FmPath *_fm_path_new_for_uri_internal (const char *uri, gboolean need_unescape);
+static gchar *fm_path_to_str_internal (FmPath *path, gchar **ret, gint str_len);
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 void _fm_path_init ()
 {
     const char *name;
@@ -52,7 +60,6 @@ void _fm_path_init ()
     
     FmPath *tmp;
     FmPath *parent;
-
 
     // Root Path...
     root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
@@ -64,15 +71,16 @@ void _fm_path_init ()
     while (home_dir [home_len - 1] == '/')
         --home_len;
 
-    name = home_dir + 1; // skip leading /
+    // skip leading /
+    name = home_dir + 1;
     parent = root_path;
     while (sep = strchr (name, '/'))
     {
-        int len =  (sep - name);
+        int len = (sep - name);
         if (len > 0)
         {
-            /* ref counting is not a problem here since this path component
-             * will exist till the termination of the program. So mem leak is ok. */
+            /** ref counting is not a problem here since this path component
+             * will exist till the termination of the program. So mem leak is ok. **/
             tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
@@ -84,18 +92,19 @@ void _fm_path_init ()
     // Desktop Path...
     char *desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
     int desktop_len = strlen (desktop_dir);
-    while (desktop_dir[desktop_len - 1] == '/')
+    while (desktop_dir [desktop_len - 1] == '/')
         --desktop_len;
 
-    name = desktop_dir + home_len + 1; // skip home_path dir part /
+    // skip home_path dir part /
+    name = desktop_dir + home_len + 1;
     parent = home_path;
     while (sep = strchr (name, '/'))
     {
-        int len =  (sep - name);
+        int len = (sep - name);
         if (len > 0)
         {
-            /* ref counting is not a problem here since this path component
-             * will exist till the termination of the program. So mem leak is ok. */
+            /** ref counting is not a problem here since this path component
+             * will exist till the termination of the program. So mem leak is ok. **/
             tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
@@ -109,12 +118,17 @@ void _fm_path_init ()
                                                                    | FM_PATH_IS_VIRTUAL
                                                                    | FM_PATH_IS_LOCAL);
     
-    
     // Applications Root...
     apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_XDG_MENU
                                                                               | FM_PATH_IS_VIRTUAL);
 }
 
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 FmPath *fm_path_ref (FmPath *path)
 {
     g_atomic_int_inc (&path->n_ref);
@@ -133,6 +147,11 @@ void fm_path_unref (FmPath *path)
 }
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 static FmPath *_fm_path_alloc (FmPath *parent, int name_len, int flags)
 {
     FmPath *path = (FmPath*) g_malloc (sizeof(FmPath) + name_len);
@@ -153,8 +172,11 @@ static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, i
 }
 
 
-
-
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 
 /**
  * _fm_path_new_uri_root
@@ -307,6 +329,215 @@ on_error: // this is not a valid URI
 
 
 /**
+ * fm_path_new_for_str
+ * @path_str: a string representing the file path in its native
+ * encoding  (can be non-UTF-8). It can either be a native path or an
+ * unescaped URI  (can contain non-ASCII characters and spaces).
+ * The function will try to figure out what to do.
+ *
+ * You can call fm_path_to_str () to convert a FmPath back to its string
+ * presentation.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_for_str (const char *path_str)
+{
+    if (!path_str || !*path_str)
+        return fm_path_ref (root_path);
+    
+    if (path_str[0] == '/')
+        return fm_path_new_for_path (path_str);
+    
+    // UTF-8 should be allowed, I think.
+    return _fm_path_new_for_uri_internal (path_str, FALSE);
+}
+
+/**
+ * fm_path_new_for_path
+ * @path_name: a POSIX path.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_for_path (const char *path_name)
+{
+    FmPath *path;
+    if (!path_name || !*path_name)
+        return fm_path_ref (root_path);
+
+    // some special cases
+    if (G_LIKELY (path_name[0] == '/'))
+    {
+        if (G_UNLIKELY (path_name[1] == '\0')) // pathname is /
+            path = fm_path_ref (root_path);
+        else
+            path = fm_path_new_relative (root_path, path_name + 1);
+    }
+    else // pathname should be absolute path. otherwise its invalid
+        path = fm_path_ref (root_path); // return root
+    return path;
+}
+
+/**
+ * fm_path_new_for_uri
+ * @path_name: a URI with special characters escaped.
+ * Encoded URI such as http://wiki.lxde.org/zh/%E9%A6%96%E9%A0%81
+ * will be unescaped.
+ *
+ * You can call fm_path_to_uri () to convert a FmPath to a escaped URI
+ * string.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+static FmPath *_fm_path_new_for_uri_internal (const char *uri, gboolean need_unescape)
+{
+    FmPath *path, *root;
+    const char *rel_path;
+    if (!uri || !*uri)
+        return fm_path_ref (root_path);
+
+    root = _fm_path_new_uri_root (uri, strlen (uri), &rel_path, need_unescape);
+    if (*rel_path)
+    {
+        if (need_unescape)
+            rel_path = g_uri_unescape_string (rel_path, NULL);
+        path = fm_path_new_relative (root, rel_path);
+        fm_path_unref (root);
+        if (need_unescape)
+            g_free ((char*)rel_path);
+    }
+    else
+        path = root;
+    return path;
+}
+
+/**
+ * fm_path_new_for_uri
+ * @path_name: a URI with special characters escaped.
+ * Encoded URI such as http://wiki.lxde.org/zh/%E9%A6%96%E9%A0%81
+ * will be unescaped.
+ *
+ * You can call fm_path_to_uri () to convert a FmPath to a escaped URI
+ * string.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_for_uri (const char *uri)
+{
+    return _fm_path_new_for_uri_internal (uri, TRUE);
+}
+
+
+
+/**
+ * fm_path_new_for_display_name
+ * @path_name: a UTF-8 encoded display name for the path
+ * It can either be a POSIX path in UTF-8 encoding, or an unescaped URI
+ *  (can contain non-ASCII characters and spaces)
+ *
+ * You can call fm_path_display_name () to convert a FmPath to a
+ * UTF-8 encoded name ready for being displayed in the GUI.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_for_display_name (const char *path_name)
+{
+    FmPath *path;
+    if (!path_name || !*path_name ||  (path_name[0]=='/' && path_name[1] == '\0'))
+        return fm_path_ref (root_path);
+    if (path_name[0] == '/') // native path
+    {
+        char *filename = g_filename_from_utf8 (path_name, -1, NULL, NULL, NULL);
+        if (filename) // convert from utf-8 to local encoding
+        {
+            path = fm_path_new_for_path (filename);
+            g_free (filename);
+        }
+        else
+            path = fm_path_ref (root_path);
+    }
+    else // this is an URI
+    {
+        // UTF-8 should be allowed, I think.
+        path = _fm_path_new_for_uri_internal (path_name, FALSE);
+    }
+    return path;
+}
+
+/**
+ * fm_path_new_for_commandline_arg
+ * @arg: a file path passed in command line argv to the program. The @arg
+ * can be a POSIX path in glib filename encoding  (can be non-UTTF-8) and
+ * can be a URI with non-ASCII characters escaped, like
+ * http://wiki.lxde.org/zh/%E9%A6%96%E9%A0%81.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_for_commandline_arg (const char *arg)
+{
+    if (!arg || !*arg ||  (arg[0]=='/' && arg[1] == '\0'))
+        return fm_path_ref (root_path);
+    
+    if (arg[0] == '/')
+        return fm_path_new_for_path (arg);
+    
+    return _fm_path_new_for_uri_internal (arg, TRUE);
+}
+
+/**
+ * fm_path_new_for_gfile
+ * @gf: a GFile object
+ *
+ * This function converts a GFile object to FmPath.
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_for_gfile (GFile *gf)
+{
+    FmPath *path;
+    char *str;
+    if (g_file_is_native (gf))
+    {
+        str = g_file_get_path (gf);
+        path = fm_path_new_for_path (str);
+    }
+    else
+    {
+        str = g_file_get_uri (gf);
+        path = fm_path_new_for_uri (str);
+    }
+    g_free (str);
+    return path;
+}
+
+
+/**
+ * fm_path_new_child
+ * @parent: a parent path
+ * @basename: basename of a direct child of @parent directory in glib
+ * filename encoding.  (can be non-UTF-8).
+ *
+ * Returns: a newly created FmPath for the path. You have to call
+ * fm_path_unref () when it's no longer needed.
+ */
+FmPath *fm_path_new_child (FmPath *parent, const char *basename)
+{
+    if (G_LIKELY (basename && *basename))
+    {
+        int baselen = strlen (basename);
+        return fm_path_new_child_len (parent, basename, baselen);
+    }
+    return G_LIKELY (parent) ? fm_path_ref (parent) : NULL;
+}
+
+
+/**
  * fm_path_new_child_len
  * @parent: a parent path
  * @basename: basename of a direct child of @parent directory in glib
@@ -394,52 +625,6 @@ FmPath *fm_path_new_child_len (FmPath *parent, const char *basename, int name_le
 }
 
 /**
- * fm_path_new_child
- * @parent: a parent path
- * @basename: basename of a direct child of @parent directory in glib
- * filename encoding.  (can be non-UTF-8).
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_child (FmPath *parent, const char *basename)
-{
-    if (G_LIKELY (basename && *basename))
-    {
-        int baselen = strlen (basename);
-        return fm_path_new_child_len (parent, basename, baselen);
-    }
-    return G_LIKELY (parent) ? fm_path_ref (parent) : NULL;
-}
-
-/**
- * fm_path_new_for_gfile
- * @gf: a GFile object
- *
- * This function converts a GFile object to FmPath.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_for_gfile (GFile *gf)
-{
-    FmPath *path;
-    char *str;
-    if (g_file_is_native (gf))
-    {
-        str = g_file_get_path (gf);
-        path = fm_path_new_for_path (str);
-    }
-    else
-    {
-        str = g_file_get_uri (gf);
-        path = fm_path_new_for_uri (str);
-    }
-    g_free (str);
-    return path;
-}
-
-/**
  * fm_path_new_relative
  * @parent: a parent path
  * @rel: a path relative to @parent in glib filename encoding.  (can be
@@ -501,176 +686,37 @@ FmPath *fm_path_new_relative (FmPath *parent, const char *rel)
     return path;
 }
 
-/**
- * fm_path_new_for_path
- * @path_name: a POSIX path.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_for_path (const char *path_name)
-{
-    FmPath *path;
-    if (!path_name || !*path_name)
-        return fm_path_ref (root_path);
 
-    // some special cases
-    if (G_LIKELY (path_name[0] == '/'))
-    {
-        if (G_UNLIKELY (path_name[1] == '\0')) // pathname is /
-            path = fm_path_ref (root_path);
-        else
-            path = fm_path_new_relative (root_path, path_name + 1);
-    }
-    else // pathname should be absolute path. otherwise its invalid
-        path = fm_path_ref (root_path); // return root
-    return path;
+
+
+
+FmPath *fm_path_get_root ()
+{
+    return root_path;
 }
 
-/**
- * fm_path_new_for_uri
- * @path_name: a URI with special characters escaped.
- * Encoded URI such as http://wiki.lxde.org/zh/%E9%A6%96%E9%A0%81
- * will be unescaped.
- *
- * You can call fm_path_to_uri () to convert a FmPath to a escaped URI
- * string.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-static FmPath *_fm_path_new_for_uri_internal (const char *uri, gboolean need_unescape)
+FmPath *fm_path_get_home ()
 {
-    FmPath *path, *root;
-    const char *rel_path;
-    if (!uri || !*uri)
-        return fm_path_ref (root_path);
-
-    root = _fm_path_new_uri_root (uri, strlen (uri), &rel_path, need_unescape);
-    if (*rel_path)
-    {
-        if (need_unescape)
-            rel_path = g_uri_unescape_string (rel_path, NULL);
-        path = fm_path_new_relative (root, rel_path);
-        fm_path_unref (root);
-        if (need_unescape)
-            g_free ((char*)rel_path);
-    }
-    else
-        path = root;
-    return path;
+    return home_path;
 }
 
-/**
- * fm_path_new_for_uri
- * @path_name: a URI with special characters escaped.
- * Encoded URI such as http://wiki.lxde.org/zh/%E9%A6%96%E9%A0%81
- * will be unescaped.
- *
- * You can call fm_path_to_uri () to convert a FmPath to a escaped URI
- * string.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_for_uri (const char *uri)
+FmPath *fm_path_get_desktop ()
 {
-    return _fm_path_new_for_uri_internal (uri, TRUE);
+    return desktop_path;
 }
 
-/**
- * fm_path_new_for_display_name
- * @path_name: a UTF-8 encoded display name for the path
- * It can either be a POSIX path in UTF-8 encoding, or an unescaped URI
- *  (can contain non-ASCII characters and spaces)
- *
- * You can call fm_path_display_name () to convert a FmPath to a
- * UTF-8 encoded name ready for being displayed in the GUI.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_for_display_name (const char *path_name)
+FmPath *fm_path_get_trash ()
 {
-    FmPath *path;
-    if (!path_name || !*path_name ||  (path_name[0]=='/' && path_name[1] == '\0'))
-        return fm_path_ref (root_path);
-    if (path_name[0] == '/') // native path
-    {
-        char *filename = g_filename_from_utf8 (path_name, -1, NULL, NULL, NULL);
-        if (filename) // convert from utf-8 to local encoding
-        {
-            path = fm_path_new_for_path (filename);
-            g_free (filename);
-        }
-        else
-            path = fm_path_ref (root_path);
-    }
-    else // this is an URI
-    {
-        // UTF-8 should be allowed, I think.
-        path = _fm_path_new_for_uri_internal (path_name, FALSE);
-    }
-    return path;
+    return trash_root_path;
 }
 
-/**
- * fm_path_new_for_str
- * @path_str: a string representing the file path in its native
- * encoding  (can be non-UTF-8). It can either be a native path or an
- * unescaped URI  (can contain non-ASCII characters and spaces).
- * The function will try to figure out what to do.
- *
- * You can call fm_path_to_str () to convert a FmPath back to its string
- * presentation.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_for_str (const char *path_str)
+FmPath *fm_path_get_apps_menu ()
 {
-    if (!path_str || !*path_str)
-        return fm_path_ref (root_path);
-    if (path_str[0] == '/')
-        return fm_path_new_for_path (path_str);
-    // UTF-8 should be allowed, I think.
-    return _fm_path_new_for_uri_internal (path_str, FALSE);
-}
-
-/**
- * fm_path_new_for_commandline_arg
- * @arg: a file path passed in command line argv to the program. The @arg
- * can be a POSIX path in glib filename encoding  (can be non-UTTF-8) and
- * can be a URI with non-ASCII characters escaped, like
- * http://wiki.lxde.org/zh/%E9%A6%96%E9%A0%81.
- *
- * Returns: a newly created FmPath for the path. You have to call
- * fm_path_unref () when it's no longer needed.
- */
-FmPath *fm_path_new_for_commandline_arg (const char *arg)
-{
-    if (!arg || !*arg ||  (arg[0]=='/' && arg[1] == '\0'))
-        return fm_path_ref (root_path);
-    if (arg[0] == '/')
-        return fm_path_new_for_path (arg);
-    return _fm_path_new_for_uri_internal (arg, TRUE);
+    return apps_root_path;
 }
 
 
-FmPath *fm_path_get_parent (FmPath *path)
-{
-    return path->parent;
-}
 
-const char *fm_path_get_basename (FmPath *path)
-{
-    return path->name;
-}
-
-FmPathFlags fm_path_get_flags (FmPath *path)
-{
-    return path->flags;
-}
 
 /**
  * fm_path_has_prefix
@@ -693,71 +739,34 @@ gboolean fm_path_has_prefix (FmPath *path, FmPath *prefix)
     return FALSE;
 }
 
-static int fm_path_strlen (FmPath *path)
+// calculate how many elements are in this path.
+int fm_path_depth (FmPath *path)
 {
-    int len = 0;
-    for (;;)
+    int depth = 1;
+    while (path->parent)
     {
-        len += strlen (path->name);
-        if (G_UNLIKELY (!path->parent))
-            break;
-        if (path->parent->parent)
-            ++len; // add a character for separator
+        ++depth;
         path = path->parent;
     }
-    return len;
+    return depth;
 }
 
-/* recursive internal implem. of fm_path_to_str returns end of current
-   build string */
-static gchar *fm_path_to_str_int (FmPath *path, gchar **ret, gint str_len)
+
+
+FmPath *fm_path_get_parent (FmPath *path)
 {
-    gint name_len = strlen (path->name);
-    gchar *pbuf;
-
-    if  (!path->parent)
-    {
-        *ret = g_new0 (gchar, str_len + name_len + 1);
-        pbuf = *ret;
-    }
-    else
-    {
-        pbuf = fm_path_to_str_int (path->parent, ret, str_len + name_len + 1);
-        if  (path->parent->parent) // if parent dir is not root_path
-            *pbuf++ = G_DIR_SEPARATOR;
-    }
-    memcpy (pbuf, path->name, name_len);
-    return pbuf + name_len;
+    return path->parent;
 }
 
-// FIXME_pcm: handle display name and real file name  (maybe non-UTF8) issue
-char *fm_path_to_str (FmPath *path)
+const char *fm_path_get_basename (FmPath *path)
 {
-    g_return_val_if_fail (path != NULL, NULL);
-    
-    gchar *ret;
-    fm_path_to_str_int (path, &ret, 0);
-    return ret;
+    return path->name;
 }
 
-char *fm_path_to_uri (FmPath *path)
+FmPathFlags fm_path_get_flags (FmPath *path)
 {
-    char *uri = NULL;
-    char *str = fm_path_to_str (path);
-    if (G_LIKELY (str))
-    {
-        if (str[0] == '/') // absolute path
-            uri = g_filename_to_uri (str, NULL, NULL);
-        else
-        {
-            // FIXME_pcm: is this correct?
-            uri = g_uri_escape_string (str, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, FALSE);
-        }
-        g_free (str);
-    }
-    return uri;
+    return path->flags;
 }
-
 // FIXME_pcm: maybe we can support different encoding for different mount points?
 char *fm_path_display_name (FmPath *path, gboolean human_readable)
 {
@@ -811,6 +820,79 @@ char *fm_path_display_basename (FmPath *path)
     return g_filename_display_name (path->name);
 }
 
+
+
+// FIXME_pcm: handle display name and real file name  (maybe non-UTF8) issue
+char *fm_path_to_str (FmPath *path)
+{
+    g_return_val_if_fail (path != NULL, NULL);
+    
+    gchar *ret;
+    fm_path_to_str_internal (path, &ret, 0);
+    return ret;
+}
+
+/**
+static int fm_path_strlen (FmPath *path)
+{
+    int len = 0;
+    for (;;)
+    {
+        len += strlen (path->name);
+        if (G_UNLIKELY (!path->parent))
+            break;
+        if (path->parent->parent)
+            ++len; // add a character for separator
+        path = path->parent;
+    }
+    return len;
+}**/
+
+
+/* recursive internal implem. of fm_path_to_str returns end of current
+   build string */
+static gchar *fm_path_to_str_internal (FmPath *path, gchar **ret, gint str_len)
+{
+    gint name_len = strlen (path->name);
+    gchar *pbuf;
+
+    if  (!path->parent)
+    {
+        *ret = g_new0 (gchar, str_len + name_len + 1);
+        pbuf = *ret;
+    }
+    else
+    {
+        pbuf = fm_path_to_str_internal (path->parent, ret, str_len + name_len + 1);
+        if  (path->parent->parent) // if parent dir is not root_path
+            *pbuf++ = G_DIR_SEPARATOR;
+    }
+    memcpy (pbuf, path->name, name_len);
+    return pbuf + name_len;
+}
+
+
+
+char *fm_path_to_uri (FmPath *path)
+{
+    char *uri = NULL;
+    char *str = fm_path_to_str (path);
+    
+    if (G_LIKELY (str))
+    {
+        if (str[0] == '/') // absolute path
+            uri = g_filename_to_uri (str, NULL, NULL);
+        else
+        {
+            uri = g_uri_escape_string (str, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, FALSE);
+        }
+        g_free (str);
+    }
+    return uri;
+}
+
+
+
 GFile *fm_path_to_gfile (FmPath *path)
 {
     GFile *gf;
@@ -823,10 +905,8 @@ GFile *fm_path_to_gfile (FmPath *path)
     }
     else
     {
-        //char *tmp_str = fm_str_replace (str, "%20", " ");
+        // Escape the path so that it supports spaces and special characters like accentuated ones...
         char *tmp_str = g_uri_escape_string (str, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
-        
-        //printf ("fm_path_to_gfile %s\n", tmp_str);
         
         gf = g_file_new_for_uri (tmp_str);
         g_free (tmp_str);
@@ -837,30 +917,9 @@ GFile *fm_path_to_gfile (FmPath *path)
     return gf;
 }
 
-FmPath *fm_path_get_root ()
-{
-    return root_path;
-}
 
-FmPath *fm_path_get_home ()
-{
-    return home_path;
-}
 
-FmPath *fm_path_get_desktop ()
-{
-    return desktop_path;
-}
 
-FmPath *fm_path_get_trash ()
-{
-    return trash_root_path;
-}
-
-FmPath *fm_path_get_apps_menu ()
-{
-    return apps_root_path;
-}
 
 // For used in hash tables
 
@@ -920,18 +979,6 @@ gboolean fm_path_equal_str (FmPath *path, const gchar *str, int n)
 
     // tail-end recursion
     return fm_path_equal_str (path->parent, str, n - strlen (path->name) - 1);
-}
-
-// calculate how many elements are in this path.
-int fm_path_depth (FmPath *path)
-{
-    int depth = 1;
-    while (path->parent)
-    {
-        ++depth;
-        path = path->parent;
-    }
-    return depth;
 }
 
 /* translate gvfs trash:///path to real path of the trashed file on disk.
