@@ -43,11 +43,11 @@ namespace Fm {
             
             base (ui);
             
-            this._src_paths = src_paths;
-            this._dest_path_list = dest_paths;
-            
             this._copy_mode = mode;
 
+            this._src_paths =       src_paths;
+            this._dest_path_list =  dest_paths;
+            
             bool has_dest = true;
             
             if (ui != null) {
@@ -96,10 +96,9 @@ namespace Fm {
                 if (is_cancelled ())
                     break;
                 
-                unowned Fm.Path dest_path = dest_l.data;
-                
                 File src_file = src_path.to_gfile ();
                 
+                unowned Fm.Path dest_path = dest_l.data;
                 File dest_file = dest_path.to_gfile ();
                 
                 try {
@@ -336,60 +335,6 @@ namespace Fm {
             return true;
         }
 
-        private void _copy_progress_cb (int64 current_num_bytes, int64 total_num_bytes) {
-            
-            // calculate percent;
-            double fraction =  (double) (_processed_size + current_num_bytes) / _total_size;
-            set_percent (fraction);
-            update_progress_display ();
-        }
-
-        private bool _copy_special_file (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
-            
-            bool ret = false;
-            
-            // only handle FIFO for local files
-            if (src_file.is_native () && dest_file.is_native ()) {
-                
-                string src_path = src_file.get_path ();
-                Posix.Stat src_st;
-                int r = Posix.lstat (src_path, out src_st);
-                
-                if (r == 0) {
-                    // Handle FIFO on native file systems.
-                    if (Posix.S_ISFIFO (src_st.st_mode)) {
-                        
-                        string dest_path = dest_file.get_path ();
-                        r = Posix.mkfifo (dest_path, src_st.st_mode);
-                        
-                        if ( r == 0) {
-                            ret = true;
-                        } else {
-                            // g_io_error_from_errno (errno);
-                            // FIXME: Vala bug: g_io_error_from_errno doesn't work.
-                            throw new IOError.FAILED (strerror (errno));
-                        }
-                    
-                    } else {
-                        // FIXME: how about blcok device, char device, and socket?
-                        // FIXME: add proper error message
-                        throw new IOError.NOT_SUPPORTED ("");
-                    }
-                
-                } else {
-                    // FIXME: error handling
-                    // g_io_error_from_errno (errno);
-                    // FIXME: Vala bug: g_io_error_from_errno doesn't work.
-                    throw new IOError.FAILED (strerror (errno));
-                }
-            
-            } else {
-                // FIXME: add proper error message
-                throw new IOError.NOT_SUPPORTED ("");
-            }
-            return ret;
-        }
-
         private bool _copy_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
             bool ret = false;
@@ -481,6 +426,52 @@ namespace Fm {
             set_percent (fraction);
             update_progress_display ();
 
+            return ret;
+        }
+
+        private bool _copy_special_file (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
+            
+            bool ret = false;
+            
+            // only handle FIFO for local files
+            if (src_file.is_native () && dest_file.is_native ()) {
+                
+                string src_path = src_file.get_path ();
+                Posix.Stat src_st;
+                int r = Posix.lstat (src_path, out src_st);
+                
+                if (r == 0) {
+                    // Handle FIFO on native file systems.
+                    if (Posix.S_ISFIFO (src_st.st_mode)) {
+                        
+                        string dest_path = dest_file.get_path ();
+                        r = Posix.mkfifo (dest_path, src_st.st_mode);
+                        
+                        if ( r == 0) {
+                            ret = true;
+                        } else {
+                            // g_io_error_from_errno (errno);
+                            // FIXME: Vala bug: g_io_error_from_errno doesn't work.
+                            throw new IOError.FAILED (strerror (errno));
+                        }
+                    
+                    } else {
+                        // FIXME: how about blcok device, char device, and socket?
+                        // FIXME: add proper error message
+                        throw new IOError.NOT_SUPPORTED ("");
+                    }
+                
+                } else {
+                    // FIXME: error handling
+                    // g_io_error_from_errno (errno);
+                    // FIXME: Vala bug: g_io_error_from_errno doesn't work.
+                    throw new IOError.FAILED (strerror (errno));
+                }
+            
+            } else {
+                // FIXME: add proper error message
+                throw new IOError.NOT_SUPPORTED ("");
+            }
             return ret;
         }
 
@@ -662,6 +653,16 @@ namespace Fm {
                 break;
             }
             return ret;
+        }
+        
+        private void _copy_progress_cb (int64 current_num_bytes, int64 total_num_bytes) {
+            
+            // calculate percent;
+            double fraction =  (double) (_processed_size + current_num_bytes) / _total_size;
+            
+            set_percent (fraction);
+            
+            update_progress_display ();
         }
     }
 }

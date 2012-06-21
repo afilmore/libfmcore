@@ -40,16 +40,14 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
 	g_return_if_fail (path_list != NULL);
 	g_return_if_fail (dest_dir != NULL);
     
-    FmList* dest_paths = fm_path_list_new ();
+    FmList *dest_paths = fm_path_list_new ();
 	
-    GList* list = fm_list_peek_head_link (path_list);
-
-    GList* src_path_it;
-    for (src_path_it = list; src_path_it != NULL; src_path_it = src_path_it->next) {
+    GList *l;
+    for (l = fm_list_peek_head_link (path_list); l; l = l->next) {
         
-        const gchar* _tmp5_  = fm_path_get_basename ((FmPath*) src_path_it->data);
+        const gchar *basename  = fm_path_get_basename ((FmPath*) l->data);
         
-        FmPath* dest_path = fm_path_new_child (dest_dir, _tmp5_);
+        FmPath *dest_path = fm_path_new_child (dest_dir, basename);
         
         fm_list_push_tail (dest_paths, dest_path);
         
@@ -59,7 +57,7 @@ void fm_copy_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir, 
 	
 	FmGtkFileJobUI *ui = fm_gtk_file_job_ui_new (parent);
 	
-    FmJob* job = (FmJob*) fm_copy_job_new (copy_job_mode, path_list, dest_paths, ui);
+    FmJob *job = (FmJob*) fm_copy_job_new (copy_job_mode, path_list, dest_paths, ui);
 	fm_job_run_async ((FmJob*) job);
 	
     fm_list_unref (dest_paths);

@@ -172,7 +172,10 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     file_menu->file_infos = fm_list_ref (files);
     file_menu->auto_destroy = auto_destroy;
 
-    
+    // The current working directory is used to extract archives.
+    if (current_directory)
+        file_menu->current_directory = fm_path_ref (current_directory);
+
     
     
     
@@ -209,10 +212,6 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         
     }
 
-
-    // The current working directory is used to extract archives.
-    if (current_directory)
-        file_menu->current_directory = fm_path_ref (current_directory);
 
     
     // Add Default Menu Items...
@@ -640,8 +639,10 @@ void action_link (GtkAction *action, gpointer user_data)
     
     //FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
     
-    //if (first_file_info)
-        fm_copy_files (file_menu->parent, file_menu->file_infos, file_menu->current_directory, FM_COPY_JOB_MODE_LINK);
+    FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
+    fm_copy_files (file_menu->parent, files, file_menu->current_directory, FM_COPY_JOB_MODE_LINK);
+    
+    fm_list_unref (files);
 }
 
 void action_empty_trash (GtkAction *action, gpointer user_data)
