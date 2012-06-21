@@ -145,12 +145,6 @@ namespace Fm {
                             this._link_file (src_file, src_info, dest_file);
                         break;
                         
-                        /*
-                        case CopyJobMode.TRASH:
-                            this.trash_file (src_file, src_info);
-                            break;
-                        */
-                        
                         case CopyJobMode.UNTRASH:
                             this._move_file (src_file, src_info, dest_file);
                         break;
@@ -183,27 +177,6 @@ namespace Fm {
             // FIXME: handle cancellable here
             switch (_copy_mode) {
                 
-                /*
-                case CopyJobMode.TRASH:
-                    _dest_path_list = new PathList ();
-                    File home_file = File.new_for_path (Environment.get_home_dir ());
-                    Mount home_mount = home_file.find_enclosing_mount (cancellable);
-                    debug ("home_mount = %p",  (void*)home_mount);
-                    
-                    foreach (unowned Path src_path in _src_paths.peek_head_link ()) {
-                        if (is_cancelled ())
-                            break;
-                        // FIXME: the dest path is not correct, but since we do not use it
-                        //   this won't cause problems. However, if we implement trashing
-                        //   ourselves later, this path should be correct.
-                        // Fm.Path dest_path = new Path.child (Path.get_trash (), path.get_basename ());
-                        Fm.Path dest_path = get_dest_for_trash (home_mount, src_path);
-                        debug ("trash dest: %s", dest_path != null ? dest_path.to_str ():"null");
-                        _dest_path_list.push_tail (dest_path);
-                    }
-                    break;
-                */
-                
                 case CopyJobMode.UNTRASH: {
                     
                     _dest_path_list = new PathList ();
@@ -214,29 +187,22 @@ namespace Fm {
                         if (is_cancelled ())
                             break;
                         
-                        //stdout.printf  ("Fm.CopyJob: untrash %s\n", path.to_str ());
                         File file = path.to_gfile ();
                         
                         try {
                             
-                            stdout.printf  ("Fm.CopyJob: file.query_info %s\n", path.to_str ());
-                            
                             GLib.FileInfo info = file.query_info ("trash::*", 0, null);
-                            
-                            //stdout.printf  ("Fm.CopyJob: file.query_info %s\n", path.to_str ());
                             
                             unowned string dest_path_str = info.get_attribute_byte_string ("trash::orig-path");
                             
                             Fm.Path dest_path = new Fm.Path.for_str (dest_path_str);
                             
-                            //stdout.printf  ("Fm.CopyJob: untrash orig path = orig-path: %s\n", dest_path.to_str ());
-                            
                             _dest_path_list.push_tail (dest_path);
                         }
                         catch (Error err) {
                             
+                            // TODO_axl: emit the error properly...
                             stdout.printf  ("Fm.CopyJob: error %s\n", err.message);
-                            // FIXME: emit the error properly
                             return false;
                         }
                     }
@@ -424,64 +390,6 @@ namespace Fm {
             return ret;
         }
 
-        
-        // TODO: optimize for UNIX native files since GFile.copy is extremely inefficient
-        // This function is not enabled now due to lack of testing.
-        /**private bool copy_native_file (File src_file, GLib.FileInfo src_info, File dest_file) throws IOError {
-            bool ret = false;
-            string src_path = src_file.get_path ();
-            string dest_path = dest_file.get_path ();
-            // Because gio is too slow and inefficient, for optimization, we 
-            // did an optimized version with POSIX APIs for native files
-            Posix.Stat src_st;
-            if (Posix.lstat (src_path, out src_st) == 0) {
-                if (Posix.S_ISDIR (src_st.st_mode)) {
-                    // copy_native_dir ();
-                }
-                else if (Posix.S_ISREG (src_st.st_mode)) { // regular file
-                    // open the source file for read
-                    int infd = Posix.open (src_path, Posix.O_RDONLY);
-                    if (infd != -1) {
-                        // open the destination file for write
-                        int outfd = Posix.creat (dest_path, src_st.st_mode);
-                        if (outfd != -1) {
-                            // allocate a buffer according to preferred block size
-                            size_t buf_size = src_st.st_blksize, read_size;
-                            char[] buf = new char[buf_size];
-                            // tell the filesystem that we'll do sequential read with fadvice ()
-                            Posix.posix_fadvise (infd, 0, 0, Posix.POSIX_FADV_SEQUENTIAL);
-                            // read the source file and write to the destination file
-                            current_file_processed_size = 0;
-                            current_file_size = src_st.st_size;
-
-                            while ( (read_size = Posix.read (infd, buf, buf_size)) > 0) {
-                                Posix.write (outfd, buf, read_size);
-                                current_file_processed_size += read_size;
-                                // call progress callback
-                                this._copy_progress_cb ( (int64)current_file_processed_size,  (int64)current_file_size);
-                            }
-                            Posix.close (outfd); // close output destination file
-                        }
-                        else {
-                            ret = false;
-                        }
-                        Posix.close (infd); // close input source file
-                    }
-                    else {
-                        throw new IOError.FAILED (strerror (errno));
-                    }
-                }
-                else { // special files, such as fifo, socket, and devide files
-                    ret = this._copy_special_file (src_file, src_info, dest_file);
-                }
-            }
-            else {
-                throw new IOError.FAILED (strerror (errno));
-            }
-            return ret;
-        }**/
-
-        
         private bool _copy_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
             bool ret = false;
@@ -492,13 +400,6 @@ namespace Fm {
             update_progress_display ();
             
             // Thread.usleep (2000); // delay for ease of debugging
-
-            /*
-            // TODO: optimize for UNIX native files since gio is extremely inefficient
-            if (src_file.is_native () && dest_file.is_native ()) {
-                return copy_native_file (src_file, src_info, dest_file);
-            }
-            */
 
             FileType type = src_info.get_file_type ();
             
@@ -658,66 +559,11 @@ namespace Fm {
         }
 
         private bool _link_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
+            
             stdout.printf ("_link_file\n");
 //            stdout.printf ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
             return false;
         }
-
-        /*
-        private bool trash_file (File file, GLib.FileInfo info) {
-            bool ret = false;
-            set_currently_processed (file, info, null);
-            update_progress_display ();
-
-            // Thread.usleep (2000); // delay for ease of debugging
-            try {
-                file.trash (cancellable);
-                ret = true;
-                ++_n_processed_files;
-                _processed_size += get_file_size (info);
-            }
-            catch (IOError err) {
-                if (handle_error (err) == ErrorAction.ABORT)
-                    return false;
-            }
-
-            // calculate percent;
-            double fraction =  (double) (_n_processed_files + _n_processed_dirs) /  (_n_total_dirs + _n_total_files);
-            set_percent (fraction);
-            update_progress_display ();
-
-            return ret;
-        }
-
-        // get the real path of the trashed file
-        private Path? get_dest_for_trash (Mount home_mount, Path src_path) {
-            Path? ret = null;
-            File src_file = src_path.to_gfile ();
-            if (src_file.is_native ()) {
-                try {
-                    Path? trash_dir = null;
-                    // GLib.FileInfo info = file.query_info ("unix::*", 0, null);
-                    Mount mount = src_file.find_enclosing_mount (cancellable);
-                    if (mount != home_mount) { // not in home
-                        // try top dir
-                        
-                    }
-                    // fallback to home trash dir
-                    if (trash_dir == null) {
-                        string trash_dir_name = GLib.Path.build_filename (Environment.get_user_data_dir (), "Trash", "files", null);
-                        trash_dir = new Path.for_path (trash_dir_name);
-                    }
-                    
-                    if (trash_dir != null) {
-                        ret = new Path.child (trash_dir, src_path.get_basename ());
-                    }
-                }
-                catch (IOError err) {
-                }
-            }
-            return ret;
-        }
-        */
 
         // calculate total amount of the job for progress display
         protected new bool _calculate_total () {
