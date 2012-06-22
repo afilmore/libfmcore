@@ -30,9 +30,11 @@
 G_BEGIN_DECLS
 
 GtkWidget *fm_app_menu_view_new (void);
+
 GDesktopAppInfo *fm_app_menu_view_get_selected_app (GtkTreeView *view);
 char *fm_app_menu_view_get_selected_app_desktop_id (GtkTreeView *view);
 char *fm_app_menu_view_get_selected_app_desktop_file (GtkTreeView *view);
+
 gboolean fm_app_menu_view_is_app_selected (GtkTreeView *view);
 gboolean fm_app_menu_view_is_item_app (GtkTreeView *view, GtkTreeIter *it);
 

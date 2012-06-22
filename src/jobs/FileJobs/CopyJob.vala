@@ -101,10 +101,13 @@ namespace Fm {
                 unowned Fm.Path dest_path = dest_l.data;
                 File dest_file = dest_path.to_gfile ();
                 
+                stdout.printf ("CopyJobMode = %d: %s > %s\n", _copy_mode, src_path.to_str (), dest_path.to_str ());
+                
                 try {
                     
                     // query info of source file and update progress display
-                    GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                    GLib.FileInfo src_info = src_file.query_info (_file_attributes,
+                                                                  FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
                     
                     set_current_src_dest (src_path, dest_path);
                     
@@ -112,10 +115,15 @@ namespace Fm {
                     
                     update_progress_display ();
 
+                    
+                    
                     // check if the operation is valid. for example, one cannot
                     // move a folder into itself.
                     this._check_paths (src_file, src_info, dest_file);
 
+                    
+                    
+                    
                     // maybe we don't need to call update_progress_display () here 
                     // since it will soon be called inside copy_file ()/move_file ().
                     switch (_copy_mode) {
@@ -127,7 +135,8 @@ namespace Fm {
                         case CopyJobMode.MOVE: {
                             
                             File dest_dir = dest_file.get_parent ();
-                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
+                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem",
+                                                                               FileQueryInfoFlags.NONE, cancellable);
                             
                             string src_fs = src_info.get_attribute_string ("id::filesystem");
                             string dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
@@ -216,8 +225,13 @@ namespace Fm {
             IOError err = null;
             
             if (_copy_mode == CopyJobMode.MOVE && src_file.equal (dest_file)) {
+                
                 err = new IOError.FAILED (_("Source and destination are the same."));
             
+            } else if (_copy_mode == CopyJobMode.LINK) {
+                
+                // what to test ???
+                
             } else if (src_info.get_file_type () == FileType.DIRECTORY && dest_file.has_prefix (src_file) ) {
                 
                 unowned string? msg = null;
@@ -293,7 +307,8 @@ namespace Fm {
             
             try {
                 // set the file attributes and ensure that it's writable
-                dest_file.set_attribute_uint32 ("unix::mode", unix_mode, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                dest_file.set_attribute_uint32 ("unix::mode", unix_mode,
+                                                FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
 
                 // copy files in the directory recursively
                 FileEnumerator enu = src_file.enumerate_children (_file_attributes, 0, cancellable);
@@ -586,11 +601,15 @@ namespace Fm {
                         File dest_dir = dest_path.get_parent ().to_gfile (); // FIXME: get_parent () might return null?
                         
                         try {
-                            GLib.FileInfo src_info = src_file.query_info (_file_attributes, FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
+                            GLib.FileInfo src_info = src_file.query_info (_file_attributes,
+                                                                          FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                                                                          cancellable);
                             
                             // NOTE: we cannot use FileQueryInfoFlags.NOFOLLOW_SYMLINKS here for dest dir
                             
-                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem", FileQueryInfoFlags.NONE, cancellable);
+                            GLib.FileInfo dest_dir_info = dest_dir.query_info ("id::filesystem",
+                                                                               FileQueryInfoFlags.NONE,
+                                                                               cancellable);
                             unowned string src_fs = src_info.get_attribute_string ("id::filesystem");
                             unowned string  dest_fs = dest_dir_info.get_attribute_string ("id::filesystem");
 

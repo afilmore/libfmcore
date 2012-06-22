@@ -610,17 +610,17 @@ void action_paste (GtkAction *action, gpointer user_data)
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
     FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
-    if (first_file_info)
-    {
-        fm_clipboard_paste_files (file_menu->parent, first_file_info->path);
-    }
+    if (!first_file_info)
+        return;
+    
+    fm_clipboard_paste_files (file_menu->parent, first_file_info->path);
 }
 
 void action_delete (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    FmPathList *files;
-    files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
+    
+    FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     
     fm_trash_delete (GTK_WINDOW (file_menu->parent), files, FM_DELETE_FLAGS_TRASH_OR_DELETE, TRUE);
     
@@ -630,18 +630,20 @@ void action_delete (GtkAction *action, gpointer user_data)
 void action_rename (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
     
-    if (first_file_info)
-        fm_rename_file (file_menu->parent, first_file_info->path);
+    FmFileInfo *first_file_info = fm_list_peek_head (file_menu->file_infos);
+    if (!first_file_info)
+        return;
+        
+    fm_rename_file (file_menu->parent, fm_file_info_get_path (first_file_info));
 }
 
 void action_link (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
-    g_return_if_fail (file_menu->file_infos != NULL);
-    g_return_if_fail (file_menu->current_directory != NULL);
+    //~ g_return_if_fail (file_menu->file_infos != NULL);
+    //~ g_return_if_fail (file_menu->current_directory != NULL);
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     fm_link_files (file_menu->parent, files, file_menu->current_directory);
@@ -653,8 +655,8 @@ void action_send_to (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
-    g_return_if_fail (file_menu->file_infos != NULL);
-    g_return_if_fail (file_menu->current_directory != NULL);
+    //~ g_return_if_fail (file_menu->file_infos != NULL);
+    //~ g_return_if_fail (file_menu->current_directory != NULL);
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     fm_link_files (file_menu->parent, files, fm_path_get_desktop ());
@@ -727,20 +729,9 @@ void action_properties (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
-    g_return_if_fail (file_menu || file_menu->file_infos);
+    //~ g_return_if_fail (file_menu || file_menu->file_infos);
     
-    FmFileInfoList *files = file_menu->file_infos;
-    
-    /**uint flags;
-    fm_file_info_list_get_flags (files, &flags, NULL);
-    
-    if (flags & FM_PATH_IS_VIRTUAL)
-    {
-        // TODO_axl: printf ("NEEDS A VIRTUAL DIALOG !!!!!\n");
-        return;
-    }**/
-    
-    fm_show_file_properties (file_menu->parent, files);
+    fm_show_file_properties (file_menu->parent, file_menu->file_infos);
 }
 
 
