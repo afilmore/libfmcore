@@ -175,7 +175,8 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     file_menu->file_infos = fm_list_ref (files);
     file_menu->auto_destroy = auto_destroy;
 
-    // The current working directory is used to extract archives...
+    
+    // The current working directory is used to extract archives and with link to, send to...
     if (current_directory)
         file_menu->current_directory = fm_path_ref (current_directory);
 
@@ -258,11 +259,6 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         {
             GAppInfo *app = app_list->data;
 
-            /**g_debug ("app %s, executable %s, command %s\n",
-                g_app_info_get_name (app),
-                g_app_info_get_executable (app),
-                g_app_info_get_commandline (app));**/
-
             gchar *program_path = g_find_program_in_path (g_app_info_get_executable (app));
             if (!program_path)
                 continue;
@@ -304,45 +300,6 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         g_string_append (xml, "</placeholder>\n</popup>\n");
     }
 
-    /**
-    printf ("have flags (OR) = %d, or all flags (AND) = %d\n", have_flags, all_flags);
-    
-    if (have_flags & FM_PATH_IS_NATIVE)
-    {
-        printf ("FM_PATH_IS_NATIVE\n");
-    }
-    
-    if (have_flags & FM_PATH_IS_VIRTUAL)
-    {
-        printf ("FM_PATH_IS_VIRTUAL\n");
-    }
-    
-    if (have_flags & FM_PATH_IS_LOCAL)
-    {
-        printf ("FM_PATH_IS_LOCAL\n");
-    }
-    
-    if (have_flags & FM_PATH_IS_ROOT)
-    {
-        printf ("FM_PATH_IS_ROOT\n");
-    }
-    
-    if (have_flags & FM_PATH_IS_TRASH)
-    {
-        printf ("FM_PATH_IS_TRASH\n");
-    }
-    
-    if (have_flags & FM_PATH_IS_XDG_MENU)
-    {
-        printf ("FM_PATH_IS_XDG_MENU\n");
-    }
-    
-    if (have_flags != all_flags)
-    {
-        printf ("different flags\n");
-    }**/
-    
-    
     // Archiver integration
     if (!have_virtual)
     {
@@ -390,27 +347,27 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gtk_action_set_visible (action, !have_virtual);
     
     action = gtk_ui_manager_get_action (ui, "/popup/Cut");
-    gtk_action_set_visible (action, !have_virtual);
+    gtk_action_set_visible (action, !have_virtual || all_trash_files);
     action = gtk_ui_manager_get_action (ui, "/popup/Copy");
-    gtk_action_set_visible (action, !have_virtual);
+    gtk_action_set_visible (action, !have_virtual || all_trash_files);
 
     action = gtk_ui_manager_get_action (ui, "/popup/Paste");
     gtk_action_set_visible (action, (!multiple_files && fm_file_info_is_dir (first_file_info) && !have_virtual));
 
     action = gtk_ui_manager_get_action (ui, "/popup/Delete");
-    gtk_action_set_visible (action, !have_virtual);
+    gtk_action_set_visible (action, !have_virtual || all_trash_files);
     
     action = gtk_ui_manager_get_action (ui, "/popup/Rename");
     gtk_action_set_visible (action, (!multiple_files && !have_virtual));
     
     action = gtk_ui_manager_get_action (ui, "/popup/Link");
-    gtk_action_set_visible (action, TRUE);
+    gtk_action_set_visible (action, !have_virtual);
     
     action = gtk_ui_manager_get_action (ui, "/popup/SendTo");
-    gtk_action_set_visible (action, TRUE);
+    gtk_action_set_visible (action, !have_virtual);
     
     action = gtk_ui_manager_get_action (ui, "/popup/Properties");
-    gtk_action_set_visible (action, !have_virtual);
+    gtk_action_set_visible (action, TRUE);
     
    
     return file_menu;
@@ -642,9 +599,6 @@ void action_link (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
-    //~ g_return_if_fail (file_menu->file_infos != NULL);
-    //~ g_return_if_fail (file_menu->current_directory != NULL);
-    
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     fm_link_files (file_menu->parent, files, file_menu->current_directory);
     
@@ -654,9 +608,6 @@ void action_link (GtkAction *action, gpointer user_data)
 void action_send_to (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    
-    //~ g_return_if_fail (file_menu->file_infos != NULL);
-    //~ g_return_if_fail (file_menu->current_directory != NULL);
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
     fm_link_files (file_menu->parent, files, fm_path_get_desktop ());
@@ -728,8 +679,6 @@ void action_extract_to (GtkAction *action, gpointer user_data)
 void action_properties (GtkAction *action, gpointer user_data)
 {
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
-    
-    //~ g_return_if_fail (file_menu || file_menu->file_infos);
     
     fm_show_file_properties (file_menu->parent, file_menu->file_infos);
 }

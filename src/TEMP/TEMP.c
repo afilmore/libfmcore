@@ -155,6 +155,58 @@ vapi file...
 
 fm-file-menu...
 
+debug flags...
+
+    /**
+    printf ("have flags (OR) = %d, or all flags (AND) = %d\n", have_flags, all_flags);
+    
+    if (have_flags & FM_PATH_IS_NATIVE)
+    {
+        printf ("FM_PATH_IS_NATIVE\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_VIRTUAL)
+    {
+        printf ("FM_PATH_IS_VIRTUAL\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_LOCAL)
+    {
+        printf ("FM_PATH_IS_LOCAL\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_ROOT)
+    {
+        printf ("FM_PATH_IS_ROOT\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_TRASH)
+    {
+        printf ("FM_PATH_IS_TRASH\n");
+    }
+    
+    if (have_flags & FM_PATH_IS_XDG_MENU)
+    {
+        printf ("FM_PATH_IS_XDG_MENU\n");
+    }
+    
+    if (have_flags != all_flags)
+    {
+        printf ("different flags\n");
+    }**/
+    
+debug apps...
+
+            /**g_debug ("app %s, executable %s, command %s\n",
+                g_app_info_get_name (app),
+                g_app_info_get_executable (app),
+                g_app_info_get_commandline (app));**/
+
+
+
+
+
+
 // TODO_axl: move this to a TEMP_file...
 /*** Needs a rework...
 FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files, FmPath *cwd, gboolean auto_destroy)
