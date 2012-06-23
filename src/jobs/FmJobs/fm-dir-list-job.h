@@ -24,7 +24,7 @@
 #ifndef __FM_DIR_LIST_JOB_H__
 #define __FM_DIR_LIST_JOB_H__
 
-#include "fm-jobs.h"
+#include "fm-vala.h"
 #include "fm-file-info-list.h"
 
 

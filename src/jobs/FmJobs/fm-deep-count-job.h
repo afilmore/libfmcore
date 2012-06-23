@@ -24,7 +24,7 @@
 #ifndef __FM_DEEP_COUNT_JOB_H__
 #define __FM_DEEP_COUNT_JOB_H__
 
-#include "fm-jobs.h"
+#include "fm-vala.h"
 #include "fm-path-list.h"
 #include <gio/gio.h>
 #include <sys/types.h>

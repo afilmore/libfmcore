@@ -31,39 +31,6 @@ namespace Fm {
 	
     
     /*************************************************************************************
-     *  
-     * 
-     * 
-     ************************************************************************************/
-	[CCode (cheader_filename = "fm-vala.h", type = "FmConfig*")]
-	public class Config : GLib.Object {
-		
-		public bool         use_trash_can;
-        public bool         confirm_delete;
-		
-		public bool         show_thumbnail;
-		public bool         thumbnail_local;
-		public uint         thumbnail_max;
-		public uint         thumbnail_size;
-		
-        public weak string  archiver;
-        public weak string  terminal;
-		
-        public string       panel;
-        public string       run;
-        public string       taskmanager;
-        
-        public bool         si_unit;
-		
-        [CCode (has_construct_function = false)]
-		public Config ();
-		
-        [NoWrapper]
-		public virtual void changed ();
-	}
-
-    
-    /*************************************************************************************
      * A generic list container supporting reference counting.
      * 
      * 

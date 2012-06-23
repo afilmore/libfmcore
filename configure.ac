@@ -210,8 +210,6 @@ AC_CONFIG_FILES([
     Makefile
     data/Makefile
     src/Makefile
-    src/fm-vala/Makefile
-    src/jobs/Makefile
     src/tests/Makefile
     vapi/Makefile
     libfmcore-${LIBFMCORE_API_VERSION}.pc

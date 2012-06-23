@@ -27,7 +27,7 @@
 #include <gtk/gtk.h>
 
 #include "fm-path-list.h"
-#include "fm-jobs.h"
+#include "fm-vala.h"
 
 G_BEGIN_DECLS
 

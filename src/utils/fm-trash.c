@@ -29,7 +29,6 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "fm-jobs.h"
 #include "fm-vala.h"
 #include "fm-msgbox.h"
 

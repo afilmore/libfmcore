@@ -2,7 +2,7 @@ NULL=
 
 vapi_DATA = \
 	libfmcore.vapi \
-	libfmcore-jobs.vapi \
+	libfmcore-private.vapi \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

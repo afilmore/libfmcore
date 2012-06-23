@@ -30,7 +30,7 @@
 #include "fm-path-list.h"
 #include "fm-dir-list-job.h"
 #include "fm-file-info-list.h"
-#include "fm-jobs.h"
+#include "fm-vala.h"
 #include "fm-file-info-job.h"
 
 G_BEGIN_DECLS

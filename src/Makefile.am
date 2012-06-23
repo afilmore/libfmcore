@@ -5,13 +5,12 @@ NULL=
 
 # current dir needs to be built before tests
 SUBDIRS= \
-	fm-vala \
-	jobs \
 	. \
 	tests \
 	$(NULL)
 
 AM_CPPFLAGS = \
+	-include $(CONFIG_HEADER) \
 	-I$(srcdir) \
 	-I$(srcdir)/fm-vala \
 	-I$(srcdir)/jobs \
@@ -23,6 +22,32 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
+
+vala_SOURCES = \
+	fm-vala/fm-config.vala \
+	jobs/Base/Job.vala \
+	jobs/Base/FileJob.vala \
+	jobs/FileJobs/CopyJob.vala \
+	jobs/FileJobs/DeleteJob.vala \
+	jobs/FileJobs/TrashJob.vala \
+	jobs/UI/FileJobUI.vala \
+	jobs/UI/GtkFileJobUI.vala \
+	jobs/UI/GtkFileJobUIXML.vala \
+	jobs/UI/GtkUI.vala \
+	jobs/UI/RenameDialog.vala \
+	jobs/UI/RenameDialogXML.vala \
+	jobs/UI/UI.vala \
+	$(NULL)
+
+VALAFLAGS = \
+	--vapidir=$(srcdir)/../vapi \
+	--pkg vconfig \
+	--pkg $(GTK_PKG) \
+    --pkg libfmcore \
+    --pkg posix \
+    --header fm-vala.h \
+	$(NULL)
+
 
 base_SOURCES = \
 	base/fm-dummy-monitor.c \
@@ -70,6 +95,7 @@ jobs_SOURCES = \
 
 
 libfmcore_SOURCES = \
+	$(vala_SOURCES) \
 	fm.c \
 	$(base_SOURCES) \
 	$(jobs_SOURCES) \
@@ -79,7 +105,7 @@ libfmcore_SOURCES = \
 libfmcoreincludedir = $(includedir)/libfmcore-$(LIBFMCORE_API_VERSION)
 libfmcoreinclude_HEADERS = \
 	fm.h \
-	fm-vala/fm-vala.h \
+	fm-vala.h \
 	base/fm-debug.h \
 	base/fm-dummy-monitor.h \
 	base/fm-file-info.h \
@@ -93,7 +119,6 @@ libfmcoreinclude_HEADERS = \
 	base/fm-path.h \
 	base/fm-path-list.h \
 	base/fm-utils.h \
-	jobs/fm-jobs.h \
 	jobs/FmJobs/fm-deep-count-job.h \
 	jobs/FmJobs/fm-dir-list-job.h \
 	jobs/FmJobs/fm-file-info-job.h \
@@ -149,8 +174,6 @@ libfmcore_@LIBFMCORE_API_VERSION@_la_LIBADD = \
 	$(MENU_CACHE_LIBS) \
 	$(DBUS_LIBS) \
 	$(INTLLIBS) \
-	$(srcdir)/fm-vala/libfmvala.la \
-	$(srcdir)/jobs/libfmjobs.la \
 	$(NULL)
 
 libfmcore_@LIBFMCORE_API_VERSION@_la_LDFLAGS = \
@@ -186,11 +209,14 @@ EXTRA_DIST = \
 	$(NULL)
 
 CLEANFILES = \
+	$(patsubst %.vala,%.c,$(filter %.vala, $(vala_SOURCES))) \
 	base/fm-marshal.h \
 	base/fm-marshal.c \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-marshal.c \
+	libfmcore_la_vala.stamp \
 	$(NULL)
+
 
 # A lib to be loaede with LD_PRELOADS to override GtkFileChooserWidget
 #lib_LTLIBRARIES=libfm-chooser-hack.la
@@ -201,4 +227,6 @@ CLEANFILES = \
 #libfm_chooser_hack_la_LDFLAGS= \
 #        -no-undefined \
 #        -export-symbols-regex gtk
+
+
 

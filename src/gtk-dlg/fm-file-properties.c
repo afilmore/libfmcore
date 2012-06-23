@@ -46,7 +46,7 @@
 //~ #include "fm-progress-dlg.h"
 #include "fm-utils.h"
 
-#include "fm-jobs.h"
+#include "fm-vala.h"
 
 #include "fm-app-chooser-combo-box.h"
 
