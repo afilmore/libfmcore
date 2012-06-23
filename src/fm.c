@@ -51,14 +51,14 @@ gboolean fm_init (FmConfig *config)
 
     if (config)
         fm_config = (FmConfig*) g_object_ref (config);
-#if 0
+//#if 0
     else
     {
         /* create default config object */
         fm_config = fm_config_new ();
-        fm_config_load_from_file (fm_config, NULL);
+        //fm_config_load_from_file (fm_config, NULL);
     }
-#endif
+//#endif
 
     _fm_path_init ();
     _fm_icon_init ();

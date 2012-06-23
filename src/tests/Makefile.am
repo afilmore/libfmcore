@@ -3,6 +3,7 @@
 NULL=
 TEST_PROGS =
 
+
 AM_CPPFLAGS = \
 	-I../ \
 	-I../base \
@@ -20,10 +21,23 @@ AM_CPPFLAGS = \
 	-Werror-implicit-function-declaration \
 	$(NULL)
 
+
+VALAFLAGS = \
+	--vapidir=$(top_srcdir)/vapi \
+	--pkg vconfig \
+	--pkg $(GTK_PKG) \
+    --pkg libfmcore \
+    --pkg libfmcore-private \
+    --pkg posix \
+	$(NULL)
+
+
 noinst_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += main
+
 main_SOURCES = main.c
+
 main_LDADD= \
 	$(GTK_LIBS) \
 	$(GIO_LIBS) \
@@ -33,3 +47,24 @@ main_LDADD= \
 	$(INTLLIBS) \
 	../libfmcore-@LIBFMCORE_API_VERSION@.la \
 	$(NULL)
+	
+	
+TEST_PROGS += filemanager
+
+filemanager_SOURCES = \
+	FileManager/Application.vala \
+	FileManager/ManagerWindow.vala \
+	$(NULL)
+	
+
+filemanager_LDADD= \
+	$(GTK_LIBS) \
+	$(GIO_LIBS) \
+	$(PANGO_LIBS) \
+	$(MENU_CACHE_LIBS) \
+	$(DBUS_LIBS) \
+	$(INTLLIBS) \
+	../libfmcore-@LIBFMCORE_API_VERSION@.la \
+	$(NULL)
+
+
