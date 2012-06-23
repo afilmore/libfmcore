@@ -1,0 +1,1681 @@
+diff -rupw exo-0.3.91/exo/exo-icon-view.c exo-0.8.0/exo/exo-icon-view.c
+--- exo-0.3.91/exo/exo-icon-view.c	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-icon-view.c	2012-04-28 22:03:32.000000000 +0200
+@@ -122,9 +136,7 @@ typedef struct _ExoIconViewItem     ExoI
+ 
+ 
+ 
+-static void                 exo_icon_view_class_init                     (ExoIconViewClass       *klass);
+ static void                 exo_icon_view_cell_layout_init               (GtkCellLayoutIface     *iface);
+-static void                 exo_icon_view_init                           (ExoIconView            *icon_view);
+ static void                 exo_icon_view_dispose                        (GObject                *object);
+ static void                 exo_icon_view_finalize                       (GObject                *object);
+ static void                 exo_icon_view_get_property                   (GObject                *object,
+@@ -305,31 +317,31 @@ static void exo_icon_view_drag_data_get
+                                             GdkDragContext   *context,
+                                             GtkSelectionData *selection_data,
+                                             guint             info,
+-                                            guint             time);
++                                            guint             drag_time);
+ static void exo_icon_view_drag_data_delete (GtkWidget        *widget,
+                                             GdkDragContext   *context);
+ 
+ /* Target side drag signals */
+ static void     exo_icon_view_drag_leave         (GtkWidget        *widget,
+                                                   GdkDragContext   *context,
+-                                                  guint             time);
++                                                  guint             drag_time);
+ static gboolean exo_icon_view_drag_motion        (GtkWidget        *widget,
+                                                   GdkDragContext   *context,
+                                                   gint              x,
+                                                   gint              y,
+-                                                  guint             time);
++                                                  guint             drag_time);
+ static gboolean exo_icon_view_drag_drop          (GtkWidget        *widget,
+                                                   GdkDragContext   *context,
+                                                   gint              x,
+                                                   gint              y,
+-                                                  guint             time);
++                                                  guint             drag_time);
+ static void     exo_icon_view_drag_data_received (GtkWidget        *widget,
+                                                   GdkDragContext   *context,
+                                                   gint              x,
+                                                   gint              y,
+                                                   GtkSelectionData *selection_data,
+                                                   guint             info,
+-                                                  guint             time);
++                                                  guint             drag_time);
+ static gboolean exo_icon_view_maybe_begin_drag   (ExoIconView      *icon_view,
+                                                   GdkEventMotion   *event);
+ 
+@@ -396,6 +408,7 @@ struct _ExoIconViewCellInfo
+   GtkCellLayoutDataFunc func;
+   gpointer              func_data;
+   GDestroyNotify        destroy;
++  gboolean              is_text;
+ };
+ 
+ struct _ExoIconViewChild
+@@ -454,7 +467,7 @@ struct _ExoIconViewPrivate
+   gint layout_idle_id;
+   
+   gboolean doing_rubberband;
+-  gint rubberband_x1, rubberband_y1;
++  gint rubberband_x_1, rubberband_y_1;
+   gint rubberband_x2, rubberband_y2;
+   GdkGC *rubberband_border_gc;
+   GdkGC *rubberband_fill_gc;
+@@ -472,7 +485,7 @@ struct _ExoIconViewPrivate
+   ExoIconViewItem *last_single_clicked;
+ 
+   GList *cell_list;
+-  guint n_cells;
++  gint n_cells;
+ 
+   gint cursor_cell;
+ 
+@@ -555,29 +568,12 @@ struct _ExoIconViewPrivate
+ 
+ 
+ 
+-static GObjectClass *exo_icon_view_parent_class;
+ static guint         icon_view_signals[LAST_SIGNAL];
+ 
+ 
+ 
+-GType
+-exo_icon_view_get_type (void)
+-{
+-  static GType type = G_TYPE_INVALID;
+-
+-  if (G_UNLIKELY (type == G_TYPE_INVALID))
+-    {
+-      type = _exo_g_type_register_simple (GTK_TYPE_CONTAINER,
+-                                          "ExoIconView",
+-                                          sizeof (ExoIconViewClass),
+-                                          exo_icon_view_class_init,
+-                                          sizeof (ExoIconView),
+-                                          exo_icon_view_init);
+-      _exo_g_type_add_interface_simple (type, GTK_TYPE_CELL_LAYOUT, (GInterfaceInitFunc) exo_icon_view_cell_layout_init);
+-    }
+-
+-  return type;
+-}
++G_DEFINE_TYPE_WITH_CODE (ExoIconView, exo_icon_view, GTK_TYPE_CONTAINER,
++    G_IMPLEMENT_INTERFACE (GTK_TYPE_CELL_LAYOUT, exo_icon_view_cell_layout_init))
+ 
+ 
+ 
+@@ -589,9 +585,6 @@ exo_icon_view_class_init (ExoIconViewCla
+   GtkBindingSet     *gtkbinding_set;
+   GObjectClass      *gobject_class;
+   
+-  /* determine the parent type class */
+-  exo_icon_view_parent_class = g_type_class_peek_parent (klass);
+-
+   /* add our private data to the type's instances */
+   g_type_class_add_private (klass, sizeof (ExoIconViewPrivate));
+ 
+@@ -1363,10 +1356,6 @@ exo_icon_view_set_property (GObject
+       exo_icon_view_set_margin (icon_view, g_value_get_int (value));
+       break;
+ 
+-    case PROP_MARKUP_COLUMN:
+-      exo_icon_view_set_markup_column (icon_view, g_value_get_int (value));
+-      break;
+-
+     case PROP_MODEL:
+       exo_icon_view_set_model (icon_view, g_value_get_object (value));
+       break;
+@@ -1375,10 +1364,6 @@ exo_icon_view_set_property (GObject
+       exo_icon_view_set_orientation (icon_view, g_value_get_enum (value));
+       break;
+ 
+-    case PROP_PIXBUF_COLUMN:
+-      exo_icon_view_set_pixbuf_column (icon_view, g_value_get_int (value));
+-      break;
+-
+     case PROP_REORDERABLE:
+       exo_icon_view_set_reorderable (icon_view, g_value_get_boolean (value));
+       break;
+@@ -1407,10 +1392,6 @@ exo_icon_view_set_property (GObject
+       exo_icon_view_set_spacing (icon_view, g_value_get_int (value));
+       break;
+ 
+-    case PROP_TEXT_COLUMN:
+-      exo_icon_view_set_text_column (icon_view, g_value_get_int (value));
+-      break;
+-
+     case PROP_LAYOUT_MODE:
+       exo_icon_view_set_layout_mode (icon_view, g_value_get_enum (value));
+       break;
+@@ -1625,7 +1606,7 @@ exo_icon_view_expose_event (GtkWidget
+   GdkRectangle            event_area = event->area;
+   ExoIconView            *icon_view = EXO_ICON_VIEW (widget);
+   GtkTreePath            *path;
+-  GdkRectangle            rubber_rect;
++  GdkRectangle            rubber_rect = { 0, };
+   const GList            *lp;
+   gint                    event_area_last;
+   gint                    dest_index = -1;
+@@ -1674,10 +1655,10 @@ exo_icon_view_expose_event (GtkWidget
+   if (G_UNLIKELY (priv->doing_rubberband))
+     {
+       /* calculate the rubberband area */
+-      rubber_rect.x = MIN (priv->rubberband_x1, priv->rubberband_x2);
+-      rubber_rect.y = MIN (priv->rubberband_y1, priv->rubberband_y2);
+-      rubber_rect.width = ABS (priv->rubberband_x1 - priv->rubberband_x2) + 1;
+-      rubber_rect.height = ABS (priv->rubberband_y1 - priv->rubberband_y2) + 1;
++      rubber_rect.x = MIN (priv->rubberband_x_1, priv->rubberband_x2);
++      rubber_rect.y = MIN (priv->rubberband_y_1, priv->rubberband_y2);
++      rubber_rect.width = ABS (priv->rubberband_x_1 - priv->rubberband_x2) + 1;
++      rubber_rect.height = ABS (priv->rubberband_y_1 - priv->rubberband_y2) + 1;
+ 
+       /* we take advantage of double-buffering here and use only a single
+        * draw_rectangle() operation w/o having to take care of clipping.
+@@ -1825,7 +1806,7 @@ exo_icon_view_motion_notify_event (GtkWi
+   ExoIconView     *icon_view = EXO_ICON_VIEW (widget);
+   GdkCursor       *cursor;
+   gint             size;
+-  gint             abs;
++  gint             abso;
+   
+   exo_icon_view_maybe_begin_drag (icon_view, event);
+ 
+@@ -1835,7 +1816,7 @@ exo_icon_view_motion_notify_event (GtkWi
+ 
+       if (icon_view->priv->layout_mode == EXO_ICON_VIEW_LAYOUT_ROWS)
+         {
+-          abs = event->y - icon_view->priv->height *
++          abso = event->y - icon_view->priv->height *
+              (icon_view->priv->vadjustment->value /
+              (icon_view->priv->vadjustment->upper -
+               icon_view->priv->vadjustment->lower));
+@@ -1844,7 +1825,7 @@ exo_icon_view_motion_notify_event (GtkWi
+         }
+       else
+         {
+-          abs = event->x - icon_view->priv->width *
++          abso = event->x - icon_view->priv->width *
+              (icon_view->priv->hadjustment->value /
+              (icon_view->priv->hadjustment->upper -
+               icon_view->priv->hadjustment->lower));
+@@ -1852,12 +1833,12 @@ exo_icon_view_motion_notify_event (GtkWi
+           size = widget->allocation.width;
+         }
+ 
+-      if (abs < 0 || abs > size)
++      if (abso < 0 || abso > size)
+         {
+-          if (abs < 0)
+-            icon_view->priv->scroll_value_diff = abs;
++          if (abso < 0)
++            icon_view->priv->scroll_value_diff = abso;
+           else
+-            icon_view->priv->scroll_value_diff = abs - size;
++            icon_view->priv->scroll_value_diff = abso - size;
+           icon_view->priv->event_last_x = event->x;
+           icon_view->priv->event_last_y = event->y;
+ 
+@@ -1937,7 +1918,7 @@ exo_icon_view_remove (GtkContainer *cont
+         {
+           icon_view->priv->children = g_list_delete_link (icon_view->priv->children, lp);
+           gtk_widget_unparent (widget);
+-          _exo_slice_free (ExoIconViewChild, child);
++          g_slice_free (ExoIconViewChild, child);
+           return;
+         }
+     }
+@@ -2001,7 +1982,7 @@ exo_icon_view_put (ExoIconView     *icon
+   ExoIconViewChild *child;
+   
+   /* allocate the new child */
+-  child = _exo_slice_new (ExoIconViewChild);
++  child = g_slice_new (ExoIconViewChild);
+   child->widget = widget;
+   child->item = item;
+   child->cell = cell;
+@@ -2315,7 +2296,7 @@ exo_icon_view_button_release_event (GtkW
+   ExoIconView     *icon_view = EXO_ICON_VIEW (widget);
+   GtkTreePath     *path;
+   
+-  if (icon_view->priv->pressed_button == event->button)
++  if (icon_view->priv->pressed_button == (gint) event->button)
+     {
+       /* check if we're in single click mode */
+       if (G_UNLIKELY (icon_view->priv->single_click && (event->state & (GDK_CONTROL_MASK | GDK_SHIFT_MASK)) == 0))
+@@ -2529,19 +2510,19 @@ exo_icon_view_update_rubberband (gpointe
+   x = MAX (x, 0);
+   y = MAX (y, 0);
+ 
+-  old_area.x = MIN (icon_view->priv->rubberband_x1,
++  old_area.x = MIN (icon_view->priv->rubberband_x_1,
+                     icon_view->priv->rubberband_x2);
+-  old_area.y = MIN (icon_view->priv->rubberband_y1,
++  old_area.y = MIN (icon_view->priv->rubberband_y_1,
+                     icon_view->priv->rubberband_y2);
+   old_area.width = ABS (icon_view->priv->rubberband_x2 -
+-                        icon_view->priv->rubberband_x1) + 1;
++                        icon_view->priv->rubberband_x_1) + 1;
+   old_area.height = ABS (icon_view->priv->rubberband_y2 -
+-                         icon_view->priv->rubberband_y1) + 1;
++                         icon_view->priv->rubberband_y_1) + 1;
+   
+-  new_area.x = MIN (icon_view->priv->rubberband_x1, x);
+-  new_area.y = MIN (icon_view->priv->rubberband_y1, y);
+-  new_area.width = ABS (x - icon_view->priv->rubberband_x1) + 1;
+-  new_area.height = ABS (y - icon_view->priv->rubberband_y1) + 1;
++  new_area.x = MIN (icon_view->priv->rubberband_x_1, x);
++  new_area.y = MIN (icon_view->priv->rubberband_y_1, y);
++  new_area.width = ABS (x - icon_view->priv->rubberband_x_1) + 1;
++  new_area.height = ABS (y - icon_view->priv->rubberband_y_1) + 1;
+ 
+   invalid_region = gdk_region_rectangle (&old_area);
+   gdk_region_union_with_rect (invalid_region, &new_area);
+@@ -2595,8 +2576,8 @@ exo_icon_view_start_rubberbanding (ExoIc
+       item->selected_before_rubberbanding = item->selected;
+     }
+ 
+-  icon_view->priv->rubberband_x1 = x;
+-  icon_view->priv->rubberband_y1 = y;
++  icon_view->priv->rubberband_x_1 = x;
++  icon_view->priv->rubberband_y_1 = y;
+   icon_view->priv->rubberband_x2 = x;
+   icon_view->priv->rubberband_y2 = y;
+ 
+@@ -2687,10 +2668,10 @@ exo_icon_view_update_rubberband_selectio
+   gint             height;
+   
+   /* determine the new rubberband area */
+-  x = MIN (icon_view->priv->rubberband_x1, icon_view->priv->rubberband_x2);
+-  y = MIN (icon_view->priv->rubberband_y1, icon_view->priv->rubberband_y2);
+-  width = ABS (icon_view->priv->rubberband_x1 - icon_view->priv->rubberband_x2);
+-  height = ABS (icon_view->priv->rubberband_y1 - icon_view->priv->rubberband_y2);
++  x = MIN (icon_view->priv->rubberband_x_1, icon_view->priv->rubberband_x2);
++  y = MIN (icon_view->priv->rubberband_y_1, icon_view->priv->rubberband_y2);
++  width = ABS (icon_view->priv->rubberband_x_1 - icon_view->priv->rubberband_x2);
++  height = ABS (icon_view->priv->rubberband_y_1 - icon_view->priv->rubberband_y2);
+   
+   /* check all items */
+   for (lp = icon_view->priv->items; lp != NULL; lp = lp->next)
+@@ -3192,7 +3173,7 @@ exo_icon_view_layout_cols (ExoIconView *
+   GList *icons = icon_view->priv->items;
+   GList *items;
+   gint   col = 0;
+-  gint   rows;
++  gint   rows = 0;
+ 
+   *x = icon_view->priv->margin;
+ 
+@@ -3231,7 +3212,7 @@ exo_icon_view_layout_rows (ExoIconView *
+   GList *icons = icon_view->priv->items;
+   GList *items;
+   gint   row = 0;
+-  gint   cols;
++  gint   cols = 0;
+   
+   *y = icon_view->priv->margin;
+ 
+@@ -3338,6 +3319,10 @@ exo_icon_view_layout (ExoIconView *icon_
+   exo_icon_view_set_adjustment_upper (priv->hadjustment, priv->width);
+   exo_icon_view_set_adjustment_upper (priv->vadjustment, priv->height);
+ 
++  if (priv->width != GTK_WIDGET (icon_view)->requisition.width
++      || priv->height != GTK_WIDGET (icon_view)->requisition.height)
++    gtk_widget_queue_resize_no_redraw (GTK_WIDGET (icon_view));
++
+   if (GTK_WIDGET_REALIZED (icon_view))
+     {
+       gdk_window_resize (priv->bin_window,
+@@ -3559,20 +3544,65 @@ exo_icon_view_paint_item (ExoIconView
+   ExoIconViewCellInfo *info;
+   GtkStateType         state;
+   GdkRectangle         cell_area;
+-  gboolean             rtl;
++  cairo_t             *cr;
+   GList               *lp;
++  gint                 x_0;
++  gint                 y_0;
++  gint                 x_1;
++  gint                 y_1;
+ 
+   if (G_UNLIKELY (icon_view->priv->model == NULL))
+     return;
+   
+   exo_icon_view_set_cell_data (icon_view, item);
+ 
+-  rtl = gtk_widget_get_direction (GTK_WIDGET (icon_view)) == GTK_TEXT_DIR_RTL;
+-
+   if (item->selected)
+     {
+       flags = GTK_CELL_RENDERER_SELECTED;
+       state = GTK_WIDGET_HAS_FOCUS (icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
++
++      /* FIXME We hardwire background drawing behind text cell renderers
++       * here. This is ugly, but it's done to be consistent with GtkIconView.
++       * The additional info->is_text attribute is used for performance
++       * optimization and should be removed alongside the following code. */
++
++      cr = gdk_cairo_create (drawable);
++
++      for (lp = icon_view->priv->cell_list; lp != NULL; lp = lp->next)
++        {
++          info = EXO_ICON_VIEW_CELL_INFO (lp->data);
++
++          if (G_UNLIKELY (!info->cell->visible))
++            continue;
++
++          if (info->is_text)
++            {
++              exo_icon_view_get_cell_area (icon_view, item, info, &cell_area);
++
++              x_0 = x - item->area.x + cell_area.x;
++              y_0 = x - item->area.x + cell_area.y;
++              x_1 = x_0 + cell_area.width;
++              y_1 = y_0 + cell_area.height;
++
++              cairo_move_to (cr, x_0 + 5, y_0);
++              cairo_line_to (cr, x_1 - 5, y_0);
++              cairo_curve_to (cr, x_1 - 5, y_0, x_1, y_0, x_1, y_0 + 5);
++              cairo_line_to (cr, x_1, y_1 - 5);
++              cairo_curve_to (cr, x_1, y_1 - 5, x_1, y_1, x_1 - 5, y_1);
++              cairo_line_to (cr, x_0 + 5, y_1);
++              cairo_curve_to (cr, x_0 + 5, y_1, x_0, y_1, x_0, y_1 - 5);
++              cairo_line_to (cr, x_0, y_0 + 5);
++              cairo_curve_to (cr, x_0, y_0 + 5, x_0, y_0, x_0 + 5, y_0);
++
++              gdk_cairo_set_source_color (cr, &GTK_WIDGET (icon_view)->style->base[state]);
++
++              cairo_fill (cr);
++            }
++        }
++
++      cairo_destroy (cr);
++
++      /* FIXME Ugly code ends here */
+     }
+   else
+     {
+@@ -3838,15 +3868,15 @@ exo_icon_view_row_inserted (GtkTreeModel
+                             ExoIconView  *icon_view)
+ {
+   ExoIconViewItem *item;
+-  gint             index;
++  gint             idx;
+   
+-  index = gtk_tree_path_get_indices (path)[0];
++  idx = gtk_tree_path_get_indices (path)[0];
+ 
+   /* allocate the new item */
+-  item = _exo_slice_new0 (ExoIconViewItem);
++  item = g_slice_new0 (ExoIconViewItem);
+   item->iter = *iter;
+   item->area.width = -1;
+-  icon_view->priv->items = g_list_insert (icon_view->priv->items, item, index);
++  icon_view->priv->items = g_list_insert (icon_view->priv->items, item, idx);
+   
+   /* recalculate the layout */
+   exo_icon_view_queue_layout (icon_view);
+@@ -3903,7 +3933,7 @@ exo_icon_view_row_deleted (GtkTreeModel
+   icon_view->priv->items = g_list_delete_link (icon_view->priv->items, list);
+ 
+   /* release the item */
+-  _exo_slice_free (ExoIconViewItem, item);
++  g_slice_free (ExoIconViewItem, item);
+ 
+   /* recalculate the layout */
+   exo_icon_view_queue_layout (icon_view);
+@@ -3975,6 +4005,11 @@ exo_icon_view_add_move_binding (GtkBindi
+ {
+   
+   gtk_binding_entry_add_signal (binding_set, keyval, modmask, "move-cursor", 2, G_TYPE_ENUM, step, G_TYPE_INT, count);
++
++  /* skip shift+n and shift+p because this blocks type-ahead search.
++   * see http://bugzilla.xfce.org/show_bug.cgi?id=4633
++   */
++  if (G_LIKELY (keyval != GDK_p && keyval != GDK_n))
+   gtk_binding_entry_add_signal (binding_set, keyval, GDK_SHIFT_MASK, "move-cursor", 2, G_TYPE_ENUM, step, G_TYPE_INT, count);
+ 
+   if ((modmask & GDK_CONTROL_MASK) != GDK_CONTROL_MASK)
+@@ -4219,10 +4254,14 @@ exo_icon_view_move_cursor_up_down (ExoIc
+   GList           *list;
+   gint             cell = -1;
+   gint             step;
++  GtkDirectionType  direction;
++  GtkWidget        *toplevel;
+   
+   if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+     return;
+   
++  direction = count < 0 ? GTK_DIR_UP : GTK_DIR_DOWN;
++
+   if (!icon_view->priv->cursor_item)
+     {
+       if (count > 0)
+@@ -4279,7 +4318,21 @@ exo_icon_view_move_cursor_up_down (ExoIc
+     }
+ 
+   if (!item)
++    {
++      if (!gtk_widget_keynav_failed (GTK_WIDGET (icon_view), direction))
++        {
++          toplevel = gtk_widget_get_toplevel (GTK_WIDGET (icon_view));
++          if (toplevel != NULL)
++            {
++              gtk_widget_child_focus (toplevel,
++                                      direction == GTK_DIR_UP ?
++                                          GTK_DIR_TAB_BACKWARD :
++                                          GTK_DIR_TAB_FORWARD);
++            }
++        }
++
+     return;
++    }
+ 
+   if (icon_view->priv->ctrl_pressed ||
+       !icon_view->priv->shift_pressed ||
+@@ -4369,10 +4422,14 @@ exo_icon_view_move_cursor_left_right (Ex
+   GList           *list;
+   gint             cell = -1;
+   gint             step;
++  GtkDirectionType  direction;
++  GtkWidget        *toplevel;
+   
+   if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+     return;
+   
++  direction = count < 0 ? GTK_DIR_LEFT : GTK_DIR_RIGHT;
++
+   if (!icon_view->priv->cursor_item)
+     {
+       if (count > 0)
+@@ -4433,7 +4490,21 @@ exo_icon_view_move_cursor_left_right (Ex
+     }
+ 
+   if (!item)
++    {
++      if (!gtk_widget_keynav_failed (GTK_WIDGET (icon_view), direction))
++        {
++          toplevel = gtk_widget_get_toplevel (GTK_WIDGET (icon_view));
++          if (toplevel != NULL)
++            {
++              gtk_widget_child_focus (toplevel,
++                                      direction == GTK_DIR_LEFT ?
++                                          GTK_DIR_TAB_BACKWARD :
++                                          GTK_DIR_TAB_FORWARD);
++            }
++        }
++
+     return;
++    }
+ 
+   if (icon_view->priv->ctrl_pressed ||
+       !icon_view->priv->shift_pressed ||
+@@ -4624,7 +4695,7 @@ free_cell_info (ExoIconViewCellInfo *inf
+ 
+   free_cell_attributes (info);
+   g_object_unref (G_OBJECT (info->cell));
+-  _exo_slice_free (ExoIconViewCellInfo, info);
++  g_slice_free (ExoIconViewCellInfo, info);
+ }
+ 
+ 
+@@ -4643,11 +4714,12 @@ exo_icon_view_cell_layout_pack_start (Gt
+   g_object_ref (renderer);
+   gtk_object_sink (GTK_OBJECT (renderer));
+ 
+-  info = _exo_slice_new0 (ExoIconViewCellInfo);
++  info = g_slice_new0 (ExoIconViewCellInfo);
+   info->cell = renderer;
+   info->expand = expand ? TRUE : FALSE;
+   info->pack = GTK_PACK_START;
+   info->position = icon_view->priv->n_cells;
++  info->is_text = GTK_IS_CELL_RENDERER_TEXT (renderer);
+   
+   icon_view->priv->cell_list = g_list_append (icon_view->priv->cell_list, info);
+   icon_view->priv->n_cells++;
+@@ -4671,11 +4743,12 @@ exo_icon_view_cell_layout_pack_end (GtkC
+   g_object_ref (renderer);
+   gtk_object_sink (GTK_OBJECT (renderer));
+ 
+-  info = _exo_slice_new0 (ExoIconViewCellInfo);
++  info = g_slice_new0 (ExoIconViewCellInfo);
+   info->cell = renderer;
+   info->expand = expand ? TRUE : FALSE;
+   info->pack = GTK_PACK_END;
+   info->position = icon_view->priv->n_cells;
++  info->is_text = GTK_IS_CELL_RENDERER_TEXT (renderer);
+ 
+   icon_view->priv->cell_list = g_list_append (icon_view->priv->cell_list, info);
+   icon_view->priv->n_cells++;
+@@ -4945,7 +5018,7 @@ exo_icon_view_get_item_at_pos (const Exo
+                                GtkTreePath      **path,
+                                GtkCellRenderer  **cell)
+ {
+-  ExoIconViewCellInfo *info;
++  ExoIconViewCellInfo *info = NULL;
+   ExoIconViewItem     *item;
+   
+   g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), FALSE);
+@@ -5228,7 +5301,7 @@ exo_icon_view_set_model (ExoIconView  *i
+       for (lp = icon_view->priv->items; lp != NULL; lp = lp->next)
+         {
+           g_free (EXO_ICON_VIEW_ITEM (lp->data)->box);
+-          _exo_slice_free (ExoIconViewItem, lp->data);
++          g_slice_free (ExoIconViewItem, lp->data);
+         }
+       g_list_free (icon_view->priv->items);
+       icon_view->priv->items = NULL;
+@@ -5298,7 +5371,7 @@ exo_icon_view_set_model (ExoIconView  *i
+         {
+           do
+             {
+-              item = _exo_slice_new0 (ExoIconViewItem);
++              item = g_slice_new0 (ExoIconViewItem);
+               item->iter = iter;
+               item->area.width = -1;
+               items = g_list_prepend (items, item);
+@@ -5433,206 +5506,6 @@ update_pixbuf_cell (ExoIconView *icon_vi
+ 
+ 
+ /**
+- * exo_icon_view_get_text_column:
+- * @icon_view: A #ExoIconView.
+- *
+- * Returns the column with text for @icon_view.
+- *
+- * Returns: the text column, or -1 if it's unset.
+- *
+- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
+- *             now implements #GtkCellLayout.
+- */
+-gint
+-exo_icon_view_get_text_column (const ExoIconView *icon_view)
+-{
+-  g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), -1);
+-  return icon_view->priv->text_column;
+-}
+-
+-
+-
+-/**
+- * exo_icon_view_set_text_column:
+- * @icon_view: A #ExoIconView.
+- * @column: A column in the currently used model.
+- * 
+- * Sets the column with text for @icon_view to be @column. The text
+- * column must be of type #G_TYPE_STRING.
+- *
+- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
+- *             now implements #GtkCellLayout.
+- **/
+-void
+-exo_icon_view_set_text_column (ExoIconView *icon_view,
+-                               gint         column)
+-{
+-  GType column_type;
+-
+-  if (G_UNLIKELY (column == icon_view->priv->text_column))
+-    return;
+-  
+-  if (column == -1)
+-    {
+-      icon_view->priv->text_column = -1;
+-    }
+-  else
+-    {
+-      if (icon_view->priv->model != NULL)
+-        {
+-          column_type = gtk_tree_model_get_column_type (icon_view->priv->model, column);
+-          g_return_if_fail (column_type == G_TYPE_STRING);
+-        }
+-      
+-      icon_view->priv->text_column = column;
+-    }
+-
+-  exo_icon_view_stop_editing (icon_view, TRUE);
+-
+-  update_text_cell (icon_view);
+-
+-  exo_icon_view_invalidate_sizes (icon_view);
+-  
+-  g_object_notify (G_OBJECT (icon_view), "text-column");
+-}
+-
+-
+-
+-/**
+- * exo_icon_view_get_markup_column:
+- * @icon_view: A #ExoIconView.
+- *
+- * Returns the column with markup text for @icon_view.
+- *
+- * Returns: the markup column, or -1 if it's unset.
+- *
+- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
+- *             now implements #GtkCellLayout.
+- */
+-gint
+-exo_icon_view_get_markup_column (const ExoIconView *icon_view)
+-{
+-  g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), -1);
+-  return icon_view->priv->markup_column;
+-}
+-
+-
+-
+-/**
+- * exo_icon_view_set_markup_column:
+- * @icon_view : A #ExoIconView.
+- * @column    : A column in the currently used model.
+- * 
+- * Sets the column with markup information for @icon_view to be
+- * @column. The markup column must be of type #G_TYPE_STRING.
+- * If the markup column is set to something, it overrides
+- * the text column set by exo_icon_view_set_text_column().
+- *
+- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
+- *             now implements #GtkCellLayout.
+- **/
+-void
+-exo_icon_view_set_markup_column (ExoIconView *icon_view,
+-                                 gint         column)
+-{
+-  if (G_UNLIKELY (column == icon_view->priv->markup_column))
+-    return;
+-  
+-  if (column == -1)
+-    icon_view->priv->markup_column = -1;
+-  else
+-    {
+-      if (icon_view->priv->model != NULL)
+-        {
+-          GType column_type;
+-          
+-          column_type = gtk_tree_model_get_column_type (icon_view->priv->model, column);
+-
+-          g_return_if_fail (column_type == G_TYPE_STRING);
+-        }
+-      
+-      icon_view->priv->markup_column = column;
+-    }
+-
+-  exo_icon_view_stop_editing (icon_view, TRUE);
+-
+-  update_text_cell (icon_view);
+-
+-  exo_icon_view_invalidate_sizes (icon_view);
+-  
+-  g_object_notify (G_OBJECT (icon_view), "markup-column");
+-}
+-
+-
+-
+-/**
+- * exo_icon_view_get_pixbuf_column:
+- * @icon_view : A #ExoIconView.
+- *
+- * Returns the column with pixbufs for @icon_view.
+- *
+- * Returns: the pixbuf column, or -1 if it's unset.
+- *
+- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
+- *             now implements #GtkCellLayout.
+- */
+-gint
+-exo_icon_view_get_pixbuf_column (const ExoIconView *icon_view)
+-{
+-  g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), -1);
+-  return icon_view->priv->pixbuf_column;
+-}
+-
+-
+-
+-/**
+- * exo_icon_view_set_pixbuf_column:
+- * @icon_view : A #ExoIconView.
+- * @column    : A column in the currently used model.
+- * 
+- * Sets the column with pixbufs for @icon_view to be @column. The pixbuf
+- * column must be of type #GDK_TYPE_PIXBUF
+- *
+- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
+- *             now implements #GtkCellLayout.
+- **/
+-void
+-exo_icon_view_set_pixbuf_column (ExoIconView *icon_view,
+-                                 gint         column)
+-{
+-  GType column_type;
+-
+-  if (G_UNLIKELY (column == icon_view->priv->pixbuf_column))
+-    return;
+-  
+-  if (column == -1)
+-    {
+-      icon_view->priv->pixbuf_column = -1;
+-    }
+-  else
+-    {
+-      if (icon_view->priv->model != NULL)
+-        {
+-          column_type = gtk_tree_model_get_column_type (icon_view->priv->model, column);
+-          g_return_if_fail (column_type == GDK_TYPE_PIXBUF);
+-        }
+-      
+-      icon_view->priv->pixbuf_column = column;
+-    }
+-
+-  exo_icon_view_stop_editing (icon_view, TRUE);
+-
+-  update_pixbuf_cell (icon_view);
+-
+-  exo_icon_view_invalidate_sizes (icon_view);
+-  
+-  g_object_notify (G_OBJECT (icon_view), "pixbuf-column");
+-  
+-}
+-
+-
+-
+-/**
+  * exo_icon_view_select_path:
+  * @icon_view : A #ExoIconView.
+  * @path      : The #GtkTreePath to be selected.
+@@ -5820,6 +5693,68 @@ exo_icon_view_item_activated (ExoIconVie
+ 
+ 
+ /**
++ * exo_icon_view_get_item_column:
++ * @icon_view : A #ExoIconView.
++ * @path      : The #GtkTreePath of the item.
++ *
++ * Gets the column in which the item @path is currently
++ * displayed. Column numbers start at 0.
++ *
++ * Returns: The column in which the item is displayed
++ *
++ * Since: 0.7.1
++ **/
++gint
++exo_icon_view_get_item_column (ExoIconView *icon_view,
++                               GtkTreePath *path)
++{
++  ExoIconViewItem *item;
++
++  g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), -1);
++  g_return_val_if_fail (icon_view->priv->model != NULL, -1);
++  g_return_val_if_fail (gtk_tree_path_get_depth (path) > 0, -1);
++
++  item = g_list_nth_data (icon_view->priv->items, gtk_tree_path_get_indices(path)[0]);
++  if (G_LIKELY (item != NULL))
++    return item->col;
++
++  return -1;
++}
++
++
++
++/**
++ * exo_icon_view_get_item_row:
++ * @icon_view : A #ExoIconView.
++ * @path      : The #GtkTreePath of the item.
++ *
++ * Gets the row in which the item @path is currently
++ * displayed. Row numbers start at 0.
++ *
++ * Returns: The row in which the item is displayed
++ *
++ * Since: 0.7.1
++ */
++gint
++exo_icon_view_get_item_row (ExoIconView *icon_view,
++                            GtkTreePath *path)
++{
++  ExoIconViewItem *item;
++
++  g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), -1);
++  g_return_val_if_fail (icon_view->priv->model != NULL, -1);
++  g_return_val_if_fail (gtk_tree_path_get_depth (path) > 0, -1);
++
++  item = g_list_nth_data (icon_view->priv->items, gtk_tree_path_get_indices(path)[0]);
++  if (G_LIKELY (item != NULL))
++    return item->row;
++
++  return -1;
++}
++
++
++
++/**
+  * exo_icon_view_get_cursor:
+  * @icon_view : A #ExoIconView
+  * @path      : Return location for the current cursor path, or %NULL
+@@ -6456,7 +6391,7 @@ dest_row_free (gpointer data)
+   DestRow *dr = (DestRow *)data;
+ 
+   gtk_tree_row_reference_free (dr->dest_row);
+-  _exo_slice_free (DestRow, dr);
++  g_slice_free (DestRow, dr);
+ }
+ 
+ static void
+@@ -6476,7 +6411,7 @@ set_dest_row (GdkDragContext *context,
+       return;
+     }
+   
+-  dr = _exo_slice_new0 (DestRow);
++  dr = g_slice_new0 (DestRow);
+      
+   dr->dest_row = gtk_tree_row_reference_new (model, dest_row);
+   dr->empty_view_drop = empty_view_drop;
+@@ -6520,7 +6455,7 @@ get_dest_row (GdkDragContext *context)
+ static gboolean
+ check_model_dnd (GtkTreeModel *model,
+                  GType         required_iface,
+-                 const gchar  *signal)
++                 const gchar  *_signal)
+ {
+   if (model == NULL || !G_TYPE_CHECK_INSTANCE_TYPE ((model), required_iface))
+     {
+@@ -6534,7 +6469,7 @@ check_model_dnd (GtkTreeModel *model,
+                  "your handler should do. (gtkiconview.c is in the GTK+ source "
+                  "code.) If you're using GTK+ from a language other than C, "
+                  "there may be a more natural way to override default handlers, e.g. via derivation.",
+-                 signal, g_type_name (required_iface), signal);
++                 _signal, g_type_name (required_iface), _signal);
+       return FALSE;
+     }
+   else
+@@ -6876,7 +6811,7 @@ exo_icon_view_drag_data_get (GtkWidget
+                              GdkDragContext   *context,
+                              GtkSelectionData *selection_data,
+                              guint             info,
+-                             guint             time)
++                             guint             drag_time)
+ {
+   ExoIconView *icon_view;
+   GtkTreeModel *model;
+@@ -6951,7 +6886,7 @@ exo_icon_view_drag_data_delete (GtkWidge
+ static void
+ exo_icon_view_drag_leave (GtkWidget      *widget,
+                           GdkDragContext *context,
+-                          guint           time)
++                          guint           drag_time)
+ {
+   ExoIconView *icon_view;
+ 
+@@ -6970,7 +6905,7 @@ exo_icon_view_drag_motion (GtkWidget
+                            GdkDragContext *context,
+                            gint            x,
+                            gint            y,
+-                           guint           time)
++                           guint           drag_time)
+ {
+   ExoIconViewDropPosition pos;
+   GdkDragAction           suggested_action = 0;
+@@ -6990,7 +6925,7 @@ exo_icon_view_drag_motion (GtkWidget
+   if (path == NULL && !empty)
+     {
+       /* Can't drop here. */
+-      gdk_drag_status (context, 0, time);
++      gdk_drag_status (context, 0, drag_time);
+     }
+   else
+     {
+@@ -7003,12 +6938,12 @@ exo_icon_view_drag_motion (GtkWidget
+            * determining whether to accept the drop
+            */
+           set_status_pending (context, suggested_action);
+-          gtk_drag_get_data (widget, context, target, time);
++          gtk_drag_get_data (widget, context, target, drag_time);
+         }
+       else
+         {
+           set_status_pending (context, 0);
+-          gdk_drag_status (context, suggested_action, time);
++          gdk_drag_status (context, suggested_action, drag_time);
+         }
+     }
+ 
+@@ -7023,7 +6958,7 @@ exo_icon_view_drag_drop (GtkWidget
+                          GdkDragContext *context,
+                          gint            x,
+                          gint            y,
+-                         guint           time)
++                         guint           drag_time)
+ {
+   ExoIconView *icon_view;
+   GtkTreePath *path;
+@@ -7066,7 +7001,7 @@ exo_icon_view_drag_drop (GtkWidget
+ 
+   if (target != GDK_NONE)
+     {
+-      gtk_drag_get_data (widget, context, target, time);
++      gtk_drag_get_data (widget, context, target, drag_time);
+       return TRUE;
+     }
+   else
+@@ -7080,7 +7015,7 @@ exo_icon_view_drag_data_received (GtkWid
+                                   gint              y,
+                                   GtkSelectionData *selection_data,
+                                   guint             info,
+-                                  guint             time)
++                                  guint             drag_time)
+ {
+   GtkTreePath *path;
+   gboolean accepted = FALSE;
+@@ -7121,7 +7056,7 @@ exo_icon_view_drag_data_received (GtkWid
+             suggested_action = 0;
+         }
+ 
+-      gdk_drag_status (context, suggested_action, time);
++      gdk_drag_status (context, suggested_action, drag_time);
+ 
+       if (path)
+         gtk_tree_path_free (path);
+@@ -7151,7 +7086,7 @@ exo_icon_view_drag_data_received (GtkWid
+   gtk_drag_finish (context,
+                    accepted,
+                    (context->action == GDK_ACTION_MOVE),
+-                   time);
++                   drag_time);
+ 
+   gtk_tree_path_free (dest_row);
+ 
+@@ -7321,7 +7256,8 @@ exo_icon_view_set_drag_dest_item (ExoIco
+   
+   /* special case a drop on an empty model */
+   icon_view->priv->empty_view_drop = FALSE;
+-  if (pos == GTK_TREE_VIEW_DROP_BEFORE && path
++  if (pos == EXO_ICON_VIEW_NO_DROP
++      && path != NULL
+       && gtk_tree_path_get_depth (path) == 1
+       && gtk_tree_path_get_indices (path)[0] == 0)
+     {
+@@ -7468,7 +7404,7 @@ exo_icon_view_create_drag_icon (ExoIconV
+   GdkPixmap   *drawable;
+   GdkGC       *gc;
+   GList       *lp;
+-  gint         index;
++  gint         idx;
+ 
+   g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), NULL);
+   g_return_val_if_fail (gtk_tree_path_get_depth (path) > 0, NULL);
+@@ -7477,12 +7413,12 @@ exo_icon_view_create_drag_icon (ExoIconV
+   if (G_UNLIKELY (!GTK_WIDGET_REALIZED (icon_view)))
+     return NULL;
+ 
+-  index = gtk_tree_path_get_indices (path)[0];
++  idx = gtk_tree_path_get_indices (path)[0];
+ 
+   for (lp = icon_view->priv->items; lp != NULL; lp = lp->next) 
+     {
+       ExoIconViewItem *item = lp->data;
+-      if (G_UNLIKELY (index == g_list_index (icon_view->priv->items, item)))
++      if (G_UNLIKELY (idx == g_list_index (icon_view->priv->items, item)))
+         {
+           drawable = gdk_pixmap_new (icon_view->priv->bin_window,
+                                      item->area.width + 2,
+diff -rupw exo-0.3.91/exo/exo-icon-view.h exo-0.8.0/exo/exo-icon-view.h
+--- exo-0.3.91/exo/exo-icon-view.h	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-icon-view.h	2012-04-28 22:03:32.000000000 +0200
+@@ -30,7 +29,7 @@
+ 
+ #include <gtk/gtk.h>
+ 
+-G_BEGIN_DECLS;
++G_BEGIN_DECLS
+ 
+ typedef struct _ExoIconViewPrivate    ExoIconViewPrivate;
+ typedef struct _ExoIconViewClass      ExoIconViewClass;
+@@ -181,18 +180,6 @@ GtkTreeModel         *exo_icon_view_get_
+ void                  exo_icon_view_set_model                 (ExoIconView              *icon_view,
+                                                                GtkTreeModel             *model);
+ 
+-#ifndef EXO_DISABLE_DEPRECATED
+-gint                  exo_icon_view_get_text_column           (const ExoIconView        *icon_view);
+-void                  exo_icon_view_set_text_column           (ExoIconView              *icon_view,
+-                                                               gint                      column);
+-gint                  exo_icon_view_get_markup_column         (const ExoIconView        *icon_view);
+-void                  exo_icon_view_set_markup_column         (ExoIconView              *icon_view,
+-                                                               gint                      column);
+-gint                  exo_icon_view_get_pixbuf_column         (const ExoIconView        *icon_view);
+-void                  exo_icon_view_set_pixbuf_column         (ExoIconView              *icon_view,
+-                                                               gint                      column);
+-#endif
+-
+ GtkOrientation        exo_icon_view_get_orientation           (const ExoIconView        *icon_view);
+ void                  exo_icon_view_set_orientation           (ExoIconView              *icon_view,
+                                                                GtkOrientation            orientation);
+@@ -276,6 +263,11 @@ void                  exo_icon_view_unse
+ void                  exo_icon_view_item_activated            (ExoIconView              *icon_view,
+                                                                GtkTreePath              *path);
+ 
++gint                  exo_icon_view_get_item_column           (ExoIconView              *icon_view,
++                                                               GtkTreePath              *path);
++gint                  exo_icon_view_get_item_row              (ExoIconView              *icon_view,
++                                                               GtkTreePath              *path);
++
+ gboolean              exo_icon_view_get_cursor                (const ExoIconView        *icon_view,
+                                                                GtkTreePath             **path,
+                                                                GtkCellRenderer         **cell);
+@@ -341,6 +333,6 @@ void                          exo_icon_v
+                                                                        gpointer                      search_position_data,
+                                                                        GDestroyNotify                search_position_destroy);
+  
+-G_END_DECLS;
++G_END_DECLS
+ 
+ #endif /* __EXO_ICON_VIEW_H__ */
+diff -rupw exo-0.3.91/exo/exo-private.c exo-0.8.0/exo/exo-private.c
+--- exo-0.3.91/exo/exo-private.c	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-private.c	2012-04-28 22:03:32.000000000 +0200
+@@ -81,75 +80,3 @@ _exo_gtk_widget_send_focus_change (GtkWi
+   gdk_event_free (fevent);
+ }
+ 
+-
+-
+-/**
+- * _exo_g_type_register_simple:
+- * @type_parent      : the parent #GType.
+- * @type_name_static : the name of the new #GType, must reside in static
+- *                     storage and remain unchanged during the lifetime
+- *                     of the process.
+- * @class_size       : the size of the class structure in bytes.
+- * @class_init       : the class init function or %NULL.
+- * @instance_size    : the size of the instance structure in bytes.
+- * @instance_init    : the constructor function or %NULL.
+- *
+- * Simple wrapper for g_type_register_static(), which takes the most
+- * important aspects of the type as parameters to avoid relocations
+- * when using static constant #GTypeInfo<!---->s.
+- *
+- * Return value: the newly registered #GType.
+- **/
+-GType
+-_exo_g_type_register_simple (GType        type_parent,
+-                             const gchar *type_name_static,
+-                             guint        class_size,
+-                             gpointer     class_init,
+-                             guint        instance_size,
+-                             gpointer     instance_init)
+-{
+-  /* generate the type info (on the stack) */
+-  GTypeInfo info =
+-  {
+-    class_size,
+-    NULL,
+-    NULL,
+-    class_init,
+-    NULL,
+-    NULL,
+-    instance_size,
+-    0,
+-    instance_init,
+-    NULL,
+-  };
+-
+-  /* register the static type */
+-  return g_type_register_static (type_parent, I_(type_name_static), &info, 0);
+-}
+-
+-
+-
+-/**
+- * _exo_g_type_add_interface_simple:
+- * @instance_type       : the #GType which should implement the @interface_type.
+- * @interface_type      : the #GType of the interface.
+- * @interface_init_func : initialization function for the interface.
+- *
+- * Simple wrapper for g_type_add_interface_static(), which helps to avoid unnecessary
+- * relocations for the #GInterfaceInfo<!---->s.
+- **/
+-void
+-_exo_g_type_add_interface_simple (GType              instance_type,
+-                                  GType              interface_type,
+-                                  GInterfaceInitFunc interface_init_func)
+-{
+-  GInterfaceInfo info =
+-  {
+-    interface_init_func,
+-    NULL,
+-    NULL,
+-  };
+-
+-  g_type_add_interface_static (instance_type, interface_type, &info);
+-}
+-
+diff -rupw exo-0.3.91/exo/exo-private.h exo-0.8.0/exo/exo-private.h
+--- exo-0.3.91/exo/exo-private.h	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-private.h	2012-04-28 22:03:32.000000000 +0200
+@@ -31,7 +30,7 @@
+ 
+ #include <glib/gi18n-lib.h>
+ 
+-G_BEGIN_DECLS;
++G_BEGIN_DECLS
+ 
+ /* support macros for debugging */
+ #ifndef NDEBUG
+@@ -46,23 +45,6 @@ G_BEGIN_DECLS;
+ #define _exo_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
+ #endif
+ 
+-/* support macros for the slice allocator */
+-#if GLIB_CHECK_VERSION(2,10,0)
+-#define _exo_slice_alloc(block_size)             (g_slice_alloc ((block_size)))
+-#define _exo_slice_alloc0(block_size)            (g_slice_alloc0 ((block_size)))
+-#define _exo_slice_free1(block_size, mem_block)  G_STMT_START{ g_slice_free1 ((block_size), (mem_block)); }G_STMT_END
+-#define _exo_slice_new(type)                     (g_slice_new (type))
+-#define _exo_slice_new0(type)                    (g_slice_new0 (type))
+-#define _exo_slice_free(type, ptr)               G_STMT_START{ g_slice_free (type, (ptr)); }G_STMT_END
+-#else
+-#define _exo_slice_alloc(block_size)             (g_malloc ((block_size)))
+-#define _exo_slice_alloc0(block_size)            (g_malloc0 ((block_size)))
+-#define _exo_slice_free1(block_size, mem_block)  G_STMT_START{ g_free ((mem_block)); }G_STMT_END
+-#define _exo_slice_new(type)                     (g_new (type, 1))
+-#define _exo_slice_new0(type)                    (g_new0 (type, 1))
+-#define _exo_slice_free(type, ptr)               G_STMT_START{ g_free ((ptr)); }G_STMT_END
+-#endif
+-
+ /* avoid trivial g_value_get_*() function calls */
+ #ifdef NDEBUG
+ #define g_value_get_boolean(v)  (((const GValue *) (v))->data[0].v_int)
+@@ -85,22 +67,11 @@ G_BEGIN_DECLS;
+ #define g_value_get_object(v)   (((const GValue *) (v))->data[0].v_pointer)
+ #endif
+ 
+-void  _exo_i18n_init                    (void) G_GNUC_INTERNAL;
+-
+-void  _exo_gtk_widget_send_focus_change (GtkWidget         *widget,
+-                                         gboolean           in) G_GNUC_INTERNAL;
++G_GNUC_INTERNAL void  _exo_i18n_init                    (void);
+ 
+-GType _exo_g_type_register_simple       (GType              type_parent,
+-                                         const gchar       *type_name_static,
+-                                         guint              class_size,
+-                                         gpointer           class_init,
+-                                         guint              instance_size,
+-                                         gpointer           instance_init) G_GNUC_INTERNAL;
+-
+-void  _exo_g_type_add_interface_simple  (GType              instance_type,
+-                                         GType              interface_type,
+-                                         GInterfaceInitFunc interface_init_func) G_GNUC_INTERNAL;
++G_GNUC_INTERNAL void  _exo_gtk_widget_send_focus_change (GtkWidget         *widget,
++                                                         gboolean           in);
+ 
+-G_END_DECLS;
++G_END_DECLS
+ 
+ #endif /* !__EXO_PRIVATE_H__ */
+diff -rupw exo-0.3.91/exo/exo-string.c exo-0.8.0/exo/exo-string.c
+--- exo-0.3.91/exo/exo-string.c	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-string.c	2012-04-28 22:03:32.000000000 +0200
+@@ -30,10 +29,23 @@
+ #ifdef HAVE_STRING_H
+ #include <string.h>
+ #endif
++#ifdef HAVE_TIME_H
++#include <time.h>
++#endif
+ 
+ #include <exo/exo-string.h>
+ #include <exo/exo-alias.h>
+ 
++/**
++ * SECTION: exo-string
++ * @title: String Utility Functions
++ * @short_description: Various string-related functions
++ * @include: exo/exo.h
++ *
++ * This section describes a number of utility functions for
++ * manipulating strings.
++ **/
++
+ 
+ 
+ /**
+@@ -87,16 +98,14 @@ exo_str_elide_underscores (const gchar *
+  *
+  * You should always prefer this function over strcmp().
+  *
+- * Return value: %TRUE if @a equals @b, else %FALSE.
++ * Returns: %TRUE if @a equals @b, else %FALSE.
+  **/
+ gboolean
+ exo_str_is_equal (const gchar *a,
+                   const gchar *b)
+ {
+-  if (a == NULL && b == NULL)
+-    return TRUE;
+-  else if (a == NULL || b == NULL)
+-    return FALSE;
++  if (a == NULL || b == NULL)
++    return (a == b);
+ 
+   while (*a == *b++)
+     if (*a++ == '\0')
+@@ -136,16 +146,14 @@ exo_str_replace (const gchar *str,
+   const gchar *s, *p;
+   GString     *result;
+ 
+-  g_return_val_if_fail (str != NULL, NULL);
+-  g_return_val_if_fail (pattern != NULL, NULL);
+-  g_return_val_if_fail (replacement != NULL, NULL);
+-
+-  /* empty patterns are kinda useless, so we just return a copy of str */
+-  if (G_UNLIKELY (*pattern == '\0'))
++  /* an empty string or pattern is useless, so just
++   * return a copy of str */
++  if (G_UNLIKELY (exo_str_is_empty (str)
++      || exo_str_is_empty (pattern)))
+     return g_strdup (str);
+ 
+   /* allocate the result string */
+-  result = g_string_new (NULL);
++  result = g_string_sized_new (strlen (str));
+ 
+   /* process the input string */
+   while (*str != '\0')
+@@ -157,9 +165,10 @@ exo_str_replace (const gchar *str,
+             if (*p == '\0' || *s == '\0')
+               break;
+ 
+-          /* check if the pattern matches */
++          /* check if the pattern fully matched */
+           if (G_LIKELY (*p == '\0'))
+             {
++              if (G_LIKELY (!exo_str_is_empty (replacement)))
+               g_string_append (result, replacement);
+               str = s;
+               continue;
+@@ -358,29 +367,35 @@ exo_strdup_strftime (const gchar     *fo
+ /**
+  * exo_strndupv:
+  * @strv  : String vector to duplicate.
+- * @num   : Number of strings in @strv to
+- *          duplicate.
++ * @num   : Number of strings in @strv to duplicate.
+  *
+- * Creates a new string vector containing the
+- * first @n elements of @strv.
++ * Creates a new string vector containing the first @n elements
++ * of @strv. If called on a %NULL value or @num is 0, exo_strndupv()
++ * simply returns %NULL.
+  *
+- * Return value: The new string vector. Should be
+- *               freed using g_strfreev() when no
+- *               longer needed.
++ * Returns: A new NULL-terminated array of strings or %NULL.
++ *          Should be freed using g_strfreev() when no longer needed.
+  **/
+ gchar**
+ exo_strndupv (gchar **strv,
+-              gint    num)
++              guint   num)
+ {
+   gchar **result;
++  guint   i;
+ 
+-  g_return_val_if_fail (strv != NULL, NULL);
+-  g_return_val_if_fail (num >= 0, NULL);
++  /* return null when there is nothing to copy */
++  if (G_UNLIKELY (strv == NULL || num == 0))
++    return NULL;
+ 
++  /* duplicate the first @num string */
+   result = g_new (gchar *, num + 1);
+-  result[num--] = NULL;
+-  for (; num >= 0; --num)
+-    result[num] = g_strdup (strv[num]);
++  for (i = 0; strv[i] != NULL && i < num; i++)
++    result[i] = g_strdup (strv[i]);
++  result[i] = NULL;
++
++  /* resize the string if we allocated too much space */
++  if (G_UNLIKELY (num > i))
++    result = g_renew (gchar *, result, i + 1);
+ 
+   return result;
+ }
+@@ -388,51 +403,36 @@ exo_strndupv (gchar **strv,
+ 
+ 
+ /**
+- * exo_intern_string:
+- * @string: a string
++ * exo_str_looks_like_an_uri:
++ * @str : an input string.
+  * 
+- * Returns a canonical representation for @string. Interned strings can
+- * be compared for equality by comparing the pointers, instead of using strcmp()
+- * or exo_str_is_equal(). exo_intern_string() takes a copy of the @string for its
+- * internal usage, so @string does not need to be static.
++ * Check if @str looks like an uri. This function is no guarantee that
++ * the uri exists, or is supported by the system.
+  * 
+- * Return value: a canonical representation for the string
++ * Returns: %TRUE if the @str looks like an URI
++ *          according to RFC 2396, %FALSE otherwise.
+  *
+- * Since: 0.3.1.1
+- */
+-G_CONST_RETURN gchar*
+-exo_intern_string (const gchar *string)
++ * Since: 0.5.0
++ **/
++gboolean
++exo_str_looks_like_an_uri (const gchar *str)
+ {
+-#if GLIB_CHECK_VERSION(2,9,0)
+-  return g_intern_string (string);
+-#else
+-  return (string != NULL) ? g_quark_to_string (g_quark_from_string (string)) : NULL;
+-#endif
+-}
+-
++  const gchar *s = str;
+ 
++  if (G_UNLIKELY (str == NULL))
++    return FALSE;
+ 
+-/**
+- * exo_intern_static_string:
+- * @string: a static string
+- * 
+- * Returns a canonical representation for @string. Interned strings can
+- * be compared for equality by comparing the pointers, instead of using strcmp()
+- * or exo_str_is_equal(). exo_intern_static_string() does not copy the string,
+- * therefore @string must not be freed or modified. 
+- * 
+- * Return value: a canonical representation for the string
+- *
+- * Since: 0.3.1.1
+- */
+-G_CONST_RETURN gchar*
+-exo_intern_static_string (const gchar *string)
++  /* <scheme> starts with an alpha character */
++  if (g_ascii_isalpha (*s))
+ {
+-#if GLIB_CHECK_VERSION(2,9,0)
+-  return g_intern_static_string (string);
+-#else
+-  return (string != NULL) ? g_quark_to_string (g_quark_from_static_string (string)) : NULL;
+-#endif
++      /* <scheme> continues with (alpha | digit | "+" | "-" | ".")* */
++      for (++s; g_ascii_isalnum (*s) || *s == '+' || *s == '-' || *s == '.'; ++s);
++
++      /* <scheme> must be followed by ":" */
++      return (*s == ':');
++    }
++
++  return FALSE;
+ }
+ 
+ 
+diff -rupw exo-0.3.91/exo/exo-string.h exo-0.8.0/exo/exo-string.h
+--- exo-0.3.91/exo/exo-string.h	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-string.h	2012-04-28 22:03:32.000000000 +0200
+@@ -29,7 +28,7 @@
+ 
+ #include <exo/exo-config.h>
+ 
+-G_BEGIN_DECLS;
++G_BEGIN_DECLS
+ 
+ gchar                *exo_str_elide_underscores  (const gchar     *text) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ 
+@@ -44,17 +43,39 @@ gchar                *exo_strdup_strftim
+                                                   const struct tm *tm) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ 
+ gchar               **exo_strndupv               (gchar          **strv,
+-                                                  gint             num) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
++                                                  guint            num) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ 
+-G_CONST_RETURN gchar *exo_intern_string          (const gchar     *string);
+-G_CONST_RETURN gchar *exo_intern_static_string   (const gchar     *string);
++gboolean              exo_str_looks_like_an_uri  (const gchar     *str);
+ 
+-#if GLIB_CHECK_VERSION(2,9,0)
++
++
++/**
++ * exo_str_is_empty:
++ * @string : a string
++ *
++ * Macro to check if a string is %NULL or empty. You should prefer
++ * this function over strlen (str) == 0.
++ *
++ * Returns: %TRUE if the string is not %NULL and its length > 1,
++ *          %FALSE otherwise.
++ *
++ * Since : 0.5.0
++ **/
++#define exo_str_is_empty(string) ((string) == NULL || *(string) == '\0')
++
++/**
++ * I_:
++ * @string : A static string.
++ *
++ * Shortcut for g_intern_static_string() to return a
++ * canonical representation for @string.
++ *
++ * Returns: a canonical representation for the string.
++ *
++ * Since : 0.3.1.1
++ **/
+ #define I_(string) (g_intern_static_string ((string)))
+-#else
+-#define I_(string) (exo_intern_static_string ((string)))
+-#endif
+ 
+-G_END_DECLS;
++G_END_DECLS
+ 
+ #endif /* !__EXO_STRING_H__ */
+diff -rupw exo-0.3.91/exo/exo-tree-view.c exo-0.8.0/exo/exo-tree-view.c
+--- exo-0.3.91/exo/exo-tree-view.c	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-tree-view.c	2012-04-28 22:03:32.000000000 +0200
+@@ -29,9 +28,23 @@
+ #include <exo/exo-utils.h>
+ #include <exo/exo-alias.h>
+ 
++/**
++ * SECTION: exo-tree-view
++ * @title: ExoTreeView
++ * @short_description: An improved version of #GtkTreeView
++ * @include: exo/exo.h
++ *
++ * The #ExoTreeView class derives from #GtkTreeView and extends it with
++ * the ability to activate rows using single button clicks instead of
++ * the default double button clicks. It also works around a few shortcomings
++ * of #GtkTreeView, i.e. #ExoTreeView allows the user to drag around multiple
++ * selected rows.
++ **/
+ 
+ 
+-#define EXO_TREE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), EXO_TYPE_TREE_VIEW, ExoTreeViewPrivate))
++
++#define EXO_TREE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
++    EXO_TYPE_TREE_VIEW, ExoTreeViewPrivate))
+ 
+ 
+ 
+@@ -45,8 +58,6 @@ enum
+ 
+ 
+ 
+-static void     exo_tree_view_class_init                    (ExoTreeViewClass *klass);
+-static void     exo_tree_view_init                          (ExoTreeView      *tree_view);
+ static void     exo_tree_view_finalize                      (GObject          *object);
+ static void     exo_tree_view_get_property                  (GObject          *object,
+                                                              guint             prop_id,
+@@ -97,27 +108,7 @@ struct _ExoTreeViewPrivate
+ 
+ 
+ 
+-static GObjectClass *exo_tree_view_parent_class;
+-
+-
+-
+-GType
+-exo_tree_view_get_type (void)
+-{
+-  static GType type = G_TYPE_INVALID;
+-
+-  if (G_UNLIKELY (type == G_TYPE_INVALID))
+-    {
+-      type = _exo_g_type_register_simple (GTK_TYPE_TREE_VIEW,
+-                                          "ExoTreeView",
+-                                          sizeof (ExoTreeViewClass),
+-                                          exo_tree_view_class_init,
+-                                          sizeof (ExoTreeView),
+-                                          exo_tree_view_init);
+-    }
+-
+-  return type;
+-}
++G_DEFINE_TYPE (ExoTreeView, exo_tree_view, GTK_TYPE_TREE_VIEW)
+ 
+ 
+ 
+@@ -131,9 +122,6 @@ exo_tree_view_class_init (ExoTreeViewCla
+   /* add our private data to the class */
+   g_type_class_add_private (klass, sizeof (ExoTreeViewPrivate));
+ 
+-  /* determine our parent type class */
+-  exo_tree_view_parent_class = g_type_class_peek_parent (klass);
+-
+   gobject_class = G_OBJECT_CLASS (klass);
+   gobject_class->finalize = exo_tree_view_finalize;
+   gobject_class->get_property = exo_tree_view_get_property;
+@@ -278,6 +266,7 @@ exo_tree_view_button_press_event (GtkWid
+   gboolean          result;
+   GList            *selected_paths = NULL;
+   GList            *lp;
++  gpointer          drag_data;
+ 
+   /* by default we won't emit "row-activated" on button-release-events */
+   tree_view->priv->button_release_activates = FALSE;
+@@ -333,7 +322,6 @@ exo_tree_view_button_press_event (GtkWid
+         selected_paths = gtk_tree_selection_get_selected_rows (selection, NULL);
+     }
+ 
+-#if GTK_CHECK_VERSION(2,9,0)
+   /* Rubberbanding in GtkTreeView 2.9.0 and above is rather buggy, unfortunately, and
+    * doesn't interact properly with GTKs own DnD mechanism. So we need to block all
+    * dragging here when pressing the mouse button on a not yet selected row if
+@@ -347,7 +335,7 @@ exo_tree_view_button_press_event (GtkWid
+       if (G_LIKELY (path == NULL || !gtk_tree_selection_path_is_selected (selection, path)))
+         {
+           /* need to disable drag and drop because we're rubberbanding now */
+-          gpointer drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
++          drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
+           if (G_LIKELY (drag_data != NULL))
+             {
+               g_signal_handlers_block_matched (G_OBJECT (tree_view),
+@@ -368,7 +356,6 @@ exo_tree_view_button_press_event (GtkWid
+           tree_view->priv->button_release_enables_rubber_banding = TRUE;
+         }
+     }
+-#endif
+ 
+   /* call the parent's button press handler */
+   result = (*GTK_WIDGET_CLASS (exo_tree_view_parent_class)->button_press_event) (widget, event);
+@@ -378,6 +365,15 @@ exo_tree_view_button_press_event (GtkWid
+       && path != NULL && gtk_tree_selection_path_is_selected (selection, path))
+     {
+       /* check if we have to restore paths */
++      if (G_LIKELY (selection->user_func != (GtkTreeSelectionFunc) exo_noop_false))
++        {
++          /* select all previously selected paths */
++          for (lp = selected_paths; lp != NULL; lp = lp->next)
++            gtk_tree_selection_select_path (selection, lp->data);
++        }
++    }
++
++  /* see bug http://bugzilla.xfce.org/show_bug.cgi?id=6230 for more information */
+       if (G_LIKELY (selection->user_func == (GtkTreeSelectionFunc) exo_noop_false))
+         {
+           /* just reset the select function (previously set to exo_noop_false),
+@@ -385,13 +381,6 @@ exo_tree_view_button_press_event (GtkWid
+            */
+           selection->user_func = NULL;
+         }
+-      else
+-        {
+-          /* select all previously selected paths */
+-          for (lp = selected_paths; lp != NULL; lp = lp->next)
+-            gtk_tree_selection_select_path (selection, lp->data);
+-        }
+-    }
+ 
+   /* release the path (if any) */
+   if (G_LIKELY (path != NULL))
+@@ -414,6 +403,7 @@ exo_tree_view_button_release_event (GtkW
+   GtkTreeSelection  *selection;
+   GtkTreePath       *path;
+   ExoTreeView       *tree_view = EXO_TREE_VIEW (widget);
++  gpointer           drag_data;
+ 
+   /* verify that the release event is for the internal tree view window */
+   if (G_LIKELY (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view))))
+@@ -458,11 +448,10 @@ exo_tree_view_button_release_event (GtkW
+         }
+     }
+ 
+-#if GTK_CHECK_VERSION(2,9,0)
+   /* check if we need to re-enable drag and drop */
+   if (G_LIKELY (tree_view->priv->button_release_unblocks_dnd))
+     {
+-      gpointer drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
++      drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
+       if (G_LIKELY (drag_data != NULL))
+         {
+           g_signal_handlers_unblock_matched (G_OBJECT (tree_view),
+@@ -479,7 +468,6 @@ exo_tree_view_button_release_event (GtkW
+       gtk_tree_view_set_rubber_banding (GTK_TREE_VIEW (tree_view), TRUE);
+       tree_view->priv->button_release_enables_rubber_banding = FALSE;
+     }
+-#endif
+ 
+   /* call the parent's button release handler */
+   return (*GTK_WIDGET_CLASS (exo_tree_view_parent_class)->button_release_event) (widget, event);
+@@ -498,7 +486,6 @@ exo_tree_view_motion_notify_event (GtkWi
+   /* check if the event occurred on the tree view internal window and we are in single-click mode */
+   if (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view)) && tree_view->priv->single_click)
+     {
+-#if GTK_CHECK_VERSION(2,9,0)
+       /* check if we're doing a rubberband selection right now (which means DnD is blocked) */
+       if (G_UNLIKELY (tree_view->priv->button_release_unblocks_dnd))
+         {
+@@ -509,7 +496,6 @@ exo_tree_view_motion_notify_event (GtkWi
+           gdk_window_set_cursor (event->window, NULL);
+         }
+       else
+-#endif
+         {
+           /* determine the path at the event coordinates */
+           if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, NULL, NULL, NULL))
+diff -rupw exo-0.3.91/exo/exo-tree-view.h exo-0.8.0/exo/exo-tree-view.h
+--- exo-0.3.91/exo/exo-tree-view.h	2008-10-13 09:16:28.000000000 +0200
++++ exo-0.8.0/exo/exo-tree-view.h	2012-04-28 22:03:32.000000000 +0200
+@@ -27,7 +26,7 @@
+ 
+ #include <gtk/gtk.h>
+ 
+-G_BEGIN_DECLS;
++G_BEGIN_DECLS
+ 
+ typedef struct _ExoTreeViewPrivate ExoTreeViewPrivate;
+ typedef struct _ExoTreeViewClass   ExoTreeViewClass;
+@@ -77,6 +82,6 @@ guint      exo_tree_view_get_single_clic
+ void       exo_tree_view_set_single_click_timeout (ExoTreeView       *tree_view,
+                                                    guint              single_click_timeout);
+ 
+-G_END_DECLS;
++G_END_DECLS
+ 
+ #endif /* !__EXO_TREE_VIEW_H__ */

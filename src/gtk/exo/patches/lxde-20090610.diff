@@ -1,0 +1,859 @@
+diff -rupw exo-0.3.91/exo/exo-icon-view.c pcman-20090610/exo/exo-icon-view.c
+--- exo-0.3.91/exo/exo-icon-view.c	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-icon-view.c	2012-05-10 12:18:47.087603394 +0200
+@@ -1,4 +1,4 @@
+-/* $Id$ */
++/* $Id: exo-icon-view.c 24207 2006-12-28 19:16:50Z benny $ */
+ /*-
+  * Copyright (c) 2004-2006  os-cillation e.K.
+  * Copyright (c) 2002,2004  Anders Carlsson <andersca@gnu.org>
+@@ -21,13 +21,16 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
++/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
++ * on 2008.05.11 for use in PCManFM */
++
+ #ifdef HAVE_CONFIG_H
+ #include <config.h>
+ #endif
+ 
+-#ifdef HAVE_MATH_H
++/* #ifdef HAVE_MATH_H */
+ #include <math.h>
+-#endif
++/* #endif */
+ #ifdef HAVE_MEMORY_H
+ #include <memory.h>
+ #endif
+@@ -40,14 +43,56 @@
+ 
+ #include <gdk/gdkkeysyms.h>
+ 
++#include "exo-icon-view.h"
++#include "exo-string.h"
++#include "exo-marshal.h"
++#include "exo-private.h"
++
++#if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
++#define EXO_PARAM_READABLE  (G_PARAM_READABLE \
++                           | G_PARAM_STATIC_NAME \
++                           | G_PARAM_STATIC_NICK \
++                           | G_PARAM_STATIC_BLURB)
++#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE \
++                           | G_PARAM_STATIC_NAME \
++                           | G_PARAM_STATIC_NICK \
++                           | G_PARAM_STATIC_BLURB)
++#define EXO_PARAM_READWRITE (G_PARAM_READWRITE \
++                           | G_PARAM_STATIC_NAME \
++                           | G_PARAM_STATIC_NICK \
++                           | G_PARAM_STATIC_BLURB)
++#else
++#define EXO_PARAM_READABLE  (G_PARAM_READABLE)
++#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE)
++#define EXO_PARAM_READWRITE (G_PARAM_READWRITE)
++#endif
++
++#define             I_(string)  g_intern_static_string(string)
++
++GType
++exo_icon_view_layout_mode_get_type (void)
++{
++    static GType type = 0;
++    if (type == 0) {
++    static const GEnumValue values[] = {
++    { EXO_ICON_VIEW_LAYOUT_ROWS, "EXO_ICON_VIEW_LAYOUT_ROWS", "rows" },
++    { EXO_ICON_VIEW_LAYOUT_COLS, "EXO_ICON_VIEW_LAYOUT_COLS", "cols" },
++    { 0, NULL, NULL }
++    };
++    type = g_enum_register_static ("ExoIconViewLayoutMode", values);
++  }
++    return type;
++}
++#define EXO_TYPE_ICON_VIEW_LAYOUT_MODE (exo_icon_view_layout_mode_get_type())
++/* enumerations from "exo-mount-point.h" */
++
++/*
+ #include <exo/exo-config.h>
+ #include <exo/exo-enum-types.h>
+ #include <exo/exo-icon-view.h>
+-#include <exo/exo-marshal.h>
+ #include <exo/exo-private.h>
+-#include <exo/exo-string.h>
+ #include <exo/exo-alias.h>
+-
++*/
+ 
+ 
+ /* the search dialog timeout (in ms) */
+@@ -3582,7 +3627,8 @@ exo_icon_view_paint_item (ExoIconView
+ 
+   if (G_UNLIKELY (icon_view->priv->prelit_item == item))
+     flags |= GTK_CELL_RENDERER_PRELIT;
+-  if (G_UNLIKELY (EXO_ICON_VIEW_FLAG_SET (icon_view, EXO_ICON_VIEW_DRAW_KEYFOCUS) && icon_view->priv->cursor_item == item))
++  /* NOTE by Hong Jen Yee: We always want to focus rectangle. */
++  if (G_UNLIKELY (/*EXO_ICON_VIEW_FLAG_SET (icon_view, EXO_ICON_VIEW_DRAW_KEYFOCUS) &&*/ icon_view->priv->cursor_item == item))
+     flags |= GTK_CELL_RENDERER_FOCUSED;
+   
+ #ifdef DEBUG_ICON_VIEW
+@@ -4910,9 +4956,11 @@ exo_icon_view_get_path_at_pos (const Exo
+   g_return_val_if_fail (EXO_IS_ICON_VIEW (icon_view), NULL);
+ 
+   /* translate the widget coordinates to icon window coordinates */
++  /*
++  NOTE by Hong Jen Yee: This should be disabled for pcmanfm to work. So weird. 
+   x += icon_view->priv->hadjustment->value;
+   y += icon_view->priv->vadjustment->value;
+-
++  */
+   item = exo_icon_view_get_item_at_coords (icon_view, x, y, TRUE, NULL);
+ 
+   return (item != NULL) ? gtk_tree_path_new_from_indices (g_list_index (icon_view->priv->items, item), -1) : NULL;
+@@ -8596,8 +8644,3 @@ exo_icon_view_search_timeout_destroy (gp
+ {
+   EXO_ICON_VIEW (user_data)->priv->search_timeout_id = 0;
+ }
+-
+-
+-
+-#define __EXO_ICON_VIEW_C__
+-#include <exo/exo-aliasdef.c>
+diff -rupw exo-0.3.91/exo/exo-icon-view.h pcman-20090610/exo/exo-icon-view.h
+--- exo-0.3.91/exo/exo-icon-view.h	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-icon-view.h	2012-05-10 12:21:37.233542343 +0200
+@@ -1,4 +1,4 @@
+-/* $Id$ */
++/* $Id: exo-icon-view.h 20879 2006-04-14 11:23:42Z benny $ */
+ /*-
+  * Copyright (c) 2004-2006  os-cillation e.K.
+  * Copyright (c) 2002,2004  Anders Carlsson <andersca@gnu.org>
+@@ -21,9 +21,14 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
++/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
++ * on 2008.05.11 for use in PCManFM */
++
++/*
+ #if !defined (EXO_INSIDE_EXO_H) && !defined (EXO_COMPILATION)
+ #error "Only <exo/exo.h> can be included directly, this file may disappear or change contents."
+ #endif
++*/
+ 
+ #ifndef __EXO_ICON_VIEW_H__
+ #define __EXO_ICON_VIEW_H__
+@@ -160,6 +165,7 @@ struct _ExoIconViewClass
+   gboolean (*start_interactive_search)  (ExoIconView    *icon_view);
+ 
+   /*< private >*/
++/*
+   void (*reserved0) (void);
+   void (*reserved1) (void);
+   void (*reserved2) (void);
+@@ -170,6 +176,7 @@ struct _ExoIconViewClass
+   void (*reserved7) (void);
+   void (*reserved8) (void);
+   void (*reserved9) (void);
++*/
+ };
+ 
+ GType                 exo_icon_view_get_type                  (void) G_GNUC_CONST;
+diff -rupw exo-0.3.91/exo/exo-private.c pcman-20090610/exo/exo-private.c
+--- exo-0.3.91/exo/exo-private.c	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-private.c	2012-05-10 13:08:25.271622373 +0200
+@@ -1,4 +1,4 @@
+-/* $Id$ */
++/* $Id: exo-private.c 22884 2006-08-26 12:40:43Z benny $ */
+ /*-
+  * Copyright (c) 2004-2006 os-cillation e.K.
+  *
+@@ -31,12 +31,12 @@
+ #include <locale.h>
+ #endif
+ 
+-#include <exo/exo-private.h>
+-#include <exo/exo-string.h>
+-#include <exo/exo-alias.h>
+-
++#include "exo-private.h"
++#include "exo-string.h"
+ 
++#define             I_(string)  g_intern_static_string(string)
+ 
++/*
+ void
+ _exo_i18n_init (void)
+ {
+@@ -52,7 +52,7 @@ _exo_i18n_init (void)
+ #endif
+     }
+ }
+-
++*/
+ 
+ 
+ void
+@@ -152,4 +152,3 @@ _exo_g_type_add_interface_simple (GType
+ 
+   g_type_add_interface_static (instance_type, interface_type, &info);
+ }
+-
+diff -rupw exo-0.3.91/exo/exo-private.h pcman-20090610/exo/exo-private.h
+--- exo-0.3.91/exo/exo-private.h	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-private.h	2012-05-10 13:08:53.887956445 +0200
+@@ -1,4 +1,4 @@
+-/* $Id$ */
++/* $Id: exo-private.h 22884 2006-08-26 12:40:43Z benny $ */
+ /*-
+  * Copyright (c) 2004-2006 os-cillation e.K.
+  *
+@@ -20,16 +20,19 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
++/*
+ #if !defined (EXO_COMPILATION)
+ #error "Only <exo/exo.h> can be included directly, this file is not part of the public API."
+ #endif
++*/
+ 
+ #ifndef __EXO_PRIVATE_H__
+ #define __EXO_PRIVATE_H__
+ 
+ #include <gtk/gtk.h>
+ 
+-#include <glib/gi18n-lib.h>
++/*#include <glib/gi18n-lib.h>*/
++#include <glib/gi18n.h>
+ 
+ G_BEGIN_DECLS;
+ 
+diff -rupw exo-0.3.91/exo/exo-string.c pcman-20090610/exo/exo-string.c
+--- exo-0.3.91/exo/exo-string.c	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-string.c	2012-05-10 13:09:22.828293110 +0200
+@@ -1,6 +1,6 @@
+-/* $Id$ */
++/* $Id: exo-string.c 47 2006-01-30 02:32:10Z pcmanx $ */
+ /*-
+- * Copyright (c) 2004-2007 os-cillation e.K.
++ * Copyright (c) 2004 os-cillation e.K.
+  *
+  * Written by Benedikt Meurer <benny@xfce.org>.
+  *
+@@ -31,8 +31,7 @@
+ #include <string.h>
+ #endif
+ 
+-#include <exo/exo-string.h>
+-#include <exo/exo-alias.h>
++#include "exo-string.h"
+ 
+ 
+ 
+@@ -108,254 +107,6 @@ exo_str_is_equal (const gchar *a,
+ 
+ 
+ /**
+- * exo_str_replace:
+- * @str         : the input string.
+- * @pattern     : a search pattern in @str.
+- * @replacement : replacement string for @pattern.
+- *
+- * Searches @str for occurances of @pattern and replaces each
+- * such occurance with @replacement. Returns a newly allocated
+- * copy of @str on which the given replacement were performed.
+- * The caller is responsible to free the returned string using
+- * g_free() when no longer needed.
+- *
+- * Note that @pattern and @replacement don't need to be of the
+- * same size.
+- *
+- * Return value: a newly allocated copy of @str where all
+- *               occurances of @pattern are replaced with
+- *               @replacement.
+- *
+- * Since: 0.3.1.1
+- **/
+-gchar*
+-exo_str_replace (const gchar *str,
+-                 const gchar *pattern,
+-                 const gchar *replacement)
+-{
+-  const gchar *s, *p;
+-  GString     *result;
+-
+-  g_return_val_if_fail (str != NULL, NULL);
+-  g_return_val_if_fail (pattern != NULL, NULL);
+-  g_return_val_if_fail (replacement != NULL, NULL);
+-
+-  /* empty patterns are kinda useless, so we just return a copy of str */
+-  if (G_UNLIKELY (*pattern == '\0'))
+-    return g_strdup (str);
+-
+-  /* allocate the result string */
+-  result = g_string_new (NULL);
+-
+-  /* process the input string */
+-  while (*str != '\0')
+-    {
+-      if (G_UNLIKELY (*str == *pattern))
+-        {
+-          /* compare the pattern to the current string */
+-          for (p = pattern + 1, s = str + 1; *p == *s; ++s, ++p)
+-            if (*p == '\0' || *s == '\0')
+-              break;
+-
+-          /* check if the pattern matches */
+-          if (G_LIKELY (*p == '\0'))
+-            {
+-              g_string_append (result, replacement);
+-              str = s;
+-              continue;
+-            }
+-        }
+-
+-      g_string_append_c (result, *str++);
+-    }
+-
+-  return g_string_free (result, FALSE);
+-}
+-
+-
+-
+-/**
+- * exo_strdup_strftime:
+- * @format : format string to pass to strftime(3). See the strftime(3) documentation
+- *           for details.
+- * @tm     : date/time, in struct tm format.
+- *
+- * Cover for standard date-and-time-formatting routine strftime that returns
+- * a newly-allocated string of the correct size. The caller is responsible
+- * to free the returned string using g_free() when no longer needed.
+- *
+- * Besides the buffer management, there are two differences between this
+- * and the library strftime:
+- *
+- * The modifiers "-" and "_" between a "%" and a numeric directive
+- * are defined as for the GNU version of strftime. "-" means "do not
+- * pad the field" and "_" means "pad with spaces instead of zeroes".
+- *
+- * Non-ANSI extensions to strftime are flagged at runtime with a
+- * warning, so it's easy to notice use of the extensions without
+- * testing with multiple versions of the library.
+- *
+- * Return value: a newly allocated string containing the formatted date/time.
+- *
+- * Since: 0.3.3
+- **/
+-gchar*
+-exo_strdup_strftime (const gchar     *format,
+-                     const struct tm *tm)
+-{
+-  static const gchar C_STANDARD_STRFTIME_CHARACTERS[] = "aAbBcdHIjmMpSUwWxXyYZ";
+-  static const gchar C_STANDARD_NUMERIC_STRFTIME_CHARACTERS[] = "dHIjmMSUwWyY";
+-  static const gchar SUS_EXTENDED_STRFTIME_MODIFIERS[] = "EO";
+-  const gchar       *remainder;
+-  const gchar       *percent;
+-  gboolean           strip_leading_zeros;
+-  gboolean           turn_leading_zeros_to_spaces;
+-  GString           *string;
+-  gsize              string_length;
+-  gchar              code[4];
+-  gchar              buffer[512];
+-  gchar             *piece;
+-  gchar             *result;
+-  gchar             *converted;
+-  gchar              modifier;
+-  gint               i;
+-
+-  /* Format could be translated, and contain UTF-8 chars,
+-   * so convert to locale encoding which strftime uses.
+-   */
+-  converted = g_locale_from_utf8 (format, -1, NULL, NULL, NULL);
+-  if (G_UNLIKELY (converted == NULL))
+-    return NULL;
+-  
+-  /* start processing the format */
+-  string = g_string_new ("");
+-  remainder = converted;
+-
+-  /* walk from % character to % character */
+-  for (;;)
+-    {
+-      /* look out for the next % character */
+-      percent = strchr (remainder, '%');
+-      if (percent == NULL)
+-        {
+-          /* we're done with the format */
+-          g_string_append (string, remainder);
+-          break;
+-        }
+-
+-      /* append the characters in between */
+-      g_string_append_len (string, remainder, percent - remainder);
+-
+-      /* handle the "%" character */
+-      remainder = percent + 1;
+-      switch (*remainder)
+-        {
+-        case '-':
+-          strip_leading_zeros = TRUE;
+-          turn_leading_zeros_to_spaces = FALSE;
+-          remainder++;
+-          break;
+-
+-        case '_':
+-          strip_leading_zeros = FALSE;
+-          turn_leading_zeros_to_spaces = TRUE;
+-          remainder++;
+-          break;
+-
+-        case '%':
+-          g_string_append_c (string, '%');
+-          remainder++;
+-          continue;
+-
+-        case '\0':
+-          g_warning ("Trailing %% passed to exo_strdup_strftime");
+-          g_string_append_c (string, '%');
+-          continue;
+-
+-        default:
+-          strip_leading_zeros = FALSE;
+-          turn_leading_zeros_to_spaces = FALSE;
+-          break;
+-        }
+-
+-      modifier = 0;
+-      if (strchr (SUS_EXTENDED_STRFTIME_MODIFIERS, *remainder) != NULL)
+-        {
+-          modifier = *remainder++;
+-          if (*remainder == 0)
+-            {
+-              g_warning ("Unfinished %%%c modifier passed to exo_strdup_strftime", modifier);
+-              break;
+-            }
+-        } 
+-      
+-      if (strchr (C_STANDARD_STRFTIME_CHARACTERS, *remainder) == NULL)
+-        g_warning ("exo_strdup_strftime does not support non-standard escape code %%%c", *remainder);
+-
+-      /* convert code to strftime format. We have a fixed
+-       * limit here that each code can expand to a maximum
+-       * of 512 bytes, which is probably OK. There's no
+-       * limit on the total size of the result string.
+-       */
+-      i = 0;
+-      code[i++] = '%';
+-#ifdef HAVE_STRFTIME_EXTENSION
+-      if (modifier != 0)
+-        code[i++] = modifier;
+-#endif
+-      code[i++] = *remainder;
+-      code[i++] = '\0';
+-      string_length = strftime (buffer, sizeof (buffer), code, tm);
+-      if (string_length == 0)
+-        {
+-          /* we could put a warning here, but there's no
+-           * way to tell a successful conversion to
+-           * empty string from a failure
+-           */
+-          buffer[0] = '\0';
+-        }
+-
+-      /* strip leading zeros if requested */
+-      piece = buffer;
+-      if (strip_leading_zeros || turn_leading_zeros_to_spaces)
+-        {
+-          if (strchr (C_STANDARD_NUMERIC_STRFTIME_CHARACTERS, *remainder) == NULL)
+-            g_warning ("exo_strdup_strftime does not support modifier for non-numeric escape code %%%c%c", remainder[-1], *remainder);
+-
+-          if (*piece == '0')
+-            {
+-              while (*++piece == '\0') ;
+-              if (!g_ascii_isdigit (*piece))
+-                --piece;
+-            }
+-
+-          if (turn_leading_zeros_to_spaces)
+-            {
+-              memset (buffer, ' ', piece - buffer);
+-              piece = buffer;
+-            }
+-        }
+-
+-      /* advance */
+-      ++remainder;
+-
+-      /* add this piece */
+-      g_string_append (string, piece);
+-    }
+-  
+-  /* Convert the string back into UTF-8 */
+-  result = g_locale_to_utf8 (string->str, -1, NULL, NULL, NULL);
+-
+-  /* cleanup */
+-  g_string_free (string, TRUE);
+-  g_free (converted);
+-
+-  return result;
+-}
+-
+-
+-
+-/**
+  * exo_strndupv:
+  * @strv  : String vector to duplicate.
+  * @num   : Number of strings in @strv to
+@@ -385,57 +136,3 @@ exo_strndupv (gchar **strv,
+   return result;
+ }
+ 
+-
+-
+-/**
+- * exo_intern_string:
+- * @string: a string
+- * 
+- * Returns a canonical representation for @string. Interned strings can
+- * be compared for equality by comparing the pointers, instead of using strcmp()
+- * or exo_str_is_equal(). exo_intern_string() takes a copy of the @string for its
+- * internal usage, so @string does not need to be static.
+- * 
+- * Return value: a canonical representation for the string
+- *
+- * Since: 0.3.1.1
+- */
+-G_CONST_RETURN gchar*
+-exo_intern_string (const gchar *string)
+-{
+-#if GLIB_CHECK_VERSION(2,9,0)
+-  return g_intern_string (string);
+-#else
+-  return (string != NULL) ? g_quark_to_string (g_quark_from_string (string)) : NULL;
+-#endif
+-}
+-
+-
+-
+-/**
+- * exo_intern_static_string:
+- * @string: a static string
+- * 
+- * Returns a canonical representation for @string. Interned strings can
+- * be compared for equality by comparing the pointers, instead of using strcmp()
+- * or exo_str_is_equal(). exo_intern_static_string() does not copy the string,
+- * therefore @string must not be freed or modified. 
+- * 
+- * Return value: a canonical representation for the string
+- *
+- * Since: 0.3.1.1
+- */
+-G_CONST_RETURN gchar*
+-exo_intern_static_string (const gchar *string)
+-{
+-#if GLIB_CHECK_VERSION(2,9,0)
+-  return g_intern_static_string (string);
+-#else
+-  return (string != NULL) ? g_quark_to_string (g_quark_from_static_string (string)) : NULL;
+-#endif
+-}
+-
+-
+-
+-#define __EXO_STRING_C__
+-#include <exo/exo-aliasdef.c>
+diff -rupw exo-0.3.91/exo/exo-string.h pcman-20090610/exo/exo-string.h
+--- exo-0.3.91/exo/exo-string.h	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-string.h	2012-05-10 13:09:46.044562199 +0200
+@@ -1,6 +1,6 @@
+-/* $Id$ */
++/* $Id: exo-string.h 47 2006-01-30 02:32:10Z pcmanx $ */
+ /*-
+- * Copyright (c) 2004-2007 os-cillation e.K.
++ * Copyright (c) 2004 os-cillation e.K.
+  *
+  * Written by Benedikt Meurer <benny@xfce.org>.
+  *
+@@ -20,40 +20,22 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
+-#if !defined (EXO_INSIDE_EXO_H) && !defined (EXO_COMPILATION)
+-#error "Only <exo/exo.h> can be included directly, this file may disappear or change contents."
+-#endif
++/* 2006.01.23 modified by Hong Jen Yee (PCMan) to used in PCMan File Manager */
+ 
+ #ifndef __EXO_STRING_H__
+ #define __EXO_STRING_H__
+ 
+-#include <exo/exo-config.h>
++#include <glib.h>
+ 
+ G_BEGIN_DECLS;
+ 
+-gchar                *exo_str_elide_underscores  (const gchar     *text) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
++gchar    *exo_str_elide_underscores  (const gchar *text);
+ 
+ gboolean              exo_str_is_equal           (const gchar     *a,
+                                                   const gchar     *b);
+ 
+-gchar                *exo_str_replace            (const gchar     *str,
+-                                                  const gchar     *pattern,
+-                                                  const gchar     *replacement) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+-
+-gchar                *exo_strdup_strftime        (const gchar     *format,
+-                                                  const struct tm *tm) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+-
+ gchar               **exo_strndupv               (gchar          **strv,
+-                                                  gint             num) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+-
+-G_CONST_RETURN gchar *exo_intern_string          (const gchar     *string);
+-G_CONST_RETURN gchar *exo_intern_static_string   (const gchar     *string);
+-
+-#if GLIB_CHECK_VERSION(2,9,0)
+-#define I_(string) (g_intern_static_string ((string)))
+-#else
+-#define I_(string) (exo_intern_static_string ((string)))
+-#endif
++                                      gint         num);
+ 
+ G_END_DECLS;
+ 
+diff -rupw exo-0.3.91/exo/exo-tree-view.c pcman-20090610/exo/exo-tree-view.c
+--- exo-0.3.91/exo/exo-tree-view.c	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-tree-view.c	2012-05-10 13:10:11.860860799 +0200
+@@ -1,4 +1,4 @@
+-/* $Id$ */
++/* $Id: exo-tree-view.c 22991 2006-09-02 11:41:18Z benny $ */
+ /*-
+  * Copyright (c) 2004-2006 Benedikt Meurer <benny@xfce.org>
+  *
+@@ -18,18 +18,50 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
++/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
++ * on 2008.05.11 for use in PCManFM */
++
+ #ifdef HAVE_CONFIG_H
+ #include <config.h>
+ #endif
+ 
++#include<glib/gi18n.h>
++#include "exo-tree-view.h"
++#include "exo-string.h"
++#include "exo-marshal.h"
++#include "exo-private.h"
++
++#define             I_(string)  g_intern_static_string(string)
++
++#if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
++#define EXO_PARAM_READABLE  (G_PARAM_READABLE \
++                           | G_PARAM_STATIC_NAME \
++                           | G_PARAM_STATIC_NICK \
++                           | G_PARAM_STATIC_BLURB)
++#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE \
++                           | G_PARAM_STATIC_NAME \
++                           | G_PARAM_STATIC_NICK \
++                           | G_PARAM_STATIC_BLURB)
++#define EXO_PARAM_READWRITE (G_PARAM_READWRITE \
++                           | G_PARAM_STATIC_NAME \
++                           | G_PARAM_STATIC_NICK \
++                           | G_PARAM_STATIC_BLURB)
++#else
++#define EXO_PARAM_READABLE  (G_PARAM_READABLE)
++#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE)
++#define EXO_PARAM_READWRITE (G_PARAM_READWRITE)
++#endif
++
++#define exo_noop_false    gtk_false
++
++/*
+ #include <exo/exo-config.h>
+ #include <exo/exo-private.h>
+ #include <exo/exo-string.h>
+ #include <exo/exo-tree-view.h>
+ #include <exo/exo-utils.h>
+ #include <exo/exo-alias.h>
+-
+-
++*/
+ 
+ #define EXO_TREE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), EXO_TYPE_TREE_VIEW, ExoTreeViewPrivate))
+ 
+@@ -93,6 +125,9 @@ struct _ExoTreeViewPrivate
+ 
+   /* the path below the pointer or NULL */
+   GtkTreePath *hover_path;
++
++  /* the column which is the only activable */
++  GtkTreeViewColumn* activable_column;
+ };
+ 
+ 
+@@ -150,7 +185,7 @@ exo_tree_view_class_init (ExoTreeViewCla
+   gtktree_view_class->move_cursor = exo_tree_view_move_cursor;
+ 
+   /* initialize the library's i18n support */
+-  _exo_i18n_init ();
++  /* _exo_i18n_init (); */
+ 
+   /**
+    * ExoTreeView:single-click:
+@@ -278,6 +313,8 @@ exo_tree_view_button_press_event (GtkWid
+   gboolean          result;
+   GList            *selected_paths = NULL;
+   GList            *lp;
++  GtkTreeViewColumn* col;
++  gboolean treat_as_blank = FALSE;
+ 
+   /* by default we won't emit "row-activated" on button-release-events */
+   tree_view->priv->button_release_activates = FALSE;
+@@ -293,9 +330,20 @@ exo_tree_view_button_press_event (GtkWid
+   if (G_LIKELY (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view))))
+     {
+       /* determine the path at the event coordinates */
+-      if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, NULL, NULL, NULL))
++      if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &col, NULL, NULL))
+         path = NULL;
+ 
++      if( tree_view->priv->activable_column && col != tree_view->priv->activable_column )
++        {
++          treat_as_blank = TRUE;
++          if( path )
++            {
++              gtk_tree_path_free( path );
++              path = NULL;
++            }
++          gtk_tree_selection_unselect_all (selection);
++        }
++
+       /* we unselect all selected items if the user clicks on an empty
+        * area of the tree view and no modifier key is active.
+        */
+@@ -373,6 +421,9 @@ exo_tree_view_button_press_event (GtkWid
+   /* call the parent's button press handler */
+   result = (*GTK_WIDGET_CLASS (exo_tree_view_parent_class)->button_press_event) (widget, event);
+ 
++  if( treat_as_blank )
++    gtk_tree_selection_unselect_all( selection );
++
+   /* restore previous selection if the path is still selected */
+   if (event->type == GDK_BUTTON_PRESS && (event->state & gtk_accelerator_get_default_mod_mask ()) == 0
+       && path != NULL && gtk_tree_selection_path_is_selected (selection, path))
+@@ -428,6 +479,7 @@ exo_tree_view_button_release_event (GtkW
+           if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &column, NULL, NULL))
+             {
+               /* emit row-activated for the determined row */
++              if( ! tree_view->priv->activable_column || tree_view->priv->activable_column == column )
+               gtk_tree_view_row_activated (GTK_TREE_VIEW (tree_view), path, column);
+ 
+               /* cleanup */
+@@ -494,6 +546,7 @@ exo_tree_view_motion_notify_event (GtkWi
+   ExoTreeView *tree_view = EXO_TREE_VIEW (widget);
+   GtkTreePath *path;
+   GdkCursor   *cursor;
++  GtkTreeViewColumn *column;
+ 
+   /* check if the event occurred on the tree view internal window and we are in single-click mode */
+   if (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view)) && tree_view->priv->single_click)
+@@ -512,8 +565,18 @@ exo_tree_view_motion_notify_event (GtkWi
+ #endif
+         {
+           /* determine the path at the event coordinates */
+-          if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, NULL, NULL, NULL))
++          if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &column, NULL, NULL))
++            path = NULL;
++
++          /* determine if the column is activable */
++          if( tree_view->priv->activable_column && column != tree_view->priv->activable_column )
++           {
++             if(path)
++               {
++                 gtk_tree_path_free(path);
+             path = NULL;
++               }
++           }
+ 
+           /* check if we have a new path */
+           if ((path == NULL && tree_view->priv->hover_path != NULL) || (path != NULL && tree_view->priv->hover_path == NULL)
+@@ -885,7 +948,23 @@ exo_tree_view_set_single_click_timeout (
+     }
+ }
+ 
++/* 2008.07.16 added by Hong Jen Yee for PCManFM.
++ * If activable column is set, only the specified column can be activated.
++ * Other columns are viewed as blank area and won't receive mouse clicks.
++ */
++GtkTreeViewColumn* exo_tree_view_get_activable_column( ExoTreeView *tree_view )
++{
++  return tree_view->priv->activable_column;
++}
++
++void               exo_tree_view_set_activable_column( ExoTreeView *tree_view,
++                                                       GtkTreeViewColumn* column )
++{
++  tree_view->priv->activable_column = column;
++}
+ 
+ 
++/*
+ #define __EXO_TREE_VIEW_C__
+ #include <exo/exo-aliasdef.c>
++*/
+diff -rupw exo-0.3.91/exo/exo-tree-view.h pcman-20090610/exo/exo-tree-view.h
+--- exo-0.3.91/exo/exo-tree-view.h	2008-10-13 09:16:28.000000000 +0200
++++ pcman-20090610/exo/exo-tree-view.h	2012-05-10 13:10:33.769113320 +0200
+@@ -1,4 +1,4 @@
+-/* $Id$ */
++/* $Id: exo-tree-view.h 20828 2006-04-09 17:16:48Z benny $ */
+ /*-
+  * Copyright (c) 2004-2006 Benedikt Meurer <benny@xfce.org>
+  *
+@@ -18,9 +18,14 @@
+  * Boston, MA 02111-1307, USA.
+  */
+ 
++/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
++ * on 2008.07.13 for use in PCManFM */
++
++/*
+ #if !defined (EXO_INSIDE_EXO_H) && !defined (EXO_COMPILATION)
+ #error "Only <exo/exo.h> can be included directly, this file may disappear or change contents."
+ #endif
++*/
+ 
+ #ifndef __EXO_TREE_VIEW_H__
+ #define __EXO_TREE_VIEW_H__
+@@ -46,6 +51,7 @@ struct _ExoTreeViewClass
+   GtkTreeViewClass __parent__;
+ 
+   /*< private >*/
++/*
+   void (*reserved1) (void);
+   void (*reserved2) (void);
+   void (*reserved3) (void);
+@@ -54,6 +60,7 @@ struct _ExoTreeViewClass
+   void (*reserved6) (void);
+   void (*reserved7) (void);
+   void (*reserved8) (void);
++*/
+ };
+ 
+ struct _ExoTreeView
+@@ -77,6 +84,14 @@ guint      exo_tree_view_get_single_clic
+ void       exo_tree_view_set_single_click_timeout (ExoTreeView       *tree_view,
+                                                    guint              single_click_timeout);
+ 
++/* 2008.07.16 added by Hong Jen Yee for PCManFM.
++ * If activable column is set, only the specified column can be activated.
++ * Other columns are viewed as blank area and won't receive mouse clicks.
++ */
++GtkTreeViewColumn* exo_tree_view_get_activable_column( ExoTreeView *tree_view );
++void               exo_tree_view_set_activable_column( ExoTreeView *tree_view,
++                                                       GtkTreeViewColumn* column );
++
+ G_END_DECLS;
+ 
+ #endif /* !__EXO_TREE_VIEW_H__ */

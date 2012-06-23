@@ -17,11 +17,22 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/jobs/FmJobs \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
+	-I$(srcdir)/gtk/exo \
 	-I$(srcdir)/gtk-dlg \
 	-I$(srcdir)/utils \
 	-DPACKAGE_LIB_DIR=\""$(libdir)/libfmcore-$(LIBFMCORE_API_VERSION)"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
+
+VALAFLAGS = \
+	--vapidir=$(srcdir)/../vapi \
+	--pkg vconfig \
+	--pkg $(GTK_PKG) \
+    --pkg libfmcore \
+    --pkg posix \
+    --header fm-vala.h \
+	$(NULL)
+
 
 vala_SOURCES = \
 	fm-vala/fm-config.vala \
@@ -39,15 +50,6 @@ vala_SOURCES = \
 	jobs/UI/UI.vala \
 	$(NULL)
 
-VALAFLAGS = \
-	--vapidir=$(srcdir)/../vapi \
-	--pkg vconfig \
-	--pkg $(GTK_PKG) \
-    --pkg libfmcore \
-    --pkg posix \
-    --header fm-vala.h \
-	$(NULL)
-
 
 base_SOURCES = \
 	base/fm-dummy-monitor.c \
@@ -62,12 +64,19 @@ base_SOURCES = \
 	base/fm-path.c \
 	base/fm-path-list.c \
 	base/fm-utils.c \
+	gtk/fm-cell-renderer-pixbuf.c \
+	gtk/fm-cell-renderer-text.c \
+	gtk/fm-dir-tree-item.c \
+	gtk/fm-dir-tree-model.c \
+	gtk/fm-dir-tree-view.c \
 	gtk/fm-dnd-auto-scroll.c \
 	gtk/fm-dnd-dest.c \
 	gtk/fm-dnd-src.c \
 	gtk/fm-folder-model.c \
+	gtk/fm-folder-view.c \
 	gtk/fm-gtk-marshal.c \
 	gtk/fm-icon-pixbuf.c \
+	gtk/fm-path-entry.c \
 	gtk/fm-thumbnail.c \
 	gtk-dlg/fm-app-chooser-combo-box.c \
 	gtk-dlg/fm-app-chooser-dlg.c \
@@ -89,7 +98,16 @@ base_SOURCES = \
 	utils/fm-trash.c \
 	$(NULL)
 
-	
+
+exo_SOURCES = \
+	gtk/exo/exo-icon-view.c \
+	gtk/exo/exo-private.c \
+	gtk/exo/exo-tree-view.c \
+	gtk/exo/exo-lxde.c \
+	gtk/exo/exo-marshal.c \
+	$(NULL)
+
+
 jobs_SOURCES = \
 	jobs/FmJobs/fm-dir-list-job.c \
 	jobs/FmJobs/fm-deep-count-job.c  \
@@ -102,6 +120,7 @@ libfmcore_SOURCES = \
 	fm.c \
 	$(base_SOURCES) \
 	$(jobs_SOURCES) \
+	$(exo_SOURCES) \
 	$(NULL)
 
 
@@ -125,12 +144,21 @@ libfmcoreinclude_HEADERS = \
 	jobs/FmJobs/fm-deep-count-job.h \
 	jobs/FmJobs/fm-dir-list-job.h \
 	jobs/FmJobs/fm-file-info-job.h \
+	gtk/exo/exo-icon-view.h \
+	gtk/exo/exo-tree-view.h \
 	gtk/fm-dnd-auto-scroll.h \
+	gtk/fm-cell-renderer-pixbuf.h \
+	gtk/fm-cell-renderer-text.h \
+	gtk/fm-dir-tree-item.h \
+	gtk/fm-dir-tree-model.h \
+	gtk/fm-dir-tree-view.h \
 	gtk/fm-dnd-dest.h \
 	gtk/fm-dnd-src.h \
 	gtk/fm-folder-model.h \
+	gtk/fm-folder-view.h \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-icon-pixbuf.h \
+	gtk/fm-path-entry.h \
 	gtk/fm-thumbnail.h \
 	gtk-dlg/fm-app-chooser-combo-box.h \
 	gtk-dlg/fm-app-chooser-dlg.h \
@@ -217,7 +245,7 @@ CLEANFILES = \
 	base/fm-marshal.c \
 	gtk/fm-gtk-marshal.h \
 	gtk/fm-gtk-marshal.c \
-	libfmcore_la_vala.stamp \
+	libfmcore_@LIBFMCORE_API_VERSION@_la_vala.stamp \
 	$(NULL)
 
 
