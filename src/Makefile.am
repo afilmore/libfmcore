@@ -71,9 +71,12 @@ base_SOURCES = \
 	gtk/fm-thumbnail.c \
 	gtk-dlg/fm-app-chooser-combo-box.c \
 	gtk-dlg/fm-app-chooser-dlg.c \
+	gtk-dlg/fm-app-chooser-xml.c \
 	gtk-dlg/fm-app-menu-view.c \
 	gtk-dlg/fm-gtk-launcher.c \
+	gtk-dlg/fm-gtk-launcher-xml.c \
 	gtk-dlg/fm-file-properties.c \
+	gtk-dlg/fm-file-properties-xml.c \
 	gtk-dlg/fm-select-folder-dlg.c \
 	gtk-dlg/fm-user-input-dlg.c \
 	utils/fm-app-info.c \
