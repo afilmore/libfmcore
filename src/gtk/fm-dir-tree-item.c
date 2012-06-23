@@ -68,13 +68,28 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
         FmPath *path = fm_file_info_get_path (file_info);
         if (fm_path_is_trash_root (path))
         {
-            FmIcon *icon = fm_icon_from_name ("user-trash");
-            fm_file_info_set_fm_icon (file_info, icon);
+            item->fm_icon = fm_icon_from_name ("user-trash");
+            //fm_file_info_set_fm_icon (file_info, icon);
+        }
+        else if (fm_path_is_xdg_menu (path))
+        {
+            item->fm_icon = fm_icon_from_name ("system-software-install");
+            //fm_file_info_set_fm_icon (file_info, icon);
+        }
+        else if (fm_path_get_desktop () == path)
+        {
+            item->fm_icon = fm_icon_from_name ("user-desktop");
+            //fm_file_info_set_fm_icon (file_info, icon);
+        }
+        else if (fm_path_get_root () == path)
+        {
+            item->fm_icon = fm_icon_from_name ("drive-harddisk");
+            //fm_file_info_set_fm_icon (file_info, icon);
         }
         else
         {
-            FmIcon *icon = fm_icon_from_name ("drive-harddisk");
-            fm_file_info_set_fm_icon (file_info, icon);
+            item->fm_icon = fm_icon_from_name ("drive-harddisk");
+            //fm_file_info_set_fm_icon (file_info, icon);
         }
     }
     
@@ -86,8 +101,11 @@ inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
     if (dir_tree_item->fi)
         fm_file_info_unref (dir_tree_item->fi);
     
-    if (dir_tree_item->icon)
-        g_object_unref (dir_tree_item->icon);
+    //~ if (dir_tree_item->icon)
+        //~ g_object_unref (dir_tree_item->icon);
+//~ 
+    if (dir_tree_item->fm_icon)
+        fm_icon_unref (dir_tree_item->fm_icon);
 
     // In most cases this should have been freed in the list free folder function...
     if (dir_tree_item->folder)
@@ -134,10 +152,13 @@ GdkPixbuf *fm_dir_tree_item_get_pixbuf (FmDirTreeItem *dir_tree_item, int icon_s
 {
     g_return_val_if_fail (dir_tree_item->fi, NULL);
     
-    if (!dir_tree_item->icon)
-        dir_tree_item->icon = fm_icon_get_pixbuf (fm_file_info_get_fm_icon (dir_tree_item->fi), MAX (icon_size, 16));
+    //~ if (!dir_tree_item->icon)
+        //~ dir_tree_item->icon = fm_icon_get_pixbuf (fm_file_info_get_fm_icon (dir_tree_item->fi), MAX (icon_size, 16));
     
-    return dir_tree_item->icon;
+    if (dir_tree_item->fm_icon)
+        return fm_icon_get_pixbuf (dir_tree_item->fm_icon, MAX (icon_size, 16));
+    
+    return fm_icon_get_pixbuf (fm_file_info_get_fm_icon (dir_tree_item->fi), MAX (icon_size, 16));
 }
 
 

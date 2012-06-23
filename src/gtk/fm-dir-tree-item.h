@@ -51,7 +51,8 @@ struct _FmDirTreeItem
     
     FmFileInfo      *fi;
     
-    GdkPixbuf       *icon;
+    //~ GdkPixbuf       *icon;
+    FmIcon          *fm_icon;
     
     guint           n_expand;
     

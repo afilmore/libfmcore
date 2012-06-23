@@ -273,8 +273,11 @@ FmFolder *fm_folder_get_for_path_name (const char *path)
 FmFolder *fm_folder_get_for_gfile (GFile *gfile)
 {
     FmPath *path = fm_path_new_for_gfile (gfile);
+    
     FmFolder *folder = fm_folder_new_internal (path, gfile);
+    
     fm_path_unref (path);
+    
     return folder;
 }
 
@@ -282,41 +285,47 @@ FmFolder *fm_folder_get_for_gfile (GFile *gfile)
 FmFolder *fm_folder_get_for_uri (const char *uri)
 {
     GFile *gfile = g_file_new_for_uri (uri);
+    
     FmFolder *folder = fm_folder_get_for_gfile (gfile);
+    
     g_object_unref (gfile);
+    
     return folder;
 }
 
 static void fm_folder_finalize (GObject *object)
 {
-    FmFolder *folder;
     g_return_if_fail (object != NULL);
     g_return_if_fail (FM_IS_FOLDER (object));
 
-    folder = FM_FOLDER (object);
+    
+    FmFolder *folder = FM_FOLDER (object);
 
     if (folder->dir_list_job)
     {
         g_signal_handlers_disconnect_by_func (folder->dir_list_job, on_job_finished, folder);
         g_signal_handlers_disconnect_by_func (folder->dir_list_job, on_job_err, folder);
-        fm_job_cancel (FM_JOB (folder->dir_list_job)); // FIXME_pcm: is this ok?
+        
+        fm_job_cancel (FM_JOB (folder->dir_list_job));
+
         // the job will be freed automatically in idle handler.
     }
 
     if (folder->pending_jobs)
     {
         GSList *l;
-        for (l = folder->pending_jobs;l;l=l->next)
+        for (l = folder->pending_jobs; l; l = l->next)
         {
             FmJob *job = FM_JOB (l->data);
             g_signal_handlers_disconnect_by_func (job, on_job_finished, folder);
             fm_job_cancel (job);
-            g_object_unref(job);
+            g_object_unref (job);
         }
     }
 
     // remove from hash table
     g_hash_table_remove (hash, folder->dir_path);
+    
     if (folder->dir_path)
         fm_path_unref (folder->dir_path);
 
@@ -593,6 +602,7 @@ static void on_folder_changed (GFileMonitor *file_monitor, GFile *gfile, GFile *
     if (g_file_equal (gfile, folder->gfile))
     {
         g_debug ("event of the folder itself: %d", evt);
+        
         // FIXME_pcm: handle unmount events
         switch (evt)
         {
@@ -634,10 +644,15 @@ static void on_folder_changed (GFileMonitor *file_monitor, GFile *gfile, GFile *
         break;
         
         case G_FILE_MONITOR_EVENT_DELETED:
+        {
+            
             l = _fm_folder_get_file_by_name (folder, name);
+            
             if (l && !g_slist_find (folder->files_to_del, l))
                 folder->files_to_del = g_slist_prepend (folder->files_to_del, l);
+            
             g_free (name);
+        }
         break;
         
         default:
@@ -658,12 +673,14 @@ static void on_folder_changed (GFileMonitor *file_monitor, GFile *gfile, GFile *
  ****************************************************************************************/
 static gboolean on_idle (FmFolder *folder)
 {
-    GSList *l;
-    FmFileInfoJob *file_info_job = NULL;
-    FmPath *path;
+    GSList          *l;
+    FmFileInfoJob   *file_info_job = NULL;
+    FmPath          *path;
+    
     folder->idle_handler = 0;
+    
     if (folder->files_to_update || folder->files_to_add)
-        file_info_job = (FmFileInfoJob*)fm_file_info_job_new (NULL, 0);
+        file_info_job = (FmFileInfoJob*) fm_file_info_job_new (NULL, 0);
 
     if (folder->files_to_update)
     {
@@ -697,6 +714,7 @@ static gboolean on_idle (FmFolder *folder)
             prev = l;
             l = l->next;
         }
+        
         g_slist_free (folder->files_to_update);
         folder->files_to_update = NULL;
     }
@@ -710,6 +728,7 @@ static gboolean on_idle (FmFolder *folder)
             fm_path_unref (path);
             g_free (l->data);
         }
+        
         g_slist_free (folder->files_to_add);
         folder->files_to_add = NULL;
     }
@@ -718,18 +737,21 @@ static gboolean on_idle (FmFolder *folder)
     {
         g_signal_connect (file_info_job, "finished", G_CALLBACK (on_file_info_finished), folder);
         folder->pending_jobs = g_slist_prepend (folder->pending_jobs, file_info_job);
+        
         fm_job_run_async (FM_JOB (file_info_job));
     }
 
     if (folder->files_to_del)
     {
         GSList *ll;
+        
         for (ll = folder->files_to_del; ll; ll = ll->next)
         {
             GList *l= (GList*) ll->data;
             ll->data = l->data;
             fm_list_delete_link_nounref (folder->files , l);
         }
+        
         g_signal_emit (folder, signals [FILES_REMOVED], 0, folder->files_to_del);
         g_slist_foreach (folder->files_to_del, (GFunc) fm_file_info_unref, NULL);
         g_slist_free (folder->files_to_del);

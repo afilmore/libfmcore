@@ -895,10 +895,17 @@ static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *model, FmDirTree
     GList *l;
     FmDirTreeItem *child;
 
-    if (dir_tree_item->icon)
+    //~ if (dir_tree_item->icon)
+    //~ {
+        //~ g_object_unref (dir_tree_item->icon);
+        //~ dir_tree_item->icon = NULL;
+        //~ gtk_tree_model_row_changed (GTK_TREE_MODEL (model), tp, &it);
+    //~ }
+//~ 
+    if (dir_tree_item->fm_icon)
     {
-        g_object_unref (dir_tree_item->icon);
-        dir_tree_item->icon = NULL;
+        fm_icon_unref (dir_tree_item->fm_icon);
+        dir_tree_item->fm_icon = NULL;
         gtk_tree_model_row_changed (GTK_TREE_MODEL (model), tp, &it);
     }
 
@@ -917,10 +924,10 @@ static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *model, FmDirTree
     for (l = dir_tree_item->hidden_children; l; l=l->next)
     {
         child = (FmDirTreeItem*) l->data;
-        if (child->icon)
+        if (child->fm_icon)
         {
-            g_object_unref (child->icon);
-            child->icon = NULL;
+            fm_icon_unref (child->fm_icon);
+            child->fm_icon = NULL;
         }
     }
 }

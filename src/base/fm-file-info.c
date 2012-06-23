@@ -115,6 +115,7 @@ static void fm_file_info_clear (FmFileInfo *file_info)
     {
         if (file_info->collate_key != file_info->disp_name)
             g_free (file_info->collate_key);
+        
         file_info->collate_key = NULL;
     }
 
@@ -151,6 +152,7 @@ static void fm_file_info_clear (FmFileInfo *file_info)
         fm_mime_type_unref (file_info->mime_type);
         file_info->mime_type = NULL;
     }
+    
     if (file_info->fm_icon)
     {
         fm_icon_unref (file_info->fm_icon);
@@ -175,10 +177,12 @@ void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
     file_info->fm_icon = tmp_icon;
 
     file_info->mode = src->mode;
+    
     if (fm_path_is_native (file_info->path))
         file_info->dev = src->dev;
     else
         file_info->fs_id = src->fs_id;
+    
     file_info->uid = src->uid;
     file_info->gid = src->gid;
     file_info->size = src->size;
@@ -350,7 +354,9 @@ FmFileInfo *fm_file_info_new_from_gfileinfo (FmPath *path, GFileInfo *inf)
 {
     FmFileInfo *file_info = fm_file_info_new ();
     file_info->path = fm_path_ref (path);
+    
     fm_file_info_set_from_gfileinfo (file_info, inf);
+    
     return file_info;
 }
 
@@ -364,6 +370,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 
     // if display name is the same as its name, just use it.
     tmp = g_file_info_get_display_name (inf);
+    
     if (strcmp (tmp, file_info->path->name) == 0)
         file_info->disp_name = file_info->path->name;
     else
@@ -372,6 +379,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
     file_info->size = g_file_info_get_size (inf);
 
     tmp = g_file_info_get_content_type (inf);
+    
     if (tmp)
         file_info->mime_type = fm_mime_type_get_for_type (tmp);
 
@@ -381,7 +389,10 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
     file_info->gid = g_file_info_get_attribute_uint32 (inf, G_FILE_ATTRIBUTE_UNIX_GID);
 
     type = g_file_info_get_file_type (inf);
-    if (0 == file_info->mode) // if UNIX file mode is not available, compose a fake one.
+    
+    
+    // if UNIX file mode is not available, compose a fake one...
+    if (!file_info->mode)
     {
         switch (type)
         {
@@ -432,8 +443,10 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
          * owned by GFileInfo. */
     }
     else
+    {
         file_info->fm_icon = fm_icon_ref (file_info->mime_type->icon);
-
+    }
+    
     if (type == G_FILE_TYPE_MOUNTABLE || G_FILE_TYPE_SHORTCUT)
     {
         const char *uri = g_file_info_get_attribute_string (inf, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
@@ -478,8 +491,11 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
  ********************************************************************/
 FmFileInfo *fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item)
 {
+    
     FmFileInfo *file_info = fm_file_info_new ();
     file_info->path = fm_path_ref (path);
+    
+    
     fm_file_info_set_from_menu_cache_item (file_info, item);
     return file_info;
 }
@@ -513,6 +529,7 @@ void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem
         if (G_UNLIKELY (tmp_name))
             g_free (tmp_name);
     }
+    
     if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_DIR)
     {
         file_info->mode |= S_IFDIR;
@@ -522,6 +539,7 @@ void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem
         file_info->mode |= S_IFREG;
         file_info->target = menu_cache_item_get_file_path (item);
     }
+    
     file_info->mime_type = fm_mime_type_ref (shortcut_type);
 }
 
@@ -539,9 +557,6 @@ FmFileInfo *fm_file_info_new_computer ()
     FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
     fm_file_info_set_path (file_info, path);
     
-    // ensures that it's set as virtual...
-    //~ path->flags |= FM_PATH_IS_VIRTUAL;
-
     fm_path_unref (path);
     
     return file_info;
@@ -553,11 +568,6 @@ FmFileInfo *fm_file_info_new_trash_can ()
     FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
     fm_file_info_set_path (file_info, path);
 
-    // fm_path_new_for_uri may also define FM_PATH_IS_LOCAL
-    //~ path->flags |= FM_PATH_IS_VIRTUAL;
-    //~ path->flags |= FM_PATH_IS_TRASH_FILE;
-    //~ path->flags |= FM_PATH_IS_TRASH_ROOT;
-    
     fm_path_unref (path);
     
     return file_info;
@@ -578,12 +588,6 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
 
     FmPath *path = fm_path_new_for_path (path_name);
     FmFileInfo *file_info = fm_file_info_new_from_gfileinfo (path, ginfo);
-    
-    
-    
-    // TODO_axl: must set some path flags here.....
-    
-    
     
     g_object_unref (ginfo);
     g_object_unref (file);
