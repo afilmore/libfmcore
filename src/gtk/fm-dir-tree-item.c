@@ -61,48 +61,6 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
     item->parent = parent_node;
     item->fi = file_info ? fm_file_info_ref (file_info) : NULL;
     
-    // set a flag for root items ????
-    
-    
-    
-    if (!parent_node)
-    {
-        FmPath *path = fm_file_info_get_path (file_info);
-        //~ if (fm_path_is_root (path) && fm_path_is_trash (path))
-        //~ {
-            //~ item->fm_icon = fm_icon_from_name ("user-trash");
-            //~ //fm_file_info_set_fm_icon (file_info, icon);
-        //~ }
-        //~ else if (fm_path_is_root (path) && fm_path_is_computer (path))
-        //~ {
-            //~ item->fm_icon = fm_icon_from_name ("computer");
-            //~ //fm_file_info_set_fm_icon (file_info, icon);
-        //~ }
-        //~ else if (fm_path_is_xdg_menu (path))
-        //~ {
-            //~ item->fm_icon = fm_icon_from_name ("system-software-installer");
-            //~ //fm_file_info_set_fm_icon (file_info, icon);
-        //~ }
-        //~ else if (fm_path_get_desktop () == path)
-        //~ {
-            //~ item->fm_icon = fm_icon_from_name ("user-desktop");
-            //~ //fm_file_info_set_fm_icon (file_info, icon);
-        //~ }
-        //~ else if (fm_path_get_root () == path)
-        //~ {
-            //~ item->fm_icon = fm_icon_from_name ("drive-harddisk");
-            //~ //fm_file_info_set_fm_icon (file_info, icon);
-        //~ }
-        //~ else
-        //~ {
-            //~ item->fm_icon = fm_icon_from_name ("drive-harddisk");
-            //~ //fm_file_info_set_fm_icon (file_info, icon);
-        //~ }
-    }
-    
-    
-    
-    
     return item;
 }
 

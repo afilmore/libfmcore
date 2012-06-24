@@ -152,7 +152,7 @@ FmFileInfo  *fm_file_info_new_user_special_dir      (GUserDirectory directory);
  * 
  * 
  ********************************************************************/
-void        fm_file_info_set_fm_icon            (FmFileInfo *file_info, FmIcon *fm_icon);
+//~ void        fm_file_info_set_fm_icon            (FmFileInfo *file_info, FmIcon *fm_icon);
 FmIcon      *fm_file_info_get_fm_icon           (FmFileInfo *file_info);
 
 // is it really needed ? do we need also a get_pixbuf function ?

@@ -27,6 +27,7 @@
 #endif
 
 #include "fm-file-info.h"
+
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 #include <grp.h>                // Query group name
@@ -273,9 +274,7 @@ _retry:
     
     if (!fm_file_info_init_icon_for_crappy_code (file_info))
     {
-        fm_file_info_set_fm_icon (file_info, mime_type->icon);
-        //file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
-        //fm_file_info_set_fm_icon (file_info, icon);
+        file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
     }
     
     
@@ -484,11 +483,6 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
         {
             gicon = g_file_info_get_icon (inf);
             file_info->fm_icon = fm_icon_from_gicon (gicon);
-            
-            /* g_object_unref (gicon); this is not needed since
-             * g_file_info_get_icon didn't increase ref_count.
-             * the object returned by g_file_info_get_icon is
-             * owned by GFileInfo. */
         }
         else
         {
@@ -654,21 +648,11 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
  * 
  * 
  ********************************************************************/
-void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
-{
-    
-    // why I added this ????
-    
-    // TODO_axl: test and remove...
-    //~ if (G_LIKELY(!fm_file_info_is_desktop_entry (file_info)))
-    //~ {
-        
-    file_info->fm_icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
-    
-        //return TRUE;
-    //~ }
-}
-
+//~ void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
+//~ {
+    //~ file_info->fm_icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
+//~ }
+//~ 
 FmIcon *fm_file_info_get_fm_icon (FmFileInfo *file_info)
 {
     return file_info->fm_icon;
