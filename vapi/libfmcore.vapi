@@ -136,8 +136,8 @@ namespace Fm {
 		public uint hash ();
         
         public inline bool is_virtual ();
-        public inline bool is_trash_root ();
-        public inline bool is_trash_file ();
+        public inline bool is_root ();
+        public inline bool is_trash ();
         
         /*** Define these macros...
         public inline bool is_native ();
