@@ -119,16 +119,41 @@ namespace Manager {
                 // Desktop...
                 job.add (Fm.Path.get_desktop ());
                 
-                // Documents...
-                Fm.Path path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
+                // Computer...
+                Fm.Path path = new Fm.Path.for_uri ("computer:///");
                 job.add (path);
                 
-                // Computer...
-                path = new Fm.Path.for_uri ("computer:///");
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
                 job.add (path);
                 
                 // Trash Can...
                 job.add (Fm.Path.get_trash ());
+                
+                /**
+                 *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
+                 *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
+                 *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
+                 *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
+                 *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
+                 *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+                 **/
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+                job.add (path);
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.MUSIC));
+                job.add (path);
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.PICTURES));
+                job.add (path);
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.VIDEOS));
+                job.add (path);
                 
                 // Root FileSystem...
                 job.add (Fm.Path.get_root ());
@@ -146,11 +171,15 @@ namespace Manager {
                     
                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
                     
-                    //bool expand = (fi.get_path ().is_virtual () == false);
                     bool expand = true;
+                    
                     if (fi.get_path ().is_virtual ()) {
-                        expand = false;
+                        if (fi.get_path ().is_computer ())
+                            expand = true;
+                        else
+                            expand = false;
                     }
+                    
                     
                     global_dir_tree_model.add_root (fi, null, expand);
                 }
@@ -159,7 +188,7 @@ namespace Manager {
             
             // The model is loaded, attach a view to it and connect signals...
             _tree_view.set_model (global_dir_tree_model);
-            //_tree_view.directory_changed.connect (_tree_view_on_change_directory);
+            _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             //_tree_view.button_release_event.connect (_tree_view_on_button_release);
             
 
@@ -206,6 +235,13 @@ namespace Manager {
         }
         
         
+        private void _tree_view_on_change_directory (uint button, Fm.Path path) {
+        
+            /*** stdout.printf ("_tree_view_on_change_directory: %u, %s\n", button, path.to_str ()); ***/
+            
+            this._change_directory (path, DirChangeCaller.DIR_TREEVIEW, false);
+        }
+
         /*********************************************************************************
          * 
          * 
@@ -215,6 +251,8 @@ namespace Manager {
                                         DirChangeCaller caller = DirChangeCaller.NONE,
                                         bool save_history = false) {
 
+            stdout.printf ("Change Directory: %s\n", path.to_str ());
+            
             if (caller != DirChangeCaller.DIR_TREEVIEW)
                 _tree_view.set_current_directory (path);
             

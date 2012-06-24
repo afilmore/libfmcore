@@ -72,7 +72,7 @@ gboolean fm_file_info_list_is_same_fs (FmFileInfoList *list)
         
     GList *l = fm_list_peek_head_link (list);
     FmFileInfo *file_info = (FmFileInfo*) l->data;
-    gboolean is_native = fm_path_is_native (file_info->path);
+    gboolean is_native = fm_path_is_native (fm_file_info_get_path (file_info));
     
     l = l->next;
     
@@ -80,7 +80,9 @@ gboolean fm_file_info_list_is_same_fs (FmFileInfoList *list)
     {
         FmFileInfo *next_file_info = (FmFileInfo*) l->data;
         
-        if (is_native != fm_path_is_native (next_file_info->path))
+        // TODO_axl: a fm_file_info_same_fs (file_info1, file_info2);
+        
+        if (is_native != fm_path_is_native (fm_file_info_get_path (next_file_info)))
             return FALSE;
         
         if (is_native)

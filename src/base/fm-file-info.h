@@ -58,7 +58,7 @@ const char *gfile_info_query_attribs;
 void _fm_file_info_init ();
 void _fm_file_info_finalize ();
 
-
+//#if 0
 struct _FmFileInfo
 {
     /*****************************************************************
@@ -100,7 +100,7 @@ struct _FmFileInfo
     int             n_ref;          // Private...
 };
 
-
+//#endif
 /*********************************************************************
  * Reference Counting And Copy Function...
  * 

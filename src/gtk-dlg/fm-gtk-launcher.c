@@ -421,9 +421,9 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
             else if (fm_file_info_is_shortcut (file_info)
                      && !fm_file_info_is_dir (file_info)
                      && fm_path_is_xdg_menu (file_info->path)
-                     && file_info->target)
+                     /*&& file_info->target*/)
             {
-                fm_launch_desktop_entry (ctx, file_info->target, NULL, launcher, user_data); // FIXME_pcm: shortcuts handling...
+                fm_launch_desktop_entry (ctx, fm_file_info_get_target (file_info), NULL, launcher, user_data);
                 continue;
             }
             

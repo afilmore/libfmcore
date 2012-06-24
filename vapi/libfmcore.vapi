@@ -138,6 +138,7 @@ namespace Fm {
         public inline bool is_virtual ();
         public inline bool is_root ();
         public inline bool is_trash ();
+        public inline bool is_computer ();
         
         /*** Define these macros...
         public inline bool is_native ();

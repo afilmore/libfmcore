@@ -127,8 +127,6 @@ FmPath *fm_path_get_apps_menu           (); // menu://applications.menu/
 #define fm_path_is_computer(path)       (fm_path_get_flags(path) & FM_PATH_IS_COMPUTER)
 #define fm_path_is_desktop(path)        (fm_path_get_flags(path) & FM_PATH_IS_DESKTOP)
 #define fm_path_is_trash(path)          (path == fm_path_get_trash())
-//~ #define fm_path_is_trash_root(path)     (path == fm_path_get_trash())
-//~ #define fm_path_is_trash_file(path)     (fm_path_get_flags(path) & FM_PATH_IS_TRASH)
 #define fm_path_is_xdg_menu(path)       (fm_path_get_flags(path) & FM_PATH_IS_XDG_MENU)
 
 

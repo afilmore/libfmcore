@@ -194,47 +194,63 @@ static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, i
  */
 static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **remaining, gboolean need_unescape)
 {
-    FmPath *path;
-    char *buf;
-    const char *uri_end = uri + len;
-    const char *host;
-    const char *host_end;
-    char *unescaped_host = NULL;
-    int scheme_len, host_len;
-    int flags;
+    FmPath      *path;
+    char        *buf;
+    const char  *uri_end = uri + len;
+    const char  *host;
+    const char  *host_end;
+    char        *unescaped_host = NULL;
+    int         scheme_len;
+    int         host_len;
+    int         flags;
 
     // A generic URI: scheme://user@host/remaining/path
-    if (!g_ascii_isalpha (uri[0])) // invalid
+    
+    if (!g_ascii_isalpha (uri[0]))
         goto on_error;
 
-    for (scheme_len = 1; scheme_len < len && uri[scheme_len] != ':';) // find the : after scheme
+    // find the ":" after scheme
+    for (scheme_len = 1; scheme_len < len && uri [scheme_len] != ':';)
     {
-        char ch = uri[scheme_len];
-        if (g_ascii_isalnum (ch) || ch == '+' || ch == '-' || ch == '.') // valid scheme characters
+        char ch = uri [scheme_len];
+        
+        // valid scheme characters
+        if (g_ascii_isalnum (ch) || ch == '+' || ch == '-' || ch == '.')
             ++scheme_len;
-        else // this is not a valid URI
+        
+        // invalid URI
+        else
             goto on_error;
     }
 
-    if (scheme_len == len) // there is no : in the URI, it's invalid
+    
+    // there is no : in the URI, it's invalid
+    if (scheme_len == len)
         goto on_error;
 
+    
     // now there should be // following :, or no slashes at all, such as mailto:someone@somewhere.net
     host = uri + scheme_len + 1;
-    while (*host == '/' && host < uri_end) // skip the slashes
+    
+    // skip the slashes
+    while (*host == '/' && host < uri_end)
         ++host;
 
     flags = 0;
     host_len = 0;
     
-    if (scheme_len == 4 && g_ascii_strncasecmp (uri, "file", 4) == 0) // handles file:///
+    
+    // file:///
+    if (scheme_len == 4 && g_ascii_strncasecmp (uri, "file", 4) == 0)
     {
         if (remaining)
             *remaining = host;
+        
         return fm_path_ref (root_path);
     }
     
-    // special handling for some known schemes
+    
+    // Trash Can...
     else if (scheme_len == 5 && g_ascii_strncasecmp (uri, "trash", 5) == 0) // trashed files are on local filesystems
     {
         if (remaining)
@@ -242,38 +258,57 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
         
         return fm_path_ref (trash_root_path);
     }
+    
+    
+    // Computer...
     else if (scheme_len == 8 && g_ascii_strncasecmp (uri, "computer", 8) == 0)
     {
         flags |= FM_PATH_IS_COMPUTER | FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
+    
+    
+    // Network...
     else if (scheme_len == 7 && g_ascii_strncasecmp (uri, "network", 7) == 0)
     {
         flags |= FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
+    
+    
+    // Mailto...
     else if (scheme_len == 6 && g_ascii_strncasecmp (uri, "mailto", 6) == 0)
     {
         // is any special handling needed?
         if (remaining)
             *remaining = uri_end;
+        
         if (need_unescape)
         {
             unescaped_host = g_uri_unescape_string (uri, NULL);
+            
             path = _fm_path_new_internal (NULL, unescaped_host, strlen (unescaped_host), 0);
+            
             g_free (unescaped_host);
         }
         else
             path = _fm_path_new_internal (NULL, uri, len, 0);
+        
         return path;
     }
-    else // it's a normal remote URI
+    
+    
+    // A normal remote URI...
+    else
     {
         // now we're at username@hostname, the authenticaion part
         host_end = host;
+        
         while (host_end < uri_end && *host_end != '/') // find the end of host name
             ++host_end;
+        
         host_len =  (host_end - host);
+        
         if (scheme_len == 4 && g_ascii_strncasecmp (uri, "menu", 4) == 0)
         {
             if (host_len == 0) // fallback to applications
@@ -282,12 +317,14 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
                 host_len = 12;
                 if (remaining)
                     *remaining = uri_end;
+                
                 return fm_path_ref (apps_root_path);
             }
             else if (host_len == 12 && strncmp (host, "applications", 12) == 0)
             {
                 if (remaining)
                     *remaining = host_end;
+                
                 return fm_path_ref (apps_root_path);
             }
             
@@ -325,10 +362,12 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
 
     return path;
 
-on_error: // this is not a valid URI
+    on_error: // this is not a valid URI
+    
     // FIXME_pcm: should we return root or NULL?
     if (remaining)
         *remaining = uri + len;
+    
     return fm_path_ref (root_path);
 }
 
@@ -376,6 +415,7 @@ FmPath *fm_path_new_for_str (const char *path_str)
 FmPath *fm_path_new_for_path (const char *path_name)
 {
     FmPath *path;
+    
     if (!path_name || !*path_name)
         return fm_path_ref (root_path);
 
@@ -387,8 +427,12 @@ FmPath *fm_path_new_for_path (const char *path_name)
         else
             path = fm_path_new_relative (root_path, path_name + 1);
     }
-    else // pathname should be absolute path. otherwise its invalid
+    else
+    {
+        // pathname should be absolute path. otherwise its invalid
         path = fm_path_ref (root_path); // return root
+    }
+    
     return path;
 }
 
@@ -408,21 +452,27 @@ static FmPath *_fm_path_new_for_uri_internal (const char *uri, gboolean need_une
 {
     FmPath *path, *root;
     const char *rel_path;
+    
     if (!uri || !*uri)
         return fm_path_ref (root_path);
 
     root = _fm_path_new_uri_root (uri, strlen (uri), &rel_path, need_unescape);
+    
     if (*rel_path)
     {
         if (need_unescape)
             rel_path = g_uri_unescape_string (rel_path, NULL);
+        
         path = fm_path_new_relative (root, rel_path);
         fm_path_unref (root);
+        
         if (need_unescape)
             g_free ((char*)rel_path);
     }
     else
+    {
         path = root;
+    }
     return path;
 }
 
@@ -460,8 +510,10 @@ FmPath *fm_path_new_for_uri (const char *uri)
 FmPath *fm_path_new_for_display_name (const char *path_name)
 {
     FmPath *path;
+    
     if (!path_name || !*path_name ||  (path_name[0]=='/' && path_name[1] == '\0'))
         return fm_path_ref (root_path);
+    
     if (path_name[0] == '/') // native path
     {
         char *filename = g_filename_from_utf8 (path_name, -1, NULL, NULL, NULL);
@@ -515,6 +567,7 @@ FmPath *fm_path_new_for_gfile (GFile *gf)
 {
     FmPath *path;
     char *str;
+    
     if (g_file_is_native (gf))
     {
         str = g_file_get_path (gf);
@@ -525,6 +578,7 @@ FmPath *fm_path_new_for_gfile (GFile *gf)
         str = g_file_get_uri (gf);
         path = fm_path_new_for_uri (str);
     }
+    
     g_free (str);
     return path;
 }
@@ -553,6 +607,7 @@ FmPath *fm_path_new_child (FmPath *parent, const char *basename)
         int baselen = strlen (basename);
         return fm_path_new_child_len (parent, basename, baselen);
     }
+    
     return G_LIKELY (parent) ? fm_path_ref (parent) : NULL;
 }
 
@@ -597,6 +652,7 @@ FmPath *fm_path_new_child_len (FmPath *parent, const char *basename, int name_le
             ++basename;
             --name_len;
         }
+        
         while (name_len > 0 && basename[name_len-1] == '/')
             --name_len;
 
@@ -664,15 +720,18 @@ FmPath *fm_path_new_child_len (FmPath *parent, const char *basename, int name_le
 FmPath *fm_path_new_relative (FmPath *parent, const char *rel)
 {
     FmPath *path;
+    
     if (G_UNLIKELY (!rel || !*rel)) // relative path is empty
         return parent ? fm_path_ref (parent) : fm_path_ref (root_path); // return parent
 
     if (G_LIKELY (parent))
     {
         char *sep;
+        
         // remove leading slashes
         while (*rel == '/')
             ++rel;
+        
         if (!*rel)
             path = fm_path_ref (parent);
         else
@@ -703,6 +762,7 @@ FmPath *fm_path_new_relative (FmPath *parent, const char *rel)
     }
     else // this is actaully a full path
         path = fm_path_new_for_str (rel);
+    
     return path;
 }
 
@@ -797,6 +857,7 @@ FmPathFlags fm_path_get_flags (FmPath *path)
 {
     return path->flags;
 }
+
 // FIXME_pcm: maybe we can support different encoding for different mount points?
 char *fm_path_display_name (FmPath *path, gboolean human_readable)
 {
@@ -843,8 +904,10 @@ char *fm_path_display_basename (FmPath *path)
             {
                 // FIXME_pcm: this should be more flexible
                 const char *p = path->name + 5;
+                
                 while (p[0] == '/')
                     ++p;
+                
                 if (g_str_has_prefix (p, "applications.menu"))
                     return g_strdup (_("Applications"));
             }
@@ -981,16 +1044,20 @@ gboolean fm_path_equal (FmPath *p1, FmPath *p2)
 {
     if (p1 == p2)
         return TRUE;
+    
     if (!p1)
         return !p2 ? TRUE:FALSE;
+    
     if (!p2)
         return !p1 ? TRUE:FALSE;
+    
     if (strcmp (p1->name, p2->name) != 0)
         return FALSE;
+    
     return fm_path_equal (p1->parent, p2->parent);
 }
 
-// Check if this path contains absolute pathname str*/
+// Check if this path contains absolute pathname str
 gboolean fm_path_equal_str (FmPath *path, const gchar *str, int n)
 {
     const gchar *last_part;

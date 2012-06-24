@@ -763,8 +763,13 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTr
                 FmFileInfo *fi = file_l->data;
                 
                 // Load only directories...
+                FmPath *path = fm_file_info_get_path (fi);
                 if (!fm_file_info_is_dir (fi))
+                {
+                    printf ("%s\n", fm_path_get_basename (path));
+                    //&& !fm_path_is_virtual (path))
                     continue;
+                }
                 
                 fm_dir_tree_model_insert_file_info (model, item_list, tp, fi);
                 
@@ -773,6 +778,10 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTr
             gtk_tree_path_free (tp);
             
             fm_dir_tree_item_on_folder_loaded (dir_tree_item);
+        }
+        else
+        {
+            printf ("NOT loaded !!!\n");
         }
     }
     

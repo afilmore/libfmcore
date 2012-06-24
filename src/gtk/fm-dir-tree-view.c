@@ -53,6 +53,7 @@ static void     on_folder_loaded                    (FmFolder *folder, FmDirTree
 static void     expand_pending_path                 (FmDirTreeView *tree_view, GtkTreeModel *model, GtkTreeIter *parent_iter);
 static void     cancel_pending_chdir                (FmDirTreeView *tree_view);
 static void     on_sel_changed                      (GtkTreeSelection *tree_selection, FmDirTreeView *tree_view);
+static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tree_selection, int button);
 static gboolean on_test_expand_row                  (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
 static gboolean on_key_press_event                  (GtkWidget *widget, GdkEventKey *event_key);
 static void     on_row_collapsed                    (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
@@ -496,6 +497,27 @@ static gboolean on_key_press_event (GtkWidget *widget, GdkEventKey *event_key)
 
 
 
+
+
+
+
+
+/*****************************************************************************************
+ * ...
+ * 
+ * 
+ ****************************************************************************************/
+static void on_sel_changed (GtkTreeSelection *tree_selection, FmDirTreeView *tree_view)
+{
+    
+    // if a pending selection via previous call to chdir is in progress, cancel it.
+    if (tree_view->paths_to_expand)
+        cancel_pending_chdir (tree_view);
+
+    emit_chdir_if_needed (tree_view, tree_selection, 1);
+}
+
+
 /*****************************************************************************************
  * ...
  * 
@@ -509,12 +531,21 @@ static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tr
     if (!gtk_tree_selection_get_selected (tree_selection, &model, &it))
         return;
     
+    FmFileInfo *file_info;
     FmPath *path;
-    gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &path, -1);
+    gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &path, FM_DIR_TREE_MODEL_COL_INFO, &file_info, -1);
 
     if (path && tree_view->current_directory && fm_path_equal (path, tree_view->current_directory))
         return;
 
+    
+    if (fm_file_info_is_mountable (file_info))
+    {
+        path = fm_path_new_for_str (fm_file_info_get_target (file_info));
+    }
+    
+    
+    
     if (tree_view->current_directory)
         fm_path_unref (tree_view->current_directory);
 
@@ -524,24 +555,6 @@ static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tr
 }
 
 
-
-
-
-
-
-/*****************************************************************************************
- * ...
- * 
- * 
- ****************************************************************************************/
-static void on_sel_changed (GtkTreeSelection *tree_selection, FmDirTreeView *tree_view)
-{
-    // if a pending selection via previous call to chdir is in progress, cancel it.
-    if (tree_view->paths_to_expand)
-        cancel_pending_chdir (tree_view);
-
-    emit_chdir_if_needed (tree_view, tree_selection, 1);
-}
 
 // called in fm_dir_tree_view_init () 
 static gboolean fm_dir_tree_view_select_function (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,

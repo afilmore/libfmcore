@@ -267,8 +267,12 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
         }
     }
 
-    if (g_file_info_get_file_type (gfile_info) != G_FILE_TYPE_DIRECTORY)
+    GFileType gfile_type = g_file_info_get_file_type (gfile_info);
+    
+    if (gfile_type != G_FILE_TYPE_DIRECTORY && gfile_type != G_FILE_TYPE_MOUNTABLE)
     {
+        printf ("GFileType = %d\n", gfile_type);
+        
         gerror = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
         fm_job_emit_error (fmjob, gerror, FM_SEVERITY_CRITICAL);
         g_error_free (gerror);
@@ -352,6 +356,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
             }
             break;
         }
+        
         g_object_unref (gfile_info);
     }
 

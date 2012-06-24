@@ -44,6 +44,48 @@
 
 #include "fm-trash.h" // gtk dep...
 
+#if 0
+struct _FmFileInfo
+{
+    /*****************************************************************
+     * File Path, that's the most important field of the FileInfo,
+     * other ones are set from this path...
+     * 
+     ****************************************************************/
+    FmPath          *path;
+    
+    char            *disp_name;     // UTF-8 Displayed Name
+    char            *collate_key;   // Used to sort files by name
+    
+    FmMimeType      *mime_type;
+    
+    FmIcon          *fm_icon;       // A GIcon Cache (see base/fm-icon.h)...
+    
+    char            *target;        // Target of shortcut or mountable...
+
+    mode_t          mode;           // FileSystem Informations...
+    
+    union {
+        const char  *fs_id;
+        dev_t       dev;
+    };
+    
+    uid_t           uid;
+    gid_t           gid;
+    
+    char            *disp_size;     // Displayed human-readable file size
+    goffset         size;
+    
+    char            *disp_mtime;    // Displayed last modification time
+    time_t          mtime;
+    time_t          atime;
+    
+    gulong          blksize;
+    goffset         blocks;
+    
+    int             n_ref;          // Private...
+};
+#endif
 
 static gboolean     use_si_prefix = TRUE;
 static FmMimeType   *desktop_entry_type = NULL;
@@ -56,6 +98,7 @@ const char          *gfile_info_query_attribs = "standard::*,unix::*,time::*,acc
 // Forward declarations...
 static void     fm_file_info_clear                  (FmFileInfo *file_info);
 static void     fm_file_info_set_from_desktop_entry (FmFileInfo *file_info);
+static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info);
 
 
 // intialize the file info system
@@ -149,8 +192,12 @@ static void fm_file_info_clear (FmFileInfo *file_info)
         file_info->disp_size = NULL;
     }
 
-    g_free (file_info->target);
-
+    if (file_info->target)
+    {
+        g_free (file_info->target);
+        file_info->target = NULL;
+    }
+    
     if (file_info->mime_type)
     {
         fm_mime_type_unref (file_info->mime_type);
@@ -222,50 +269,14 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
     return file_info;
 }
 
-static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
-{
-    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
-    {
-        guint32 num_items = fm_trash_get_num_items ();
-        
-        if (num_items)
-            file_info->fm_icon = fm_icon_from_name ("user-trash-full");
-        else
-            file_info->fm_icon = fm_icon_from_name ("user-trash");
-    }
-    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("computer");
-    }
-    else if (fm_path_is_xdg_menu (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
-    }
-    else if (fm_path_get_desktop () == file_info->path)
-    {
-        file_info->fm_icon = fm_icon_from_name ("user-desktop");
-    }
-    else if (fm_path_get_root () == file_info->path)
-    {
-        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
-    }
-    else
-    {
-        return FALSE;
-    }
-    
-    return TRUE;
-}
-
 
 gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
 {
 	struct stat st;
-    gboolean is_link;
+    //~ gboolean is_link;
     
     _retry:
 	
-    
     if (lstat (path, &st) != 0)
     {
         //g_set_error (err, G_IO_ERROR, g_io_error_from_errno (errno), "%s", g_strerror (errno));
@@ -357,6 +368,41 @@ static void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
     else
         file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
     
+}
+
+static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
+{
+    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
+    {
+        guint32 num_items = fm_trash_get_num_items ();
+        
+        if (num_items)
+            file_info->fm_icon = fm_icon_from_name ("user-trash-full");
+        else
+            file_info->fm_icon = fm_icon_from_name ("user-trash");
+    }
+    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("computer");
+    }
+    else if (fm_path_is_xdg_menu (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
+    }
+    else if (fm_path_get_desktop () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("user-desktop");
+    }
+    else if (fm_path_get_root () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
+    }
+    else
+    {
+        return FALSE;
+    }
+    
+    return TRUE;
 }
 
 
@@ -482,13 +528,11 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 
         if (!file_info->mime_type)
         {
-            // FIXME_pcm: is this appropriate?
             if (type == G_FILE_TYPE_SHORTCUT)
                 file_info->mime_type = fm_mime_type_ref (shortcut_type);
             else
                 file_info->mime_type = fm_mime_type_ref (mountable_type);
         }
-        // FIXME_pcm: how about target of symlinks?
     }
 
     if (fm_path_is_native (file_info->path))

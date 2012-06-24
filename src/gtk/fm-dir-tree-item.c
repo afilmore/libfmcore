@@ -248,8 +248,12 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
          * Isn't "loaded" signal enough ?
          ***/
         
-        if (!fm_file_info_is_dir (fi))
+        FmPath *path = fm_file_info_get_path (fi);
+        if (!fm_file_info_is_dir (fi) && !fm_path_is_virtual (path))
+        {
+            printf ("%s\n", fm_path_get_basename (path));
             continue;
+        }
         
         // Ensure that the file is not yet in our model
         GList *new_item_list = fm_dir_tree_model_children_by_name (model, dir_tree_item->children, fi->path->name, NULL);

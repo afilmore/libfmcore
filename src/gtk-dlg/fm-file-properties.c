@@ -625,7 +625,8 @@ static void update_ui (FmFilePropData *data)
         {
             gtk_widget_show (data->target_label);
             gtk_widget_show (data->target);
-            gtk_label_set_text (GTK_LABEL (data->target), data->file_info->target);
+            gtk_label_set_text (GTK_LABEL (data->target), fm_file_info_get_target (data->file_info));
+            
             // gtk_label_set_text (data->type, fm_mime_type_get_desc (data->mime_type));
         }
         else
