@@ -63,17 +63,19 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
     
     // set a flag for root items ????
     
+    
+    
     if (!parent_node)
     {
         FmPath *path = fm_file_info_get_path (file_info);
-        if (fm_path_is_trash_root (path))
+        if (fm_path_is_root (path) && fm_path_is_trash (path))
         {
             item->fm_icon = fm_icon_from_name ("user-trash");
             //fm_file_info_set_fm_icon (file_info, icon);
         }
         else if (fm_path_is_xdg_menu (path))
         {
-            item->fm_icon = fm_icon_from_name ("system-software-install");
+            item->fm_icon = fm_icon_from_name ("system-software-installer");
             //fm_file_info_set_fm_icon (file_info, icon);
         }
         else if (fm_path_get_desktop () == path)
@@ -92,6 +94,9 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
             //fm_file_info_set_fm_icon (file_info, icon);
         }
     }
+    
+    
+    
     
     return item;
 }

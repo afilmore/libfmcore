@@ -260,14 +260,20 @@ _retry:
     // FIXME_axl: avoid direct member access !!! there's direct members access everywhere anyway... nasty code...
     file_info->mime_type = mime_type;
     
-    // TODO_axl: Create one function.....
-    if (G_LIKELY (!fm_file_info_is_desktop_entry (file_info)))
+    
+    
+    if (fm_file_info_is_desktop_entry (file_info))
     {
-        fm_file_info_set_fm_icon (file_info, mime_type->icon);
+        fm_file_info_set_from_desktop_entry (file_info);
         return TRUE;
     }
     
-    fm_file_info_set_from_desktop_entry (file_info);
+    
+    
+    
+    fm_file_info_set_fm_icon (file_info, mime_type->icon);
+    
+    
     
     return TRUE;
 }
@@ -431,6 +437,8 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
         }
     }
 
+    
+    
     // set file icon according to mime-type
     if (!file_info->mime_type || !file_info->mime_type->icon)
     {
@@ -446,6 +454,9 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
     {
         file_info->fm_icon = fm_icon_ref (file_info->mime_type->icon);
     }
+    
+    
+    
     
     if (type == G_FILE_TYPE_MOUNTABLE || G_FILE_TYPE_SHORTCUT)
     {

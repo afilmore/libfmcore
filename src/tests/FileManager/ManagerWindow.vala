@@ -104,6 +104,8 @@ namespace Manager {
                 global_dir_tree_model = new Fm.DirTreeModel ();
                 global_dir_tree_model.set_show_hidden (true);
                 
+                
+                
                 Fm.FileInfoJob job = new Fm.FileInfoJob (null, Fm.FileInfoJobFlags.NONE);
                 
                 unowned List<Fm.FileInfo>? l;

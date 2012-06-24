@@ -72,8 +72,10 @@ enum _FmPathFlags
     FM_PATH_IS_VIRTUAL      = 1 << 1,       // 2    a virtual path, it doesn't exist on the real filesystem...
     FM_PATH_IS_LOCAL        = 1 << 2,       // 4    a file on the local filesystem...
     FM_PATH_IS_ROOT         = 1 << 3,       // 8    A predefines path root, trash can, menu:// etc...
-    FM_PATH_IS_TRASH        = 1 << 4,       // 16   Trash Can file or root path (trash:/// or trash:///file)...
-    FM_PATH_IS_XDG_MENU     = 1 << 5        // 32   This path is under menu:///
+    FM_PATH_IS_COMPUTER     = 1 << 4,       // 
+    FM_PATH_IS_TRASH        = 1 << 5,       // 16   Trash Can file or root path (trash:/// or trash:///file)...
+    FM_PATH_IS_DESKTOP      = 1 << 6,       // 
+    FM_PATH_IS_XDG_MENU     = 1 << 7        // 32   This path is under menu:///
 };
 typedef enum _FmPathFlags FmPathFlags;
 
@@ -121,8 +123,12 @@ FmPath *fm_path_get_apps_menu           (); // menu://applications.menu/
 #define fm_path_is_native(path)         (fm_path_get_flags(path) & FM_PATH_IS_NATIVE)
 #define fm_path_is_virtual(path)        (fm_path_get_flags(path) & FM_PATH_IS_VIRTUAL)
 #define fm_path_is_local(path)          (fm_path_get_flags(path) & FM_PATH_IS_LOCAL)
-#define fm_path_is_trash_root(path)     (path == fm_path_get_trash())
-#define fm_path_is_trash_file(path)     (fm_path_get_flags(path) & FM_PATH_IS_TRASH)
+#define fm_path_is_root(path)           (fm_path_get_flags(path) & FM_PATH_IS_ROOT)
+#define fm_path_is_computer(path)       (fm_path_get_flags(path) & FM_PATH_IS_COMPUTER)
+#define fm_path_is_desktop(path)        (fm_path_get_flags(path) & FM_PATH_IS_DESKTOP)
+#define fm_path_is_trash(path)          (path == fm_path_get_trash())
+//~ #define fm_path_is_trash_root(path)     (path == fm_path_get_trash())
+//~ #define fm_path_is_trash_file(path)     (fm_path_get_flags(path) & FM_PATH_IS_TRASH)
 #define fm_path_is_xdg_menu(path)       (fm_path_get_flags(path) & FM_PATH_IS_XDG_MENU)
 
 

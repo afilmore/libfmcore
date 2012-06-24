@@ -110,12 +110,12 @@ void _fm_path_init ()
         {
             /** ref counting is not a problem here since this path component
              * will exist till the termination of the program. So mem leak is ok. **/
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
         name = sep + 1;
     }
-    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
 
     
     // Trash Can Root...
@@ -244,7 +244,7 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
     }
     else if (scheme_len == 8 && g_ascii_strncasecmp (uri, "computer", 8) == 0)
     {
-        flags |= FM_PATH_IS_VIRTUAL;
+        flags |= FM_PATH_IS_COMPUTER | FM_PATH_IS_VIRTUAL;
         host_end = host;
     }
     else if (scheme_len == 7 && g_ascii_strncasecmp (uri, "network", 7) == 0)
@@ -830,10 +830,15 @@ char *fm_path_display_basename (FmPath *path)
     {
         if (!fm_path_is_native (path) && fm_path_is_virtual (path))
         {
-            if (fm_path_is_trash_root (path))
+            if (fm_path_is_root (path) && fm_path_is_trash (path))
                 return g_strdup (_("Trash Can"));
-            if (g_str_has_prefix (path->name, "computer:/"))
+            
+            //~ if (g_str_has_prefix (path->name, "computer:/"))
+                //~ return g_strdup (_("My Computer"));
+            
+            if (fm_path_is_computer (path))
                 return g_strdup (_("My Computer"));
+            
             if (g_str_has_prefix (path->name, "menu:/"))
             {
                 // FIXME_pcm: this should be more flexible
@@ -843,6 +848,7 @@ char *fm_path_display_basename (FmPath *path)
                 if (g_str_has_prefix (p, "applications.menu"))
                     return g_strdup (_("Applications"));
             }
+            
             if (g_str_has_prefix (path->name, "network:/"))
                 return g_strdup (_("Network"));
         }
@@ -1036,7 +1042,8 @@ char* fm_path_get_trash_real_path(FmPath* path)
      * gvfs/daemon/trashlib/trashitem.c: trash_item_escape_name().
      * The filename listed under trash:/// are encoded according to the 
      * real path on disk. */
-    if(!fm_path_is_trash_file(path)) /* this only works for files in trash:/// */
+    
+    if(!fm_path_is_trash(path)) /* this only works for files in trash:/// */
         return NULL;
 
 	/* converting it to string first for ease of handling */

@@ -220,7 +220,8 @@ gboolean fm_dnd_dest_files_dropped (FmDndDest *dnd_dest, int x, int y, GdkDragAc
     {
         case GDK_ACTION_MOVE:
         {
-            if (fm_path_is_trash_root (fm_dnd_dest_get_dest_path (dnd_dest)))
+            FmPath *path = fm_dnd_dest_get_dest_path (dnd_dest);
+            if (fm_path_is_root (path) && fm_path_is_trash (path))
                 fm_trash_delete (GTK_WINDOW (parent), files, FM_DELETE_FLAGS_TRASH, FALSE);
             else
                 fm_copy_files (GTK_WINDOW (parent), files, fm_dnd_dest_get_dest_path (dnd_dest), FM_COPY_JOB_MODE_MOVE);
@@ -584,9 +585,9 @@ GdkDragAction fm_dnd_dest_get_default_action (FmDndDest *dnd_dest,
     {
         FmPath *dest_path = dest->path;
         
-        if (fm_path_is_trash_file (dest_path))
+        if (fm_path_is_trash (dest_path))
         {
-            if (fm_path_is_trash_root (dest_path)) // we can only move files to trash can
+            if (fm_path_is_root (dest_path)) // we can only move files to trash can
                 action = GDK_ACTION_MOVE;
             else // files inside trash are read only
                 action = 0;

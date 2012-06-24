@@ -212,7 +212,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
         {
             FmPath *trash_path = fm_file_info_get_path (FM_FILE_INFO (l->data));
             FmPath *parent = fm_path_get_parent (trash_path);
-            if (!parent || !fm_path_is_trash_root (parent))
+            if (!parent || !fm_path_is_root (parent))
             {
                 can_restore = FALSE;
                 break;

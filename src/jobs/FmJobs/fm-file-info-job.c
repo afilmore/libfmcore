@@ -55,10 +55,10 @@ FmJob *fm_file_info_job_new (FmPathList *files_to_query, FmFileInfoJobFlags flag
     if (!files_to_query)
         return (FmJob*) file_info_job;
 	
-	FmFileInfoList *file_infos = file_info_job->file_info_list;
+    FmFileInfoList *file_infos = file_info_job->file_info_list;
     
 	GList *l;
-    for (l = fm_list_peek_head_link (files_to_query); l; l=l->next)
+    for (l = fm_list_peek_head_link (files_to_query); l; l = l->next)
     {
         FmPath *path = (FmPath*) l->data;
         
@@ -97,6 +97,7 @@ static void fm_file_info_job_finalize (GObject *object)
 	g_return_if_fail (IS_FM_FILE_INFO_JOB (object));
 
 	self = FM_FILE_INFO_JOB (object);
+    
     fm_list_unref (self->file_info_list);
 
 	G_OBJECT_CLASS (fm_file_info_job_parent_class)->finalize (object);
@@ -292,7 +293,7 @@ FmPath *fm_file_info_job_get_current (FmFileInfoJob *file_info_job)
     return file_info_job->current;
 }
 
-FmFileInfoList  *fm_file_info_job_get_list (FmFileInfoJob *file_info_job)
+FmFileInfoList *fm_file_info_job_get_list (FmFileInfoJob *file_info_job)
 {
     return file_info_job->file_info_list;
 }

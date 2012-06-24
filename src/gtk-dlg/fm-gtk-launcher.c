@@ -346,7 +346,7 @@ static gboolean _fm_launch_files (GAppLaunchContext *ctx, GList *file_infos, FmF
         
         // Add Folders to a FileInfoList...
         if (fm_file_info_is_dir (file_info)
-        || (file_info->path && fm_path_is_trash_root (file_info->path)))
+        || (file_info->path && fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path)))
         {
             //~ if (!launcher->open_folder)
                 //~ continue;
