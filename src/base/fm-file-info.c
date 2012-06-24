@@ -218,6 +218,8 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
     return file_info;
 }
 
+gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info);
+
 gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
 {
 	struct stat st;
@@ -269,9 +271,13 @@ _retry:
     }
     
     
+    if (!fm_file_info_init_icon_for_crappy_code (file_info))
+    {
+        fm_file_info_set_fm_icon (file_info, mime_type->icon);
+        //file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
+        //fm_file_info_set_fm_icon (file_info, icon);
+    }
     
-    
-    fm_file_info_set_fm_icon (file_info, mime_type->icon);
     
     
     
@@ -366,6 +372,36 @@ FmFileInfo *fm_file_info_new_from_gfileinfo (FmPath *path, GFileInfo *inf)
     return file_info;
 }
 
+gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
+{
+    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("user-trash");
+    }
+    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("computer");
+    }
+    else if (fm_path_is_xdg_menu (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
+    }
+    else if (fm_path_get_desktop () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("user-desktop");
+    }
+    else if (fm_path_get_root () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
+    }
+    else
+    {
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
 void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 {
     const char *tmp;
@@ -437,23 +473,29 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
         }
     }
 
+
+
+
     
+    if (!fm_file_info_init_icon_for_crappy_code (file_info))
+    {
+        // set file icon according to mime-type
+        if (!file_info->mime_type || !file_info->mime_type->icon)
+        {
+            gicon = g_file_info_get_icon (inf);
+            file_info->fm_icon = fm_icon_from_gicon (gicon);
+            
+            /* g_object_unref (gicon); this is not needed since
+             * g_file_info_get_icon didn't increase ref_count.
+             * the object returned by g_file_info_get_icon is
+             * owned by GFileInfo. */
+        }
+        else
+        {
+            file_info->fm_icon = fm_icon_ref (file_info->mime_type->icon);
+        }
+    }
     
-    // set file icon according to mime-type
-    if (!file_info->mime_type || !file_info->mime_type->icon)
-    {
-        gicon = g_file_info_get_icon (inf);
-        file_info->fm_icon = fm_icon_from_gicon (gicon);
-        
-        /* g_object_unref (gicon); this is not needed since
-         * g_file_info_get_icon didn't increase ref_count.
-         * the object returned by g_file_info_get_icon is
-         * owned by GFileInfo. */
-    }
-    else
-    {
-        file_info->fm_icon = fm_icon_ref (file_info->mime_type->icon);
-    }
     
     
     
