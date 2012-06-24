@@ -105,7 +105,7 @@ static void fm_dir_list_job_finalize (GObject *object)
 		fm_list_unref (self->files);
 
 	if (G_OBJECT_CLASS (fm_dir_list_job_parent_class)->finalize)
-		 (*G_OBJECT_CLASS (fm_dir_list_job_parent_class)->finalize) (object);
+		(*G_OBJECT_CLASS (fm_dir_list_job_parent_class)->finalize) (object);
 }
 
 
@@ -176,6 +176,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
             g_string_append_c (fpath, '/');
             ++dir_len;
         }
+        
         while (! fm_job_is_cancelled (FM_JOB (job)) &&  (name = (char*) g_dir_read_name (dir)))
         {
             g_string_truncate (fpath, dir_len);
@@ -184,6 +185,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
             if (job->dir_only) // if we only want directories
             {
                 struct stat st;
+                
                 // FIXME_pcm: this results in an additional stat () call, which is inefficient
                 if (stat (fpath->str, &st) == -1 || !S_ISDIR (st.st_mode))
                     continue;
@@ -197,7 +199,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
             fm_path_unref (child_path);
             
             
-        _retry:
+            _retry:
             
             // FileInfo rework: new function for testing...
             // this one is not cancellable and doesn't handle errors...
@@ -233,7 +235,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
 {
     FmJob *fmjob = FM_JOB (job);
 	
-    GFileEnumerator *file_enumarator;
+    GFileEnumerator *file_enumerator;
 	GError *gerror = NULL;
     GFileInfo *gfile_info;
     
@@ -301,11 +303,11 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
 
     
     // List children files...
-    file_enumarator = g_file_enumerate_children  (gfile, query, 0, fm_job_get_cancellable (fmjob), &gerror);
+    file_enumerator = g_file_enumerate_children  (gfile, query, 0, fm_job_get_cancellable (fmjob), &gerror);
     
     FmFileInfo *file_info;
     g_object_unref (gfile);
-    if (!file_enumarator)
+    if (!file_enumerator)
     {
         fm_job_emit_error (fmjob, gerror, FM_SEVERITY_CRITICAL);
         g_error_free (gerror);
@@ -314,7 +316,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
         
     while (! fm_job_is_cancelled (FM_JOB (job)))
     {
-        gfile_info = g_file_enumerator_next_file (file_enumarator, fm_job_get_cancellable (fmjob), &gerror);
+        gfile_info = g_file_enumerator_next_file (file_enumerator, fm_job_get_cancellable (fmjob), &gerror);
         
         if (gfile_info)
         {
@@ -360,8 +362,8 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
         g_object_unref (gfile_info);
     }
 
-    g_file_enumerator_close (file_enumarator, NULL, &gerror);
-    g_object_unref (file_enumarator);
+    g_file_enumerator_close (file_enumerator, NULL, &gerror);
+    g_object_unref (file_enumerator);
 
     return TRUE;
 }
@@ -371,9 +373,7 @@ static gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob *job)
     g_return_val_if_fail (job != NULL, FALSE);
     g_return_val_if_fail (FM_JOB (job)->job != NULL, FALSE);
     
-    
     // Calling libmenu-cache is only allowed in main thread.
-    //~ fm_job_call_main_thread (FM_JOB (job), list_menu_items, NULL);
     g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items, job, NULL);    
     
     return TRUE;
@@ -486,6 +486,8 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
     g_free (path_str);
     return TRUE;
 }
+
+
 
 
 

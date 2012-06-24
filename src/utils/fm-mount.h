@@ -33,6 +33,8 @@
 G_BEGIN_DECLS
 
 // Mount
+void fm_mount_automount ();
+
 gboolean fm_mount_path      (GtkWindow *parent, FmPath *path, gboolean interactive);
 gboolean fm_mount_volume    (GtkWindow *parent, GVolume *vol, gboolean interactive);
 gboolean fm_unmount_mount   (GtkWindow *parent, GMount *mount, gboolean interactive);

@@ -840,6 +840,8 @@ namespace Fm {
     [CCode (cheader_filename = "fm-mount.h")]
 	public static bool mount_volume (Gtk.Window parent, GLib.Volume vol, bool interactive);
 
+    [CCode (cheader_filename = "fm-mount.h")]
+    public static void mount_automount ();
 
 }
 

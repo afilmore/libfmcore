@@ -31,6 +31,8 @@
 
 #include "fm-debug.h"
 
+#include "fm-mount.h"
+
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 
@@ -532,6 +534,7 @@ static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tr
         return;
     
     FmFileInfo *file_info;
+    
     FmPath *path;
     gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &path, FM_DIR_TREE_MODEL_COL_INFO, &file_info, -1);
 
@@ -541,7 +544,21 @@ static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tr
     
     if (fm_file_info_is_mountable (file_info))
     {
-        path = fm_path_new_for_str (fm_file_info_get_target (file_info));
+        char *target = fm_file_info_get_target (file_info);
+        
+        if (target)
+        {
+            path = fm_path_new_for_str (target);
+            if (tree_view->current_directory)
+                fm_path_unref (tree_view->current_directory);
+
+            tree_view->current_directory = path;
+
+            g_signal_emit (tree_view, signals [DIRECTORY_CHANGED], 0, button, tree_view->current_directory);
+            
+            return;
+        }
+        
     }
     
     

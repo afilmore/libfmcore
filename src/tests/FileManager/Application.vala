@@ -28,6 +28,8 @@ namespace Demo {
             // Create the Desktop configuration and initialize LibFmCore.
             Fm.init (null);
             
+            Fm.mount_automount ();
+            
             Manager.Window manager_window = new Manager.Window ();
             manager_window.create ();
             

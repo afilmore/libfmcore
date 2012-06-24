@@ -34,6 +34,40 @@ VALAFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
+
+
+TEST_PROGS += automount
+
+automount_SOURCES = automount.c
+
+automount_LDADD= \
+	$(GTK_LIBS) \
+	$(GIO_LIBS) \
+	$(PANGO_LIBS) \
+	$(MENU_CACHE_LIBS) \
+	$(DBUS_LIBS) \
+	$(INTLLIBS) \
+	../libfmcore-@LIBFMCORE_API_VERSION@.la \
+	$(NULL)
+	
+
+
+TEST_PROGS += mount
+
+mount_SOURCES = mount.c
+
+mount_LDADD= \
+	$(GTK_LIBS) \
+	$(GIO_LIBS) \
+	$(PANGO_LIBS) \
+	$(MENU_CACHE_LIBS) \
+	$(DBUS_LIBS) \
+	$(INTLLIBS) \
+	../libfmcore-@LIBFMCORE_API_VERSION@.la \
+	$(NULL)
+	
+
+
 TEST_PROGS += main
 
 main_SOURCES = main.c
@@ -49,6 +83,8 @@ main_LDADD= \
 	$(NULL)
 	
 	
+
+
 TEST_PROGS += filemanager
 
 filemanager_SOURCES = \
