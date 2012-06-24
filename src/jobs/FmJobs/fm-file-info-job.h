@@ -60,7 +60,7 @@ struct _FmFileInfoJob
     
     FmFileInfoJobFlags  flags;
 	
-    FmFileInfoList      *file_infos;
+    FmFileInfoList      *file_info_list;
     
     FmPath              *current;
 };
@@ -71,16 +71,18 @@ struct _FmFileInfoJobClass
 };
 
 
-FmJob       *fm_file_info_job_new           (FmPathList *files_to_query, FmFileInfoJobFlags flags);
+FmJob           *fm_file_info_job_new           (FmPathList *files_to_query, FmFileInfoJobFlags flags);
 
-GType       fm_file_info_job_get_type       ();
+GType           fm_file_info_job_get_type       ();
 
-            // This can only be called before running the job...
-void        fm_file_info_job_add            (FmFileInfoJob *job, FmPath *path);
-void        fm_file_info_job_add_gfile      (FmFileInfoJob *job, GFile *gf);
+                // This can only be called before running the job...
+void            fm_file_info_job_add            (FmFileInfoJob *job, FmPath *path);
+void            fm_file_info_job_add_gfile      (FmFileInfoJob *job, GFile *gf);
 
-            // Should only be called in error handler...
-FmPath      *fm_file_info_job_get_current   (FmFileInfoJob *job);
+                // Should only be called in error handler...
+FmPath          *fm_file_info_job_get_current   (FmFileInfoJob *job);
+
+FmFileInfoList  *fm_file_info_job_get_list      (FmFileInfoJob *job);
 
 
 G_END_DECLS

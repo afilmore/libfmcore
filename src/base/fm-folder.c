@@ -519,12 +519,12 @@ static FmErrorAction on_job_err (FmDirListJob *dir_list_job, GError *err, FmSeve
  ****************************************************************************************/
 static void on_file_info_finished (FmFileInfoJob *file_info_job, FmFolder *folder)
 {
-    GList *l;
     GSList *files_to_add = NULL;
     GSList *files_to_update = NULL;
     gboolean content_changed = FALSE;
 
-    for (l=fm_list_peek_head_link (file_info_job->file_infos);l;l=l->next)
+    GList *l;
+    for (l = fm_list_peek_head_link (fm_file_info_job_get_list (file_info_job)); l; l = l->next)
     {
         FmFileInfo *file_info = (FmFileInfo*)l->data;
         GList *l2 = _fm_folder_get_file_by_name (folder, file_info->path->name);

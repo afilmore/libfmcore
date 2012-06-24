@@ -602,16 +602,14 @@ namespace Fm {
     [CCode (cheader_filename = "fm-file-info-job.h")]
 	public class FileInfoJob : Fm.Job {
         
-        // FIXME_axl: avoid direct member access...
-        public weak Fm.FileInfoList file_infos;
-
 		[CCode (has_construct_function = false, type = "FmJob*")]
 		public FileInfoJob (Fm.PathList? files_to_query, FileInfoJobFlags flags);
 		
-        public void add (Fm.Path path);
-		public void add_gfile (GLib.File gf);
+        public void                     add (Fm.Path path);
+		public void                     add_gfile (GLib.File gf);
 		
-        public unowned Fm.Path get_current ();
+        public unowned Fm.Path          get_current ();
+        public unowned Fm.FileInfoList  get_list ();
 	}
     
     

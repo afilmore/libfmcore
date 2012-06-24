@@ -136,7 +136,7 @@ namespace Manager {
                 
                 job.run_sync_with_mainloop ();
 
-                Fm.FileInfoList file_infos = job.file_infos;
+                Fm.FileInfoList file_infos = job.get_list ();
                 
                 unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
                 
