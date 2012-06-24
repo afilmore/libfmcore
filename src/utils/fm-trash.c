@@ -119,5 +119,21 @@ void fm_trash_empty (GtkWindow *parent)
     fm_list_unref (paths);
 }
 
+guint32 fm_trash_get_num_items ()
+{
+    GFile *gfile = g_file_new_for_uri ("trash:///");
+    
+    GFileInfo *gfile_info = g_file_query_info (gfile, G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT, 0, NULL, NULL);
+    g_object_unref (gfile);
+    
+    if (!gfile_info)
+        return 0;
+        
+    guint32 num_items = g_file_info_get_attribute_uint32 (gfile_info, G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT);
+    g_object_unref (gfile_info);
+    
+    return num_items;
+}
+
 
 

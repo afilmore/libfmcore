@@ -38,8 +38,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "fm-utils.h"
 #include <menu-cache.h>
+
+#include "fm-utils.h"
+
+#include "fm-trash.h" // gtk dep...
 
 
 static gboolean     use_si_prefix = TRUE;
@@ -219,14 +222,48 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
     return file_info;
 }
 
-gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info);
+static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
+{
+    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
+    {
+        guint32 num_items = fm_trash_get_num_items ();
+        
+        if (num_items)
+            file_info->fm_icon = fm_icon_from_name ("user-trash-full");
+        else
+            file_info->fm_icon = fm_icon_from_name ("user-trash");
+    }
+    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("computer");
+    }
+    else if (fm_path_is_xdg_menu (file_info->path))
+    {
+        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
+    }
+    else if (fm_path_get_desktop () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("user-desktop");
+    }
+    else if (fm_path_get_root () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
+    }
+    else
+    {
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
 
 gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
 {
 	struct stat st;
     gboolean is_link;
     
-_retry:
+    _retry:
 	
     
     if (lstat (path, &st) != 0)
@@ -260,25 +297,17 @@ _retry:
     
     g_return_val_if_fail (mime_type, FALSE);
     
-    // FIXME_axl: avoid direct member access !!! there's direct members access everywhere anyway... nasty code...
     file_info->mime_type = mime_type;
-    
-    
     
     if (fm_file_info_is_desktop_entry (file_info))
     {
+        // Set name and icon from a desktop entry...
         fm_file_info_set_from_desktop_entry (file_info);
         return TRUE;
     }
     
-    
     if (!fm_file_info_init_icon_for_crappy_code (file_info))
-    {
         file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
-    }
-    
-    
-    
     
     return TRUE;
 }
@@ -292,8 +321,8 @@ static void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
     FmIcon *icon = NULL;
     if (g_key_file_load_from_file (kf, fpath, 0, NULL))
     {
-        char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
         char *title = g_key_file_get_locale_string (kf, "Desktop Entry", "Name", NULL, NULL);
+        char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
         
         if (icon_name)
         {
@@ -330,31 +359,6 @@ static void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
     
 }
 
-void fm_file_info_set_path (FmFileInfo *file_info, FmPath *path)
-{
-    if (file_info->path)
-    {
-        if (file_info->path->name == file_info->disp_name)
-            file_info->disp_name = NULL;
-        fm_path_unref (file_info->path);
-    }
-
-    if (path)
-    {
-        file_info->path = fm_path_ref (path);
-        
-        // FIXME_pcm: need to handle UTF-8 issue here
-        file_info->disp_name = file_info->path->name;
-    }
-    else
-        file_info->path = NULL;
-}
-
-FmPath *fm_file_info_get_path (FmFileInfo *file_info)
-{
-    return file_info->path;
-}
-
 
 /*********************************************************************
  * ...
@@ -364,41 +368,12 @@ FmPath *fm_file_info_get_path (FmFileInfo *file_info)
 FmFileInfo *fm_file_info_new_from_gfileinfo (FmPath *path, GFileInfo *inf)
 {
     FmFileInfo *file_info = fm_file_info_new ();
+    
     file_info->path = fm_path_ref (path);
     
     fm_file_info_set_from_gfileinfo (file_info, inf);
     
     return file_info;
-}
-
-gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
-{
-    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("user-trash");
-    }
-    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("computer");
-    }
-    else if (fm_path_is_xdg_menu (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
-    }
-    else if (fm_path_get_desktop () == file_info->path)
-    {
-        file_info->fm_icon = fm_icon_from_name ("user-desktop");
-    }
-    else if (fm_path_get_root () == file_info->path)
-    {
-        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
-    }
-    else
-    {
-        return FALSE;
-    }
-    
-    return TRUE;
 }
 
 void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
@@ -601,6 +576,7 @@ void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem
 FmFileInfo *fm_file_info_new_computer ()
 {
     FmFileInfo *file_info = fm_file_info_new ();
+    
     FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
     fm_file_info_set_path (file_info, path);
     
@@ -612,6 +588,7 @@ FmFileInfo *fm_file_info_new_computer ()
 FmFileInfo *fm_file_info_new_trash_can ()
 {
     FmFileInfo *file_info = fm_file_info_new ();
+    
     FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
     fm_file_info_set_path (file_info, path);
 
@@ -623,6 +600,7 @@ FmFileInfo *fm_file_info_new_trash_can ()
 FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
 {
     const gchar *path_name = g_get_user_special_dir (directory);
+    
     GFile *file = g_file_new_for_path (path_name);
     if (!file)
         return NULL;
@@ -636,6 +614,8 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
     FmPath *path = fm_path_new_for_path (path_name);
     FmFileInfo *file_info = fm_file_info_new_from_gfileinfo (path, ginfo);
     
+    fm_path_unref (path); // ???
+
     g_object_unref (ginfo);
     g_object_unref (file);
     
@@ -648,11 +628,32 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
  * 
  * 
  ********************************************************************/
-//~ void fm_file_info_set_fm_icon (FmFileInfo *file_info, FmIcon *fm_icon)
-//~ {
-    //~ file_info->fm_icon = fm_icon ? fm_icon_ref (fm_icon) : NULL;
-//~ }
-//~ 
+void fm_file_info_set_path (FmFileInfo *file_info, FmPath *path)
+{
+    if (file_info->path)
+    {
+        if (file_info->path->name == file_info->disp_name)
+            file_info->disp_name = NULL;
+        
+        fm_path_unref (file_info->path);
+    }
+
+    if (path)
+    {
+        file_info->path = fm_path_ref (path);
+        
+        // FIXME_pcm: need to handle UTF-8 issue here
+        file_info->disp_name = file_info->path->name;
+    }
+    else
+        file_info->path = NULL;
+}
+
+FmPath *fm_file_info_get_path (FmFileInfo *file_info)
+{
+    return file_info->path;
+}
+
 FmIcon *fm_file_info_get_fm_icon (FmFileInfo *file_info)
 {
     return file_info->fm_icon;
@@ -679,6 +680,7 @@ void fm_file_info_set_disp_name (FmFileInfo *file_info, const char *name)
 {
     if (file_info->disp_name && file_info->disp_name != file_info->path->name)
         g_free (file_info->disp_name);
+    
     file_info->disp_name = g_strdup (name);
 }
 
@@ -731,8 +733,7 @@ mode_t fm_file_info_get_mode (FmFileInfo *file_info)
 
 FmMimeType *fm_file_info_get_mime_type (FmFileInfo *file_info, gboolean reference)
 {
-    // FIXME_axl: this function is strange... it doesn't need a ref counting IMO...
-    // We also need a set_mime_type_function () ... that lib is really pure crap...
+    // FIXME_axl: it doesn't need a ref counting IMO...
     
     if (!reference)
         return file_info->mime_type;
@@ -758,14 +759,18 @@ const char *fm_file_info_get_collate_key (FmFileInfo *file_info)
         char *casefold = g_utf8_casefold (file_info->disp_name, -1);
         char *collate = g_utf8_collate_key_for_filename (casefold, -1);
         g_free (casefold);
+        
         if (strcmp (collate, file_info->disp_name))
+        {
             file_info->collate_key = collate;
+        }
         else
         {
             file_info->collate_key = file_info->disp_name;
             g_free (collate);
         }
     }
+    
     return file_info->collate_key;
 }
 
@@ -779,9 +784,10 @@ const char *fm_file_info_get_disp_mtime (FmFileInfo *file_info)
 {
     // FIXME_pcm: This can cause problems if the file really has mtime=0.
     //        We'd better hide mtime for virtual files only.
+    
     if (file_info->mtime > 0)
     {
-        if (! file_info->disp_mtime)
+        if (!file_info->disp_mtime)
         {
             char buf[ 128 ];
             strftime (buf, sizeof (buf),
@@ -790,6 +796,7 @@ const char *fm_file_info_get_disp_mtime (FmFileInfo *file_info)
             file_info->disp_mtime = g_strdup (buf);
         }
     }
+    
     return file_info->disp_mtime;
 }
 
@@ -809,59 +816,64 @@ time_t *fm_file_info_get_atime (FmFileInfo *file_info)
  * 
  * 
  ********************************************************************/
-gboolean fm_file_info_is_dir (FmFileInfo *file_info)
-{
-    return (S_ISDIR (file_info->mode) || (S_ISLNK (file_info->mode)
-                                   && file_info->mime_type
-                                   && (strcmp (file_info->mime_type->type, "inode/directory") == 0)));
-}
-
-gboolean fm_file_info_is_desktop_entry (FmFileInfo *file_info)
-{
-    return file_info->mime_type == desktop_entry_type;
-    // return g_strcmp0 (file_info->mime_type->type, "application/x-desktop") == 0;
-}
-
 gboolean fm_file_info_is_symlink (FmFileInfo *file_info)
 {
     return S_ISLNK (file_info->mode) ? TRUE : FALSE;
 }
 
+gboolean fm_file_info_is_hidden (FmFileInfo *file_info)
+{
+    const char *name = file_info->path->name;
+    
+    /* files with . prefix or ~ suffix are regarded as hidden files.
+     * dirs with . prefix are regarded as hidden dirs. */
+    
+    return (name[0] == '.'
+            || (!fm_file_info_is_dir (file_info) && g_str_has_suffix (name, "~")));
+}
+
+gboolean fm_file_info_is_dir (FmFileInfo *file_info)
+{
+    // A diretory or a link to a directory...
+    
+    return (S_ISDIR (file_info->mode)
+            || (S_ISLNK (file_info->mode) && file_info->mime_type
+                                          && (strcmp (file_info->mime_type->type, "inode/directory") == 0)));
+}
+
+gboolean fm_file_info_is_desktop_entry (FmFileInfo *file_info)
+{
+    return (file_info->mime_type == desktop_entry_type);
+}
+
 gboolean fm_file_info_is_shortcut (FmFileInfo *file_info)
 {
-    return file_info->mime_type == shortcut_type;
+    return (file_info->mime_type == shortcut_type);
 }
 
 gboolean fm_file_info_is_mountable (FmFileInfo *file_info)
 {
-    return file_info->mime_type == mountable_type;
+    return (file_info->mime_type == mountable_type);
 }
 
 // full path of the file is required by this function
 gboolean fm_file_info_is_executable_type (FmFileInfo *file_info)
 {
-    // FIXME_pcm: didn't check access rights.
-//    return mime_type_is_executable_file (file_path, file_info->mime_type->type);
-
     g_return_val_if_fail (file_info->mime_type, FALSE);
 
-    return g_content_type_can_be_executable (file_info->mime_type->type);
-}
+    // FIXME_pcm: didn't check access rights.
+    // return mime_type_is_executable_file (file_path, file_info->mime_type->type);
 
-gboolean fm_file_info_is_hidden (FmFileInfo *file_info)
-{
-    const char *name = file_info->path->name;
-    /* files with . prefix or ~ suffix are regarded as hidden files.
-     * dirs with . prefix are regarded as hidden dirs. */
-    return (name[0] == '.' ||
-       (!fm_file_info_is_dir (file_info) && g_str_has_suffix (name, "~")));
+    return g_content_type_can_be_executable (file_info->mime_type->type);
 }
 
 
 gboolean fm_file_info_is_image (FmFileInfo *file_info)
 {
+    g_return_val_if_fail (file_info->mime_type, FALSE);
+    
     // FIXME_pcm: We had better use functions of xdg_mime to check this
-    if (! strncmp ("image/", file_info->mime_type->type, 6))
+    if (!strncmp ("image/", file_info->mime_type->type, 6))
         return TRUE;
     
     return FALSE;
@@ -869,28 +881,31 @@ gboolean fm_file_info_is_image (FmFileInfo *file_info)
 
 gboolean fm_file_info_is_text (FmFileInfo *file_info)
 {
+    g_return_val_if_fail (file_info->mime_type, FALSE);
+    
     if (g_content_type_is_a (file_info->mime_type->type, "text/plain"))
         return TRUE;
     
     return FALSE;
 }
 
+gboolean fm_file_info_is_unknown_type (FmFileInfo *file_info)
+{
+    g_return_val_if_fail (file_info->mime_type, TRUE);
+    
+    return g_content_type_is_unknown (file_info->mime_type->type);
+}
+
 gboolean fm_file_info_can_thumbnail (FmFileInfo *file_info)
 {
     // We cannot use S_ISREG here as this exclude all symlinks
-    if (! (file_info->mode & S_IFREG) ||
-        fm_file_info_is_desktop_entry (file_info) ||
-        fm_file_info_is_unknown_type (file_info))
-        return FALSE;
-    return TRUE;
-}
-
-gboolean fm_file_info_is_unknown_type (FmFileInfo *file_info)
-{
-    if (!file_info->mime_type)
-        return TRUE;
     
-    return g_content_type_is_unknown (file_info->mime_type->type);
+    if (!(file_info->mode & S_IFREG)
+        || fm_file_info_is_desktop_entry (file_info)
+        || fm_file_info_is_unknown_type (file_info))
+        return FALSE;
+    
+    return TRUE;
 }
 
 
