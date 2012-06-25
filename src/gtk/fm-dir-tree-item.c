@@ -202,7 +202,7 @@ static void on_folder_loaded (FmFolder *folder, GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     
-    TREEVIEW_DEBUG ("FmDirTreeItem: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: FmDirTreeItem: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
     fm_dir_tree_item_on_folder_loaded (dir_tree_item);
     
     /**

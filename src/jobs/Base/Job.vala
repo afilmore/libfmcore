@@ -87,7 +87,7 @@ namespace Fm {
         // thread in thread pool, and calls FmJob::run () in it.
         public virtual void run_async () {
             
-//~             stdout.printf  ("Fm.Job.run_async\n");
+//~             NO_DEBUG  ("Fm.Job.run_async\n");
             NO_DEBUG  ("Fm.Job.run_async\n");
             
             running = true;
@@ -101,7 +101,7 @@ namespace Fm {
         protected abstract bool run ();
 
         private bool job_func (IOSchedulerJob job, Cancellable? cancellable) {
-            stdout.printf  ("Fm.Job.job_func\n");
+            NO_DEBUG  ("Fm.Job.job_func\n");
             this.job = job;
             run ();
             this.job = null;

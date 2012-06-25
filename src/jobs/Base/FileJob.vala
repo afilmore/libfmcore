@@ -78,7 +78,7 @@ namespace Fm {
         }
 
         ~FileJob () {
-            stdout.printf ("job is deleted!!!\n");
+            NO_DEBUG ("job is deleted!!!\n");
         }
 
         public override void dispose () {
@@ -197,7 +197,7 @@ namespace Fm {
             
             if (new_percent != _percent) {
                 _percent = new_percent;
-                // stdout.printf ("%d, %d, percent: %d\n", n_processed_files, n_processed_dirs, _percent);
+                // NO_DEBUG ("%d, %d, percent: %d\n", n_processed_files, n_processed_dirs, _percent);
                 _update_flags |= UpdateFlags.PERCENT;
             }
         }
@@ -229,14 +229,14 @@ namespace Fm {
                 
                 // FIXME: need to find out a better way to update estimated time
                 _remaining_time = (uint) remaining;
-                // stdout.printf ("remaining: %u, %lf, %lf, %lf\n", _remaining_time, total_time, remaining, _finished_fraction);
+                // NO_DEBUG ("remaining: %u, %lf, %lf, %lf\n", _remaining_time, total_time, remaining, _finished_fraction);
                 
                 _update_flags |= UpdateFlags.TIME;
                 if ((_update_flags & UpdateFlags.ALL_TEXT) !=0)
                     need_update_text = true;
             }
 
-            // stdout.printf ("update_progress: %d\n",  (_update_flags & UpdateFlags.CURRENT_SRC_DEST));
+            // NO_DEBUG ("update_progress: %d\n",  (_update_flags & UpdateFlags.CURRENT_SRC_DEST));
             if (need_update_text || (_update_flags & UpdateFlags.PERCENT) !=0) {
                 
                 if (_file_job_ui != null) {

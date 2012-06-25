@@ -26,6 +26,7 @@ VALAFLAGS = \
 	--vapidir=$(top_srcdir)/vapi \
 	--pkg vconfig \
 	--pkg $(GTK_PKG) \
+    --pkg debug \
     --pkg libfmcore \
     --pkg libfmcore-private \
     --pkg posix \

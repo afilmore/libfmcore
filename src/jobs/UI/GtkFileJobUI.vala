@@ -192,7 +192,7 @@ namespace Fm {
         // set src/dest paths currently being handled
         public void set_current_src_dest (Path src_path, Path? dest_path = null) {
             
-            // stdout.printf ("%s\n", src_path.display_name (true));
+            // NO_DEBUG ("%s\n", src_path.display_name (true));
             current_src_path = src_path;
             current_dest_path = dest_path;
             

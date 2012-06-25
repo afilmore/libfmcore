@@ -79,14 +79,14 @@ namespace Fm {
 
         protected override bool run () {
             
-            stdout.printf  ("FmCopyJob.run\n");
+            NO_DEBUG  ("FmCopyJob.run\n");
             
             if (this._calculate_total () == false || this._ensure_dest () == false) // calculate total amount of work
                 return false;
 
             set_ready (); // tell the UI that we're ready
             
-            stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
+            NO_DEBUG ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
 
             // ready to copy/move files
             unowned GLib.List<Path> dest_l = _dest_path_list.peek_head_link ();
@@ -101,7 +101,7 @@ namespace Fm {
                 unowned Fm.Path dest_path = dest_l.data;
                 File dest_file = dest_path.to_gfile ();
                 
-                stdout.printf ("CopyJobMode = %d: %s > %s\n", _copy_mode, src_path.to_str (), dest_path.to_str ());
+                NO_DEBUG ("CopyJobMode = %d: %s > %s\n", _copy_mode, src_path.to_str (), dest_path.to_str ());
                 
                 try {
                     
@@ -210,7 +210,7 @@ namespace Fm {
                         catch (Error err) {
                             
                             // TODO_axl: emit the error properly...
-                            stdout.printf  ("Fm.CopyJob: error %s\n", err.message);
+                            NO_DEBUG  ("Fm.CopyJob: error %s\n", err.message);
                             return false;
                         }
                     }
@@ -331,7 +331,7 @@ namespace Fm {
                         }
                     
                     } catch (Error err) {
-                        stdout.printf ("error: %s\n", err.message);
+                        NO_DEBUG ("error: %s\n", err.message);
                     }
                 }
                 
@@ -344,7 +344,7 @@ namespace Fm {
             
             } catch (Error err) {
                 // FIXME: report the error to the user
-                stdout.printf ("error: %s\n", err.message);
+                NO_DEBUG ("error: %s\n", err.message);
             }
 
             return true;
@@ -355,7 +355,7 @@ namespace Fm {
             bool ret = false;
             File dest_file = _dest_file;
             
-            // stdout.printf ("%s -> %s\n", src_file.get_parse_name (), dest_file.get_parse_name ());
+            // NO_DEBUG ("%s -> %s\n", src_file.get_parse_name (), dest_file.get_parse_name ());
             set_currently_processed (src_file, src_info, dest_file);
             update_progress_display ();
             
@@ -494,7 +494,7 @@ namespace Fm {
             
             bool ret = false;
             File dest_file = _dest_file;
-            stdout.printf ("move_file %s -> %s\n", src_file.get_parse_name (), dest_file.get_parse_name ());
+            NO_DEBUG ("move_file %s -> %s\n", src_file.get_parse_name (), dest_file.get_parse_name ());
 
             set_currently_processed (src_file, src_info, dest_file);
             update_progress_display ();
@@ -566,7 +566,7 @@ namespace Fm {
 
         private bool _link_file (File src_file, GLib.FileInfo src_info, File _dest_file) {
             
-            stdout.printf ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
+            NO_DEBUG ("_link_file %s -> %s\n", src_file.get_parse_name (), _dest_file.get_parse_name ());
             
             _dest_file.make_symbolic_link (src_file.get_parse_name (), null);
             

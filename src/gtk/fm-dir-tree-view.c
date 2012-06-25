@@ -230,7 +230,7 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *tree_view, FmPath *p
         
         char* temp_path = fm_path_to_str (path);
         
-        TREEVIEW_DEBUG ("fm_dir_tree_view_set_current_directory: path to expend = %s\n", temp_path);
+        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_view_set_current_directory: path to expend = %s\n", temp_path);
         
         g_free (temp_path);
         
@@ -284,11 +284,11 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     
     path = FM_PATH (tree_view->paths_to_expand->data);
 
-    TREEVIEW_DEBUG ("expand_pending_path: expend %s\n", fm_path_display_basename (path));
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: expend %s\n", fm_path_display_basename (path));
     
     if (!find_iter_by_path (model, &it, parent_iter, path))
     {
-        TREEVIEW_DEBUG ("expand_pending_path: find_iter_by_path () returned NULL\n");
+        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: find_iter_by_path () returned NULL\n");
         return;
     }
     
@@ -301,7 +301,7 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     
     
     char *temp_tp = gtk_tree_path_to_string (tp);
-    TREEVIEW_DEBUG ("expand_pending_path: expend tree path %s\n", temp_tp);
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: expend tree path %s\n", temp_tp);
     g_free (temp_tp);
     
     
@@ -337,7 +337,7 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     
     tree_view->cur_expanded_folder = FM_FOLDER (g_object_ref (folder));
 
-    TREEVIEW_DEBUG ("expand_pending_path: %s expended\n", fm_path_display_basename (path));
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: %s expended\n", fm_path_display_basename (path));
     
     // The folder is already loaded...
     if (fm_folder_get_is_loaded (folder))
@@ -360,7 +360,7 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
  ****************************************************************************************/
 static void on_folder_loaded (FmFolder *folder, FmDirTreeView *tree_view)
 {
-    TREEVIEW_DEBUG ("on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
     
     FmPath *path;
     // disconnect the handler since we only need it once

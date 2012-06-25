@@ -92,7 +92,7 @@ namespace Fm {
 
             // inform the UI that we're ready
             set_ready ();
-            stdout.printf ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
+            NO_DEBUG ("total: %llu, %d, %d\n", _total_size, _n_total_files, _n_total_dirs);
 
             // delete all source files one by one
             foreach (unowned Path src_path in _src_paths.peek_head_link ()) {

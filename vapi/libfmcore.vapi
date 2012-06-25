@@ -471,6 +471,42 @@ namespace Fm {
 
 
     /*************************************************************************************
+     *  Fm.DirTreeView
+     * 
+     * 
+     ************************************************************************************/
+    [CCode (cheader_filename = "fm-dir-tree-view.h")]
+	public class DirTreeView : Gtk.TreeView, Atk.Implementor, Gtk.Buildable {
+		
+        [CCode (has_construct_function = false, type = "GObject*")]
+		public                      DirTreeView             ();
+		
+        public void                 set_current_directory   (Fm.Path path);
+		public unowned Fm.Path      get_current_directory   ();
+        
+		public virtual signal void  directory_changed       (uint button, Fm.Path path);
+	}
+    
+	[CCode (cheader_filename = "fm-dir-tree-model.h")]
+	public class DirTreeModel : GLib.Object, Gtk.TreeModel {
+		
+        [CCode (has_construct_function = false)]
+		public DirTreeModel         ();
+		
+        public void load            ();
+        public void add_root        (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
+		
+        public void collapse_row    (Gtk.TreeIter it, Gtk.TreePath tp);
+		public void expand_row      (Gtk.TreeIter it, Gtk.TreePath tp);
+		
+        public void set_show_hidden (bool show_hidden);
+		public bool get_show_hidden ();
+		
+        public void set_icon_size   (uint icon_size);
+	}
+	
+    
+    /*************************************************************************************
      * Fm.FolderView
      * 
      * 
@@ -549,41 +585,6 @@ namespace Fm {
 	}
 
 
-    /*************************************************************************************
-     * Fm.DirTreeView
-     * 
-     * 
-     ************************************************************************************/
-    [CCode (cheader_filename = "fm-dir-tree-view.h")]
-	public class DirTreeView : Gtk.TreeView, Atk.Implementor, Gtk.Buildable {
-		
-        [CCode (has_construct_function = false, type = "GObject*")]
-		public                      DirTreeView             ();
-		
-        public void                 set_current_directory   (Fm.Path path);
-		public unowned Fm.Path      get_current_directory   ();
-        
-		public virtual signal void  directory_changed       (uint button, Fm.Path path);
-	}
-    
-	[CCode (cheader_filename = "fm-dir-tree-model.h")]
-	public class DirTreeModel : GLib.Object, Gtk.TreeModel {
-		
-        [CCode (has_construct_function = false)]
-		public DirTreeModel ();
-		
-        public void add_root (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
-		
-        public void collapse_row (Gtk.TreeIter it, Gtk.TreePath tp);
-		public void expand_row (Gtk.TreeIter it, Gtk.TreePath tp);
-		
-        public void set_show_hidden (bool show_hidden);
-		public bool get_show_hidden ();
-		
-        public void set_icon_size (uint icon_size);
-	}
-	
-    
     /*************************************************************************************
      *  
      * 
