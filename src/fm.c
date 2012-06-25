@@ -109,7 +109,8 @@ void fm_finalize ()
 
     //fm_config_save (fm_config, NULL);
     
-    g_object_unref (fm_config);
+    if (fm_config)
+        g_object_unref (fm_config);
     
     fm_config = NULL;
 }

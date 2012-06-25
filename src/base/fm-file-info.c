@@ -632,6 +632,7 @@ void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gfile_inf
 void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
 {
     const char *icon_name = menu_cache_item_get_icon (item);
+    
     file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
     if (icon_name)
     {
@@ -859,8 +860,9 @@ gboolean fm_file_info_is_dir (FmFileInfo *file_info)
     // A diretory or a link to a directory...
     
     return (S_ISDIR (file_info->mode)
-            || (S_ISLNK (file_info->mode) && file_info->mime_type
-                                          && (strcmp (fm_mime_type_get_type (file_info->mime_type), "inode/directory") == 0)));
+            || (S_ISLNK (file_info->mode)
+                && file_info->mime_type
+                && (strcmp (fm_mime_type_get_type (file_info->mime_type), "inode/directory") == 0)));
 }
 
 gboolean fm_file_info_is_desktop_entry (FmFileInfo *file_info)

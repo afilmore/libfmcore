@@ -286,11 +286,16 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
         return FALSE;
     }
 
+    
+    
+    
     job->dir_fi = fm_file_info_new_for_path (job->dir_path);
     fm_file_info_set_for_gfileinfo (job->dir_fi, gfile_info);
     
     g_object_unref (gfile_info);
 
+    
+    
     const char *query;
 
     if (G_UNLIKELY (job->dir_only))
@@ -335,16 +340,26 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
                 }
             }
 
+            
+            
+            
             NO_DEBUG ("fm_dir_list_job_run_gio: file name = %s\n", g_file_info_get_name (gfile_info));
             //NO_DEBUG ("fm_dir_list_job_run_gio: file display name = %s\n", g_file_info_get_display_name (gfile_info));
             //NO_DEBUG ("fm_dir_list_job_run_gio: file edit name = %s\n", g_file_info_get_edit_name (gfile_info));
             
             sub = fm_path_new_child (job->dir_path, g_file_info_get_name (gfile_info));
             
+            
+            
+            
             file_info = fm_file_info_new_for_path (sub);
             fm_file_info_set_for_gfileinfo (file_info, gfile_info);
             
             fm_path_unref (sub);
+            
+            
+            
+            
             
             fm_list_push_tail_noref (job->files, file_info);
         }
@@ -400,6 +415,8 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
     const char *dir_path;
     guint32 de_flag;
     const char *de_name;
+    
+    
     // example: menu://applications.menu/DesktopSettings
 
     path_str = fm_path_to_str (job->dir_path);
@@ -412,17 +429,27 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
     ch = *p;
     *p = '\0';
     menu_name = g_strconcat (menu_name, ".menu", NULL);
+    
+    
+    
     mc = menu_cache_lookup_sync (menu_name);
+    
+    
     // ensure that the menu cache is loaded
     if (!mc) // if it's not loaded
     {
         // try to set $XDG_MENU_PREFIX to "lxde-" for lxmenu-data
+        
         const char *menu_prefix = g_getenv ("XDG_MENU_PREFIX");
+        
         if (g_strcmp0 (menu_prefix, "lxde-")) // if current value is not lxde-
         {
             char *old_prefix = g_strdup (menu_prefix);
+            
             g_setenv ("XDG_MENU_PREFIX", "lxde-", TRUE);
+            
             mc = menu_cache_lookup_sync (menu_name);
+            
             // restore original environment variable
             if (old_prefix)
             {
@@ -444,16 +471,19 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
             return FALSE;
         }
     }
+    
     g_free (menu_name);
     *p = ch;
     dir_path = p; // path of menu dir, such as: /Internet
 
+    
     de_name = g_getenv ("XDG_CURRENT_DESKTOP");
     if (de_name)
         de_flag = menu_cache_get_desktop_env_flag (mc, de_name);
     else
         de_flag =  (guint32)-1;
 
+    
     // the menu should be loaded now
     if (*dir_path && ! (*dir_path == '/' && dir_path[1]=='\0'))
     {
@@ -464,6 +494,7 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
     else
         dir = menu_cache_get_root_dir (mc);
 
+    
     if (dir)
     {
         
@@ -476,14 +507,18 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
             MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
             FmPath *item_path;
             GIcon *gicon;
+            
+            
             // also hide menu items which should be hidden in current DE.
             if (!item || menu_cache_item_get_type (item) == MENU_CACHE_TYPE_SEP)
                 continue;
+            
             if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP && !menu_cache_app_get_is_visible (MENU_CACHE_APP (item), de_flag))
                 continue;
 
             if (G_UNLIKELY (job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
                 continue;
+            
             item_path = fm_path_new_child (job->dir_path, menu_cache_item_get_id (item));
             
             

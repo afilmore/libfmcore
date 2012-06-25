@@ -23,10 +23,12 @@ namespace Demo {
             
         }
         
-        public bool run_local () {
+        public bool run_local (string[] args) {
         
             // Create the Desktop configuration and initialize LibFmCore.
-            Fm.init (null);
+            
+            Gtk.init (ref args);
+            Fm.init (new Fm.Config ());
             
             Fm.mount_automount ();
             
@@ -54,9 +56,8 @@ namespace Demo {
             
             Demo.Application application = new Demo.Application ();
             
-            Gtk.init (ref args);
             
-            application.run_local ();
+            application.run_local (args);
             
             return 0;
         }

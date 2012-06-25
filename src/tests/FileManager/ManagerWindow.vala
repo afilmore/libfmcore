@@ -26,16 +26,14 @@ namespace Manager {
     
     public class Window : Gtk.Window {
         
-
-        private Fm.DirTreeModel?    global_dir_tree_model = null;
         
-        
-        private Fm.Path                 _current_dir;
+        private Fm.Path         _current_dir;
         
         // UI widgets...
-        private Gtk.HPaned              _hpaned;
-        private Fm.DirTreeView          _tree_view;
-        private Fm.FolderView           _folder_view;
+        private Gtk.HPaned      _hpaned;
+        private Fm.DirTreeModel _dir_tree_model;
+        private Fm.DirTreeView  _tree_view;
+        private Fm.FolderView   _folder_view;
         
         public Window () {
             
@@ -98,96 +96,16 @@ namespace Manager {
             _tree_view = new Fm.DirTreeView ();
             scrolled_window.add (_tree_view);
             
+            
             // Fill The TreeView Model...
-            if (global_dir_tree_model == null) {
-
-                global_dir_tree_model = new Fm.DirTreeModel ();
-                global_dir_tree_model.set_show_hidden (true);
-                
-                global_dir_tree_model.load ();
-                
-//~                 Fm.FileInfoJob job = new Fm.FileInfoJob (null, Fm.FileInfoJobFlags.NONE);
-//~                 
-//~                 unowned List<Fm.FileInfo>? l;
-//~                 
-//~                 
-//~                 /*************************************************************************
-//~                  * Add TreeView Root Items....
-//~                  * 
-//~                  * 
-//~                  ************************************************************************/
-//~                 // Desktop...
-//~                 job.add (Fm.Path.get_desktop ());
-//~                 
-//~                 // Computer...
-//~                 Fm.Path path = new Fm.Path.for_uri ("computer:///");
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
-//~                 job.add (path);
-//~                 
-//~                 // Trash Can...
-//~                 job.add (Fm.Path.get_trash ());
-//~                 
-//~                 /**
-//~                  *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
-//~                  *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
-//~                  *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
-//~                  *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
-//~                  *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
-//~                  *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
-//~                  **/
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.MUSIC));
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.PICTURES));
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.VIDEOS));
-//~                 job.add (path);
-//~                 
-//~                 // Root FileSystem...
-//~                 job.add (Fm.Path.get_root ());
-//~                 
-//~                 // Administration Programs...
-//~                 job.add (new Fm.Path.for_uri ("menu://applications/system/Administration"));
-//~                 
-//~                 job.run_sync_with_mainloop ();
-//~ 
-//~                 Fm.FileInfoList file_infos = job.get_list ();
-//~                 
-//~                 unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
-//~                 
-//~                 for (l = list; l != null; l = l.next) {
-//~                     
-//~                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
-//~                     
-//~                     bool expand = true;
-//~                     
-//~                     if (fi.get_path ().is_virtual ()) {
-//~                         if (fi.get_path ().is_computer ())
-//~                             expand = true;
-//~                         else
-//~                             expand = false;
-//~                     }
-//~                     
-//~                     
-//~                     global_dir_tree_model.add_root (fi, null, expand);
-//~                 }
-            }
+            _dir_tree_model = new Fm.DirTreeModel ();
+            _dir_tree_model.set_show_hidden (true);
+            
+            _dir_tree_model.load ();
             
             
             // The model is loaded, attach a view to it and connect signals...
-            _tree_view.set_model (global_dir_tree_model);
+            _tree_view.set_model (_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             //_tree_view.button_release_event.connect (_tree_view_on_button_release);
             
@@ -211,10 +129,7 @@ namespace Manager {
             _folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
             
             
-            _folder_view.chdir (_current_dir);
-            //_folder_view.grab_focus ();
-            //_folder_view.show_all ();
-            
+//~             _folder_view.chdir (_current_dir);
             _hpaned.add2 (_folder_view);
             
             

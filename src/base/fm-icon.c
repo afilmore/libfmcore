@@ -23,37 +23,41 @@
  **********************************************************************************************************************/
 #include "fm-icon.h"
 
-static GHashTable *hash = NULL;
-G_LOCK_DEFINE_STATIC (hash);
+static GHashTable *hash_table = NULL;
+G_LOCK_DEFINE_STATIC (hash_table);
 
 static GDestroyNotify destroy_func = NULL;
 
 void _fm_icon_init ()
 {
-    if (G_UNLIKELY (hash))
-        return;
-    hash = g_hash_table_new (g_icon_hash,  (GEqualFunc) g_icon_equal);
+    g_return_if_fail (hash_table == NULL);
+    
+    hash_table = g_hash_table_new (g_icon_hash,  (GEqualFunc) g_icon_equal);
 }
 
 void _fm_icon_finalize ()
 {
-        g_hash_table_destroy (hash);
-    hash = NULL;
+    g_return_if_fail (hash_table != NULL);
+    g_hash_table_destroy (hash_table);
+    
+    hash_table = NULL;
 }
 
 FmIcon *fm_icon_from_gicon (GIcon *gicon)
 {
+    g_return_if_fail (hash_table != NULL);
+    
     FmIcon *icon;
-    G_LOCK (hash);
-    icon =  (FmIcon*)g_hash_table_lookup (hash, gicon);
+    G_LOCK (hash_table);
+    icon =  (FmIcon*)g_hash_table_lookup (hash_table, gicon);
     if (G_UNLIKELY (!icon))
     {
         icon = g_slice_new0 (FmIcon);
         icon->gicon =  (GIcon*)g_object_ref (gicon);
-        g_hash_table_insert (hash, icon->gicon, icon);
+        g_hash_table_insert (hash_table, icon->gicon, icon);
     }
     ++icon->n_ref;
-    G_UNLOCK (hash);
+    G_UNLOCK (hash_table);
     return icon;
 }
 
@@ -86,9 +90,12 @@ FmIcon *fm_icon_from_name (const char *name)
   *to handle hash table too, it might be necessary. */
 FmIcon *fm_icon_ref (FmIcon *icon)
 {
-    G_LOCK (hash);
+    g_return_if_fail (hash_table != NULL);
+    
+    G_LOCK (hash_table);
     ++icon->n_ref;
-    G_UNLOCK (hash);
+    G_UNLOCK (hash_table);
+    
     return icon;
 }
 
@@ -96,23 +103,33 @@ FmIcon *fm_icon_ref (FmIcon *icon)
   *trying to free it? */
 void fm_icon_unref (FmIcon *icon)
 {
-    G_LOCK (hash);
+    g_return_if_fail (hash_table != NULL);
+    
+    G_LOCK (hash_table);
     --icon->n_ref;
+    
     if (G_UNLIKELY (0 == icon->n_ref))
     {
-        g_hash_table_remove (hash, icon->gicon);
-        G_UNLOCK (hash);
+        g_hash_table_remove (hash_table, icon->gicon);
+        
+        G_UNLOCK (hash_table);
+        
         g_object_unref (icon->gicon);
+        
         if (destroy_func && icon->user_data)
             destroy_func (icon->user_data);
+        
         g_slice_free (FmIcon, icon);
     }
     else
-        G_UNLOCK (hash);
+    {
+        G_UNLOCK (hash_table);
+    }
 }
 
 static gboolean unload_cache (GIcon *key, FmIcon *icon, gpointer unused)
 {
+
     --icon->n_ref;
     if (G_UNLIKELY (0 == icon->n_ref))
     {
@@ -126,9 +143,11 @@ static gboolean unload_cache (GIcon *key, FmIcon *icon, gpointer unused)
 
 void fm_icon_unload_cache ()
 {
-    G_LOCK (hash);
-    g_hash_table_foreach_remove (hash,  (GHRFunc)unload_cache, NULL);
-    G_UNLOCK (hash);
+    g_return_if_fail (hash_table != NULL);
+    
+    G_LOCK (hash_table);
+    g_hash_table_foreach_remove (hash_table,  (GHRFunc)unload_cache, NULL);
+    G_UNLOCK (hash_table);
 }
 
 void unload_user_data_cache (GIcon *key, FmIcon *icon, gpointer unused)
@@ -142,9 +161,11 @@ void unload_user_data_cache (GIcon *key, FmIcon *icon, gpointer unused)
 
 void fm_icon_unload_user_data_cache ()
 {
-    G_LOCK (hash);
-    g_hash_table_foreach (hash,  (GHFunc)unload_user_data_cache, NULL);
-    G_UNLOCK (hash);
+    g_return_if_fail (hash_table != NULL);
+    
+    G_LOCK (hash_table);
+    g_hash_table_foreach (hash_table,  (GHFunc)unload_user_data_cache, NULL);
+    G_UNLOCK (hash_table);
 }
 
 gpointer fm_icon_get_user_data (FmIcon *icon)
@@ -161,3 +182,5 @@ void fm_icon_set_user_data_destroy (GDestroyNotify func)
 {
     destroy_func = func;
 }
+
+

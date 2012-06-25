@@ -190,46 +190,64 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         // This is a xdg menu
         else if (fm_path_is_xdg_menu (file_info->path))
         {
-            MenuCache *mc;
-            MenuCacheDir *dir;
             
+            // Menu path as "menu://applications/system/Administration"...
             char *path_str = fm_path_to_str (file_info->path);
-            char *menu_name = path_str + 5, ch;
-            char *dir_name;
+            
+            DEBUG ("DEBUG: fm_file_info_job_run: %s\n", path_str);
+            
+            // Get the file menu name...
+            char *menu_name = path_str + 5;
             
             while (*menu_name == '/')
                 ++menu_name;
             
-            dir_name = menu_name;
+            char *dir_name = menu_name;
             
             while (*dir_name && *dir_name != '/')
                 ++dir_name;
             
-            ch = *dir_name;
+            char *ch = *dir_name;
             *dir_name = '\0';
             
+            
+            // Menu name as "applications.menu"...
             menu_name = g_strconcat (menu_name, ".menu", NULL);
-            mc = menu_cache_lookup_sync (menu_name);
+            
+            
+            DEBUG ("DEBUG: fm_file_info_job_run: menu name = %s\n", menu_name);
+            
+            DEBUG ("DEBUG: fm_file_info_job_run: enter menu_cache_lookup_sync ()\n");
+            
+            //~ MenuCache *mc = menu_cache_lookup_sync (menu_name);
+            MenuCache *mc = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
+            
+            DEBUG ("DEBUG: fm_file_info_job_run: leave menu_cache_lookup_sync ()\n");
+            
             g_free (menu_name);
 
+            MenuCacheDir *menu_cache_dir;
             if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
             {
                 char *tmp = g_strconcat ("/",
-                                         menu_cache_item_get_id (MENU_CACHE_ITEM(menu_cache_get_root_dir (mc))),
+                                         menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))),
                                          dir_name, NULL);
                 
-                dir = menu_cache_get_dir_from_path (mc, tmp);
+                menu_cache_dir = menu_cache_get_dir_from_path (mc, tmp);
                 
                 g_free (tmp);
             }
             else
             {
-                dir = menu_cache_get_root_dir (mc);
+                menu_cache_dir = menu_cache_get_root_dir (mc);
             }
             
-            if (dir)
+            DEBUG ("DEBUG: fm_file_info_job_run: menu cache dir = %s\n", menu_cache_item_get_name (menu_cache_dir));
+            DEBUG ("DEBUG: fm_file_info_job_run: icon = %s\n", menu_cache_item_get_icon (menu_cache_dir));
+            
+            if (menu_cache_dir)
             {
-                fm_file_info_set_for_menu_cache_item (file_info, (MenuCacheItem*) dir);
+                fm_file_info_set_for_menu_cache_item (file_info, (MenuCacheItem*) menu_cache_dir);
             }
             else
             {

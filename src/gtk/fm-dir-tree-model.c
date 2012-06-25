@@ -595,10 +595,11 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     // Root FileSystem...
     fm_file_info_job_add (file_info_job, fm_path_get_root ());
     
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_load: NEED TO FIX A DEADLOCK HERE...\n");
     // Administration Programs...
-    path = fm_path_new_for_uri ("menu://applications/system/Administration");
-    fm_file_info_job_add (file_info_job, path);
-    fm_path_unref (path);
+    //~ path = fm_path_new_for_uri ("menu://applications/system/Administration");
+    //~ fm_file_info_job_add (file_info_job, path);
+    //~ fm_path_unref (path);
     
 
     //~ fm_job_run_async (FM_JOB (file_info_job));
@@ -608,7 +609,6 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     {
         FmFileInfo *file_info = FM_FILE_INFO (l->data);
         
-        //bool expand = (fi.get_path ().is_virtual () == false);
         gboolean expand = TRUE;
         
         path = fm_file_info_get_path (file_info);

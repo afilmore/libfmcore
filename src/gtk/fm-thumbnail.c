@@ -708,9 +708,14 @@ void _fm_thumbnail_init ()
 
 void _fm_thumbnail_finalize ()
 {
-        g_hash_table_destroy (hash);
+    g_return_if_fail (hash != NULL);
+    
+    g_hash_table_destroy (hash);
+    
     hash = NULL;
+    
     // FIXME_pcm: cancel all pending requests...
+    
     g_free (thumb_dir);
 }
 

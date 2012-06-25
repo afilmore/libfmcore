@@ -104,8 +104,12 @@ void _fm_monitor_init ()
 
 void _fm_monitor_finalize ()
 {
+    g_return_if_fail (hash != NULL);
+    g_return_if_fail (dummy_hash != NULL);
+    
     g_hash_table_destroy (hash);
     g_hash_table_destroy (dummy_hash);
+    
     hash = NULL;
     dummy_hash = NULL;
 }
