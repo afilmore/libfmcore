@@ -7,6 +7,8 @@
  **********************************************************************************************************************/
 #include <fm.h>
 
+#include "fm-debug.h"
+
 GMainLoop *loop;
 
 
@@ -22,7 +24,7 @@ static void mount_mountable_done_cb (GObject *object, GAsyncResult *res, gpointe
     }
     else
     {
-        printf ("Succesfull !!!!\n");
+        NO_DEBUG ("Succesfull !!!!\n");
         
         g_object_unref (target);
         
@@ -48,12 +50,12 @@ int main (int argc, char *argv[])
         
         FmFileInfo *file_info = (FmFileInfo*) l->data;
         
-        printf ("path2 : %s\n", fm_path_to_str (fm_file_info_get_path (file_info)));
+        NO_DEBUG ("path2 : %s\n", fm_path_to_str (fm_file_info_get_path (file_info)));
         
         char *target = fm_file_info_get_target (file_info);
         
         if (target)
-            printf ("target : %s\n", target);
+            NO_DEBUG ("target : %s\n", target);
         
         GFile *gfile = fm_path_to_gfile (fm_file_info_get_path (file_info));
         
@@ -92,7 +94,7 @@ int main (int argc, char *argv[])
         //~ if (gfile_info != NULL) {
                 //~ gchar *device_file = g_file_info_get_attribute_as_string (gfile_info, G_FILE_ATTRIBUTE_MOUNTABLE_UNIX_DEVICE_FILE);
                 //~ if (device_file)
-                    //~ printf ("Device file = %s\n", device_file);
+                    //~ NO_DEBUG ("Device file = %s\n", device_file);
                 //~ g_object_unref (gfile_info);
         //~ }
         //~ g_object_unref (gfile);
@@ -124,7 +126,7 @@ int main (int argc, char *argv[])
         
         const char *orig_path = g_file_info_get_attribute_byte_string (gfile_info, G_FILE_ATTRIBUTE_TRASH_ORIG_PATH);
         
-        printf ("orig path : %s\n", orig_path);
+        NO_DEBUG ("orig path : %s\n", orig_path);
         
         g_object_unref (gfile);
         g_object_unref (gfile_info);

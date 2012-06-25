@@ -27,11 +27,14 @@
 
 #include "fm-dir-list-job.h"
 
+#include <menu-cache.h>
+
+#include "fm-debug.h"
+
 #include <glib/gi18n-lib.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <glib/gstdio.h>
-#include <menu-cache.h>
 
 
 G_DEFINE_TYPE (FmDirListJob, fm_dir_list_job, FM_TYPE_JOB);
@@ -133,7 +136,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
     char *dir_path;
     GDir *dir;
 
-    printf ("fm_dir_list_job_run_posix\n");
+    NO_DEBUG ("fm_dir_list_job_run_posix\n");
 
 
     dir_path = fm_path_to_str (job->dir_path);
@@ -239,8 +242,8 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
 	GError *gerror = NULL;
     GFileInfo *gfile_info;
     
-    printf ("--------------------------------------------------------------------------------\n");
-    printf ("fm_dir_list_job_run_gio\n");
+    NO_DEBUG ("--------------------------------------------------------------------------------\n");
+    NO_DEBUG ("fm_dir_list_job_run_gio\n");
     
     // handle some built-in virtual dirs
     if (fm_path_is_xdg_menu (job->dir_path)) // xdg menu://
@@ -273,7 +276,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
     
     if (gfile_type != G_FILE_TYPE_DIRECTORY && gfile_type != G_FILE_TYPE_MOUNTABLE)
     {
-        printf ("GFileType = %d\n", gfile_type);
+        NO_DEBUG ("GFileType = %d\n", gfile_type);
         
         gerror = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
         fm_job_emit_error (fmjob, gerror, FM_SEVERITY_CRITICAL);
@@ -283,7 +286,8 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
         return FALSE;
     }
 
-    job->dir_fi = fm_file_info_new_from_gfileinfo (job->dir_path, gfile_info);
+    job->dir_fi = fm_file_info_new_for_path (job->dir_path);
+    fm_file_info_set_for_gfileinfo (job->dir_fi, gfile_info);
     
     g_object_unref (gfile_info);
 
@@ -331,13 +335,14 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
                 }
             }
 
-            printf ("fm_dir_list_job_run_gio: file name = %s\n", g_file_info_get_name (gfile_info));
-            //printf ("fm_dir_list_job_run_gio: file display name = %s\n", g_file_info_get_display_name (gfile_info));
-            //printf ("fm_dir_list_job_run_gio: file edit name = %s\n", g_file_info_get_edit_name (gfile_info));
+            NO_DEBUG ("fm_dir_list_job_run_gio: file name = %s\n", g_file_info_get_name (gfile_info));
+            //NO_DEBUG ("fm_dir_list_job_run_gio: file display name = %s\n", g_file_info_get_display_name (gfile_info));
+            //NO_DEBUG ("fm_dir_list_job_run_gio: file edit name = %s\n", g_file_info_get_edit_name (gfile_info));
             
             sub = fm_path_new_child (job->dir_path, g_file_info_get_name (gfile_info));
             
-            file_info = fm_file_info_new_from_gfileinfo (sub, gfile_info);
+            file_info = fm_file_info_new_for_path (sub);
+            fm_file_info_set_for_gfileinfo (file_info, gfile_info);
             
             fm_path_unref (sub);
             
@@ -461,7 +466,11 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
 
     if (dir)
     {
-        job->dir_fi = fm_file_info_new_from_menu_cache_item (job->dir_path, (MenuCacheItem*) dir);
+        
+        job->dir_fi = fm_file_info_new_for_path (job->dir_path);
+        fm_file_info_set_for_menu_cache_item (job->dir_fi, (MenuCacheItem*) dir);
+        
+        
         for (l = (GList*) menu_cache_dir_get_children (dir); l; l=l->next)
         {
             MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
@@ -476,7 +485,12 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
             if (G_UNLIKELY (job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
                 continue;
             item_path = fm_path_new_child (job->dir_path, menu_cache_item_get_id (item));
-            file_info = fm_file_info_new_from_menu_cache_item (item_path, item);
+            
+            
+            file_info = fm_file_info_new_for_path (item_path);
+            fm_file_info_set_for_menu_cache_item (file_info, item);
+            
+            
             fm_path_unref (item_path);
             fm_list_push_tail_noref (job->files, file_info);
         }

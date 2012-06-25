@@ -1,5 +1,12 @@
 #***********************************************************************************************************************
-# make clean;make distclean;./autogen.sh && ./configure --enable-debug=yes --prefix=/usr && make
+#   
+#   Configuration File for LibFm Core
+#
+#   A Lightweight FileManager Library.
+#
+#   Sample Configuration Commands :
+#
+#   make clean;make distclean;./autogen.sh && ./configure --enable-debug=yes --prefix=/usr && make
 #
 #
 #***********************************************************************************************************************
@@ -16,34 +23,28 @@ AM_PROG_LIBTOOL
 
 
 #*****************************************************************************************
-# ...
+#   Check Vala Compiler...
+#
 #
 #*****************************************************************************************
-# Vala
 AM_PROG_VALAC([0.16.0])
 
 
 #*****************************************************************************************
-# ...
+#   ...
+#
 #
 #*****************************************************************************************
-# Checks for libraries.
-
-# Checks for header files.
 AC_HEADER_STDC
-
-# Checks for typedefs, structures, and compiler characteristics.
-
-# Checks for library functions.
 AC_FUNC_MMAP
 AC_CHECK_LIB(m, pow)
 
 
 #*****************************************************************************************
-# ...
+#   Large file support...
+#
 #
 #*****************************************************************************************
-# Large file support
 AC_ARG_ENABLE([largefile],
     AS_HELP_STRING([--enable-largefile],
         [enable Large file support (default: yes)]),
@@ -57,15 +58,16 @@ fi
 
 
 #*****************************************************************************************
-# ...
+#   IntlTool...
+#
 #
 #*****************************************************************************************
-# intltool
 #~ IT_PROG_INTLTOOL([0.40.0])
 
 
 #*****************************************************************************************
-# ...
+#   Check Libraries...
+#
 #
 #*****************************************************************************************
 pkg_modules="gtk+-3.0 >= 3.0.8"
@@ -108,12 +110,13 @@ AC_SUBST(MENU_CACHE_LIBS)
 
 
 #*****************************************************************************************
-# ...
+#   ...
+#
+#   special checks for glib/gio 2.27 since it contains backward imcompatible changes.
+#   glib 2.26 uses G_DESKTOP_APP_INFO_LOOKUP_EXTENSION_POINT_NAME extension point while
+#   glib 2.27 uses x-scheme-handler/* mime-type to register handlers.
 #
 #*****************************************************************************************
-# special checks for glib/gio 2.27 since it contains backward imcompatible changes.
-# glib 2.26 uses G_DESKTOP_APP_INFO_LOOKUP_EXTENSION_POINT_NAME extension point while
-# glib 2.27 uses x-scheme-handler/* mime-type to register handlers.
 PKG_CHECK_MODULES(GLIB2_27, [glib-2.0 >= 2.27.0],
     [have_scheme_handler="yes"],
     [have_scheme_handler="no"])
@@ -122,10 +125,10 @@ if test "x$have_scheme_handler" = "xyes"; then
     AC_DEFINE_UNQUOTED(HAVE_SCHEME_HANDLER, [1], [Have x-scheme/uri handler support])
 fi
 
-#optional features
 
 #*****************************************************************************************
-# ...
+#   UDisk Support...
+#
 #
 #*****************************************************************************************
 AC_ARG_ENABLE(udisks,
@@ -148,15 +151,28 @@ fi
 
 
 #*****************************************************************************************
-# ...
+#   Enable Debug...
+#
 #
 #*****************************************************************************************
+AC_ARG_ENABLE(treeview-debug,
+              [AC_HELP_STRING([--enable-treeview-debug],
+              [Debug The Tree View (default: no)])],
+              enable_treeview_debug=$enableval,
+              enable_treeview_debug="no")
+
+
+if test "$enable_treeview_debug" = "yes"; then
+    CPPFLAGS="$CPPFLAGS -DENABLE_TREEVIEW_DEBUG"
+    enable_debug = "yes"
+fi
+
 AC_ARG_ENABLE(debug,
-    [AC_HELP_STRING([--enable-debug],
-        [build libfmcore with debug support @<:@default=no@:>@])],
-    [enable_debug="${enableval}"],
-    [enable_debug=no]
-)
+              [AC_HELP_STRING([--enable-debug],
+              [Debug Support @<:@default=no@:>@])],
+              [enable_debug="${enableval}"],
+              [enable_debug=no])
+
 if test "$enable_debug" = "yes"; then
     # turn on debug and disable optimization
     CPPFLAGS="$CPPFLAGS -DENABLE_DEBUG -DG_ENABLE_DEBUG -O0 -g"
@@ -167,16 +183,17 @@ fi
 
 
 #*****************************************************************************************
-# ...
+#   GIO extension module...
+#
 #
 #*****************************************************************************************
-# GIO extension module
 giomodulesdir=$libdir/gio/modules
 AC_SUBST(giomodulesdir)
 
 
 #*****************************************************************************************
-# ...
+#   GetText Support...
+#
 #
 #*****************************************************************************************
 GETTEXT_PACKAGE=libfmcore
@@ -184,12 +201,13 @@ AC_SUBST(GETTEXT_PACKAGE)
 
 
 #*****************************************************************************************
-# ...
+#   Generate po/LINGUAS on the fly...
 #
-#*****************************************************************************************
 #~ # Generate po/LINGUAS on the fly rather than relying on translators
 #~ # to maintain it manually. This also overcome the problem that Transifex
 #~ # cannot add a language to po/LINGUAS if a new po file is submitted.
+#
+#*****************************************************************************************
 rm -f $srcdir/po/LINGUAS
 for po_file in `ls $srcdir/po/*.po | sort`;
 do
@@ -202,7 +220,8 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
 
 #*****************************************************************************************
-# ...
+#   Output Files...
+#
 #
 #*****************************************************************************************
 
@@ -219,25 +238,28 @@ AC_OUTPUT
 
 
 #*****************************************************************************************
-# ...
+#   Configuration Summary...
+#
 #
 #*****************************************************************************************
 
 echo
-echo "Libfmcore $VERSION Configuration Summary:"
+echo "LibFm Core $VERSION Configuration Summary:"
 echo
-echo "libfmcore:                                              $LIBFMCORE_VERSION"
-echo "prefix:                                                 $prefix"
-echo "sysconfdir:                                             $sysconfdir"
-echo "Enable compiler flags and other support for debugging:  $enable_debug"
-echo "Build udisks support (Linux only, experimental):        $enable_udisks"
-echo "Large file support:                                     $largefile"
+echo "LibFm Core:                                               $LIBFMCORE_VERSION"
+echo "prefix:                                                   $prefix"
+echo "sysconfdir:                                               $sysconfdir"
+echo "Debugging:                                                $enable_debug"
+echo "Build udisks support (Linux only, experimental):          $enable_udisks"
+echo "Large file support:                                       $largefile"
 if test x"$have_scheme_handler" = x"no"; then
-echo "GIO module for preferred apps (for glib < 2.28 only):   $giomodulesdir";
+echo "GIO module for preferred apps (for glib < 2.28 only):     $giomodulesdir";
 else
-echo "GIO module for preferred apps (for glib < 2.28 only):   not required";
+echo "GIO module for preferred apps (for glib < 2.28 only):     not required";
 fi
-echo "Build API doc with gtk-doc:                             $enable_gtk_doc"
 echo
 echo
+
+
+
 

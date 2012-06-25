@@ -231,14 +231,20 @@ namespace Fm {
             if (src_info != null) { // display info of the source file
                 
                 Fm.Path src_path = new Fm.Path.for_gfile (src_file);
-                Fm.FileInfo fi = new Fm.FileInfo.from_gfileinfo (src_path, src_info);
+                
+                Fm.FileInfo fi = new Fm.FileInfo.for_path (src_path);
+                fi.set_for_gfileinfo (src_info);
+                
                 rename_dlg.set_src_info (fi);
             }
             
             if (dest_info != null) { // display info of the destination file which already exists
                 
                 Fm.Path dest_path = new Fm.Path.for_gfile (dest_file);
-                Fm.FileInfo fi = new Fm.FileInfo.from_gfileinfo (dest_path, dest_info);
+                
+                Fm.FileInfo fi = new Fm.FileInfo.for_path (dest_path);
+                fi.set_for_gfileinfo (dest_info);
+                
                 rename_dlg.set_dest_info (fi);
             }
 

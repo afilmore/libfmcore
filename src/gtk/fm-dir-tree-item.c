@@ -251,7 +251,7 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
         FmPath *path = fm_file_info_get_path (fi);
         if (!fm_file_info_is_dir (fi) && !fm_path_is_virtual (path))
         {
-            printf ("%s\n", fm_path_get_basename (path));
+            NO_DEBUG ("%s\n", fm_path_get_basename (path));
             continue;
         }
         

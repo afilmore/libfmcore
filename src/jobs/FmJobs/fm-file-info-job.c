@@ -23,23 +23,24 @@
  **********************************************************************************************************************/
 #include "fm-file-info-job.h"
 
+#include <menu-cache.h>
+
 #include "fm-debug.h"
 
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <menu-cache.h>
 #include <errno.h>
 
-G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
 
-//const char gfile_info_query_attribs [] = "standard::*,unix::*,time::*,access::*,id::filesystem";
+G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
 
 
 // Forward declarations...
 static void fm_file_info_job_finalize (GObject *object);
 static gboolean fm_file_info_job_run (FmJob *fmjob);
+static gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gfile, GError **gerror);
 
 
 /*********************************************************************
@@ -118,9 +119,9 @@ void fm_file_info_job_add (FmFileInfoJob *file_info_job, FmPath *path)
     fm_list_push_tail_noref (file_info_job->file_info_list, file_info);
 }
 
-void fm_file_info_job_add_gfile (FmFileInfoJob *file_info_job, GFile *gf)
+void fm_file_info_job_add_gfile (FmFileInfoJob *file_info_job, GFile *gfile)
 {
-    FmPath *path = fm_path_new_for_gfile (gf);
+    FmPath *path = fm_path_new_for_gfile (gfile);
 	
 	FmFileInfo *file_info = fm_file_info_new_for_path (path);
     
@@ -135,137 +136,126 @@ void fm_file_info_job_add_gfile (FmFileInfoJob *file_info_job, GFile *gf)
  * 
  * 
  ********************************************************************/
-static gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gf, GError **err)
-{
-	GFileInfo *inf = g_file_query_info (gf, gfile_info_query_attribs, 0, fm_job_get_cancellable (job), err);
-	
-    if (!inf)
-		return FALSE;
-	
-    fm_file_info_set_from_gfileinfo (file_info, inf);
-
-	return TRUE;
-}
-
-
-/*********************************************************************
- * ...
- * 
- * 
- ********************************************************************/
 gboolean fm_file_info_job_run (FmJob *fmjob)
 {
 	FmFileInfoJob *file_info_job = (FmFileInfoJob*) fmjob;
-    GError *err = NULL;
+    
+    GError *gerror = NULL;
 
 	GList *l;
 	for (l = fm_list_peek_head_link (file_info_job->file_info_list); !fm_job_is_cancelled (fmjob) && l; )
 	{
 		FmFileInfo *file_info = (FmFileInfo*) l->data;
+        
         GList *next = l->next;
 
+        
+        // TODO_axl: it's possible ot create a file info here for the input FmPath...
+        
         file_info_job->current = file_info->path;
 
-		if (fm_path_is_native (file_info->path))
+		
+        
+        // A native file, query file infos with posix...
+        if (fm_path_is_native (file_info->path))
 		{
 			char *path_str = fm_path_to_str (file_info->path);
 			
-            
-            // FileInfo rework: new function for testing...
-            // this one is not cancellable and doesn't handle errors...
-            // if (!fm_file_info_job_get_info_for_native_file (FM_JOB (file_info_job), file_info, path_str, &err))
             if (!fm_file_info_set_for_native_file (file_info, path_str))
             {
-                //~ FmErrorAction act = fm_job_emit_error (FM_JOB(file_info_job), err, FM_SEVERITY_MILD);
-                //~ 
-                //~ g_error_free (err);
-                //~ err = NULL;
-                //~ 
-                //~ if (act == FM_ERROR_ACTION_RETRY)
-                    //~ continue;
-
+                /** TODO_axl: error handling...
+                FmErrorAction error_action = fm_job_emit_error (FM_JOB(file_info_job), gerror, FM_SEVERITY_MILD);
+                
+                g_error_free (gerror);
+                gerror = NULL;
+                
+                if (error_action == FM_ERROR_ACTION_RETRY)
+                    continue;
+                **/
+                
                 DEBUG ("fm_file_info_set_for_native_file: error reading %s\n", path_str);
                 
                 next = l->next;
+                
                 fm_list_delete_link (file_info_job->file_info_list, l); // Also calls unref...
             }
 			
             g_free (path_str);
-		}
-		else
-		{
-            GFile *gf;
             
-            if (fm_path_is_virtual (file_info->path))
-            {
-                // This is a xdg menu
-                if (fm_path_is_xdg_menu (file_info->path))
-                {
-                    MenuCache *mc;
-                    MenuCacheDir *dir;
-                    
-                    char *path_str = fm_path_to_str (file_info->path);
-                    char *menu_name = path_str + 5, ch;
-                    char *dir_name;
-                    
-                    while (*menu_name == '/')
-                        ++menu_name;
-                    
-                    dir_name = menu_name;
-                    
-                    while (*dir_name && *dir_name != '/')
-                        ++dir_name;
-                    
-                    ch = *dir_name;
-                    *dir_name = '\0';
-                    
-                    menu_name = g_strconcat (menu_name, ".menu", NULL);
-                    mc = menu_cache_lookup_sync (menu_name);
-                    g_free (menu_name);
+            l = next;
+            continue;
+		}
+		
+        
+        // This is a xdg menu
+        else if (fm_path_is_xdg_menu (file_info->path))
+        {
+            MenuCache *mc;
+            MenuCacheDir *dir;
+            
+            char *path_str = fm_path_to_str (file_info->path);
+            char *menu_name = path_str + 5, ch;
+            char *dir_name;
+            
+            while (*menu_name == '/')
+                ++menu_name;
+            
+            dir_name = menu_name;
+            
+            while (*dir_name && *dir_name != '/')
+                ++dir_name;
+            
+            ch = *dir_name;
+            *dir_name = '\0';
+            
+            menu_name = g_strconcat (menu_name, ".menu", NULL);
+            mc = menu_cache_lookup_sync (menu_name);
+            g_free (menu_name);
 
-                    if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
-                    {
-                        char *tmp = g_strconcat ("/",
-                                                 menu_cache_item_get_id (MENU_CACHE_ITEM(menu_cache_get_root_dir (mc))),
-                                                 dir_name, NULL);
-                        
-                        dir = menu_cache_get_dir_from_path (mc, tmp);
-                        
-                        g_free (tmp);
-                    }
-                    else
-                    {
-                        dir = menu_cache_get_root_dir (mc);
-                    }
-                    
-                    if (dir)
-                    {
-                        fm_file_info_set_from_menu_cache_item (file_info, (MenuCacheItem*) dir);
-                    }
-                    else
-                    {
-                        next = l->next;
-                        fm_list_delete_link (file_info_job->file_info_list, l); // Also calls unref...
-                    }
-                    
-                    g_free (path_str);
-                    menu_cache_unref (mc);
-                    
-                    l = l->next;
-                    continue;
-                }
+            if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
+            {
+                char *tmp = g_strconcat ("/",
+                                         menu_cache_item_get_id (MENU_CACHE_ITEM(menu_cache_get_root_dir (mc))),
+                                         dir_name, NULL);
+                
+                dir = menu_cache_get_dir_from_path (mc, tmp);
+                
+                g_free (tmp);
             }
-
-			gf = fm_path_to_gfile (file_info->path);
-			
-            if (!fm_file_info_job_get_info_for_gfile (FM_JOB (file_info_job), file_info, gf, &err))
+            else
             {
-                FmErrorAction act = fm_job_emit_error (FM_JOB (file_info_job), err, FM_SEVERITY_MILD);
+                dir = menu_cache_get_root_dir (mc);
+            }
+            
+            if (dir)
+            {
+                fm_file_info_set_for_menu_cache_item (file_info, (MenuCacheItem*) dir);
+            }
+            else
+            {
+                next = l->next;
+                fm_list_delete_link (file_info_job->file_info_list, l); // Also calls unref...
+            }
+            
+            g_free (path_str);
+            menu_cache_unref (mc);
+            
+            l = l->next;
+            continue;
+        
+        }
+        else if (fm_path_is_virtual (file_info->path))
+        {
+            GFile *gfile = fm_path_to_gfile (file_info->path);
+			
+            if (!fm_file_info_query_info (file_info, gfile, fm_job_get_cancellable (FM_JOB (file_info_job)), &gerror))
+            {
+                FmErrorAction error_action = fm_job_emit_error (FM_JOB (file_info_job), gerror, FM_SEVERITY_MILD);
                 
-                g_error_free (err);
-                err = NULL;
+                g_error_free (gerror);
+                gerror = NULL;
                 
-                if (act == FM_ERROR_ACTION_RETRY)
+                if (error_action == FM_ERROR_ACTION_RETRY)
                     continue;
 
                 next = l->next;
@@ -273,11 +263,20 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
                 fm_list_delete_link (file_info_job->file_info_list, l);   // Also calls unref...
             }
 			
-            g_object_unref (gf);
-		}
+            g_object_unref (gfile);
+        
+            l = next;
+            continue;
+        
+        }
+        else
+        {
+            NO_DEBUG ("FmFileInfoJob: ERROR !!!!\n");
+        }
         
         l = next;
-	}
+	
+    }
 	
     return TRUE;
 }

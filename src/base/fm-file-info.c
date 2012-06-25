@@ -28,6 +28,8 @@
 
 #include "fm-file-info.h"
 
+#include <menu-cache.h>
+
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 #include <grp.h>                // Query group name
@@ -38,54 +40,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <menu-cache.h>
-
 #include "fm-utils.h"
 
-#include "fm-trash.h" // gtk dep...
+#include "fm-trash.h" // <- this introduces a Gtk dependency...
 
-#if 0
-struct _FmFileInfo
-{
-    /*****************************************************************
-     * File Path, that's the most important field of the FileInfo,
-     * other ones are set from this path...
-     * 
-     ****************************************************************/
-    FmPath          *path;
-    
-    char            *disp_name;     // UTF-8 Displayed Name
-    char            *collate_key;   // Used to sort files by name
-    
-    FmMimeType      *mime_type;
-    
-    FmIcon          *fm_icon;       // A GIcon Cache (see base/fm-icon.h)...
-    
-    char            *target;        // Target of shortcut or mountable...
-
-    mode_t          mode;           // FileSystem Informations...
-    
-    union {
-        const char  *fs_id;
-        dev_t       dev;
-    };
-    
-    uid_t           uid;
-    gid_t           gid;
-    
-    char            *disp_size;     // Displayed human-readable file size
-    goffset         size;
-    
-    char            *disp_mtime;    // Displayed last modification time
-    time_t          mtime;
-    time_t          atime;
-    
-    gulong          blksize;
-    goffset         blocks;
-    
-    int             n_ref;          // Private...
-};
-#endif
 
 static gboolean     use_si_prefix = TRUE;
 static FmMimeType   *desktop_entry_type = NULL;
@@ -96,14 +54,13 @@ const char          *gfile_info_query_attribs = "standard::*,unix::*,time::*,acc
 
 
 // Forward declarations...
-static void     fm_file_info_clear                  (FmFileInfo *file_info);
-static void     fm_file_info_set_from_desktop_entry (FmFileInfo *file_info);
-static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info);
+static void     fm_file_info_clear                      (FmFileInfo *file_info);
+static void     fm_file_info_set_for_desktop_entry      (FmFileInfo *file_info);
+static gboolean fm_file_info_init_icon_for_crappy_code  (FmFileInfo *file_info);
 
 
-// intialize the file info system
 /*********************************************************************
- * ...
+ *  Intialize the file info system...
  * 
  * 
  ********************************************************************/
@@ -128,7 +85,7 @@ void _fm_file_info_finalize ()
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
@@ -257,7 +214,7 @@ void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
@@ -269,7 +226,98 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
     return file_info;
 }
 
+void fm_file_info_set_path (FmFileInfo *file_info, FmPath *path)
+{
+    if (file_info->path)
+    {
+        if (file_info->path->name == file_info->disp_name)
+            file_info->disp_name = NULL;
+        
+        fm_path_unref (file_info->path);
+    }
 
+    if (path)
+    {
+        file_info->path = fm_path_ref (path);
+        
+        // May not be UTF-8...
+        file_info->disp_name = file_info->path->name;
+    }
+    else
+        file_info->path = NULL;
+}
+
+FmPath *fm_file_info_get_path (FmFileInfo *file_info)
+{
+    return file_info->path;
+}
+
+
+/*********************************************************************
+ *  These Are Specific To The Desktop View...
+ * 
+ *  Not sure if it's a good method...
+ * 
+ * 
+ ********************************************************************/
+FmFileInfo *fm_file_info_new_computer ()
+{
+    FmFileInfo *file_info = fm_file_info_new ();
+    
+    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
+    
+    fm_file_info_set_path (file_info, path);
+    
+    fm_path_unref (path);
+    
+    return file_info;
+}
+
+FmFileInfo *fm_file_info_new_trash_can ()
+{
+    FmFileInfo *file_info = fm_file_info_new ();
+    
+    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
+    
+    fm_file_info_set_path (file_info, path);
+
+    fm_path_unref (path);
+    
+    return file_info;
+}
+
+FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
+{
+    const gchar *path_name = g_get_user_special_dir (directory);
+    
+    GFile *file = g_file_new_for_path (path_name);
+    if (!file)
+        return NULL;
+    
+    GFileInfo *ginfo = g_file_query_info (file,
+                                          "standard::*,unix::*,time::*,access::*,id::filesystem",
+                                          G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
+                                          NULL,
+                                          NULL);
+
+    FmPath *path = fm_path_new_for_path (path_name);
+    
+    FmFileInfo *file_info = fm_file_info_new_for_path (path);
+    fm_file_info_set_for_gfileinfo (file_info, ginfo);
+    
+    fm_path_unref (path);
+    g_object_unref (ginfo);
+    g_object_unref (file);
+    
+    return file_info;
+}
+
+
+/*********************************************************************
+ *  ...
+ * 
+ * 
+ ********************************************************************/
 gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
 {
 	struct stat st;
@@ -313,7 +361,7 @@ gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *pa
     if (fm_file_info_is_desktop_entry (file_info))
     {
         // Set name and icon from a desktop entry...
-        fm_file_info_set_from_desktop_entry (file_info);
+        fm_file_info_set_for_desktop_entry (file_info);
         return TRUE;
     }
     
@@ -323,7 +371,7 @@ gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *pa
     return TRUE;
 }
 
-static void fm_file_info_set_from_desktop_entry (FmFileInfo *file_info)
+static void fm_file_info_set_for_desktop_entry (FmFileInfo *file_info)
 {
     // Special handling for desktop entries...
     char *fpath = fm_path_to_str (file_info->path);
@@ -406,57 +454,74 @@ static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
 }
 
 
+
+
+
+
 /*********************************************************************
  * ...
  * 
  * 
  ********************************************************************/
-FmFileInfo *fm_file_info_new_from_gfileinfo (FmPath *path, GFileInfo *inf)
+gboolean fm_file_info_query_info (FmFileInfo *file_info, GFile *gfile, GCancellable *cancellable, GError **err)
 {
-    FmFileInfo *file_info = fm_file_info_new ();
+	
     
-    file_info->path = fm_path_ref (path);
     
-    fm_file_info_set_from_gfileinfo (file_info, inf);
     
-    return file_info;
+    GFileInfo *gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, cancellable, err);
+	
+    if (!gfile_info)
+		return FALSE;
+	
+    fm_file_info_set_for_gfileinfo (file_info, gfile_info);
+
+	return TRUE;
 }
 
-void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
+
+
+
+/*********************************************************************
+ *  ...
+ * 
+ * 
+ ********************************************************************/
+void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gfile_info)
 {
     const char *tmp;
     GIcon *gicon;
-    GFileType type;
+    GFileType gfile_type;
 
     g_return_if_fail (file_info->path);
 
     // if display name is the same as its name, just use it.
-    tmp = g_file_info_get_display_name (inf);
+    tmp = g_file_info_get_display_name (gfile_info);
     
     if (strcmp (tmp, file_info->path->name) == 0)
         file_info->disp_name = file_info->path->name;
     else
         file_info->disp_name = g_strdup (tmp);
 
-    file_info->size = g_file_info_get_size (inf);
+    file_info->size = g_file_info_get_size (gfile_info);
 
-    tmp = g_file_info_get_content_type (inf);
+    tmp = g_file_info_get_content_type (gfile_info);
     
     if (tmp)
         file_info->mime_type = fm_mime_type_get_for_type (tmp);
 
-    file_info->mode = g_file_info_get_attribute_uint32 (inf, G_FILE_ATTRIBUTE_UNIX_MODE);
+    file_info->mode = g_file_info_get_attribute_uint32 (gfile_info, G_FILE_ATTRIBUTE_UNIX_MODE);
 
-    file_info->uid = g_file_info_get_attribute_uint32 (inf, G_FILE_ATTRIBUTE_UNIX_UID);
-    file_info->gid = g_file_info_get_attribute_uint32 (inf, G_FILE_ATTRIBUTE_UNIX_GID);
+    file_info->uid = g_file_info_get_attribute_uint32 (gfile_info, G_FILE_ATTRIBUTE_UNIX_UID);
+    file_info->gid = g_file_info_get_attribute_uint32 (gfile_info, G_FILE_ATTRIBUTE_UNIX_GID);
 
-    type = g_file_info_get_file_type (inf);
+    gfile_type = g_file_info_get_file_type (gfile_info);
     
     
     // if UNIX file mode is not available, compose a fake one...
     if (!file_info->mode)
     {
-        switch (type)
+        switch (gfile_type)
         {
             case G_FILE_TYPE_REGULAR:
                 file_info->mode |= S_IFREG;
@@ -478,7 +543,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
         }
 
         // if it's a special file but it doesn't have UNIX mode, compose a fake one.
-        if (type == G_FILE_TYPE_SPECIAL && 0 == file_info->mode)
+        if (gfile_type == G_FILE_TYPE_SPECIAL && 0 == file_info->mode)
         {
             if (strcmp (tmp, "inode/chardevice")==0)
                 file_info->mode |= S_IFCHR;
@@ -502,7 +567,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
         // set file icon according to mime-type
         if (!file_info->mime_type || !file_info->mime_type->icon)
         {
-            gicon = g_file_info_get_icon (inf);
+            gicon = g_file_info_get_icon (gfile_info);
             file_info->fm_icon = fm_icon_from_gicon (gicon);
         }
         else
@@ -515,9 +580,9 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
     
     
     
-    if (type == G_FILE_TYPE_MOUNTABLE || G_FILE_TYPE_SHORTCUT)
+    if (gfile_type == G_FILE_TYPE_MOUNTABLE || G_FILE_TYPE_SHORTCUT)
     {
-        const char *uri = g_file_info_get_attribute_string (inf, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
+        const char *uri = g_file_info_get_attribute_string (gfile_info, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
         if (uri)
         {
             if (g_str_has_prefix (uri, "file:/"))
@@ -528,7 +593,7 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 
         if (!file_info->mime_type)
         {
-            if (type == G_FILE_TYPE_SHORTCUT)
+            if (gfile_type == G_FILE_TYPE_SHORTCUT)
                 file_info->mime_type = fm_mime_type_ref (shortcut_type);
             else
                 file_info->mime_type = fm_mime_type_ref (mountable_type);
@@ -537,36 +602,34 @@ void fm_file_info_set_from_gfileinfo (FmFileInfo *file_info, GFileInfo *inf)
 
     if (fm_path_is_native (file_info->path))
     {
-        file_info->dev = g_file_info_get_attribute_uint32 (inf, G_FILE_ATTRIBUTE_UNIX_DEVICE);
+        file_info->dev = g_file_info_get_attribute_uint32 (gfile_info, G_FILE_ATTRIBUTE_UNIX_DEVICE);
     }
     else
     {
-        tmp = g_file_info_get_attribute_string (inf, G_FILE_ATTRIBUTE_ID_FILESYSTEM);
+        tmp = g_file_info_get_attribute_string (gfile_info, G_FILE_ATTRIBUTE_ID_FILESYSTEM);
         file_info->fs_id = g_intern_string (tmp);
     }
 
-    file_info->mtime = g_file_info_get_attribute_uint64 (inf, G_FILE_ATTRIBUTE_TIME_MODIFIED);
-    file_info->atime = g_file_info_get_attribute_uint64 (inf, G_FILE_ATTRIBUTE_TIME_ACCESS);
+    file_info->mtime = g_file_info_get_attribute_uint64 (gfile_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
+    file_info->atime = g_file_info_get_attribute_uint64 (gfile_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
 }
+
+
+
+
+
+
+
+
+
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
-FmFileInfo *fm_file_info_new_from_menu_cache_item (FmPath *path, MenuCacheItem *item)
-{
-    
-    FmFileInfo *file_info = fm_file_info_new ();
-    file_info->path = fm_path_ref (path);
-    
-    
-    fm_file_info_set_from_menu_cache_item (file_info, item);
-    return file_info;
-}
-
-void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
+void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
 {
     const char *icon_name = menu_cache_item_get_icon (item);
     file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
@@ -611,93 +674,10 @@ void fm_file_info_set_from_menu_cache_item (FmFileInfo *file_info, MenuCacheItem
 
 
 /*********************************************************************
- * These Are Specific To The Desktop View...
- * 
- * Not sure if it's a good method...
+ *  ...
  * 
  * 
  ********************************************************************/
-FmFileInfo *fm_file_info_new_computer ()
-{
-    FmFileInfo *file_info = fm_file_info_new ();
-    
-    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
-    fm_file_info_set_path (file_info, path);
-    
-    fm_path_unref (path);
-    
-    return file_info;
-}
-
-FmFileInfo *fm_file_info_new_trash_can ()
-{
-    FmFileInfo *file_info = fm_file_info_new ();
-    
-    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
-    fm_file_info_set_path (file_info, path);
-
-    fm_path_unref (path);
-    
-    return file_info;
-}
-
-FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
-{
-    const gchar *path_name = g_get_user_special_dir (directory);
-    
-    GFile *file = g_file_new_for_path (path_name);
-    if (!file)
-        return NULL;
-    
-    GFileInfo *ginfo = g_file_query_info (file,
-                                          "standard::*,unix::*,time::*,access::*,id::filesystem",
-                                          G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
-                                          NULL,
-                                          NULL);
-
-    FmPath *path = fm_path_new_for_path (path_name);
-    FmFileInfo *file_info = fm_file_info_new_from_gfileinfo (path, ginfo);
-    
-    fm_path_unref (path); // ???
-
-    g_object_unref (ginfo);
-    g_object_unref (file);
-    
-    return file_info;
-}
-
-
-/*********************************************************************
- * ...
- * 
- * 
- ********************************************************************/
-void fm_file_info_set_path (FmFileInfo *file_info, FmPath *path)
-{
-    if (file_info->path)
-    {
-        if (file_info->path->name == file_info->disp_name)
-            file_info->disp_name = NULL;
-        
-        fm_path_unref (file_info->path);
-    }
-
-    if (path)
-    {
-        file_info->path = fm_path_ref (path);
-        
-        // FIXME_pcm: need to handle UTF-8 issue here
-        file_info->disp_name = file_info->path->name;
-    }
-    else
-        file_info->path = NULL;
-}
-
-FmPath *fm_file_info_get_path (FmFileInfo *file_info)
-{
-    return file_info->path;
-}
-
 FmIcon *fm_file_info_get_fm_icon (FmFileInfo *file_info)
 {
     return file_info->fm_icon;
@@ -711,7 +691,7 @@ GIcon *fm_file_info_get_gicon (FmFileInfo *file_info)
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
@@ -742,7 +722,7 @@ const char *fm_file_info_get_disp_name (FmFileInfo *file_info)
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
@@ -777,8 +757,6 @@ mode_t fm_file_info_get_mode (FmFileInfo *file_info)
 
 FmMimeType *fm_file_info_get_mime_type (FmFileInfo *file_info, gboolean reference)
 {
-    // FIXME_axl: it doesn't need a ref counting IMO...
-    
     if (!reference)
         return file_info->mime_type;
     
@@ -792,7 +770,7 @@ const char *fm_file_info_get_target (FmFileInfo *file_info)
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
@@ -856,7 +834,7 @@ time_t *fm_file_info_get_atime (FmFileInfo *file_info)
 
 
 /*********************************************************************
- * ...
+ *  ...
  * 
  * 
  ********************************************************************/
@@ -882,7 +860,7 @@ gboolean fm_file_info_is_dir (FmFileInfo *file_info)
     
     return (S_ISDIR (file_info->mode)
             || (S_ISLNK (file_info->mode) && file_info->mime_type
-                                          && (strcmp (file_info->mime_type->type, "inode/directory") == 0)));
+                                          && (strcmp (fm_mime_type_get_type (file_info->mime_type), "inode/directory") == 0)));
 }
 
 gboolean fm_file_info_is_desktop_entry (FmFileInfo *file_info)
@@ -906,9 +884,9 @@ gboolean fm_file_info_is_executable_type (FmFileInfo *file_info)
     g_return_val_if_fail (file_info->mime_type, FALSE);
 
     // FIXME_pcm: didn't check access rights.
-    // return mime_type_is_executable_file (file_path, file_info->mime_type->type);
+    // return mime_type_is_executable_file (file_path, fm_mime_type_get_type (file_info->mime_type));
 
-    return g_content_type_can_be_executable (file_info->mime_type->type);
+    return g_content_type_can_be_executable (fm_mime_type_get_type (file_info->mime_type));
 }
 
 
@@ -917,7 +895,7 @@ gboolean fm_file_info_is_image (FmFileInfo *file_info)
     g_return_val_if_fail (file_info->mime_type, FALSE);
     
     // FIXME_pcm: We had better use functions of xdg_mime to check this
-    if (!strncmp ("image/", file_info->mime_type->type, 6))
+    if (!strncmp ("image/", fm_mime_type_get_type (file_info->mime_type), 6))
         return TRUE;
     
     return FALSE;
@@ -927,7 +905,7 @@ gboolean fm_file_info_is_text (FmFileInfo *file_info)
 {
     g_return_val_if_fail (file_info->mime_type, FALSE);
     
-    if (g_content_type_is_a (file_info->mime_type->type, "text/plain"))
+    if (g_content_type_is_a (fm_mime_type_get_type (file_info->mime_type), "text/plain"))
         return TRUE;
     
     return FALSE;
@@ -937,7 +915,7 @@ gboolean fm_file_info_is_unknown_type (FmFileInfo *file_info)
 {
     g_return_val_if_fail (file_info->mime_type, TRUE);
     
-    return g_content_type_is_unknown (file_info->mime_type->type);
+    return g_content_type_is_unknown (fm_mime_type_get_type (file_info->mime_type));
 }
 
 gboolean fm_file_info_can_thumbnail (FmFileInfo *file_info)

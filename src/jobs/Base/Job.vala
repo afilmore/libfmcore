@@ -87,9 +87,11 @@ namespace Fm {
         // thread in thread pool, and calls FmJob::run () in it.
         public virtual void run_async () {
             
-            stdout.printf  ("Fm.Job.run_async\n");
+//~             stdout.printf  ("Fm.Job.run_async\n");
+            NO_DEBUG  ("Fm.Job.run_async\n");
             
             running = true;
+            
             //g_io_scheduler_push_job (job_func, Priority.DEFAULT, cancellable);
             IOSchedulerJob.push  (job_func, Priority.DEFAULT, cancellable);
         }

@@ -251,6 +251,12 @@ namespace Fm {
 	public class FileInfo {
 		
         [CCode (has_construct_function = false)]
+		public FileInfo.for_path                        (Fm.Path path);
+        
+		public void                 set_path            (Fm.Path path);
+		public unowned Fm.Path      get_path            ();
+        
+        [CCode (has_construct_function = false)]
 		public FileInfo.computer                        ();
 		
         [CCode (has_construct_function = false)]
@@ -259,18 +265,9 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public FileInfo.user_special_dir                (GLib.UserDirectory directory);
 		
-        [CCode (has_construct_function = false)]
-		public FileInfo.for_path                        (Fm.Path path);
-        
-		public void                 set_path            (Fm.Path path);
-		public unowned Fm.Path      get_path            ();
         
         public bool                 set_for_native_file (string path);
-        
-        [CCode (has_construct_function = false)]
-		public FileInfo.from_gfileinfo                  (Fm.Path path, GLib.FileInfo inf);
-		
-        public void                 set_from_gfileinfo  (GLib.FileInfo inf);
+        public void                 set_for_gfileinfo   (GLib.FileInfo inf);
 		
 
         public void                 set_disp_name       (string name);

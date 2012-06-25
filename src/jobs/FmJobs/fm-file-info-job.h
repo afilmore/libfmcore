@@ -57,9 +57,7 @@ typedef enum _FmFileInfoJobFlags FmFileInfoJobFlags;
 struct _FmFileInfoJob
 {
 	FmJob               parent;
-    
     FmFileInfoJobFlags  flags;
-	
     FmFileInfoList      *file_info_list;
     
     FmPath              *current;
@@ -77,7 +75,7 @@ GType           fm_file_info_job_get_type       ();
 
                 // This can only be called before running the job...
 void            fm_file_info_job_add            (FmFileInfoJob *job, FmPath *path);
-void            fm_file_info_job_add_gfile      (FmFileInfoJob *job, GFile *gf);
+void            fm_file_info_job_add_gfile      (FmFileInfoJob *job, GFile *gfile);
 
                 // Should only be called in error handler...
 FmPath          *fm_file_info_job_get_current   (FmFileInfoJob *job);

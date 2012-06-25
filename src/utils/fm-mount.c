@@ -31,8 +31,11 @@
 #include <glib/gi18n-lib.h>
 #include <string.h>
 
+#include "fm-debug.h"
+
 #include "fm-dir-list-job.h"
 #include "fm-msgbox.h"
+
 
 typedef enum
 {
@@ -74,7 +77,7 @@ void fm_mount_automount ()
         
         g_return_val_if_fail (gfile != NULL, 1);
         
-        printf ("path2: %s\n", fm_path_to_str (path));
+        NO_DEBUG ("path2: %s\n", fm_path_to_str (path));
         
         g_file_mount_mountable (gfile, 0, NULL, NULL, on_automount, NULL);
         g_object_unref (gfile);
@@ -106,7 +109,7 @@ static void on_automount (GObject *object, GAsyncResult *res, gpointer user_data
     }
     else
     {
-        //~ printf ("success: %s\n", g_file_get_display_name (target));
+        //~ NO_DEBUG ("success: %s\n", g_file_get_display_name (target));
         g_object_unref (target);
     }
         

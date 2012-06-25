@@ -231,7 +231,7 @@ GAppInfo *fm_app_chooser_dlg_get_selected_app (GtkDialog *dlg, gboolean *set_def
                     MenuCache *menu_cache;
                     #if GLIB_CHECK_VERSION (2, 10, 0)
                     /*see if the command is already in the list of known apps for this mime-type */
-                    GList *apps = g_app_info_get_all_for_type (data->mime_type->type);
+                    GList *apps = g_app_info_get_all_for_type (fm_mime_type_get_type (data->mime_type));
                     GList *l;
                     for (l=apps;l;l=l->next)
                     {

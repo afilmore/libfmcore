@@ -7,6 +7,8 @@
  **********************************************************************************************************************/
 #include <fm.h>
 
+#include "fm-debug.h"
+
 GMainLoop *loop;
 
 
@@ -22,7 +24,7 @@ static void mount_mountable_done_cb (GObject *object, GAsyncResult *res, gpointe
     }
     else
     {
-        //~ printf ("success: %s\n", g_file_get_display_name (target));
+        //~ NO_DEBUG ("success: %s\n", g_file_get_display_name (target));
         g_object_unref (target);
     }
         
@@ -50,7 +52,7 @@ int main (int argc, char *argv[])
         
         g_return_val_if_fail (gfile != NULL, 1);
         
-        printf ("path2: %s\n", fm_path_to_str (path));
+        NO_DEBUG ("path2: %s\n", fm_path_to_str (path));
         
         g_file_mount_mountable (gfile, 0, NULL, NULL, mount_mountable_done_cb, NULL);
         g_object_unref (gfile);

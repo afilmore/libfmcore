@@ -31,6 +31,8 @@
 
 #include <glib/gi18n-lib.h>
 
+#include "fm-debug.h"
+
 #include "fm-vala.h"
 #include "fm-folder-view.h"
 #include "fm-folder.h"
@@ -249,7 +251,7 @@ static void fm_folder_view_init (FmFolderView *self)
 GtkWidget *fm_folder_view_new (FmFolderViewMode mode)
 {
     
-    printf ("FM_FOLDER_VIEW: fm_folder_view_new: mode = %d\n", mode);
+    NO_DEBUG ("FM_FOLDER_VIEW: fm_folder_view_new: mode = %d\n", mode);
     
     FmFolderView *folder_view =  (FmFolderView*) g_object_new (FM_TYPE_FOLDER_VIEW, NULL);
     

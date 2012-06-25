@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "fm-debug.h"
+
 #include "fm-utils.h"
 #include "fm-dir-tree-model.h"
 #include "fm-dir-tree-item.h"
@@ -94,11 +95,15 @@ static gboolean subdir_check_finish                         (FmDirTreeModel *mod
  ****************************************************************************************/
 FmDirTreeModel *fm_dir_tree_model_new ()
 {
+    TREEVIEW_DEBUG ("----------------------------------------------------------------------\n");
     TREEVIEW_DEBUG ("fm_dir_tree_model_new\n");
     
     FmDirTreeModel *dir_tree_model = (FmDirTreeModel*) g_object_new (FM_TYPE_DIR_TREE_MODEL, NULL);
     
     //dir_tree_model->show_hidden = show_hidden;
+    
+    TREEVIEW_DEBUG ("fm_dir_tree_model_new: object created\n");
+    TREEVIEW_DEBUG ("----------------------------------------------------------------------\n");
     
     return dir_tree_model;
 }
@@ -766,7 +771,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTr
                 FmPath *path = fm_file_info_get_path (fi);
                 if (!fm_file_info_is_dir (fi))
                 {
-                    printf ("%s\n", fm_path_get_basename (path));
+                    NO_DEBUG ("%s\n", fm_path_get_basename (path));
                     //&& !fm_path_is_virtual (path))
                     continue;
                 }
@@ -781,7 +786,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTr
         }
         else
         {
-            printf ("NOT loaded !!!\n");
+            NO_DEBUG ("NOT loaded !!!\n");
         }
     }
     

@@ -29,6 +29,7 @@ VALAFLAGS = \
 	--pkg vconfig \
 	--pkg $(GTK_PKG) \
     --pkg libfmcore \
+    --pkg debug \
     --pkg posix \
     --header fm-vala.h \
 	$(NULL)
