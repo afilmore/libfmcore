@@ -13,7 +13,6 @@ AM_CPPFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-I$(srcdir) \
 	-I$(srcdir)/jobs \
-	-I$(srcdir)/jobs/FmJobs \
 	-I$(srcdir)/base \
 	-I$(srcdir)/gtk \
 	-I$(srcdir)/gtk/exo \
@@ -36,7 +35,7 @@ VALAFLAGS = \
 
 vala_SOURCES = \
 	base/fm-config.vala \
-	jobs/Base/Job.vala \
+	jobs/Job.vala \
 	jobs/Base/FileJob.vala \
 	jobs/FileJobs/CopyJob.vala \
 	jobs/FileJobs/DeleteJob.vala \
@@ -109,9 +108,9 @@ exo_SOURCES = \
 
 
 jobs_SOURCES = \
-	jobs/FmJobs/fm-dir-list-job.c \
-	jobs/FmJobs/fm-deep-count-job.c  \
-	jobs/FmJobs/fm-file-info-job.c \
+	jobs/fm-dir-list-job.c \
+	jobs/fm-deep-count-job.c  \
+	jobs/fm-file-info-job.c \
 	$(NULL)
 
 
@@ -141,9 +140,9 @@ libfmcoreinclude_HEADERS = \
 	base/fm-path.h \
 	base/fm-path-list.h \
 	base/fm-utils.h \
-	jobs/FmJobs/fm-deep-count-job.h \
-	jobs/FmJobs/fm-dir-list-job.h \
-	jobs/FmJobs/fm-file-info-job.h \
+	jobs/fm-deep-count-job.h \
+	jobs/fm-dir-list-job.h \
+	jobs/fm-file-info-job.h \
 	gtk/exo/exo-icon-view.h \
 	gtk/exo/exo-tree-view.h \
 	gtk/fm-dnd-auto-scroll.h \
