@@ -572,22 +572,22 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
      *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
      **/
     
-    // Documents...
+    // Download...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
     fm_file_info_job_add (file_info_job, path);
     fm_path_unref (path);
     
-    // Documents...
+    // Music...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC));
     fm_file_info_job_add (file_info_job, path);
     fm_path_unref (path);
     
-    // Documents...
+    // Pictures...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES));
     fm_file_info_job_add (file_info_job, path);
     fm_path_unref (path);
     
-    // Documents...
+    // Videos...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS));
     fm_file_info_job_add (file_info_job, path);
     fm_path_unref (path);

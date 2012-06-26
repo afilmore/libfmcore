@@ -35,6 +35,9 @@ namespace Manager {
         private Fm.DirTreeView  _tree_view;
         private Fm.FolderView   _folder_view;
         
+        private Fm.FileMenu?    _fm_file_menu;
+        private Gtk.Menu?       _file_popup;
+        
         public Window () {
             
             this.destroy.connect ( () => {
@@ -107,7 +110,7 @@ namespace Manager {
             // The model is loaded, attach a view to it and connect signals...
             _tree_view.set_model (_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
-            //_tree_view.button_release_event.connect (_tree_view_on_button_release);
+            _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
 
 
@@ -128,8 +131,7 @@ namespace Manager {
             _folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
             _folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
             
-            
-//~             _folder_view.chdir (_current_dir);
+            _folder_view.clicked.connect (_folder_view_on_file_clicked);
             _hpaned.add2 (_folder_view);
             
             
@@ -173,6 +175,162 @@ namespace Manager {
             
             if (caller != DirChangeCaller.FOLDER_VIEW)                
                 _folder_view.chdir (path);
+        }
+        
+        private bool _tree_view_on_button_release (Gdk.EventButton event) {
+        
+            /*** stdout.printf ("_tree_view_on_button_release\n"); ***/ 
+            
+            if (event.button != 3)
+                return false;
+            
+            Gtk.TreePath path;
+            
+            if (!_tree_view.get_path_at_pos ((int) event.x, (int) event.y, out path, null, null, null))
+                return true;
+            
+            //~ select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
+            //~ gtk_tree_selection_unselect_all (select);
+            //~ gtk_tree_selection_select_path (select, path);
+            //~ gtk_tree_path_free (path);
+            
+            Gtk.TreeSelection sel = _tree_view.get_selection ();
+            List<Gtk.TreePath>? sels = sel.get_selected_rows (null);
+            if (sels == null)
+                return true;
+                
+            Gtk.TreeIter it;
+            if (!_dir_tree_model.get_iter (out it, sels.data))
+                return true;
+            
+            // Get The Selected File...
+            unowned Fm.FileInfo? file_info;
+            _dir_tree_model.get (it, 2, out file_info, -1);
+            if (file_info == null)
+                return true;
+                
+            // Create A FileInfoList Containing The Selected File...
+            Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
+            files.push_tail (file_info);
+            
+            _file_popup = _file_menu_get_menu ((Gtk.Widget) this, _tree_view.get_current_directory (), files);
+            
+            if (_file_popup != null)
+                _file_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
+            
+            return true;
+        }
+        
+        private void _folder_view_on_file_clicked (Fm.FolderViewClickType type, Fm.FileInfo? fi) {
+
+            switch (type) {
+                
+                // Double click on an item in the Folder View...
+                case Fm.FolderViewClickType.ACTIVATED: {
+                    
+                    /**
+                    if (fi == null || fi.get_path ().is_trash ())
+                        return;
+                    
+                    string? target = fi.get_target ();
+                    
+                    // TODO_axl: create a global_app.launchfile () ???
+                    
+                    // A directory...
+                    if (fi.is_dir ()) {
+                        
+                        // FIXME_axl: doesn't work with DirChangeCaller.FOLDER_VIEW...
+                        this._change_directory (fi.get_path (), DirChangeCaller.NONE);
+                             
+                    } else if (fi.is_mountable ()) {
+                        
+                        if (target == null) {
+                        
+                            stdout.printf ("mountable = null !!!!\n");
+                            
+                            //Desktop.global_volume_monitor.test (this, fi);
+                            
+                        } else {
+                        
+                            Fm.Path path = new Fm.Path.for_str (target);
+                            this._change_directory (path, DirChangeCaller.NONE);
+                        }
+                    
+                    } else {
+                        
+                        Fm.launch_file (this, null, fi, null);
+                    }**/
+                }
+                break;
+                
+                case Fm.FolderViewClickType.CONTEXT_MENU: {
+                    
+                    // File/Folder Popup Menu...
+                    if (fi != null) {
+                        
+                        Fm.FileInfoList<Fm.FileInfo>? files = _folder_view.get_selected_files ();
+                        if (files == null)
+                            return;
+            
+                        _file_popup = _file_menu_get_menu ((Gtk.Widget) this, _folder_view.get_cwd (), files);
+                        
+                        if (_file_popup != null)
+                            _file_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
+                    }
+                }
+                break;
+            }
+        }
+        
+        private Gtk.Menu _file_menu_get_menu (Gtk.Widget owner,
+                                  Fm.Path destination,
+                                  Fm.FileInfoList<Fm.FileInfo>? file_info_list) {
+            
+            //_owner_widget = owner;
+            //_dest_directory = destination;
+            
+            // Create The Popup Menu.
+            _fm_file_menu = new Fm.FileMenu.for_files ((Gtk.Window) owner,
+                                                       file_info_list,
+                                                       destination, false);
+            
+            Gtk.ActionGroup action_group = _fm_file_menu.get_action_group ();
+            action_group.set_translation_domain ("");
+            
+            _fm_file_menu.set_folder_func (this._open_folder_func);
+            
+            /** Add Terminal Here... Action...
+            Fm.FileInfo? file_info = file_info_list.peek_head ();
+            
+            if (file_info.is_dir ()) {
+                
+                _open_terminal_dir = file_info.get_path ().to_str ();
+                
+                Gtk.UIManager ui = _fm_file_menu.get_ui ();
+                
+                action_group.add_actions (_folders_actions, this);
+                try {
+                    ui.add_ui_from_string (_folders_xml, -1);
+                } catch (Error e) {
+                }
+            }**/
+
+            return _fm_file_menu.get_menu ();
+        }
+        
+        public bool _open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos,
+                                             void *user_data) {
+            
+            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) folder_infos;
+            
+            foreach (Fm.FileInfo fi in folder_list) {
+                
+//~                 string[] folders = new string [1];
+//~                 folders[0] = fi.get_path ().to_str ();
+//~                 
+//~                 global_app.new_manager_tab (folders);
+            }
+            return true;
         }
     }
 }

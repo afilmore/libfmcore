@@ -38,6 +38,8 @@ namespace Fm {
         public string panel;
         public string run;
         public string taskmanager;
+
+        public string application_menu;
         
         // SI Prefix...
         public bool si_unit;                            // use SI prefix for file sizes
@@ -60,6 +62,9 @@ namespace Fm {
             
             settings = new Settings ("desktop.noname.applications.archiver");
             this.archiver = settings.get_string ("default");
+            
+            settings = new Settings ("desktop.noname.menu");
+            this.application_menu = settings.get_string ("application-menu");
             
         }
     }

@@ -40,6 +40,8 @@ namespace Fm {
         public string       run;
         public string       taskmanager;
         
+        public string       application_menu;
+        
         public bool         si_unit;
 		
         [CCode (has_construct_function = false)]

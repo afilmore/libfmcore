@@ -27,6 +27,8 @@
 
 #include "fm-debug.h"
 
+#include "fm-vala.h"
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -219,8 +221,15 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             
             DEBUG ("DEBUG: fm_file_info_job_run: enter menu_cache_lookup_sync ()\n");
             
+            MenuCache *mc;
+            if (fm_config->application_menu)
+                mc = menu_cache_lookup_sync (fm_config->application_menu);
+            else
+                mc = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
+            
+            
             //~ MenuCache *mc = menu_cache_lookup_sync (menu_name);
-            MenuCache *mc = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
+            //~ MenuCache *mc = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
             
             DEBUG ("DEBUG: fm_file_info_job_run: leave menu_cache_lookup_sync ()\n");
             

@@ -113,6 +113,23 @@
     </key>
   </schema>
 
+    <schema path="/desktop/noname/menu/" id="desktop.noname.menu">
+
+    <!--
+    
+        /etc/xdg/lubuntu/menus/lxde-applications.menu
+        /etc/xdg/menus/applications.menu
+    
+    
+    -->
+
+        <key type="s" name="application-menu">
+            <default>'/etc/xdg/lubuntu/menus/lxde-applications.menu'</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+  </schema>
+
 </schemalist>
 
 
