@@ -228,38 +228,32 @@ namespace Manager {
                 // Double click on an item in the Folder View...
                 case Fm.FolderViewClickType.ACTIVATED: {
                     
-                    /**
                     if (fi == null || fi.get_path ().is_trash ())
                         return;
                     
                     string? target = fi.get_target ();
                     
-                    // TODO_axl: create a global_app.launchfile () ???
-                    
                     // A directory...
                     if (fi.is_dir ()) {
                         
-                        // FIXME_axl: doesn't work with DirChangeCaller.FOLDER_VIEW...
-                        this._change_directory (fi.get_path (), DirChangeCaller.NONE);
+                        this._change_directory (fi.get_path (), DirChangeCaller.FOLDER_VIEW);
                              
                     } else if (fi.is_mountable ()) {
                         
                         if (target == null) {
                         
-                            stdout.printf ("mountable = null !!!!\n");
-                            
-                            //Desktop.global_volume_monitor.test (this, fi);
+                            DEBUG ("TODO: mount items on the fly...\n");
                             
                         } else {
                         
                             Fm.Path path = new Fm.Path.for_str (target);
-                            this._change_directory (path, DirChangeCaller.NONE);
+                            this._change_directory (path, DirChangeCaller.FOLDER_VIEW);
                         }
                     
                     } else {
                         
                         Fm.launch_file (this, null, fi, null);
-                    }**/
+                    }
                 }
                 break;
                 
@@ -287,7 +281,6 @@ namespace Manager {
                                   Fm.FileInfoList<Fm.FileInfo>? file_info_list) {
             
             //_owner_widget = owner;
-            //_dest_directory = destination;
             
             // Create The Popup Menu.
             _fm_file_menu = new Fm.FileMenu.for_files ((Gtk.Window) owner,
@@ -299,22 +292,6 @@ namespace Manager {
             
             _fm_file_menu.set_folder_func (this._open_folder_func);
             
-            /** Add Terminal Here... Action...
-            Fm.FileInfo? file_info = file_info_list.peek_head ();
-            
-            if (file_info.is_dir ()) {
-                
-                _open_terminal_dir = file_info.get_path ().to_str ();
-                
-                Gtk.UIManager ui = _fm_file_menu.get_ui ();
-                
-                action_group.add_actions (_folders_actions, this);
-                try {
-                    ui.add_ui_from_string (_folders_xml, -1);
-                } catch (Error e) {
-                }
-            }**/
-
             return _fm_file_menu.get_menu ();
         }
         
@@ -325,10 +302,11 @@ namespace Manager {
             
             foreach (Fm.FileInfo fi in folder_list) {
                 
-//~                 string[] folders = new string [1];
-//~                 folders[0] = fi.get_path ().to_str ();
-//~                 
-//~                 global_app.new_manager_tab (folders);
+                /**
+                string[] folders = new string [1];
+                folders[0] = fi.get_path ().to_str ();
+                global_app.new_manager_tab (folders);
+                **/
             }
             return true;
         }

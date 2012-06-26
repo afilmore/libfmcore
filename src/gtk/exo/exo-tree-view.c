@@ -23,6 +23,7 @@
 
 // AXL_CHANGES:
 #include "exo-lxde.h"
+#include "fm-debug.h"
 
 /**
  * SECTION: exo-tree-view
@@ -297,6 +298,8 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
   GtkTreeViewColumn* col;
   gboolean treat_as_blank = FALSE;
   
+  DEBUG ("EXO_TREVIEW: exo_tree_view_button_press_event\n");
+
   /* by default we won't emit "row-activated" on button-release-events */
   tree_view->priv->button_release_activates = FALSE;
 
@@ -390,6 +393,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
         }
       else
         {
+          DEBUG ("EXO_TREVIEW: exo_tree_view_button_release_event: disable rubberbanding\n");
           /* need to disable rubberbanding because we're dragging now */
           gtk_tree_view_set_rubber_banding (GTK_TREE_VIEW (tree_view), FALSE);
 
@@ -452,6 +456,8 @@ exo_tree_view_button_release_event (GtkWidget      *widget,
   ExoTreeView       *tree_view = EXO_TREE_VIEW (widget);
   gpointer           drag_data;
   
+  DEBUG ("EXO_TREVIEW: exo_tree_view_button_release_event\n");
+
   /* verify that the release event is for the internal tree view window */
   if (G_LIKELY (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view))))
     {
@@ -513,6 +519,7 @@ exo_tree_view_button_release_event (GtkWidget      *widget,
   /* check if we need to re-enable rubberbanding */
   if (G_UNLIKELY (tree_view->priv->button_release_enables_rubber_banding))
     {
+      DEBUG ("EXO_TREVIEW: exo_tree_view_button_release_event: re-enable rubberbanding\n");
       gtk_tree_view_set_rubber_banding (GTK_TREE_VIEW (tree_view), TRUE);
       tree_view->priv->button_release_enables_rubber_banding = FALSE;
     }

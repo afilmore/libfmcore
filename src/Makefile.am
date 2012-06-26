@@ -12,7 +12,6 @@ SUBDIRS= \
 AM_CPPFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-I$(srcdir) \
-	-I$(srcdir)/fm-vala \
 	-I$(srcdir)/jobs \
 	-I$(srcdir)/jobs/FmJobs \
 	-I$(srcdir)/base \
@@ -36,7 +35,7 @@ VALAFLAGS = \
 
 
 vala_SOURCES = \
-	fm-vala/fm-config.vala \
+	base/fm-config.vala \
 	jobs/Base/Job.vala \
 	jobs/Base/FileJob.vala \
 	jobs/FileJobs/CopyJob.vala \
