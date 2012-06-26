@@ -126,10 +126,9 @@ FmPath     *fm_file_info_get_path                   (FmFileInfo *file_info);
 
 
 
+gboolean    fm_file_info_query                      (FmFileInfo *file_info, GCancellable *cancellable, GError **err);
 gboolean    fm_file_info_set_for_native_file        (FmFileInfo *file_info, const char *path/*, GError **err*/);
-gboolean fm_file_info_query_info                    (FmFileInfo *file_info, GFile *gfile,
-                                                     GCancellable *cancellable, GError **err);
-void        fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
+//void        fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
 void        fm_file_info_set_for_menu_cache_item    (FmFileInfo *file_info, MenuCacheItem *item);
 
 

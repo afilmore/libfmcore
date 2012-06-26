@@ -290,8 +290,10 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
     
     
     job->dir_fi = fm_file_info_new_for_path (job->dir_path);
-    fm_file_info_set_for_gfileinfo (job->dir_fi, gfile_info);
+    fm_file_info_query (job->dir_fi, NULL, NULL);
     
+    //~ fm_file_info_set_for_gfileinfo (job->dir_fi, gfile_info);
+    //~ 
     g_object_unref (gfile_info);
 
     
@@ -352,8 +354,14 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
             
             
             
+            //~ file_info = fm_file_info_new_for_path (sub);
+            //~ fm_file_info_set_for_gfileinfo (file_info, gfile_info);
+            //~ 
+            //~ fm_path_unref (sub);
+            //~ 
+            
             file_info = fm_file_info_new_for_path (sub);
-            fm_file_info_set_for_gfileinfo (file_info, gfile_info);
+            fm_file_info_query (file_info, NULL, NULL);
             
             fm_path_unref (sub);
             

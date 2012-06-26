@@ -887,7 +887,7 @@ inline GtkTreePath *fm_dir_tree_model_item_to_tree_path (FmDirTreeModel *dir_tre
     return fm_dir_tree_model_get_path ((GtkTreeModel*) dir_tree_model, &it);
 }
 
-// find child item by filename, and retrive its index if idx is not NULL. 
+// Find child item by filename, and retrive its index if idx is not NULL...
 GList *fm_dir_tree_model_children_by_name (FmDirTreeModel *dir_tree_model, GList *children, const char *name, int *idx)
 {
     GList *l;

@@ -256,6 +256,8 @@ namespace Fm {
 		public void                 set_path            (Fm.Path path);
 		public unowned Fm.Path      get_path            ();
         
+        public bool                 query               (GLib.Cancellable? cancellable) throws GLib.Error;
+        
         [CCode (has_construct_function = false)]
 		public FileInfo.computer                        ();
 		
@@ -267,7 +269,7 @@ namespace Fm {
 		
         
         public bool                 set_for_native_file (string path);
-        public void                 set_for_gfileinfo   (GLib.FileInfo inf);
+//~         public void                 set_for_gfileinfo   (GLib.FileInfo inf);
 		
 
         public void                 set_disp_name       (string name);

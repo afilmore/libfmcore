@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "fm-debug.h"
 #include "fm-utils.h"
 
 #include "fm-trash.h" // <- this introduces a Gtk dependency...
@@ -57,6 +58,7 @@ const char          *gfile_info_query_attribs = "standard::*,unix::*,time::*,acc
 static void     fm_file_info_clear                      (FmFileInfo *file_info);
 static void     fm_file_info_set_for_desktop_entry      (FmFileInfo *file_info);
 static gboolean fm_file_info_init_icon_for_crappy_code  (FmFileInfo *file_info);
+static void     fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
 
 
 /*********************************************************************
@@ -288,26 +290,45 @@ FmFileInfo *fm_file_info_new_trash_can ()
 
 FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
 {
-    const gchar *path_name = g_get_user_special_dir (directory);
+    //~ const gchar *path_name = g_get_user_special_dir (directory);
     
-    GFile *file = g_file_new_for_path (path_name);
-    if (!file)
-        return NULL;
+    //~ GFile *file = g_file_new_for_path (path_name);
+    //~ if (!file)
+        //~ return NULL;
+    //~ 
+    //~ GFileInfo *ginfo = g_file_query_info (file,
+                                          //~ "standard::*,unix::*,time::*,access::*,id::filesystem",
+                                          //~ G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
+                                          //~ NULL,
+                                          //~ NULL);
+//~ 
+    //~ FmPath *path = fm_path_new_for_path (path_name);
+    //~ 
+    //~ FmFileInfo *file_info = fm_file_info_new_for_path (path);
+    //~ fm_file_info_set_for_gfileinfo (file_info, ginfo);
+    //~ 
+    //~ fm_path_unref (path);
+    //~ g_object_unref (ginfo);
+    //~ g_object_unref (file);
+    //~ 
     
-    GFileInfo *ginfo = g_file_query_info (file,
-                                          "standard::*,unix::*,time::*,access::*,id::filesystem",
-                                          G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
-                                          NULL,
-                                          NULL);
+    
+    //~ GFile *file = g_file_new_for_path (path_name);
+    //~ if (!file)
+        //~ return NULL;
+    //~ 
+    //~ GFileInfo *ginfo = g_file_query_info (file,
+                                          //~ "standard::*,unix::*,time::*,access::*,id::filesystem",
+                                          //~ G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
+                                          //~ NULL,
+                                          //~ NULL);
 
-    FmPath *path = fm_path_new_for_path (path_name);
+    FmPath *path = fm_path_new_for_path (g_get_user_special_dir (directory));
     
     FmFileInfo *file_info = fm_file_info_new_for_path (path);
-    fm_file_info_set_for_gfileinfo (file_info, ginfo);
+    fm_file_info_query (file_info, NULL, NULL);
     
     fm_path_unref (path);
-    g_object_unref (ginfo);
-    g_object_unref (file);
     
     return file_info;
 }
@@ -463,16 +484,17 @@ static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
  * 
  * 
  ********************************************************************/
-gboolean fm_file_info_query_info (FmFileInfo *file_info, GFile *gfile, GCancellable *cancellable, GError **err)
+gboolean fm_file_info_query (FmFileInfo *file_info, GCancellable *cancellable, GError **err)
 {
-	
-    
-    
+    GFile *gfile = fm_path_to_gfile (file_info->path);
     
     GFileInfo *gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, cancellable, err);
+    g_object_unref (gfile);
 	
-    if (!gfile_info)
-		return FALSE;
+    //~ if (!gfile_info)
+		//~ return FALSE;
+    
+    g_return_val_if_fail (gfile_info != NULL, FALSE);
 	
     fm_file_info_set_for_gfileinfo (file_info, gfile_info);
 
@@ -487,7 +509,7 @@ gboolean fm_file_info_query_info (FmFileInfo *file_info, GFile *gfile, GCancella
  * 
  * 
  ********************************************************************/
-void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gfile_info)
+static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gfile_info)
 {
     const char *tmp;
     GIcon *gicon;
@@ -495,6 +517,8 @@ void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gfile_inf
 
     g_return_if_fail (file_info->path);
 
+    //DEBUG ("DEBUG: fm_file_info_set_for_gfileinfo: replace with fm_file_info_set_for_gfileinfo () !!!\n");
+    
     // if display name is the same as its name, just use it.
     tmp = g_file_info_get_display_name (gfile_info);
     
