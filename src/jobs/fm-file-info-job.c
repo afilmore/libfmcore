@@ -3,6 +3,7 @@
  *      fm-file-info-job.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -37,6 +38,8 @@
 
 
 G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
+
+extern MenuCache *global_menu_cache;
 
 
 // Forward declarations...
@@ -192,11 +195,13 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         // This is a xdg menu
         else if (fm_path_is_xdg_menu (file_info->path))
         {
+            g_return_val_if_fail (global_menu_cache != NULL, FALSE);
+            
             
             // Menu path as "menu://applications/system/Administration"...
             char *path_str = fm_path_to_str (file_info->path);
             
-            DEBUG ("DEBUG: fm_file_info_job_run: %s\n", path_str);
+            //DEBUG ("DEBUG: fm_file_info_job_run: %s\n", path_str);
             
             // Get the file menu name...
             char *menu_name = path_str + 5;
@@ -217,15 +222,15 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             menu_name = g_strconcat (menu_name, ".menu", NULL);
             
             
-            DEBUG ("DEBUG: fm_file_info_job_run: menu name = %s\n", menu_name);
+            //DEBUG ("DEBUG: fm_file_info_job_run: menu name = %s\n", menu_name);
             
             DEBUG ("DEBUG: fm_file_info_job_run: enter menu_cache_lookup_sync ()\n");
             
-            MenuCache *mc;
-            if (fm_config->application_menu)
-                mc = menu_cache_lookup_sync (fm_config->application_menu);
-            else
-                mc = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
+            //~ MenuCache *mc;
+            //~ if (fm_config->application_menu)
+                //~ mc = menu_cache_lookup_sync (fm_config->application_menu);
+            //~ else
+                //~ mc = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
             
             
             //~ MenuCache *mc = menu_cache_lookup_sync (menu_name);
@@ -239,16 +244,16 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
             {
                 char *tmp = g_strconcat ("/",
-                                         menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))),
+                                         menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (global_menu_cache))),
                                          dir_name, NULL);
                 
-                menu_cache_dir = menu_cache_get_dir_from_path (mc, tmp);
+                menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, tmp);
                 
                 g_free (tmp);
             }
             else
             {
-                menu_cache_dir = menu_cache_get_root_dir (mc);
+                menu_cache_dir = menu_cache_get_root_dir (global_menu_cache);
             }
             
             DEBUG ("DEBUG: fm_file_info_job_run: menu cache dir = %s\n", menu_cache_item_get_name (menu_cache_dir));
@@ -265,7 +270,8 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
             }
             
             g_free (path_str);
-            menu_cache_unref (mc);
+            
+            //menu_cache_unref (global_menu_cache);
             
             l = l->next;
             continue;

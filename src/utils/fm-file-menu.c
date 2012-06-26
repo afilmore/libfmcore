@@ -361,7 +361,7 @@ FmFileMenu *fm_file_menu_new_for_files (GtkWindow *parent, FmFileInfoList *files
     gtk_action_set_visible (action, (!multiple_files && !have_virtual));
     
     action = gtk_ui_manager_get_action (ui, "/popup/Link");
-    gtk_action_set_visible (action, !have_virtual);
+    gtk_action_set_visible (action, TRUE);
     
     action = gtk_ui_manager_get_action (ui, "/popup/SendTo");
     gtk_action_set_visible (action, !have_virtual);
@@ -600,6 +600,9 @@ void action_link (GtkAction *action, gpointer user_data)
     FmFileMenu *file_menu = (FmFileMenu*) user_data;
     
     FmPathList *files = fm_path_list_new_from_file_info_list (file_menu->file_infos);
+    
+    //...
+    
     fm_link_files (file_menu->parent, files, file_menu->current_directory);
     
     fm_list_unref (files);

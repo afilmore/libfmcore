@@ -28,12 +28,16 @@
 
 #include "fm.h"
 
+#include <menu-cache.h>
+
 #include <glib/gi18n-lib.h>
 
 #ifdef USE_UDISKS
 #include "udisks/fm-udisks.h"
 #endif
 
+
+MenuCache *global_menu_cache = NULL;
 
 GQuark fm_qdata_id = 0;
 
@@ -86,6 +90,11 @@ gboolean fm_init (FmConfig *config)
     // Fm Gtk Init.
     _fm_icon_pixbuf_init ();
     _fm_thumbnail_init ();
+    
+    if (fm_config->application_menu)
+        global_menu_cache = menu_cache_lookup_sync (fm_config->application_menu);
+    else
+        global_menu_cache = menu_cache_lookup_sync ("/etc/xdg/menus/applications.menu");
 
     return TRUE;
 }
@@ -113,6 +122,10 @@ void fm_finalize ()
         g_object_unref (fm_config);
     
     fm_config = NULL;
+    
+    if (global_menu_cache)
+        menu_cache_unref (global_menu_cache);
+    
 }
 
 

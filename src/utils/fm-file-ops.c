@@ -73,6 +73,14 @@ void fm_link_files (GtkWindow *parent, FmPathList *path_list, FmPath *dest_dir)
     
     FmList *dest_paths = fm_path_list_new ();
 	
+    if (fm_path_is_virtual (dest_dir))
+    {
+        fm_show_error (parent, NULL, "Cannot create a link here, it will be created on the desktop.");
+        
+        dest_dir = fm_path_get_desktop ();
+        //return;
+    }
+    
     GList *l;
     for (l = fm_list_peek_head_link (path_list); l; l = l->next) {
         

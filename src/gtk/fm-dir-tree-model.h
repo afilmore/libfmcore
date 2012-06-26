@@ -27,6 +27,7 @@
 
 #include <gtk/gtk.h>
 #include <glib-object.h>
+
 #include "fm-file-info.h"
 
 
@@ -41,7 +42,7 @@ G_BEGIN_DECLS
 #define FM_DIR_TREE_MODEL_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj),   FM_TYPE_DIR_TREE_MODEL, \
                                              FmDirTreeModelClass))
 
-// Columns of dir tree view...
+// Defines the columns of the Tree Model...
 enum {
     FM_DIR_TREE_MODEL_COL_ICON,
     FM_DIR_TREE_MODEL_COL_DISP_NAME,
@@ -54,17 +55,21 @@ enum {
 typedef struct _FmDirTreeModel              FmDirTreeModel;
 typedef struct _FmDirTreeModelClass         FmDirTreeModelClass;
 
+
 struct _FmDirTreeModel
 {
     GObject         parent;
-    GList           *roots;
+    
+    GList           *roots;                 // A list containing root items (FmDirTreeItem)...
+    
     gint            stamp;
+    
     int             icon_size;
     gboolean        show_hidden;
     
+    // Subdirectory Check Job, this permits to expend only folders which have subfolders...
     gboolean        check_subdir;
     
-    // Subdirectory Check Job, this permits to expend only folders which have subfolders...
     gboolean        job_running;
     
     GQueue          subdir_checks;
@@ -80,35 +85,41 @@ struct _FmDirTreeModelClass
 };
 
 
-FmDirTreeModel *fm_dir_tree_model_new       ();
-GType fm_dir_tree_model_get_type            ();
+FmDirTreeModel     *fm_dir_tree_model_new                       ();
+GType               fm_dir_tree_model_get_type                  ();
 
-void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model);
-void fm_dir_tree_model_add_root             (FmDirTreeModel *dir_tree_model, FmFileInfo *root, GtkTreeIter *it, gboolean expand);
+                    // For FmDirTreeView, called in fm_dir_tree_view_select_function ()... 
+gboolean            fm_dir_tree_model_get_iter                  (GtkTreeModel *tree_model,
+                                                                 GtkTreeIter *iter, GtkTreePath *path);
 
-void fm_dir_tree_model_expand_row           (FmDirTreeModel *dir_tree_model, GtkTreeIter *it, GtkTreePath *tp);
-void fm_dir_tree_model_collapse_row         (FmDirTreeModel *dir_tree_model, GtkTreeIter *it, GtkTreePath *tp);
+void                fm_dir_tree_model_load                      (FmDirTreeModel *dir_tree_model);
+void                fm_dir_tree_model_add_root                  (FmDirTreeModel *dir_tree_model, FmFileInfo *root,
+                                                                 GtkTreeIter *it, gboolean expand);
 
-void fm_dir_tree_model_set_icon_size        (FmDirTreeModel *dir_tree_model, guint icon_size);
-guint fm_dir_tree_get_icon_size             (FmDirTreeModel *dir_tree_model);
+void                fm_dir_tree_model_expand_row                (FmDirTreeModel *dir_tree_model,
+                                                                 GtkTreeIter *it, GtkTreePath *tp);
+void                fm_dir_tree_model_collapse_row              (FmDirTreeModel *dir_tree_model,
+                                                                 GtkTreeIter *it, GtkTreePath *tp);
 
-void fm_dir_tree_model_set_show_hidden      (FmDirTreeModel *dir_tree_model, gboolean show_hidden);
-gboolean fm_dir_tree_model_get_show_hidden  (FmDirTreeModel *dir_tree_model);
+void                fm_dir_tree_model_set_icon_size             (FmDirTreeModel *dir_tree_model, guint icon_size);
+guint               fm_dir_tree_get_icon_size                   (FmDirTreeModel *dir_tree_model);
 
-// for FmDirTreeView, called in fm_dir_tree_view_init () 
-gboolean fm_dir_tree_model_get_iter  (GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreePath *path);
-//~ gboolean fm_dir_tree_view_select_function   (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
-                                             //~ gboolean path_currently_selected, gpointer data);
+void                fm_dir_tree_model_set_show_hidden           (FmDirTreeModel *dir_tree_model, gboolean show_hidden);
+gboolean            fm_dir_tree_model_get_show_hidden           (FmDirTreeModel *dir_tree_model);
 
-void fm_dir_tree_model_remove_item          (FmDirTreeModel *dir_tree_model, GList *item_list);
-GList *fm_dir_tree_model_insert_file_info   (FmDirTreeModel *dir_tree_model, GList *parent_l, GtkTreePath *tp, FmFileInfo *fi);
-inline void fm_dir_tree_model_item_to_tree_iter (FmDirTreeModel *dir_tree_model, GList *item_list, GtkTreeIter *it);
-inline GtkTreePath *fm_dir_tree_model_item_to_tree_path (FmDirTreeModel *dir_tree_model, GList *item_list);
-void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *dir_tree_model, GList *item_list);
-GList *fm_dir_tree_model_children_by_name   (FmDirTreeModel *dir_tree_model, GList *children, const char *name, int *idx);
 
+void                fm_dir_tree_model_remove_item               (FmDirTreeModel *dir_tree_model, GList *item_list);
+GList              *fm_dir_tree_model_insert_file_info          (FmDirTreeModel *dir_tree_model, GList *parent_node,
+                                                                 GtkTreePath *tp, FmFileInfo *fi);
+inline void         fm_dir_tree_model_item_to_tree_iter         (FmDirTreeModel *dir_tree_model, GList *item_list,
+                                                                 GtkTreeIter *it);
+inline GtkTreePath *fm_dir_tree_model_item_to_tree_path         (FmDirTreeModel *dir_tree_model, GList *item_list);
+void                fm_dir_tree_model_item_queue_subdir_check   (FmDirTreeModel *dir_tree_model, GList *item_list);
+GList              *fm_dir_tree_model_children_by_name          (FmDirTreeModel *dir_tree_model, GList *children,
+                                                                 const char *name, int *idx);
 
 G_END_DECLS
 #endif
+
 
 

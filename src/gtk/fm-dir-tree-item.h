@@ -38,6 +38,7 @@
 G_BEGIN_DECLS
 
 typedef struct _FmDirTreeItem FmDirTreeItem;
+
 struct _FmDirTreeItem
 {
     GList           *parent;            // Parent Node...
