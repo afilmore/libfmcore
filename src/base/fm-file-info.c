@@ -46,6 +46,9 @@
 #include "fm-trash.h" // <- this introduces a Gtk dependency...
 
 
+extern MenuCache    *global_menu_cache;
+
+
 static gboolean     use_si_prefix = TRUE;
 static FmMimeType   *desktop_entry_type = NULL;
 static FmMimeType   *shortcut_type = NULL;
@@ -703,7 +706,146 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
  * 
  ********************************************************************/
 
+
+
+
+
+
+
+
+
+
+
 // only file info job and dir list job use it, it's not in the vapi file...
+
+
+
+
+
+
+
+
+
+
+
+
+
+gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
+{
+    g_return_val_if_fail (global_menu_cache != NULL, FALSE);
+    
+    
+    // Menu path as "menu://applications/system/Administration"...
+    char *path_str = fm_path_to_str (file_info->path);
+    
+    //DEBUG ("DEBUG: fm_file_info_job_run: %s\n", path_str);
+    
+    // Get the file menu name...
+    char *menu_name = path_str + 5;
+    
+    while (*menu_name == '/')
+        ++menu_name;
+    
+    // Get the directory name such as "Administration"...
+    char *dir_name = menu_name;
+    
+    while (*dir_name && *dir_name != '/')
+        ++dir_name;
+    
+    char *ch = *dir_name;
+    *dir_name = '\0';
+    
+    MenuCacheDir *menu_cache_dir;
+    
+    if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
+    {
+        JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: dir_name = %s\n", dir_name);
+        char *tmp = g_strconcat (
+            "/",
+            menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (global_menu_cache))),
+            dir_name,
+            NULL
+        );
+        
+        menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, tmp);
+        
+        g_free (tmp);
+    }
+    else
+    {
+        JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get root dir\n");
+        menu_cache_dir = menu_cache_get_root_dir (global_menu_cache);
+    }
+    
+    g_free (path_str);
+    
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: menu cache dir = %s\n", menu_cache_item_get_name (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: icon = %s\n", menu_cache_item_get_icon (menu_cache_dir));
+    
+    if (!menu_cache_dir)
+        return FALSE;
+
+    MenuCacheItem *item = (MenuCacheItem *) menu_cache_dir;
+    
+    const char *icon_name = menu_cache_item_get_icon (item);
+    
+    file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
+    
+    
+    
+    
+    
+    // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
+    // that's also in fm-app-menu-view.c, in add_menu_items ()
+    if (icon_name)
+    {
+        char *tmp_name = NULL;
+        if (icon_name[0] != '/') // this is a icon name, not a full path to icon file.
+        {
+            char *dot = strrchr (icon_name, '.');
+            // remove file extension, this is a hack to fix non-standard desktop entry files
+            if (G_UNLIKELY (dot))
+            {
+                ++dot;
+                if (strcmp (dot, "png") == 0 ||
+                   strcmp (dot, "svg") == 0 ||
+                   strcmp (dot, "xpm") == 0)
+                {
+                    tmp_name = g_strndup (icon_name, dot - icon_name - 1);
+                    icon_name = tmp_name;
+                }
+            }
+        }
+        
+        file_info->fm_icon = fm_icon_from_name (icon_name);
+        
+        if (G_UNLIKELY (tmp_name))
+            g_free (tmp_name);
+    }
+    
+    
+    
+    
+    
+    
+    if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_DIR)
+    {
+        file_info->mode |= S_IFDIR;
+    }
+    else if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP)
+    {
+        file_info->mode |= S_IFREG;
+        file_info->target = menu_cache_item_get_file_path (item);
+    }
+    
+    file_info->mime_type = fm_mime_type_ref (shortcut_type);
+    
+    return TRUE;
+}
+
+
+
+
 
 void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
 {

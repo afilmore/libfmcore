@@ -536,7 +536,10 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
     {
         
         job->dir_fi = fm_file_info_new_for_path (job->dir_path);
-        fm_file_info_set_for_menu_cache_item (job->dir_fi, (MenuCacheItem*) dir);
+        
+        fm_file_info_query_cache_item (job->dir_fi);
+        
+        //fm_file_info_set_for_menu_cache_item (job->dir_fi, (MenuCacheItem*) dir);
         
         
         for (l = (GList*) menu_cache_dir_get_children (dir); l; l=l->next)
@@ -560,7 +563,12 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
             
             
             file_info = fm_file_info_new_for_path (item_path);
-            fm_file_info_set_for_menu_cache_item (file_info, item);
+            
+            
+            
+            fm_file_info_query_cache_item (file_info);
+            
+            //fm_file_info_set_for_menu_cache_item (file_info, item);
             
             
             fm_path_unref (item_path);

@@ -136,6 +136,9 @@ gboolean    fm_file_info_query                      (FmFileInfo *file_info, GCan
 //void        fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
 
 // only file info job and dir list job use it, it's not in the vapi file...
+
+gboolean fm_file_info_query_cache_item (FmFileInfo *file_info);
+
 void        fm_file_info_set_for_menu_cache_item    (FmFileInfo *file_info, MenuCacheItem *item);
 
 

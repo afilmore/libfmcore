@@ -162,8 +162,8 @@ AC_ARG_ENABLE(jobs-debug,
               enable_treeview_debug="no")
 
 
-if test "$enable_jobs_debug" = "yes"; then
-    CPPFLAGS="$CPPFLAGS -DENABLE_JOBS_DEBUG"
+if test "$enable_job_debug" = "yes"; then
+    CPPFLAGS="$CPPFLAGS -DENABLE_JOB_DEBUG"
     enable_debug = "yes"
 fi
 
