@@ -257,6 +257,7 @@ namespace Fm {
 		public unowned Fm.Path      get_path            ();
         
         public bool                 query               (GLib.Cancellable? cancellable = null) throws GLib.Error;
+//~         public bool                 query_native_file   ();
         
         [CCode (has_construct_function = false)]
 		public FileInfo.computer                        ();
@@ -268,7 +269,6 @@ namespace Fm {
 		public FileInfo.user_special_dir                (GLib.UserDirectory directory);
 		
         
-        public bool                 query_native_file   ();
 //~         public void                 set_for_gfileinfo   (GLib.FileInfo inf);
 		
 
