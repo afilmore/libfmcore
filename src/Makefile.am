@@ -81,8 +81,6 @@ base_SOURCES = \
 	gtk-dlg/fm-app-chooser-dlg.c \
 	gtk-dlg/fm-app-chooser-xml.c \
 	gtk-dlg/fm-app-menu-view.c \
-	gtk-dlg/fm-gtk-launcher.c \
-	gtk-dlg/fm-gtk-launcher-xml.c \
 	gtk-dlg/fm-file-properties.c \
 	gtk-dlg/fm-file-properties-xml.c \
 	gtk-dlg/fm-select-folder-dlg.c \
@@ -92,6 +90,8 @@ base_SOURCES = \
 	utils/fm-clipboard.c \
 	utils/fm-file-menu.c \
 	utils/fm-file-ops.c \
+	utils/fm-launch.c \
+	utils/fm-launch-xml.c \
 	utils/fm-mount.c \
 	utils/fm-msgbox.c \
 	utils/fm-trash.c \
@@ -163,7 +163,6 @@ libfmcoreinclude_HEADERS = \
 	gtk-dlg/fm-app-chooser-dlg.h \
 	gtk-dlg/fm-app-menu-view.h \
 	gtk-dlg/fm-file-properties.h \
-	gtk-dlg/fm-gtk-launcher.h \
 	gtk-dlg/fm-select-folder-dlg.h \
 	gtk-dlg/fm-user-input-dlg.h \
 	utils/fm-app-info.h \
@@ -171,6 +170,7 @@ libfmcoreinclude_HEADERS = \
 	utils/fm-clipboard.h \
 	utils/fm-file-menu.h \
 	utils/fm-file-ops.h \
+	utils/fm-launch.h \
 	utils/fm-mount.h \
 	utils/fm-msgbox.h \
 	utils/fm-trash.h \

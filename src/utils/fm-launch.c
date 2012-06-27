@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-gtk-launcher.c
+ *      fm-launch.c
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
@@ -26,6 +26,8 @@
 #include <config.h>
 #endif
 
+#include "fm-launch.h"
+
 #include <glib/gi18n-lib.h>
 #include <gio/gdesktopappinfo.h>
 
@@ -39,7 +41,6 @@
 
 #include "fm-debug.h"
 
-#include "fm-gtk-launcher.h"
 #include "fm-utils.h"
 #include "fm-msgbox.h"
 #include "fm-app-chooser-dlg.h"
@@ -57,6 +58,29 @@ struct _LaunchData
     GtkWindow *parent;
     FmLaunchFolderFunc folder_func;
     gpointer user_data;
+};
+
+enum _FmFileLauncherExecAction
+{
+    FM_FILE_LAUNCHER_EXEC = 1,
+    FM_FILE_LAUNCHER_EXEC_IN_TERMINAL,
+    FM_FILE_LAUNCHER_EXEC_OPEN,
+    FM_FILE_LAUNCHER_EXEC_CANCEL
+};
+typedef enum _FmFileLauncherExecAction FmFileLauncherExecAction;
+
+
+typedef struct _FmFileLauncher FmFileLauncher;
+struct _FmFileLauncher
+{
+    GAppInfo *                  (*get_app)      (GList *file_infos, FmMimeType *mime_type,
+                                                 gpointer user_data, GError **err);
+    gboolean                    (*open_folder)  (GAppLaunchContext *ctx, GList *folder_infos,
+                                                 gpointer user_data, GError **err);
+    FmFileLauncherExecAction    (*exec_file)    (FmFileInfo *file, gpointer user_data);
+    gboolean                    (*error)        (GAppLaunchContext *ctx, GError *err, gpointer user_data);
+    int                         (*ask)          (const char *msg, const char **btn_labels, int default_btn,
+                                                 gpointer user_data);
 };
 
 
@@ -77,7 +101,8 @@ static gboolean fm_launch_files_internal    (GAppLaunchContext *ctx, GList *file
 static gboolean fm_launch_desktop_entry     (GAppLaunchContext *ctx, const char *file_or_id, GList *uris,
                                              FmFileLauncher *launcher, gpointer user_data);
 
-static gboolean fm_launch_paths (GAppLaunchContext *ctx, GList *paths, FmFileLauncher *launcher, gpointer user_data);
+static gboolean fm_launch_paths             (GAppLaunchContext *ctx, GList *paths, FmFileLauncher *launcher,
+                                             gpointer user_data);
 
 /*static gboolean default_open_folder_func (GAppLaunchContext* ctx, GList* folder_infos,
  *                                           gpointer user_data, GError** err)
@@ -273,7 +298,8 @@ static int on_launch_ask (const char *msg, const char **btn_labels, int default_
 
 
 
-static gboolean fm_launch_files_internal (GAppLaunchContext *ctx, GList *file_infos, FmFileLauncher *launcher, gpointer user_data)
+static gboolean fm_launch_files_internal (GAppLaunchContext *ctx, GList *file_infos, FmFileLauncher *launcher,
+                                          gpointer user_data)
 {
     GHashTable *hash = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
     
@@ -454,6 +480,7 @@ static gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx, const char *fil
     GAppInfo *app;
     
     gboolean is_absolute_path = g_path_is_absolute (file_or_id);
+    
     GList *_uris = NULL;
     GError *err = NULL;
 
@@ -501,14 +528,18 @@ static gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx, const char *fil
                                strcmp (scheme, "computer") == 0 ||
                                strcmp (scheme, "menu") == 0)
                             {
+                                
                                 /* OK, it's a file. We can handle it!
                                  * FIXME_pcm: prevent recursive invocation of desktop entry file.
                                  * e.g: If this URL points to the another desktop entry file, and it
                                  * points to yet another desktop entry file, this can create a
                                  * infinite loop. This is a extremely rare case. */
+                                
                                 FmPath *path = fm_path_new_for_uri (url);
                                 _uris = g_list_prepend (_uris, path);
+                                
                                 ret = fm_launch_paths (ctx, _uris, launcher, user_data);
+                                
                                 g_list_free (_uris);
                                 fm_path_unref (path);
                                 _uris = NULL;
@@ -517,9 +548,11 @@ static gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx, const char *fil
                             {
                                 // Damn! this actually relies on gconf to work.
                                 // FIXME_pcm: use our own way to get a usable browser later.
+                                
                                 app = g_app_info_get_default_for_uri_scheme (scheme);
                                 uris = _uris = g_list_prepend (NULL, url);
                             }
+                            
                             g_free (scheme);
                         }
                     }

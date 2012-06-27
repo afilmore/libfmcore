@@ -20,6 +20,10 @@
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
  *
+ *      Purpose: A FileInfo job.
+ * 
+ *      The FileInfoJob is used by the FmFolder, FmDirTreeModel and 
+ * 
  * 
  **********************************************************************************************************************/
 #ifndef __FM_FILE_INFO_JOB_H__

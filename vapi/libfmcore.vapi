@@ -256,7 +256,7 @@ namespace Fm {
 		public void                 set_path            (Fm.Path path);
 		public unowned Fm.Path      get_path            ();
         
-        public bool                 query               (GLib.Cancellable? cancellable) throws GLib.Error;
+        public bool                 query               (GLib.Cancellable? cancellable = null) throws GLib.Error;
         
         [CCode (has_construct_function = false)]
 		public FileInfo.computer                        ();
@@ -619,53 +619,23 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
-	[CCode (cheader_filename = "fm-gtk-launcher.h")]
-	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
-                                           GLib.List<Fm.FileInfo> folder_infos,
-                                           void *user_data,
-                                           GLib.Error error);
+	[CCode (cheader_filename = "fm-launch.h")]
+	public delegate bool    LaunchFolderFunc (GLib.AppLaunchContext ctx,
+                                              GLib.List<Fm.FileInfo> folder_infos,
+                                              void *user_data,
+                                              GLib.Error error);
 
-	[CCode (cheader_filename = "fm-gtk-launcher.h", cprefix = "fm_")]
-	public static bool launch_file (Gtk.Window parent,
-                                           GLib.AppLaunchContext? ctx,
-                                           Fm.FileInfo file_info,
-                                           Fm.LaunchFolderFunc? func);
+	[CCode (cheader_filename = "fm-launch.h", cprefix = "fm_")]
+	public static bool      launch_file (Gtk.Window parent,
+                                         GLib.AppLaunchContext? ctx,
+                                         Fm.FileInfo file_info,
+                                         Fm.LaunchFolderFunc? func);
 
-	[CCode (cheader_filename = "fm-gtk-launcher.h", cprefix = "fm_")]
-	public static bool launch_multiple_files (Gtk.Window parent,
-                                                 GLib.AppLaunchContext ctx,
-                                                 GLib.List file_infos,
-                                                 Fm.LaunchFolderFunc func);
-    
-    /*** Include these when needed...
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_path_simple (Gtk.Window parent,
-                                           GLib.AppLaunchContext ctx,
-                                           Fm.Path path,
-                                           Fm.LaunchFolderFunc func);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_paths_simple (Gtk.Window parent,
-                                            GLib.AppLaunchContext ctx,
-                                            GLib.List paths,
-                                            Fm.LaunchFolderFunc func);
-
-    [CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_desktop_entry (GLib.AppLaunchContext ctx,
-                                             string file_or_id,
-                                             GLib.List uris,
-                                             Fm.FileLauncher launcher);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_files (GLib.AppLaunchContext ctx,
-                                     GLib.List file_infos,
-                                     Fm.FileLauncher launcher);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_paths (GLib.AppLaunchContext ctx,
-                                     GLib.List paths,
-                                     Fm.FileLauncher launcher);
-    ***/
+	[CCode (cheader_filename = "fm-launch.h", cprefix = "fm_")]
+	public static bool      launch_multiple_files (Gtk.Window parent,
+                                                   GLib.AppLaunchContext ctx,
+                                                   GLib.List file_infos,
+                                                   Fm.LaunchFolderFunc func);
     
     
     /*************************************************************************************

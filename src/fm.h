@@ -60,7 +60,6 @@
 #include "fm-app-chooser-dlg.h"
 #include "fm-app-menu-view.h"
 #include "fm-file-properties.h"
-#include "fm-gtk-launcher.h"
 
 
 // Fm Jobs
@@ -72,6 +71,7 @@
 // Fm Utils
 #include "fm-debug.h"
 #include "fm-file-ops.h"
+#include "fm-launch.h"
 #include "fm-mount.h"
 #include "fm-msgbox.h"
 #include "fm-select-folder-dlg.h"

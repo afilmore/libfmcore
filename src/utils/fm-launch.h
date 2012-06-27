@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-gtk-launcher.h
+ *      fm-launch.h
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
@@ -34,30 +34,6 @@
 #include "fm-utils.h"
 
 G_BEGIN_DECLS
-
-
-enum _FmFileLauncherExecAction
-{
-    FM_FILE_LAUNCHER_EXEC = 1,
-    FM_FILE_LAUNCHER_EXEC_IN_TERMINAL,
-    FM_FILE_LAUNCHER_EXEC_OPEN,
-    FM_FILE_LAUNCHER_EXEC_CANCEL
-};
-typedef enum _FmFileLauncherExecAction FmFileLauncherExecAction;
-
-
-typedef struct _FmFileLauncher FmFileLauncher;
-struct _FmFileLauncher
-{
-    GAppInfo *                  (*get_app)      (GList *file_infos, FmMimeType *mime_type,
-                                                 gpointer user_data, GError **err);
-    gboolean                    (*open_folder)  (GAppLaunchContext *ctx, GList *folder_infos,
-                                                 gpointer user_data, GError **err);
-    FmFileLauncherExecAction    (*exec_file)    (FmFileInfo *file, gpointer user_data);
-    gboolean                    (*error)        (GAppLaunchContext *ctx, GError *err, gpointer user_data);
-    int                         (*ask)          (const char *msg, const char **btn_labels, int default_btn,
-                                                 gpointer user_data);
-};
 
 
 typedef gboolean (*FmLaunchFolderFunc)          (GAppLaunchContext *ctx, GList *folder_infos,
