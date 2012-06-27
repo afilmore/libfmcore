@@ -155,13 +155,15 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
     // FileInfo rework: new function for testing...
     // this one is not cancellable and doesn't handle errors...
     // if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL))
-    if (fm_file_info_set_for_native_file (file_info, dir_path))
+    if (fm_file_info_query_native_file (file_info))
     {
         job->dir_fi = file_info;
         if (!fm_file_info_is_dir (file_info))
         {
             gerror = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
+            
             //fm_file_info_unref (file_info);
+            
             fm_job_emit_error (FM_JOB (job), gerror, FM_SEVERITY_CRITICAL);
             g_error_free (gerror);
             return FALSE;
@@ -170,8 +172,11 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
     else
     {
         gerror = g_error_new (G_IO_ERROR, G_IO_ERROR_NOT_DIRECTORY, _("The specified directory is not valid"));
+        
         fm_file_info_unref (file_info);
+        
         fm_job_emit_error (FM_JOB (job), gerror, FM_SEVERITY_CRITICAL);
+        
         g_error_free (gerror);
         return FALSE;
     }
@@ -180,8 +185,11 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
     if (dir)
     {
         char *name;
+        
         GString *fpath = g_string_sized_new (4096);
+        
         int dir_len = strlen (dir_path);
+        
         g_string_append_len (fpath, dir_path, dir_len);
         if (fpath->str[dir_len-1] != '/')
         {
@@ -216,22 +224,27 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
             // FileInfo rework: new function for testing...
             // this one is not cancellable and doesn't handle errors...
             // if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &gerror))
-            if (fm_file_info_set_for_native_file (file_info, fpath->str))
+            if (fm_file_info_query_native_file (file_info))
             {
                 fm_list_push_tail_noref (job->files, file_info);
             }
+            
             else // failed!
             {
                 FmErrorAction act = fm_job_emit_error (FM_JOB (job), gerror, FM_SEVERITY_MILD);
+                
                 g_error_free (gerror);
                 gerror = NULL;
+                
                 if (act == FM_ERROR_ACTION_RETRY)
                     goto _retry;
 
                 fm_file_info_unref (file_info);
             }
         }
+        
         g_string_free (fpath, TRUE);
+        
         g_dir_close (dir);
     }
     else
@@ -239,6 +252,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
         fm_job_emit_error (FM_JOB (job), gerror, FM_SEVERITY_CRITICAL);
         g_error_free (gerror);
     }
+    
     g_free (dir_path);
     return TRUE;
 }

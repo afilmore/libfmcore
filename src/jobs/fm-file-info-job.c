@@ -286,9 +286,9 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         // A native file, query file infos with posix...
         else if (fm_path_is_native (file_info->path))
 		{
-			char *path_str = fm_path_to_str (file_info->path);
+			//char *path_str = fm_path_to_str (file_info->path);
 			
-            if (!fm_file_info_set_for_native_file (file_info, path_str))
+            if (!fm_file_info_query_native_file (file_info))
             {
                 /** TODO_axl: error handling...
                 FmErrorAction error_action = fm_job_emit_error (FM_JOB(file_info_job), gerror, FM_SEVERITY_MILD);
@@ -300,14 +300,14 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
                     continue;
                 **/
                 
-                DEBUG ("fm_file_info_set_for_native_file: error reading %s\n", path_str);
+                //DEBUG ("fm_file_info_set_for_native_file: error reading %s\n", NULL);
                 
                 next = l->next;
                 
                 fm_list_delete_link (file_info_job->file_info_list, l); // Also calls unref...
             }
 			
-            g_free (path_str);
+            //g_free (path_str);
             
             l = next;
             continue;

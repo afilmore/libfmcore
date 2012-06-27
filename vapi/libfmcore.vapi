@@ -268,7 +268,7 @@ namespace Fm {
 		public FileInfo.user_special_dir                (GLib.UserDirectory directory);
 		
         
-        public bool                 set_for_native_file (string path);
+        public bool                 query_native_file   ();
 //~         public void                 set_for_gfileinfo   (GLib.FileInfo inf);
 		
 

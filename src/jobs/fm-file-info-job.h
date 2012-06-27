@@ -22,7 +22,9 @@
  *
  *      Purpose: A FileInfo job.
  * 
- *      The FileInfoJob is used by the FmFolder, FmDirTreeModel and 
+ *      The FileInfoJob is used by the FmFolder, FmDirTreeModel and the File Manager SearchView.
+ * 
+ *      
  * 
  * 
  **********************************************************************************************************************/

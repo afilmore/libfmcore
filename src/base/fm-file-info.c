@@ -339,14 +339,16 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
  * 
  * 
  ********************************************************************/
-gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *path/*, GError **err*/)
+gboolean fm_file_info_query_native_file (FmFileInfo *file_info/*, GError **err*/)
 {
-	struct stat st;
+	char *path_str = fm_path_to_str (file_info->path);
+    
+    struct stat st;
     //~ gboolean is_link;
     
     _retry:
 	
-    if (lstat (path, &st) != 0)
+    if (lstat (path_str, &st) != 0)
     {
         //g_set_error (err, G_IO_ERROR, g_io_error_from_errno (errno), "%s", g_strerror (errno));
 		return FALSE;
@@ -369,11 +371,11 @@ gboolean fm_file_info_set_for_native_file (FmFileInfo *file_info, const char *pa
     // Get Link Target...
     if (S_ISLNK (st.st_mode))
     {
-        stat (path, &st);
-        file_info->target = g_file_read_link (path, NULL);
+        stat (path_str, &st);
+        file_info->target = g_file_read_link (path_str, NULL);
     }
 
-    FmMimeType *mime_type = fm_mime_type_get_for_native_file (path, file_info->disp_name, &st);
+    FmMimeType *mime_type = fm_mime_type_get_for_native_file (path_str, file_info->disp_name, &st);
     
     g_return_val_if_fail (mime_type, FALSE);
     
@@ -523,7 +525,12 @@ gboolean fm_file_info_query (FmFileInfo *file_info, GCancellable *cancellable, G
     }
     else if (fm_path_is_native (file_info->path))
     {
-        // fm_file_info_set_for_native_file
+        // FIXME_axl: calling path_to_str () sucks...
+        //char *path_str = fm_path_to_str (file_info->path);
+        
+        fm_file_info_query_native_file (file_info);
+        
+        //g_free (path_str);
     }
     else
     {
