@@ -102,13 +102,14 @@ gboolean fm_init (FmConfig *config)
 void fm_finalize ()
 {
     // Fm Gtk Finalize.
-    _fm_icon_pixbuf_finalize ();
     _fm_thumbnail_finalize ();
+    _fm_icon_pixbuf_finalize ();
 
     // Fm Base Finalize
-    _fm_icon_finalize ();
-    _fm_monitor_finalize ();
     _fm_archiver_finalize ();
+    _fm_file_info_finalize ();
+    _fm_monitor_finalize ();
+    _fm_icon_finalize ();
 
     //_fm_file_actions_finalize ();
 

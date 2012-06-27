@@ -155,6 +155,18 @@ fi
 #
 #
 #*****************************************************************************************
+AC_ARG_ENABLE(jobs-debug,
+              [AC_HELP_STRING([--enable-jobs-debug],
+              [Debug The Job System (default: no)])],
+              enable_treeview_debug=$enableval,
+              enable_treeview_debug="no")
+
+
+if test "$enable_jobs_debug" = "yes"; then
+    CPPFLAGS="$CPPFLAGS -DENABLE_JOBS_DEBUG"
+    enable_debug = "yes"
+fi
+
 AC_ARG_ENABLE(treeview-debug,
               [AC_HELP_STRING([--enable-treeview-debug],
               [Debug The Tree View (default: no)])],

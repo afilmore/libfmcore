@@ -127,8 +127,15 @@ FmPath     *fm_file_info_get_path                   (FmFileInfo *file_info);
 
 
 gboolean    fm_file_info_query                      (FmFileInfo *file_info, GCancellable *cancellable, GError **err);
+
+// TODO_axl: should be moved inside the query function and called internally...
+// used in dir list job and file info job and the vala search result view...
 gboolean    fm_file_info_set_for_native_file        (FmFileInfo *file_info, const char *path/*, GError **err*/);
+
+// is now static...
 //void        fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
+
+// only file info job and dir list job use it, it's not in the vapi file...
 void        fm_file_info_set_for_menu_cache_item    (FmFileInfo *file_info, MenuCacheItem *item);
 
 

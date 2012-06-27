@@ -28,6 +28,7 @@ G_LOCK_DEFINE_STATIC (hash_table);
 
 static GDestroyNotify destroy_func = NULL;
 
+
 void _fm_icon_init ()
 {
     g_return_if_fail (hash_table == NULL);

@@ -81,6 +81,10 @@ static void add_menu_items (GtkTreeIter *parent_it, MenuCacheDir *dir)
                     }
                     else
                     {
+                        
+                        
+                        
+                        
                         char *dot = strrchr ( (char*)menu_cache_item_get_icon (item), '.');
                         if (dot &&  (strcmp (dot+1, "png") == 0 || strcmp (dot+1, "svg") == 0 || strcmp (dot+1, "xpm") == 0))
                         {
@@ -90,6 +94,11 @@ static void add_menu_items (GtkTreeIter *parent_it, MenuCacheDir *dir)
                         }
                         else
                             gicon = g_themed_icon_new (menu_cache_item_get_icon (item));
+                        
+                        
+                            
+                            
+                            
                     }
                 }
                 else

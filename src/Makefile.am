@@ -36,10 +36,10 @@ VALAFLAGS = \
 vala_SOURCES = \
 	base/fm-config.vala \
 	jobs/Job.vala \
-	jobs/Base/FileJob.vala \
-	jobs/FileJobs/CopyJob.vala \
-	jobs/FileJobs/DeleteJob.vala \
-	jobs/FileJobs/TrashJob.vala \
+	jobs/FileJob.vala \
+	jobs/CopyJob.vala \
+	jobs/DeleteJob.vala \
+	jobs/TrashJob.vala \
 	jobs/UI/FileJobUI.vala \
 	jobs/UI/GtkFileJobUI.vala \
 	jobs/UI/GtkFileJobUIXML.vala \

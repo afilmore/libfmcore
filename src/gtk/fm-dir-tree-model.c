@@ -294,6 +294,7 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     g_object_unref (file_info_job);
 
     // what's the purpose of weak pointers ??? :-P
+    
     g_object_add_weak_pointer (dir_tree_model, &dir_tree_model);
 }
 
@@ -552,7 +553,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
                 FmPath *path = fm_file_info_get_path (fi);
                 if (!fm_file_info_is_dir (fi))
                 {
-                    NO_DEBUG ("%s\n", fm_path_get_basename (path));
+                    TREEVIEW_DEBUG ("%s\n", fm_path_get_basename (path));
                     //&& !fm_path_is_virtual (path))
                     continue;
                 }
@@ -567,7 +568,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
         }
         else
         {
-            NO_DEBUG ("NOT loaded !!!\n");
+            TREEVIEW_DEBUG ("NOT loaded !!!\n");
         }
     }
     

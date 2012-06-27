@@ -18,7 +18,6 @@ namespace Demo {
 
     public class Application {
         
-
         public Application () {
             
         }
@@ -36,6 +35,9 @@ namespace Demo {
             manager_window.create ();
             
             Gtk.main ();
+            
+            // Unref all objects before finalizing the library...
+            manager_window = null;
             
             Fm.finalize ();
 

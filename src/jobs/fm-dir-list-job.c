@@ -114,13 +114,22 @@ static void fm_dir_list_job_finalize (GObject *object)
 
 gboolean fm_dir_list_job_run (FmDirListJob *job)
 {
+    
+    // gio is really slower, also there's a problem with symlinks, the panel launcher no longer works...
+    //~ gboolean use_gio = TRUE;
+    gboolean use_gio = FALSE;
+    
     // A native file on the real file system...
-    if (fm_path_is_native (job->dir_path))
+    if (!use_gio && fm_path_is_native (job->dir_path))
+    {
         return fm_dir_list_job_run_posix (job);
 	
     // A virtual path or remote file system path...
+    }
     else
+    {
         return fm_dir_list_job_run_gio (job);
+    }
 }
 
 FmFileInfoList *fm_dir_dist_job_get_files (FmDirListJob *job)

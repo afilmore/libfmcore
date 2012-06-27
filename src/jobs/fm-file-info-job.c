@@ -147,7 +147,11 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
     
     GError *gerror = NULL;
 
-	GList *l;
+    // gio is really slower, also there's a problem with symlinks, the panel launcher no longer works...
+    //~ gboolean use_gio = TRUE;
+    gboolean use_gio = FALSE;
+    
+    GList *l;
 	for (l = fm_list_peek_head_link (file_info_job->file_info_list); !fm_job_is_cancelled (fmjob) && l; )
 	{
 		FmFileInfo *file_info = (FmFileInfo*) l->data;
@@ -254,7 +258,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         }
         
         // Query virtual items with GIO...
-        else if (fm_path_is_virtual (file_info->path))
+        else if (use_gio || fm_path_is_virtual (file_info->path))
         {
             
             

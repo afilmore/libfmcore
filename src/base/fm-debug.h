@@ -36,6 +36,12 @@ G_BEGIN_DECLS
 #define DEBUG(...)
 #endif
 
+#ifdef ENABLE_JOBS_DEBUG
+#define JOBS_DEBUG(...) DEBUG(__VA_ARGS__)
+#else
+#define JOBS_DEBUG(...)
+#endif
+
 #ifdef ENABLE_TREEVIEW_DEBUG
 #define TREEVIEW_DEBUG(...) DEBUG(__VA_ARGS__)
 #else

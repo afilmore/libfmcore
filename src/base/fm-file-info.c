@@ -404,6 +404,12 @@ static void fm_file_info_set_for_desktop_entry (FmFileInfo *file_info)
         char *title = g_key_file_get_locale_string (kf, "Desktop Entry", "Name", NULL, NULL);
         char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
         
+        
+        
+        
+        
+        // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
+        // that's also in fm-app-menu-view.c, in add_menu_items ()
         if (icon_name)
         {
             // This is an icon name, not a full path to icon file.
@@ -427,6 +433,10 @@ static void fm_file_info_set_for_desktop_entry (FmFileInfo *file_info)
             g_free (icon_name);
             
         }
+        
+        
+        
+        
         
         if (title)
             file_info->disp_name = title;
@@ -486,18 +496,43 @@ static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
  ********************************************************************/
 gboolean fm_file_info_query (FmFileInfo *file_info, GCancellable *cancellable, GError **err)
 {
-    GFile *gfile = fm_path_to_gfile (file_info->path);
     
-    GFileInfo *gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, cancellable, err);
-    g_object_unref (gfile);
-	
-    //~ if (!gfile_info)
-		//~ return FALSE;
-    
-    g_return_val_if_fail (gfile_info != NULL, FALSE);
-	
-    fm_file_info_set_for_gfileinfo (file_info, gfile_info);
+    // gio is really slower, also there's a problem with symlinks, the panel launcher no longer works...
+    //~ gboolean use_gio = TRUE;
+    gboolean use_gio = FALSE;
 
+    // TODO_axl:
+    // if path is native and use_posix is set, query with posix...
+    
+    
+    
+    if (fm_path_is_xdg_menu (file_info->path))
+    {
+        // fm_file_info_set_for_menu_cache_item
+    }
+    else if (use_gio || fm_path_is_virtual (file_info->path))
+    {
+        GFile *gfile = fm_path_to_gfile (file_info->path);
+        
+        GFileInfo *gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, cancellable, err);
+        g_object_unref (gfile);
+        
+        g_return_val_if_fail (gfile_info != NULL, FALSE);
+        
+        fm_file_info_set_for_gfileinfo (file_info, gfile_info);
+    }
+    else if (fm_path_is_native (file_info->path))
+    {
+        // fm_file_info_set_for_native_file
+    }
+    else
+    {
+        DEBUG ("FmFileInfoJob: ERROR !!!!\n");
+    }
+        
+    
+    
+    
 	return TRUE;
 }
 
@@ -653,11 +688,21 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
  * 
  * 
  ********************************************************************/
+
+// only file info job and dir list job use it, it's not in the vapi file...
+
 void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
 {
     const char *icon_name = menu_cache_item_get_icon (item);
     
     file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
+    
+    
+    
+    
+    
+    // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
+    // that's also in fm-app-menu-view.c, in add_menu_items ()
     if (icon_name)
     {
         char *tmp_name = NULL;
@@ -683,6 +728,11 @@ void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem 
         if (G_UNLIKELY (tmp_name))
             g_free (tmp_name);
     }
+    
+    
+    
+    
+    
     
     if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_DIR)
     {
