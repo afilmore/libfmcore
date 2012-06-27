@@ -155,7 +155,10 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
     // FileInfo rework: new function for testing...
     // this one is not cancellable and doesn't handle errors...
     // if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, dir_path, NULL))
-    if (fm_file_info_query_native_file (file_info))
+    
+    //~ if (fm_file_info_query_native_file (file_info))
+    
+    if (fm_file_info_query (file_info, NULL, NULL))
     {
         job->dir_fi = file_info;
         if (!fm_file_info_is_dir (file_info))
@@ -224,7 +227,10 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *job)
             // FileInfo rework: new function for testing...
             // this one is not cancellable and doesn't handle errors...
             // if (fm_file_info_job_get_info_for_native_file (FM_JOB (job), file_info, fpath->str, &gerror))
-            if (fm_file_info_query_native_file (file_info))
+            
+            //~ if (fm_file_info_query_native_file (file_info))
+            
+            if (fm_file_info_query (file_info, NULL, NULL))
             {
                 fm_list_push_tail_noref (job->files, file_info);
             }

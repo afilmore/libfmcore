@@ -56,9 +56,16 @@ const char          *gfile_info_query_attribs = "standard::*,unix::*,time::*,acc
 
 // Forward declarations...
 static void     fm_file_info_clear                      (FmFileInfo *file_info);
+
 static void     fm_file_info_set_for_desktop_entry      (FmFileInfo *file_info);
+
+static gboolean fm_file_info_query_native_file (FmFileInfo *file_info/*, GError **err*/);
+
 static gboolean fm_file_info_init_icon_for_crappy_code  (FmFileInfo *file_info);
+
 static void     fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
+
+
 
 
 /*********************************************************************
@@ -339,7 +346,7 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
  * 
  * 
  ********************************************************************/
-gboolean fm_file_info_query_native_file (FmFileInfo *file_info/*, GError **err*/)
+static gboolean fm_file_info_query_native_file (FmFileInfo *file_info/*, GError **err*/)
 {
 	char *path_str = fm_path_to_str (file_info->path);
     

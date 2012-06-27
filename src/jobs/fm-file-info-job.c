@@ -288,7 +288,9 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
 		{
 			//char *path_str = fm_path_to_str (file_info->path);
 			
-            if (!fm_file_info_query_native_file (file_info))
+            //~ if (!fm_file_info_query_native_file (file_info))
+            
+            if (!fm_file_info_query (file_info, NULL, NULL))
             {
                 /** TODO_axl: error handling...
                 FmErrorAction error_action = fm_job_emit_error (FM_JOB(file_info_job), gerror, FM_SEVERITY_MILD);

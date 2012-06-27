@@ -258,7 +258,8 @@ namespace Fm {
         
         public bool                 query               (GLib.Cancellable? cancellable = null) throws GLib.Error;
 //~         public bool                 query_native_file   ();
-        
+//~         public void                 set_for_gfileinfo   (GLib.FileInfo inf);
+		
         [CCode (has_construct_function = false)]
 		public FileInfo.computer                        ();
 		
@@ -268,10 +269,6 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public FileInfo.user_special_dir                (GLib.UserDirectory directory);
 		
-        
-//~         public void                 set_for_gfileinfo   (GLib.FileInfo inf);
-		
-
         public void                 set_disp_name       (string name);
         public bool                 can_thumbnail       ();
 		public void                 copy                (Fm.FileInfo src);
