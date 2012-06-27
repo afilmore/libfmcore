@@ -33,8 +33,8 @@
 #include "fm-path.h"
 #include "fm-utils.h"
 
-
 G_BEGIN_DECLS
+
 
 enum _FmFileLauncherExecAction
 {
@@ -45,43 +45,32 @@ enum _FmFileLauncherExecAction
 };
 typedef enum _FmFileLauncherExecAction FmFileLauncherExecAction;
 
+
 typedef struct _FmFileLauncher FmFileLauncher;
 struct _FmFileLauncher
 {
-    GAppInfo *                  (*get_app)
-                                (GList *file_infos, FmMimeType *mime_type, gpointer user_data, GError **err);
-    
-    gboolean                    (*open_folder)
-                                (GAppLaunchContext *ctx, GList *folder_infos, gpointer user_data, GError **err);
-    
-    FmFileLauncherExecAction    (*exec_file)
-                                (FmFileInfo *file, gpointer user_data);
-    
-    gboolean                    (*error)
-                                (GAppLaunchContext *ctx, GError *err, gpointer user_data);
-    
-    int                         (*ask)
-                                (const char *msg, const char **btn_labels, int default_btn, gpointer user_data);
+    GAppInfo *                  (*get_app)      (GList *file_infos, FmMimeType *mime_type,
+                                                 gpointer user_data, GError **err);
+    gboolean                    (*open_folder)  (GAppLaunchContext *ctx, GList *folder_infos,
+                                                 gpointer user_data, GError **err);
+    FmFileLauncherExecAction    (*exec_file)    (FmFileInfo *file, gpointer user_data);
+    gboolean                    (*error)        (GAppLaunchContext *ctx, GError *err, gpointer user_data);
+    int                         (*ask)          (const char *msg, const char **btn_labels, int default_btn,
+                                                 gpointer user_data);
 };
 
-typedef gboolean (*FmLaunchFolderFunc) (GAppLaunchContext *ctx,
-                                        GList *folder_infos,
-                                        gpointer user_data,
-                                        GError **err);
 
-gboolean fm_launch_file (GtkWindow *parent,
-                         GAppLaunchContext *ctx,
-                         FmFileInfo *file_info,
-                         FmLaunchFolderFunc func,
-                         gpointer user_data);
+typedef gboolean (*FmLaunchFolderFunc)          (GAppLaunchContext *ctx, GList *folder_infos,
+                                                 gpointer user_data, GError **err);
 
-gboolean fm_launch_multiple_files (GtkWindow *parent,
-                                   GAppLaunchContext *ctx,
-                                   GList *file_infos,
-                                   FmLaunchFolderFunc func,
-                                   gpointer user_data);
+gboolean fm_launch_file                         (GtkWindow *parent, GAppLaunchContext *ctx, FmFileInfo *file_info,
+                                                 FmLaunchFolderFunc func, gpointer user_data);
+
+gboolean fm_launch_multiple_files               (GtkWindow *parent, GAppLaunchContext *ctx, GList *file_infos,
+                                                 FmLaunchFolderFunc func, gpointer user_data);
                                  
 G_END_DECLS
 #endif
+
 
 
