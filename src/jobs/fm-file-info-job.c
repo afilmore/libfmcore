@@ -161,10 +161,10 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         
         GList *next = l->next;
 
-        file_info_job->current = file_info->path;
+        file_info_job->current = fm_file_info_get_path (file_info);
 
         // This is a xdg menu
-        if (fm_path_is_xdg_menu (file_info->path))
+        if (fm_path_is_xdg_menu (fm_file_info_get_path (file_info)))
         {
             //~ if (!fm_file_info_query_cache_item (file_info))
             if (!fm_file_info_query (file_info, NULL, &gerror))
@@ -182,7 +182,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         }
         
         // Query virtual items with GIO...
-        else if (use_gio || fm_path_is_virtual (file_info->path))
+        else if (use_gio || fm_path_is_virtual (fm_file_info_get_path (file_info)))
         {
             if (!fm_file_info_query (file_info, fm_job_get_cancellable (FM_JOB (file_info_job)), &gerror))
             {
@@ -205,7 +205,7 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         }
         
         // A native file, query file infos with posix...
-        else if (fm_path_is_native (file_info->path))
+        else if (fm_path_is_native (fm_file_info_get_path (file_info)))
 		{
             if (!fm_file_info_query (file_info, NULL, NULL))
             {

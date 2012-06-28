@@ -327,7 +327,7 @@ gboolean fm_dnd_dest_drag_data_received (FmDndDest *dnd_dest,
                 FmFileInfo *file_info = FM_FILE_INFO (fm_list_peek_head (files));
                 
                 // get the device of the first dragged source file
-                if (fm_path_is_native (file_info->path))
+                if (fm_path_is_native (fm_file_info_get_path (file_info)))
                     dnd_dest->src_dev = file_info->dev;
                 else
                     dnd_dest->src_fs_id = file_info->fs_id;

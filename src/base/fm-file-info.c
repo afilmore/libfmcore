@@ -440,7 +440,7 @@ static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
             char *item_path = menu_cache_item_get_id (item);
             JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item_path = %s\n", item_path);
             
-            //~ //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_info->path->name = %s\n", file_info->path->name);
+            //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_info->path->name = %s\n", file_info->path->name);
             if (g_strcmp0 (file_info->path->name, item_path) == 0)
             {
                 JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item found = %s\n\n", item_path);

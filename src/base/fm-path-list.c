@@ -146,7 +146,7 @@ char** fm_path_list_to_uris (FmPathList* path_list)
         for (i=0; l; ++i, l=l->next)
         {
             FmFileInfo* file_info =  (FmFileInfo*)l->data;
-            FmPath* path = file_info->path;
+            FmPath* path = fm_file_info_get_path (file_info);
             char* uri = fm_path_to_uri (path);
             uris[i] = uri;
         }
@@ -162,7 +162,7 @@ FmPathList *fm_path_list_new_from_file_info_list (FmFileInfoList *fis)
     for (l=fm_list_peek_head_link (fis);l;l=l->next)
     {
         FmFileInfo *file_info =  (FmFileInfo*)l->data;
-        fm_list_push_tail (list, file_info->path);
+        fm_list_push_tail (list, fm_file_info_get_path (file_info));
     }
     return list;
 }
@@ -174,7 +174,7 @@ FmPathList *fm_path_list_new_from_file_info_glist (GList *fis)
     for (l=fis;l;l=l->next)
     {
         FmFileInfo *file_info =  (FmFileInfo*)l->data;
-        fm_list_push_tail (list, file_info->path);
+        fm_list_push_tail (list, fm_file_info_get_path (file_info));
     }
     return list;
 }
@@ -186,7 +186,7 @@ FmPathList *fm_path_list_new_from_file_info_gslist (GSList *fis)
     for (l=fis;l;l=l->next)
     {
         FmFileInfo *file_info =  (FmFileInfo*)l->data;
-        fm_list_push_tail (list, file_info->path);
+        fm_list_push_tail (list, fm_file_info_get_path (file_info));
     }
     return list;
 }

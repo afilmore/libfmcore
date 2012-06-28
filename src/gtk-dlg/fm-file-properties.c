@@ -447,14 +447,14 @@ static void update_permissions (FmFilePropData *data)
     struct group *grp = NULL;
     struct passwd *pw = NULL;
 
-    data->all_native = fm_path_is_native (file_info->path);
+    data->all_native = fm_path_is_native (fm_file_info_get_path (file_info));
     data->has_dir = S_ISDIR (file_info->mode) != FALSE;
 
     for (l=fm_list_peek_head_link (data->files)->next; l; l=l->next)
     {
         FmFileInfo *file_info =  (FmFileInfo*)l->data;
 
-        if ( !fm_path_is_native (file_info->path) )
+        if ( !fm_path_is_native (fm_file_info_get_path (file_info)) )
             data->all_native = FALSE;
 
         if (S_ISDIR (file_info->mode))

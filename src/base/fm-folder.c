@@ -397,7 +397,7 @@ static GList *_fm_folder_get_file_by_name (FmFolder *folder, const char *name)
     for (;l;l=l->next)
     {
         FmFileInfo *file_info = (FmFileInfo*)l->data;
-        if (strcmp (file_info->path->name, name) == 0)
+        if (strcmp (fm_file_info_get_path (file_info)->name, name) == 0)
             return l;
     }
     return NULL;
@@ -535,7 +535,7 @@ static void on_file_info_finished (FmFileInfoJob *file_info_job, FmFolder *folde
     for (l = fm_list_peek_head_link (fm_file_info_job_get_list (file_info_job)); l; l = l->next)
     {
         FmFileInfo *file_info = (FmFileInfo*)l->data;
-        GList *l2 = _fm_folder_get_file_by_name (folder, file_info->path->name);
+        GList *l2 = _fm_folder_get_file_by_name (folder, fm_file_info_get_path (file_info)->name);
         
         if (l2) // the file is already in the folder, update
         {

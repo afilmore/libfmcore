@@ -494,7 +494,9 @@ void fm_folder_model_get_value (GtkTreeModel *tree_model,
             /* if we want to show a thumbnail */
             /* if we're on local filesystem or thumbnailing for remote files is allowed */
             
-            if (fm_config->show_thumbnail && (fm_path_is_local (folder_item->file_info->path) || !fm_config->thumbnail_local))
+            FmPath *path = fm_file_info_get_path (folder_item->file_info);
+            
+            if (fm_config->show_thumbnail && (fm_path_is_local (path) || !fm_config->thumbnail_local))
             {
                 if (!folder_item->is_thumbnail && !folder_item->thumbnail_failed && !folder_item->thumbnail_loading)
                 {
@@ -1092,6 +1094,8 @@ gboolean fm_folder_model_find_iter_by_filename (FmFolderModel *model, GtkTreeIte
     for ( ; !g_sequence_iter_is_end (item_it); item_it = g_sequence_iter_next (item_it))
     {
         FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (item_it);
+        
+        
         if (g_strcmp0 (folder_item->file_info->path->name, name) == 0)
         {
             it->stamp = model->stamp;
