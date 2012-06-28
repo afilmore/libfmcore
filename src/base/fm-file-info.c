@@ -520,7 +520,17 @@ gboolean fm_file_info_query (FmFileInfo *file_info, GCancellable *cancellable, G
     
     if (fm_path_is_xdg_menu (file_info->path))
     {
+        /**
+        g_return_val_if_fail (global_menu_cache != NULL, FALSE);
+        
+        // Calling libmenu-cache is only allowed in main thread.
+        g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items_new, job, NULL);    
+        **/
+    
         // fm_file_info_set_for_menu_cache_item
+    
+    
+    
     }
     else if (use_gio || fm_path_is_virtual (file_info->path))
     {
@@ -734,62 +744,69 @@ gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
 {
     g_return_val_if_fail (global_menu_cache != NULL, FALSE);
     
-    
-    // Menu path as "menu://applications/system/Administration"...
+    // needs a function for this...
     char *path_str = fm_path_to_str (file_info->path);
+    //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", path_str);
     
-    //DEBUG ("DEBUG: fm_file_info_job_run: %s\n", path_str);
+    gboolean is_a_file = g_str_has_suffix (path_str, ".desktop");
     
-    // Get the file menu name...
-    char *menu_name = path_str + 5;
+    // Strip "menu://"
+    char *p = path_str + 5;
+    while (*p == '/')
+        ++p;
     
-    while (*menu_name == '/')
-        ++menu_name;
+    char *menu_name = p-1;
     
-    // Get the directory name such as "Administration"...
-    char *dir_name = menu_name;
+    JOB_DEBUG ("\nJOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", menu_name);
+    MenuCacheDir *menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, menu_name);
+    g_return_val_if_fail (menu_cache_dir != NULL, FALSE);
     
-    while (*dir_name && *dir_name != '/')
-        ++dir_name;
+    //~ if (g_strcmp0 (menu_cache_item_get_file_dirname (found_item), menu_cache_item_get_file_path (found_item)) == 0)
+        //~ JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: DIRECTORY !!!!\n\n");
     
-    char *ch = *dir_name;
-    *dir_name = '\0';
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_dirname = %s\n",
+               menu_cache_item_get_file_dirname (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_path = %s\n",
+               menu_cache_item_get_file_path (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_basename = %s\n",
+               menu_cache_item_get_file_basename (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_name = %s\n",
+               menu_cache_item_get_name (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_id = %s\n\n",
+               menu_cache_item_get_id (menu_cache_dir));
     
-    MenuCacheDir *menu_cache_dir;
+        
+    MenuCacheItem *found_item = NULL;
     
-    if (*dir_name && !(*dir_name == '/' && dir_name[1] == '\0'))
+    if (is_a_file)
     {
-        JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: dir_name = %s\n", dir_name);
-        char *tmp = g_strconcat (
-            "/",
-            menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (global_menu_cache))),
-            dir_name,
-            NULL
-        );
-        
-        menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, tmp);
-        
-        g_free (tmp);
+        GList* l;
+        for (l = (GList*) menu_cache_dir_get_children (menu_cache_dir); l; l = l->next)
+        {
+            MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
+            
+            char *item_path = menu_cache_item_get_id (item);
+            JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item_path = %s\n", item_path);
+            
+            //~ //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_info->path->name = %s\n", file_info->path->name);
+            if (g_strcmp0 (file_info->path->name, item_path) == 0)
+            {
+                JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item found = %s\n\n", item_path);
+                found_item = item;
+                break;
+            }
+        }
     }
     else
     {
-        JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get root dir\n");
-        menu_cache_dir = menu_cache_get_root_dir (global_menu_cache);
+        found_item = menu_cache_dir;
     }
     
     g_free (path_str);
+    g_return_val_if_fail (found_item != NULL, FALSE);
     
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: menu cache dir = %s\n", menu_cache_item_get_name (menu_cache_dir));
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: icon = %s\n", menu_cache_item_get_icon (menu_cache_dir));
     
-    if (!menu_cache_dir)
-        return FALSE;
-
-    MenuCacheItem *item = (MenuCacheItem *) menu_cache_dir;
-    
-    const char *icon_name = menu_cache_item_get_icon (item);
-    
-    file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
+    file_info->disp_name = g_strdup (menu_cache_item_get_name (found_item));
     
     
     
@@ -797,6 +814,9 @@ gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
     
     // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
     // that's also in fm-app-menu-view.c, in add_menu_items ()
+    
+    
+    const char *icon_name = menu_cache_item_get_icon (found_item);
     if (icon_name)
     {
         char *tmp_name = NULL;
@@ -828,14 +848,14 @@ gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
     
     
     
-    if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_DIR)
+    if (menu_cache_item_get_type (found_item) == MENU_CACHE_TYPE_DIR)
     {
         file_info->mode |= S_IFDIR;
     }
-    else if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP)
+    else if (menu_cache_item_get_type (found_item) == MENU_CACHE_TYPE_APP)
     {
         file_info->mode |= S_IFREG;
-        file_info->target = menu_cache_item_get_file_path (item);
+        file_info->target = menu_cache_item_get_file_path (found_item);
     }
     
     file_info->mime_type = fm_mime_type_ref (shortcut_type);
@@ -846,7 +866,7 @@ gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
 
 
 
-
+/**
 void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
 {
     const char *icon_name = menu_cache_item_get_icon (item);
@@ -901,7 +921,7 @@ void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem 
     }
     
     file_info->mime_type = fm_mime_type_ref (shortcut_type);
-}
+}**/
 
 
 /*********************************************************************

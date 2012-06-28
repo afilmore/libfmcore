@@ -139,7 +139,7 @@ gboolean    fm_file_info_query                      (FmFileInfo *file_info, GCan
 
 gboolean fm_file_info_query_cache_item (FmFileInfo *file_info);
 
-void        fm_file_info_set_for_menu_cache_item    (FmFileInfo *file_info, MenuCacheItem *item);
+//~ void        fm_file_info_set_for_menu_cache_item    (FmFileInfo *file_info, MenuCacheItem *item);
 
 
 

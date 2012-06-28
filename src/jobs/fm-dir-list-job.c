@@ -39,6 +39,9 @@
 
 G_DEFINE_TYPE (FmDirListJob, fm_dir_list_job, FM_TYPE_JOB);
 
+
+extern MenuCache *global_menu_cache;
+
 // Forward declarations...
 static void     fm_dir_list_job_finalize        (GObject *object);
 
@@ -274,11 +277,38 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
     NO_DEBUG ("--------------------------------------------------------------------------------\n");
     NO_DEBUG ("fm_dir_list_job_run_gio\n");
     
-    // handle some built-in virtual dirs
-    if (fm_path_is_xdg_menu (job->dir_path)) // xdg menu://
+    
+    
+    
+    
+    // Xdg Menu...
+    //~ if (fm_path_is_xdg_menu (job->dir_path))
+    //~ {
+        //~ return fm_dir_list_job_list_xdg_menu (job);
+    //~ }
+    
+    if (fm_path_is_xdg_menu (job->dir_path))
+    {
+    
+        //~ JOB_DEBUG ();
+        
+        //job->dir_fi = fm_file_info_new_for_path (job->dir_path);
+        
+        //fm_file_info_query (job->dir_fi, NULL, NULL);
+        
+    
         return fm_dir_list_job_list_xdg_menu (job);
-
+    
+    
+    }
+    
+    
+    
+    
+    
     GFile *gfile = fm_path_to_gfile (job->dir_path);
+    
+    
     
     _retry:
     
@@ -428,7 +458,8 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *job)
 static gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob *job)
 {
     g_return_val_if_fail (job != NULL, FALSE);
-    g_return_val_if_fail (FM_JOB (job)->job != NULL, FALSE);
+    
+    g_return_val_if_fail (global_menu_cache != NULL, FALSE);
     
     // Calling libmenu-cache is only allowed in main thread.
     g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items, job, NULL);    
@@ -439,19 +470,114 @@ static gboolean fm_dir_list_job_list_xdg_menu (FmDirListJob *job)
 
 static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
 {
+    FmDirListJob *job = (FmDirListJob*) user_data;
+
+    
+    // needs a function for this...
+    char *path_str = fm_path_to_str (job->dir_path);
+    
+    // Strip "menu://"
+    char *p = path_str + 5;
+    while (*p == '/')
+        p++;
+    
+    char *cache_dir_path = p - 1;
+    
+    //~ 
+    //~ while (*p && *p != '/')
+        //~ p++;
+    //~ 
+    //~ char *ch = *p;
+    //~ *p = '\0';
+    //~ 
+    //~ const char *cache_dir_path = g_strconcat ("/", menu_name, NULL);
+    
+    
+    
+    //const char *cache_dir_path = "/Applications";
+    //const char *cache_dir_path = "/Applications/DesktopSettings";
+    //~ const char *cache_dir_path = "/Applications/System";
+    //~ const char *cache_dir_path = "/Applications/DesktopSettings/Administration";
+    
+    JOB_DEBUG ("\nJOB_DEBUG: list_menu_items: cache_dir_path = %s\n", cache_dir_path);
+    
+    MenuCacheDir *menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, cache_dir_path);
+    g_free (path_str);
+    
+    g_return_val_if_fail (menu_cache_dir != NULL, FALSE);
+    
+    const char *desktop_name = g_getenv ("XDG_CURRENT_DESKTOP");
+    
+    guint32 desktop_flag;
+    if (desktop_name)
+        desktop_flag = menu_cache_get_desktop_env_flag (global_menu_cache, desktop_name);
+    else
+        desktop_flag = (guint32) -1;
+
+    GList* l;
+    for (l = (GList*) menu_cache_dir_get_children (menu_cache_dir); l; l = l->next)
+    {
+        MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
+        
+        // Also hide menu items which should be hidden in current DE.
+        if (!item || menu_cache_item_get_type (item) == MENU_CACHE_TYPE_SEP)
+            continue;
+        
+        if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP
+            && !menu_cache_app_get_is_visible (MENU_CACHE_APP (item), desktop_flag))
+            continue;
+
+        if (G_UNLIKELY (job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
+            continue;
+        
+        FmPath *item_path = fm_path_new_child (job->dir_path, menu_cache_item_get_id (item));
+        FmFileInfo *file_info = fm_file_info_new_for_path (item_path);
+        
+        JOB_DEBUG ("JOB_DEBUG: list_menu_items_new: query infos for %s\n", menu_cache_item_get_id (item));
+        
+        if (!fm_file_info_query_cache_item (file_info))
+        {
+            JOB_DEBUG ("JOB_DEBUG: list_menu_items_new: ERROR\n");
+            fm_path_unref (item_path);
+            fm_file_info_unref (file_info);
+            return FALSE;
+        }
+        //fm_file_info_set_for_menu_cache_item (file_info, item);
+        
+        fm_path_unref (item_path);
+        
+        fm_list_push_tail_noref (job->files, file_info);
+    }
+
+    return TRUE;
+}
+
+
+
+
+
+
+
+
+
+
+
+/**
+static gboolean list_menu_items (gpointer user_data) //FmJob *fmjob
+{
     // it's tested in the public function...
     //g_return_val_if_fail (user_data != NULL, FALSE);
     
     FmDirListJob *job =  (FmDirListJob*) user_data;
     FmFileInfo *file_info;
     MenuCache *mc;
-    MenuCacheDir *dir;
+    MenuCacheDir *menu_cache_dir;
     GList *l;
     char *path_str, *p, ch;
     char *menu_name;
     const char *dir_path;
-    guint32 de_flag;
-    const char *de_name;
+    guint32 desktop_flag;
+    const char *desktop_name;
     
     
     // example: menu://applications.menu/DesktopSettings
@@ -514,46 +640,46 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
     dir_path = p; // path of menu dir, such as: /Internet
 
     
-    de_name = g_getenv ("XDG_CURRENT_DESKTOP");
-    if (de_name)
-        de_flag = menu_cache_get_desktop_env_flag (mc, de_name);
+    desktop_name = g_getenv ("XDG_CURRENT_DESKTOP");
+    if (desktop_name)
+        desktop_flag = menu_cache_get_desktop_env_flag (mc, desktop_name);
     else
-        de_flag =  (guint32)-1;
+        desktop_flag =  (guint32)-1;
 
     
     // the menu should be loaded now
     if (*dir_path && ! (*dir_path == '/' && dir_path[1]=='\0'))
     {
         char *tmp = g_strconcat ("/", menu_cache_item_get_id (MENU_CACHE_ITEM (menu_cache_get_root_dir (mc))), dir_path, NULL);
-        dir = menu_cache_get_dir_from_path (mc, tmp);
+        menu_cache_dir = menu_cache_get_dir_from_path (mc, tmp);
         g_free (tmp);
     }
     else
-        dir = menu_cache_get_root_dir (mc);
+        menu_cache_dir = menu_cache_get_root_dir (mc);
 
     
-    if (dir)
+    if (menu_cache_dir)
     {
         
         job->dir_fi = fm_file_info_new_for_path (job->dir_path);
         
         fm_file_info_query_cache_item (job->dir_fi);
         
-        //fm_file_info_set_for_menu_cache_item (job->dir_fi, (MenuCacheItem*) dir);
+        //fm_file_info_set_for_menu_cache_item (job->dir_fi, (MenuCacheItem*) menu_cache_dir);
         
         
-        for (l = (GList*) menu_cache_dir_get_children (dir); l; l=l->next)
+        for (l = (GList*) menu_cache_dir_get_children (menu_cache_dir); l; l=l->next)
         {
             MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
             FmPath *item_path;
-            GIcon *gicon;
+            //~ GIcon *gicon;
             
             
             // also hide menu items which should be hidden in current DE.
             if (!item || menu_cache_item_get_type (item) == MENU_CACHE_TYPE_SEP)
                 continue;
             
-            if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP && !menu_cache_app_get_is_visible (MENU_CACHE_APP (item), de_flag))
+            if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP && !menu_cache_app_get_is_visible (MENU_CACHE_APP (item), desktop_flag))
                 continue;
 
             if (G_UNLIKELY (job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
@@ -575,13 +701,14 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
             fm_list_push_tail_noref (job->files, file_info);
         }
     }
+    
     menu_cache_unref (mc);
 
     g_free (path_str);
     return TRUE;
 }
 
-
+**/
 
 
 

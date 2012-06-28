@@ -126,7 +126,7 @@ void _fm_path_init ()
                                                                    | FM_PATH_IS_LOCAL);
     
     // Applications Root...
-    apps_root_path = _fm_path_new_internal (NULL, "menu://applications/", 20, FM_PATH_IS_XDG_MENU
+    apps_root_path = _fm_path_new_internal (NULL, "menu://Applications/", 20, FM_PATH_IS_XDG_MENU
                                                                               | FM_PATH_IS_VIRTUAL);
 }
 
@@ -311,18 +311,22 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
         
         host_len =  (host_end - host);
         
+        
+        
+        
+        
         if (scheme_len == 4 && g_ascii_strncasecmp (uri, "menu", 4) == 0)
         {
             if (host_len == 0) // fallback to applications
             {
-                host = "applications";
+                host = "Applications";
                 host_len = 12;
                 if (remaining)
                     *remaining = uri_end;
                 
                 return fm_path_ref (apps_root_path);
             }
-            else if (host_len == 12 && strncmp (host, "applications", 12) == 0)
+            else if (host_len == 12 && strncmp (host, "Applications", 12) == 0)
             {
                 if (remaining)
                     *remaining = host_end;
