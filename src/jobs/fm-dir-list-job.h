@@ -42,13 +42,11 @@ typedef struct _FmDirListJobClass       FmDirListJobClass;
 
 struct _FmDirListJob
 {
-	FmJob parent;
+	FmJob           parent;
 	
-    FmPath *dir_path;
-    
-    gboolean dir_only;
-    
-    FmFileInfo *dir_fi;
+    gboolean        dir_only;
+    FmPath         *directory;
+    FmFileInfo     *dir_info;
 	
     FmFileInfoList *files;
 };
@@ -59,11 +57,13 @@ struct _FmDirListJobClass
 };
 
 
-GType           fm_dir_list_job_get_type		();
+GType           fm_dir_list_job_get_type		        ();
 
-FmJob*	        fm_dir_list_job_new			    (FmPath *path, gboolean dir_only);
-FmJob*          fm_dir_list_job_new_for_gfile   (GFile *gf);
-FmFileInfoList* fm_dir_dist_job_get_files       (FmDirListJob *job);
+FmJob          *fm_dir_list_job_new	                    (FmPath *path, gboolean dir_only);
+
+FmPath         *fm_dir_dist_job_get_directory           (FmDirListJob *dir_list_job);
+FmFileInfo     *fm_dir_dist_job_get_directory_info      (FmDirListJob *dir_list_job);
+FmFileInfoList *fm_dir_dist_job_get_files               (FmDirListJob *dir_list_job);
 
 G_END_DECLS
 #endif

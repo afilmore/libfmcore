@@ -221,24 +221,24 @@ namespace Manager {
             return true;
         }
         
-        private void _folder_view_on_file_clicked (Fm.FolderViewClickType type, Fm.FileInfo? fi) {
+        private void _folder_view_on_file_clicked (Fm.FolderViewClickType type, Fm.FileInfo? file_info) {
 
             switch (type) {
                 
                 // Double click on an item in the Folder View...
                 case Fm.FolderViewClickType.ACTIVATED: {
                     
-                    if (fi == null || fi.get_path ().is_trash ())
+                    if (file_info == null || file_info.get_path ().is_trash ())
                         return;
                     
-                    string? target = fi.get_target ();
+                    string? target = file_info.get_target ();
                     
                     // A directory...
-                    if (fi.is_dir ()) {
+                    if (file_info.is_dir ()) {
                         
-                        this._change_directory (fi.get_path (), DirChangeCaller.FOLDER_VIEW);
+                        this._change_directory (file_info.get_path (), DirChangeCaller.FOLDER_VIEW);
                              
-                    } else if (fi.is_mountable ()) {
+                    } else if (file_info.is_mountable ()) {
                         
                         if (target == null) {
                         
@@ -252,7 +252,7 @@ namespace Manager {
                     
                     } else {
                         
-                        Fm.launch_file (this, null, fi, null);
+                        Fm.launch_file (this, null, file_info, null);
                     }
                 }
                 break;
@@ -260,7 +260,7 @@ namespace Manager {
                 case Fm.FolderViewClickType.CONTEXT_MENU: {
                     
                     // File/Folder Popup Menu...
-                    if (fi != null) {
+                    if (file_info != null) {
                         
                         Fm.FileInfoList<Fm.FileInfo>? files = _folder_view.get_selected_files ();
                         if (files == null)
@@ -300,11 +300,11 @@ namespace Manager {
             
             unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) folder_infos;
             
-            foreach (Fm.FileInfo fi in folder_list) {
+            foreach (Fm.FileInfo file_info in folder_list) {
                 
                 /**
                 string[] folders = new string [1];
-                folders[0] = fi.get_path ().to_str ();
+                folders[0] = file_info.get_path ().to_str ();
                 global_app.new_manager_tab (folders);
                 **/
             }

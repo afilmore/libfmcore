@@ -60,7 +60,7 @@ struct _FmDirTreeModel
 {
     GObject         parent;
     
-    GList           *roots;                 // A list containing root items (FmDirTreeItem)...
+    GList           *root_list;                 // A list containing root items (FmDirTreeItem)...
     
     gint            stamp;
     
@@ -94,7 +94,7 @@ gboolean            fm_dir_tree_model_get_iter                  (GtkTreeModel *t
 
 void                fm_dir_tree_model_load                      (FmDirTreeModel *dir_tree_model);
 void                fm_dir_tree_model_add_root                  (FmDirTreeModel *dir_tree_model, FmFileInfo *root,
-                                                                 GtkTreeIter *it, gboolean expand);
+                                                                 GtkTreeIter *it, gboolean can_expand);
 
 void                fm_dir_tree_model_expand_row                (FmDirTreeModel *dir_tree_model,
                                                                  GtkTreeIter *it, GtkTreePath *tp);
@@ -110,7 +110,7 @@ gboolean            fm_dir_tree_model_get_show_hidden           (FmDirTreeModel 
 
 void                fm_dir_tree_model_remove_item               (FmDirTreeModel *dir_tree_model, GList *item_list);
 GList              *fm_dir_tree_model_insert_file_info          (FmDirTreeModel *dir_tree_model, GList *parent_node,
-                                                                 GtkTreePath *tp, FmFileInfo *fi);
+                                                                 GtkTreePath *tp, FmFileInfo *file_info);
 inline void         fm_dir_tree_model_item_to_tree_iter         (FmDirTreeModel *dir_tree_model, GList *item_list,
                                                                  GtkTreeIter *it);
 inline GtkTreePath *fm_dir_tree_model_item_to_tree_path         (FmDirTreeModel *dir_tree_model, GList *item_list);

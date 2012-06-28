@@ -150,7 +150,7 @@ static gboolean fm_dir_tree_view_select_function (GtkTreeSelection *selection, G
     
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) node->data;
     
-    return (dir_tree_item->fi != NULL);
+    return (dir_tree_item->file_info != NULL);
 }
 
 static void fm_dir_tree_view_finalize (GObject *object)

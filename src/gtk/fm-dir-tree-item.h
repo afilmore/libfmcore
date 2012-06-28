@@ -27,6 +27,7 @@
 #ifndef __FM_DIR_TREE_ITEM_H__
 #define __FM_DIR_TREE_ITEM_H__
 
+
 #include <gtk/gtk.h>
 #include <glib-object.h>
 
@@ -34,8 +35,8 @@
 #include "fm-folder.h"
 #include "fm-file-info.h"
 
-
 G_BEGIN_DECLS
+
 
 typedef struct _FmDirTreeItem FmDirTreeItem;
 
@@ -48,31 +49,44 @@ struct _FmDirTreeItem
     
     FmDirTreeModel  *model;
     
-    FmFolder        *folder;
+    FmFileInfo      *file_info;
     
-    FmFileInfo      *fi;
-    
-    //~ GdkPixbuf       *icon;
     FmIcon          *fm_icon;
+    
+    FmFolder        *folder;
     
     guint           n_expand;
     
 };
 
 
-// Creation/Destruction...
-inline FmDirTreeItem    *fm_dir_tree_item_new               (FmDirTreeModel *model, GList *parent_list,
+/*********************************************************************
+ *  Creation/Destruction...
+ * 
+ * 
+ ********************************************************************/
+inline FmDirTreeItem    *fm_dir_tree_item_new               (FmDirTreeModel *model,
+                                                             GList *parent_list,
                                                              FmFileInfo *file_info);
 
 inline void             fm_dir_tree_item_free               (FmDirTreeItem *dir_tree_item);
+void                    fm_dir_tree_item_free_l             (GList *item_l);
 
-// Get The Pixbuf To Display In The Tree Model...
+
+/*********************************************************************
+ *  Get The Pixbuf To Display In The Tree Model...
+ * 
+ * 
+ ********************************************************************/
 GdkPixbuf               *fm_dir_tree_item_get_pixbuf        (FmDirTreeItem *dir_tree_item, int icon_size);
 
-void                    fm_dir_tree_item_on_folder_loaded   (FmDirTreeItem *dir_tree_item);
-
+/*********************************************************************
+ *  FmFolder...
+ * 
+ * 
+ ********************************************************************/
 FmFolder                *fm_dir_tree_item_set_folder        (GList *item_l);
-void                    fm_dir_tree_item_free_l             (GList *item_l);
+void                    fm_dir_tree_item_on_folder_loaded   (FmDirTreeItem *dir_tree_item);
 
 
 G_END_DECLS

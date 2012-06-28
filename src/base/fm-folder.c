@@ -494,9 +494,12 @@ static void on_job_finished (FmDirListJob *dir_list_job, FmFolder *folder)
     if (G_LIKELY (files))
         g_signal_emit (folder, signals [FILES_ADDED], 0, files);
 
-    if (dir_list_job->dir_fi)
-        folder->dir_fi = fm_file_info_ref (dir_list_job->dir_fi);
+    FmFileInfo *directory_info = fm_dir_dist_job_get_directory_info (dir_list_job);
+    
+    if (directory_info)
+        folder->dir_fi = fm_file_info_ref (directory_info);
 
+    // ?????
     g_object_unref (folder->dir_list_job);
     folder->dir_list_job = NULL;
     

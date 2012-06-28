@@ -115,7 +115,7 @@ gboolean fm_folder_model_find_iter_by_filename      (FmFolderModel *model, GtkTr
 
 
 /*** void fm_folder_model_set_thumbnail_size(FmFolderModel* model, guint size); ***/
-/*** gboolean fm_folder_model_find_iter(  FmFolderModel* list, GtkTreeIter* it, VFSFileInfo* fi ); ***/
+/*** gboolean fm_folder_model_find_iter(  FmFolderModel* list, GtkTreeIter* it, FmFileInfo* file_info ); ***/
 
 G_END_DECLS
 #endif

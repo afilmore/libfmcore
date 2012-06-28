@@ -234,19 +234,19 @@ namespace Fm {
                 
 //~                 Fm.Path src_path = new Fm.Path.for_gfile (src_file);
 //~                 
-//~                 Fm.FileInfo fi = new Fm.FileInfo.for_path (src_path);
+//~                 Fm.FileInfo file_info = new Fm.FileInfo.for_path (src_path);
 //~                 
-//~                 fi.set_for_gfileinfo (src_info);
+//~                 file_info.set_for_gfileinfo (src_info);
 //~                 
                 
-                Fm.FileInfo fi = new Fm.FileInfo.for_path (new Fm.Path.for_gfile (src_file));
+                Fm.FileInfo file_info = new Fm.FileInfo.for_path (new Fm.Path.for_gfile (src_file));
                 
-                fi.query (null);
-                
-                
+                file_info.query (null);
                 
                 
-                rename_dlg.set_src_info (fi);
+                
+                
+                rename_dlg.set_src_info (file_info);
             }
             
             if (dest_info != null) { // display info of the destination file which already exists
@@ -256,16 +256,16 @@ namespace Fm {
                 
 //~                 Fm.Path dest_path = new Fm.Path.for_gfile (dest_file);
 //~                 
-//~                 Fm.FileInfo fi = new Fm.FileInfo.for_path (dest_path);
-//~                 fi.set_for_gfileinfo (dest_info);
+//~                 Fm.FileInfo file_info = new Fm.FileInfo.for_path (dest_path);
+//~                 file_info.set_for_gfileinfo (dest_info);
 //~                 
-//~                 rename_dlg.set_dest_info (fi);
+//~                 rename_dlg.set_dest_info (file_info);
 //~             
                 
-                Fm.FileInfo fi = new Fm.FileInfo.for_path (new Fm.Path.for_gfile (dest_file));
-                fi.query (null);
+                Fm.FileInfo file_info = new Fm.FileInfo.for_path (new Fm.Path.for_gfile (dest_file));
+                file_info.query (null);
                 
-                rename_dlg.set_dest_info (fi);
+                rename_dlg.set_dest_info (file_info);
             
             
             
