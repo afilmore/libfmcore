@@ -77,7 +77,7 @@ void fm_mount_automount ()
         
         g_return_val_if_fail (gfile != NULL, 1);
         
-        NO_DEBUG ("path2: %s\n", fm_path_to_str (path));
+        // NO_DEBUG ("path2: %s\n", fm_path_to_str (path));
         
         g_file_mount_mountable (gfile, 0, NULL, NULL, on_automount, NULL);
         g_object_unref (gfile);

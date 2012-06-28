@@ -168,7 +168,7 @@ namespace Manager {
                                         DirChangeCaller caller = DirChangeCaller.NONE,
                                         bool save_history = false) {
 
-            NO_DEBUG ("Change Directory: %s\n", path.to_str ());
+            // NO_DEBUG ("Change Directory: %s\n", path.to_str ());
             
             if (caller != DirChangeCaller.DIR_TREEVIEW)
                 _tree_view.set_current_directory (path);

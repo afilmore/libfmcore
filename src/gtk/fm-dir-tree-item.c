@@ -245,7 +245,7 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
         FmPath *path = fm_file_info_get_path (file_info);
         if (!fm_file_info_is_dir (file_info) && !fm_path_is_virtual (path))
         {
-            NO_DEBUG ("%s\n", fm_path_get_basename (path));
+            // NO_DEBUG ("%s\n", fm_path_get_basename (path));
             continue;
         }
         
@@ -285,7 +285,7 @@ static void on_folder_files_changed (FmFolder *folder, GSList *files, GList *ite
 
     GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
 
-    NO_DEBUG ("fm-dir-tree-item: on_folder_files_changed: files changed!!\n");
+    // NO_DEBUG ("fm-dir-tree-item: on_folder_files_changed: files changed!!\n");
 
     GSList *l;
     for (l = files; l; l = l->next)

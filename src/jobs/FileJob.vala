@@ -78,7 +78,7 @@ namespace Fm {
         }
 
         ~FileJob () {
-            NO_DEBUG ("job is deleted!!!\n");
+            // NO_DEBUG ("job is deleted!!!\n");
         }
 
         public override void dispose () {

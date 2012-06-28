@@ -37,15 +37,16 @@
 #include <errno.h>
 
 
-G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
-
 extern MenuCache *global_menu_cache;
 
 
+G_DEFINE_TYPE (FmFileInfoJob, fm_file_info_job, FM_TYPE_JOB);
+
 // Forward declarations...
-static void fm_file_info_job_finalize (GObject *object);
-static gboolean fm_file_info_job_run (FmJob *fmjob);
-static gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gfile, GError **gerror);
+static void fm_file_info_job_finalize   (GObject *object);
+static gboolean fm_file_info_job_run    (FmJob *fmjob);
+
+//~ static gboolean fm_file_info_job_get_info_for_gfile (FmJob *job, FmFileInfo *file_info, GFile *gfile, GError **gerror);
 
 
 /*********************************************************************
@@ -154,16 +155,14 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
     GList *l;
 	for (l = fm_list_peek_head_link (file_info_job->file_info_list); !fm_job_is_cancelled (fmjob) && l; )
 	{
+        // TODO_axl: it's possible ot create a file info here for the input FmPath...
+        
 		FmFileInfo *file_info = (FmFileInfo*) l->data;
         
         GList *next = l->next;
 
-        
-        // TODO_axl: it's possible ot create a file info here for the input FmPath...
-        
         file_info_job->current = file_info->path;
 
-		
         // This is a xdg menu
         if (fm_path_is_xdg_menu (file_info->path))
         {
@@ -185,8 +184,6 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         // Query virtual items with GIO...
         else if (use_gio || fm_path_is_virtual (file_info->path))
         {
-            
-            
             if (!fm_file_info_query (file_info, fm_job_get_cancellable (FM_JOB (file_info_job)), &gerror))
             {
                 FmErrorAction error_action = fm_job_emit_error (FM_JOB (file_info_job), gerror, FM_SEVERITY_MILD);
@@ -205,16 +202,11 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         
             l = next;
             continue;
-        
         }
         
         // A native file, query file infos with posix...
         else if (fm_path_is_native (file_info->path))
 		{
-			//char *path_str = fm_path_to_str (file_info->path);
-			
-            //~ if (!fm_file_info_query_native_file (file_info))
-            
             if (!fm_file_info_query (file_info, NULL, NULL))
             {
                 /** TODO_axl: error handling...
@@ -243,9 +235,8 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         {
             DEBUG ("FmFileInfoJob: ERROR !!!!\n");
         }
-        
+
         l = next;
-	
     }
 	
     return TRUE;

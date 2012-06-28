@@ -24,7 +24,7 @@ static void mount_mountable_done_cb (GObject *object, GAsyncResult *res, gpointe
     }
     else
     {
-        NO_DEBUG ("Succesfull !!!!\n");
+        // NO_DEBUG ("Succesfull !!!!\n");
         
         g_object_unref (target);
         
@@ -50,12 +50,12 @@ int main (int argc, char *argv[])
         
         FmFileInfo *file_info = (FmFileInfo*) l->data;
         
-        NO_DEBUG ("path2 : %s\n", fm_path_to_str (fm_file_info_get_path (file_info)));
+        // NO_DEBUG ("path2 : %s\n", fm_path_to_str (fm_file_info_get_path (file_info)));
         
         char *target = fm_file_info_get_target (file_info);
         
-        if (target)
-            NO_DEBUG ("target : %s\n", target);
+        //if (target)
+            // NO_DEBUG ("target : %s\n", target);
         
         GFile *gfile = fm_path_to_gfile (fm_file_info_get_path (file_info));
         
@@ -126,7 +126,7 @@ int main (int argc, char *argv[])
         
         const char *orig_path = g_file_info_get_attribute_byte_string (gfile_info, G_FILE_ATTRIBUTE_TRASH_ORIG_PATH);
         
-        NO_DEBUG ("orig path : %s\n", orig_path);
+        // NO_DEBUG ("orig path : %s\n", orig_path);
         
         g_object_unref (gfile);
         g_object_unref (gfile_info);

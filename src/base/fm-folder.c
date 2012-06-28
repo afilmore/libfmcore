@@ -421,16 +421,21 @@ void fm_folder_reload (FmFolder *folder)
             FmFileInfo *file_info = (FmFileInfo*)l->data;
             files_to_del = g_slist_prepend (files_to_del, file_info);
         }
+        
         g_signal_emit (folder, signals [FILES_REMOVED], 0, files_to_del);
+        
         fm_list_clear (folder->files); // fm_file_info_unref will be invoked.
+        
         g_slist_free (files_to_del);
 
         g_signal_emit (folder, signals [CONTENT_CHANGED], 0);
     }
 
     folder->dir_list_job = (FmDirListJob*) fm_dir_list_job_new (folder->dir_path, FALSE);
+    
     g_signal_connect (folder->dir_list_job, "finished", G_CALLBACK (on_job_finished), folder);
     g_signal_connect (folder->dir_list_job, "error", G_CALLBACK (on_job_err), folder);
+    
     fm_job_run_async (FM_JOB (folder->dir_list_job));
 }
 

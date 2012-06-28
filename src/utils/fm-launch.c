@@ -109,7 +109,7 @@ static gboolean fm_launch_paths             (GAppLaunchContext *ctx, GList *path
 {
     
     g_return_val_if_fail (folder_infos, FALSE);
-    NO_DEBUG ("default open folder func !!!!\n");
+    // NO_DEBUG ("default open folder func !!!!\n");
     
     GList* l = folder_infos;
     for (; l; l=l->next)
@@ -118,7 +118,7 @@ static gboolean fm_launch_paths             (GAppLaunchContext *ctx, GList *path
         if (fm_config->filemanager)
         {
             gchar *cmd = g_strdup_printf ("%s %s", fm_config->filemanager, file_info->path); 
-            NO_DEBUG ("%s\n", cmd);
+            // NO_DEBUG ("%s\n", cmd);
 
             g_spawn_command_line_async (cmd, NULL);
             
@@ -434,7 +434,7 @@ static gboolean fm_launch_files_internal (GAppLaunchContext *ctx, GList *file_in
                     file_info = (FmFileInfo*)l->data;
                     uri = fm_path_to_uri (file_info->path);
                     l->data = uri;
-                    NO_DEBUG ("fm-gtk-launcher.c: fm_launch_files_internal (%s)\n", uri);
+                    // NO_DEBUG ("fm-gtk-launcher.c: fm_launch_files_internal (%s)\n", uri);
                 }
                 fis = g_list_reverse (fis);
                 
@@ -492,7 +492,7 @@ static gboolean fm_launch_desktop_entry (GAppLaunchContext *ctx, const char *fil
 
     if (!app) // gio failed loading it. Let's see what's going on
     {
-        NO_DEBUG ("fm_launch_desktop_entry: GIO Failed to load %s entry file !!!\n", file_or_id);
+        // NO_DEBUG ("fm_launch_desktop_entry: GIO Failed to load %s entry file !!!\n", file_or_id);
         
         gboolean loaded;
         GKeyFile *kf = g_key_file_new ();

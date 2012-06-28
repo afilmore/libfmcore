@@ -190,40 +190,54 @@ static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_mode
     gtk_tree_path_free (tree_path);
 }
 
+GList *fm_dir_tree_model_add_root_full (FmDirTreeModel *dir_tree_model,
+                                      FmDirTreeItem *dir_tree_item,
+                                      GList *parent_node, GtkTreeIter *iter, gboolean can_expand);
 
 /*****************************************************************************************
  *  ...
  * 
  * 
  ****************************************************************************************/
-void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
+void fm_dir_tree_model_load_new (FmDirTreeModel *dir_tree_model)
 {
     
-    
+    FmPath *path;
+    FmFileInfo *file_info;
+    FmDirTreeItem *dir_tree_item;
     
     // Desktop...
-    FmPath *path = fm_path_get_desktop ();
-    FmFileInfo *file_info = fm_file_info_new_for_path (path);
+    path = fm_path_get_desktop ();
+    file_info = fm_file_info_new_for_path (path);
+    dir_tree_item = fm_dir_tree_item_new (dir_tree_model, NULL, file_info);
+    fm_file_info_query (file_info, NULL, NULL);
+    
+    GList *item_node = fm_dir_tree_model_add_root_full (dir_tree_model, dir_tree_item, NULL, NULL, TRUE);
+
+    // Computer...
+    path = fm_path_new_for_uri ("computer:///");
+    file_info = fm_file_info_new_for_path (path);
+    dir_tree_item = fm_dir_tree_item_new (dir_tree_model, item_node, file_info);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root_full (dir_tree_model, dir_tree_item, item_node, NULL, TRUE);
+    fm_path_unref (path);
+    
+    return;
+}
+    
+    
+void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
+{
+    FmPath *path;
+    FmFileInfo *file_info;
+    
+
+    // Desktop...
+    path = fm_path_get_desktop ();
+    file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
-    
-    
-    
-    
-    // Computer...
-    //~ path = fm_path_new_for_uri ("computer:///");
-    //~ file_info = fm_file_info_new_for_path (path);
-    //~ FmDirTreeItem *dir_tree_item = fm_dir_tree_item_new (dir_tree_model, NULL, file_info);
-    //~ 
-//~ 
-    //~ 
-    //~ fm_file_info_query (file_info, NULL, NULL);
-    //~ fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
-    //~ fm_path_unref (path);
-    
-    
-    
-    
+
     
     // Computer...
     path = fm_path_new_for_uri ("computer:///");
@@ -233,8 +247,6 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     fm_path_unref (path);
     
     
-    
-    
     // Documents...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS));
     file_info = fm_file_info_new_for_path (path);
@@ -242,19 +254,22 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
     
+    
     // Trash Can...
     path = fm_path_get_trash ();
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, FALSE);
     
-    /**
+    
+    /***************************************************************************
      *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
      *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
      *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
      *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
      *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
      *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+     * 
      **/
     
     // Download...
@@ -264,12 +279,14 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
     
+    
     // Music...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC));
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
+    
     
     // Pictures...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES));
@@ -278,12 +295,14 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
     
+    
     // Videos...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS));
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
+    
     
     // Root FileSystem...
     path = fm_path_get_root ();
@@ -292,39 +311,37 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     
     
-    
-    // Administration Programs...
+    // Settings...
     path = fm_path_new_for_uri ("menu://Applications/DesktopSettings");
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, FALSE);
     fm_path_unref (path);
     
+    // System...
     path = fm_path_new_for_uri ("menu://Applications/System");
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, FALSE);
     fm_path_unref (path);
     
-    
-    
     // what's the purpose of weak pointers ??? :-P
-    
     g_object_add_weak_pointer (dir_tree_model, &dir_tree_model);
 }
 
-void fm_dir_tree_model_add_root_full (FmDirTreeModel *dir_tree_model,
-                                      FmDirTreeItem *dir_tree_item, GtkTreeIter *iter, gboolean can_expand)
+GList *fm_dir_tree_model_add_root_full (FmDirTreeModel *dir_tree_model,
+                                      FmDirTreeItem *dir_tree_item,
+                                      GList *parent_node, GtkTreeIter *iter, gboolean can_expand)
 {
     
+    //GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, parent_node);
     
-    
-    
-    
+    if (!parent_node)
+        parent_node = dir_tree_model->root_list;
     
     dir_tree_model->root_list = g_list_append (dir_tree_model->root_list, dir_tree_item);
-    
     GList *item_list = g_list_last (dir_tree_model->root_list);
+    //~ dir_tree_item->parent = parent_node;
     
     if (can_expand)
         fm_dir_tree_model_add_place_holder_child_item (dir_tree_model, item_list, NULL, FALSE);
@@ -343,6 +360,8 @@ void fm_dir_tree_model_add_root_full (FmDirTreeModel *dir_tree_model,
         *iter = it;
     
     gtk_tree_path_free (tree_path);
+    
+    return item_list;
 }
 
 void fm_dir_tree_model_add_root (FmDirTreeModel *dir_tree_model, FmFileInfo *root, GtkTreeIter *iter, gboolean can_expand)
@@ -781,7 +800,7 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *dir_tree_model, 
     g_mutex_lock (dir_tree_model->subdir_checks_mutex);
     
     g_queue_push_tail (&dir_tree_model->subdir_checks, item_list);
-    NO_DEBUG ("queue subdir check for %s\n", fm_file_info_get_disp_name (dir_tree_item->file_info));
+    // NO_DEBUG ("queue subdir check for %s\n", fm_file_info_get_disp_name (dir_tree_item->file_info));
     
     if (!dir_tree_model->job_running)
     {
@@ -793,7 +812,7 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *dir_tree_model, 
                                 (GDestroyNotify)g_object_unref,
                                 G_PRIORITY_DEFAULT,
                                 dir_tree_model->subdir_cancellable);
-        NO_DEBUG ("push job\n");
+        // NO_DEBUG ("push job\n");
     }
     
     g_mutex_unlock (dir_tree_model->subdir_checks_mutex);
@@ -817,7 +836,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     gf = fm_path_to_gfile (fm_file_info_get_path (dir_tree_item->file_info));
     g_mutex_unlock (dir_tree_model->subdir_checks_mutex);
     
-    NO_DEBUG ("check subdir for: %s\n", g_file_get_parse_name (gf));
+    // NO_DEBUG ("check subdir for: %s\n", g_file_get_parse_name (gf));
     
     enu = g_file_enumerate_children (gf,
                             G_FILE_ATTRIBUTE_STANDARD_NAME","
@@ -855,7 +874,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
         g_object_unref (enu);
     }
     
-    NO_DEBUG ("check result - %s has_dir: %d\n", g_file_get_parse_name (gf), has_subdir);
+    // NO_DEBUG ("check result - %s has_dir: %d\n", g_file_get_parse_name (gf), has_subdir);
     g_object_unref (gf);
     
     if (!has_subdir)
