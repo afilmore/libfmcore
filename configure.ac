@@ -12,7 +12,7 @@
 #***********************************************************************************************************************
 
 AC_PREREQ([2.63])
-AC_INIT([libfmcore], [0.1.99], [https://github.com/afilmore/libfmcore])
+AC_INIT([libfmcore], [0.2.0], [https://github.com/afilmore/libfmcore])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADERS([config.h])
@@ -150,22 +150,23 @@ if test x"$enable_udisks" = x"yes"; then
 fi
 
 
+CPPFLAGS=
 #*****************************************************************************************
 #   Enable Debug...
 #
 #
 #*****************************************************************************************
-AC_ARG_ENABLE(jobs-debug,
-              [AC_HELP_STRING([--enable-jobs-debug],
+AC_ARG_ENABLE(debug,
+              [AC_HELP_STRING([--enable-debug],
+              [Debug Support @<:@default=no@:>@])],
+              [enable_debug="${enableval}"],
+              [enable_debug=no])
+
+AC_ARG_ENABLE(job-debug,
+              [AC_HELP_STRING([--enable-job-debug],
               [Debug The Job System (default: no)])],
-              enable_treeview_debug=$enableval,
-              enable_treeview_debug="no")
-
-
-if test "$enable_job_debug" = "yes"; then
-    CPPFLAGS="$CPPFLAGS -DENABLE_JOB_DEBUG"
-    enable_debug = "yes"
-fi
+              enable-job-debug=$enableval,
+              enable-job-debug="no")
 
 AC_ARG_ENABLE(treeview-debug,
               [AC_HELP_STRING([--enable-treeview-debug],
@@ -174,20 +175,19 @@ AC_ARG_ENABLE(treeview-debug,
               enable_treeview_debug="no")
 
 
-if test "$enable_treeview_debug" = "yes"; then
-    CPPFLAGS="$CPPFLAGS -DENABLE_TREEVIEW_DEBUG"
-    enable_debug = "yes"
+if test "$enable_job_debug" = "yes"; then
+    CPPFLAGS="$CPPFLAGS -DENABLE_JOB_DEBUG"
+    enable_debug="yes"
 fi
 
-AC_ARG_ENABLE(debug,
-              [AC_HELP_STRING([--enable-debug],
-              [Debug Support @<:@default=no@:>@])],
-              [enable_debug="${enableval}"],
-              [enable_debug=no])
+if test "$enable_treeview_debug" = "yes"; then
+    CPPFLAGS+="-DENABLE_TREEVIEW_DEBUG"
+    enable_debug="yes"
+fi
 
 if test "$enable_debug" = "yes"; then
     # turn on debug and disable optimization
-    CPPFLAGS="$CPPFLAGS -DENABLE_DEBUG -DG_ENABLE_DEBUG -O0 -g"
+    CPPFLAGS="-O0 -g $CPPFLAGS -DENABLE_DEBUG -DG_ENABLE_DEBUG"
 else
     # turn off glib debug checks
     CPPFLAGS="$CPPFLAGS -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS"
@@ -254,23 +254,19 @@ AC_OUTPUT
 #
 #
 #*****************************************************************************************
-
+echo "--------------------------------------------------------------------------------"
+echo "                    - LibFm Core Configuration Summary -"
+echo "--------------------------------------------------------------------------------"
+echo "      Version:                                                $VERSION"
+echo "      prefix:                                                 $prefix"
+echo "      CPPFLAGS: $CPPFLAGS"
+echo "      Debugging:                                              $enable_debug"
+echo "      Jobs Debug:                                             $enable_job_debug"
+echo "      Tree View Debug:                                        $enable_treeview_debug"
+echo "      UDisks Support:                                         $enable_udisks"
+echo "      Large file support:                                     $largefile"
 echo
-echo "LibFm Core $VERSION Configuration Summary:"
-echo
-echo "LibFm Core:                                               $LIBFMCORE_VERSION"
-echo "prefix:                                                   $prefix"
-echo "sysconfdir:                                               $sysconfdir"
-echo "Debugging:                                                $enable_debug"
-echo "Build udisks support (Linux only, experimental):          $enable_udisks"
-echo "Large file support:                                       $largefile"
-if test x"$have_scheme_handler" = x"no"; then
-echo "GIO module for preferred apps (for glib < 2.28 only):     $giomodulesdir";
-else
-echo "GIO module for preferred apps (for glib < 2.28 only):     not required";
-fi
-echo
-echo
+echo "--------------------------------------------------------------------------------"
 
 
 
