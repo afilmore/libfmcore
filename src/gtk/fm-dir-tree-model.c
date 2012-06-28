@@ -498,14 +498,18 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList
     
     FmDirTreeItem *dir_tree_item = fm_dir_tree_item_new (dir_tree_model, parent_node, file_info);
 
-    // Show Hidden Files...
+    // Don't show hidden files...
     if (!dir_tree_model->show_hidden && file_info->path->name[0] == '.')
     {
-        parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
-        item_list = parent_item->hidden_children;
+        //~ parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
+        //~ item_list = parent_item->hidden_children;
     }
+    
+    // Show hidden files...
     else
+    {
         item_list = fm_dir_tree_model_insert_item (dir_tree_model, parent_node, tree_path, dir_tree_item);
+    }
     
     return item_list;
 }
@@ -529,7 +533,7 @@ void fm_dir_tree_model_remove_item (FmDirTreeModel *dir_tree_model, GList *item_
     
     // signal the view that we removed the placeholder item. 
     char *tmp_path = gtk_tree_path_to_string (tree_path);
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_remove_item %s\n", tmp_path);
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_remove_item %s\n", tmp_path);
     g_free (tmp_path);
     
     gtk_tree_model_row_deleted (GTK_TREE_MODEL (dir_tree_model), tree_path);
@@ -553,7 +557,7 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_mode
         
         // signal the view that we removed the placeholder item.
         char *tmp_path = gtk_tree_path_to_string (tree_path);
-        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_remove_all_children %s\n", tmp_path);
+        //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_remove_all_children %s\n", tmp_path);
         g_free (tmp_path);
         
         
@@ -562,12 +566,12 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_mode
         // first item, so there is no need to update tree_path.
     }
 
-    if (dir_tree_item->hidden_children)
-    {
-        g_list_foreach (dir_tree_item->hidden_children, (GFunc)fm_dir_tree_item_free, NULL);
-        g_list_free (dir_tree_item->hidden_children);
-        dir_tree_item->hidden_children = NULL;
-    }
+    //~ if (dir_tree_item->hidden_children)
+    //~ {
+        //~ g_list_foreach (dir_tree_item->hidden_children, (GFunc)fm_dir_tree_item_free, NULL);
+        //~ g_list_free (dir_tree_item->hidden_children);
+        //~ dir_tree_item->hidden_children = NULL;
+    //~ }
     
     gtk_tree_path_up (tree_path);
     
@@ -586,7 +590,7 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_mode
 void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *it, GtkTreePath *tree_path)
 {
     
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_expand_row\n");
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_expand_row\n");
     
     GList *item_list = (GList*) it->user_data;
     
@@ -619,7 +623,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
                 FmPath *path = fm_file_info_get_path (file_info);
                 if (!fm_file_info_is_dir (file_info))
                 {
-                    TREEVIEW_DEBUG ("%s\n", fm_path_get_basename (path));
+                    //TREEVIEW_DEBUG ("%s\n", fm_path_get_basename (path));
                     //&& !fm_path_is_virtual (path))
                     continue;
                 }
@@ -634,7 +638,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
         }
         else
         {
-            TREEVIEW_DEBUG ("NOT loaded !!!\n");
+            //TREEVIEW_DEBUG ("NOT loaded !!!\n");
         }
     }
     
@@ -714,31 +718,6 @@ gboolean fm_dir_tree_model_get_show_hidden (FmDirTreeModel *dir_tree_model)
     return dir_tree_model->show_hidden;
 }
 
-// Currently Unused...
-#if 0
-static void item_show_hidden_children (FmDirTreeModel* dir_tree_model, GList* item_l, gboolean show_hidden)
-{
-    FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
-//    GList* child_l;
-    // TODO_axl: show hidden items
-    if (show_hidden)
-    {
-        while (item->hidden_children)
-        {
-
-        }
-    }
-    else
-    {
-        while (item->children)
-        {
-
-        }
-    }
-}
-#endif
-
-
 static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *dir_tree_model, FmDirTreeItem *dir_tree_item,
                                                 GtkTreePath *tree_path)
 {
@@ -772,15 +751,15 @@ static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *dir_tree_model, 
         gtk_tree_path_up (tree_path);
     }
 
-    for (l = dir_tree_item->hidden_children; l; l=l->next)
-    {
-        child = (FmDirTreeItem*) l->data;
-        if (child->fm_icon)
-        {
-            fm_icon_unref (child->fm_icon);
-            child->fm_icon = NULL;
-        }
-    }
+    //~ for (l = dir_tree_item->hidden_children; l; l=l->next)
+    //~ {
+        //~ child = (FmDirTreeItem*) l->data;
+        //~ if (child->fm_icon)
+        //~ {
+            //~ fm_icon_unref (child->fm_icon);
+            //~ child->fm_icon = NULL;
+        //~ }
+    //~ }
 }
 
 
@@ -896,8 +875,8 @@ static gboolean subdir_check_remove_place_holder (FmDirTreeModel *dir_tree_model
         {
             
             // Remove the place holder...
-            TREEVIEW_DEBUG ("TREEVIEW_DEBUG: remove place holder for %s\n",
-                            fm_file_info_get_disp_name (dir_tree_item->file_info));
+            //~ TREEVIEW_DEBUG ("TREEVIEW_DEBUG: remove place holder for %s\n",
+                            //~ fm_file_info_get_disp_name (dir_tree_item->file_info));
             
             GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, item_list);
             fm_dir_tree_model_remove_all_children (dir_tree_model, item_list, tree_path);
@@ -916,7 +895,7 @@ static gboolean subdir_check_finish (FmDirTreeModel *dir_tree_model)
     if (g_queue_is_empty (&dir_tree_model->subdir_checks))
     {
         dir_tree_model->job_running = FALSE;
-        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_finish: all subdir checks are finished !\n");
+        //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_finish: all subdir checks are finished !\n");
         return FALSE;
     }
     else // still has queued items 

@@ -221,7 +221,7 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *tree_view, FmPath *p
         tree_view->paths_to_expand = g_slist_prepend (tree_view->paths_to_expand, fm_path_ref (path));
         
         char *temp_path = fm_path_to_str (path);
-        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_view_set_current_directory: path to expend = %s\n", temp_path);
+        //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_view_set_current_directory: path to expend = %s\n", temp_path);
         g_free (temp_path);
         
         if (fm_path_equal (path, root))
@@ -271,12 +271,12 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     
     FmPath *path = FM_PATH (tree_view->paths_to_expand->data);
 
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: expend %s\n", fm_path_display_basename (path));
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: expend %s\n", fm_path_display_basename (path));
     
     GtkTreeIter it;
     if (!find_iter_by_path (model, &it, parent_iter, path))
     {
-        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: find_iter_by_path () returned NULL\n");
+        //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: find_iter_by_path () returned NULL\n");
         return;
     }
     
@@ -286,7 +286,7 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     GtkTreePath *tree_path = gtk_tree_model_get_path (model, &it);
     
     char *temp_tp = gtk_tree_path_to_string (tree_path);
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: expend tree path %s\n", temp_tp);
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: expend tree path %s\n", temp_tp);
     g_free (temp_tp);
     
     gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tree_path, FALSE);
@@ -304,7 +304,7 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     
     tree_view->cur_expanded_folder = FM_FOLDER (g_object_ref (folder));
 
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: %s expended\n", fm_path_display_basename (path));
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: expand_pending_path: %s expended\n", fm_path_display_basename (path));
     
     // The folder is already loaded...
     if (fm_folder_get_is_loaded (folder))
@@ -339,7 +339,7 @@ static gboolean find_iter_by_path (GtkTreeModel *model, GtkTreeIter *it, GtkTree
  ****************************************************************************************/
 static void on_folder_loaded (FmFolder *folder, FmDirTreeView *tree_view)
 {
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
     
     // disconnect the handler since we only need it once
     g_signal_handlers_disconnect_by_func (folder, on_folder_loaded, tree_view);

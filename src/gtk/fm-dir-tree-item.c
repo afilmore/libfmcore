@@ -86,11 +86,11 @@ inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
         g_list_free (dir_tree_item->children);
     }
     
-    if (dir_tree_item->hidden_children)
-    {
-        g_list_foreach (dir_tree_item->hidden_children, (GFunc) fm_dir_tree_item_free, NULL);
-        g_list_free (dir_tree_item->hidden_children);
-    }
+    //~ if (dir_tree_item->hidden_children)
+    //~ {
+        //~ g_list_foreach (dir_tree_item->hidden_children, (GFunc) fm_dir_tree_item_free, NULL);
+        //~ g_list_free (dir_tree_item->hidden_children);
+    //~ }
     
     g_slice_free (FmDirTreeItem, dir_tree_item);
 }
@@ -196,7 +196,7 @@ static void on_folder_loaded (FmFolder *folder, GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: FmDirTreeItem: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
+    //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: FmDirTreeItem: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
     fm_dir_tree_item_on_folder_loaded (dir_tree_item);
     
     /**

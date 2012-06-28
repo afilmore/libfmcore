@@ -60,16 +60,12 @@ const char          *gfile_info_query_attribs = "standard::*,unix::*,time::*,acc
 // Forward declarations...
 static void     fm_file_info_clear                      (FmFileInfo *file_info);
 
-static void     fm_file_info_set_for_desktop_entry      (FmFileInfo *file_info);
-
-static gboolean fm_file_info_query_native_file (FmFileInfo *file_info/*, GError **err*/);
+static gboolean fm_file_info_query_cache_item           (FmFileInfo *file_info);
+static gboolean fm_file_info_query_gio                  (FmFileInfo *file_info, GFileInfo *gfile_info);
+static gboolean fm_file_info_query_posix                (FmFileInfo *file_info/*, GError **err*/);
+static void     fm_file_info_query_desktop_entry        (FmFileInfo *file_info);
 
 static gboolean fm_file_info_init_icon_for_crappy_code  (FmFileInfo *file_info);
-
-static void     fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
-
-static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info);
-
 
 
 /*********************************************************************
@@ -316,7 +312,7 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
     //~ FmPath *path = fm_path_new_for_path (path_name);
     //~ 
     //~ FmFileInfo *file_info = fm_file_info_new_for_path (path);
-    //~ fm_file_info_set_for_gfileinfo (file_info, ginfo);
+    //~ fm_file_info_query_gio (file_info, ginfo);
     //~ 
     //~ fm_path_unref (path);
     //~ g_object_unref (ginfo);
@@ -346,233 +342,176 @@ FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
 
 
 /*********************************************************************
- *  ...
- * 
- * 
- ********************************************************************/
-static gboolean fm_file_info_query_native_file (FmFileInfo *file_info/*, GError **err*/)
-{
-	char *path_str = fm_path_to_str (file_info->path);
-    
-    struct stat st;
-    //~ gboolean is_link;
-    
-    _retry:
-	
-    if (lstat (path_str, &st) != 0)
-    {
-        //g_set_error (err, G_IO_ERROR, g_io_error_from_errno (errno), "%s", g_strerror (errno));
-		return FALSE;
-    }
-	
-    char *type;
-    
-    file_info->disp_name = file_info->path->name;
-    file_info->mode = st.st_mode;
-    file_info->mtime = st.st_mtime;
-    file_info->atime = st.st_atime;
-    file_info->size = st.st_size;
-    file_info->dev = st.st_dev;
-    file_info->uid = st.st_uid;
-    file_info->gid = st.st_gid;
-
-    //~ if (fm_job_is_cancelled (FM_JOB (job)))
-        //~ return TRUE;
-        
-    // Get Link Target...
-    if (S_ISLNK (st.st_mode))
-    {
-        stat (path_str, &st);
-        file_info->target = g_file_read_link (path_str, NULL);
-    }
-
-    FmMimeType *mime_type = fm_mime_type_get_for_native_file (path_str, file_info->disp_name, &st);
-    
-    g_return_val_if_fail (mime_type, FALSE);
-    
-    file_info->mime_type = mime_type;
-    
-    if (fm_file_info_is_desktop_entry (file_info))
-    {
-        // Set name and icon from a desktop entry...
-        fm_file_info_set_for_desktop_entry (file_info);
-        return TRUE;
-    }
-    
-    if (!fm_file_info_init_icon_for_crappy_code (file_info))
-        file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
-    
-    return TRUE;
-}
-
-static void fm_file_info_set_for_desktop_entry (FmFileInfo *file_info)
-{
-    // Special handling for desktop entries...
-    char *fpath = fm_path_to_str (file_info->path);
-    GKeyFile *kf = g_key_file_new ();
-    
-    FmIcon *icon = NULL;
-    if (g_key_file_load_from_file (kf, fpath, 0, NULL))
-    {
-        char *title = g_key_file_get_locale_string (kf, "Desktop Entry", "Name", NULL, NULL);
-        char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
-        
-        
-        
-        
-        
-        // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
-        // that's also in fm-app-menu-view.c, in add_menu_items ()
-        if (icon_name)
-        {
-            // This is an icon name, not a full path to icon file.
-            if (icon_name[0] != '/')
-            {
-                // remove file extension
-                char *dot = strrchr (icon_name, '.');
-                if (dot)
-                {
-                    ++dot;
-                    if (strcmp (dot, "png") == 0
-                        || strcmp (dot, "svg") == 0
-                        || strcmp (dot, "xpm") == 0)
-                    {
-                        *(dot-1) = '\0';
-                    }
-                }
-            }
-            
-            icon = fm_icon_from_name (icon_name);
-            g_free (icon_name);
-            
-        }
-        
-        
-        
-        
-        
-        if (title)
-            file_info->disp_name = title;
-    }
-    
-    if (icon)
-        file_info->fm_icon = icon;
-    else
-        file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
-    
-}
-
-static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
-{
-    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
-    {
-        guint32 num_items = fm_trash_get_num_items ();
-        
-        if (num_items)
-            file_info->fm_icon = fm_icon_from_name ("user-trash-full");
-        else
-            file_info->fm_icon = fm_icon_from_name ("user-trash");
-    }
-    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("computer");
-    }
-    else if (fm_path_is_xdg_menu (file_info->path))
-    {
-        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
-    }
-    else if (fm_path_get_desktop () == file_info->path)
-    {
-        file_info->fm_icon = fm_icon_from_name ("user-desktop");
-    }
-    else if (fm_path_get_root () == file_info->path)
-    {
-        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
-    }
-    else
-    {
-        return FALSE;
-    }
-    
-    return TRUE;
-}
-
-
-
-
-
-
-/*********************************************************************
  * ...
  * 
  * 
  ********************************************************************/
 gboolean fm_file_info_query (FmFileInfo *file_info, GCancellable *cancellable, GError **err)
 {
-    
-    // gio is really slower, also there's a problem with symlinks, the panel launcher no longer works...
-    //~ gboolean use_gio = TRUE;
+    /*****************************************************************
+     * With this flag it's possible to test GIO only,
+     * then we see that GIO is way slower than posix... :-P
+     * Note: the GIO version doesn't handle symlinks,
+     * the panel launcher doesn't work with it.
+     * 
+     **/
     gboolean use_gio = FALSE;
 
-    // TODO_axl:
-    // if path is native and use_posix is set, query with posix...
-    
-    
-    
     if (fm_path_is_xdg_menu (file_info->path))
     {
-        /**
-        g_return_val_if_fail (global_menu_cache != NULL, FALSE);
-        
-        // Calling libmenu-cache is only allowed in main thread.
-        g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items_new, job, NULL);    
-        **/
-    
-        fm_file_info_query_cache_item (file_info);
-    
-    
-    
+        return fm_file_info_query_cache_item (file_info);
     }
     else if (use_gio || fm_path_is_virtual (file_info->path))
     {
+        // 8<---------------------------------------------------------------------------------------
+        // TODO_axl: include this directly in fm_file_info_query_gio (file_info)...
         GFile *gfile = fm_path_to_gfile (file_info->path);
         
         GFileInfo *gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, cancellable, err);
         g_object_unref (gfile);
         
         g_return_val_if_fail (gfile_info != NULL, FALSE);
+        // 8<---------------------------------------------------------------------------------------
         
-        fm_file_info_set_for_gfileinfo (file_info, gfile_info);
+        gboolean ret = fm_file_info_query_gio (file_info, gfile_info);
+        g_object_unref (gfile_info);
+        return ret;
+        
     }
     else if (fm_path_is_native (file_info->path))
     {
-        // FIXME_axl: calling path_to_str () sucks...
-        //char *path_str = fm_path_to_str (file_info->path);
-        
-        fm_file_info_query_native_file (file_info);
-        
-        //g_free (path_str);
+        return fm_file_info_query_posix (file_info);
     }
     else
     {
         DEBUG ("FmFileInfoJob: ERROR !!!!\n");
+        return FALSE;
     }
-        
-    
-    
     
 	return TRUE;
 }
 
+static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
+{
+    g_return_val_if_fail (global_menu_cache != NULL, FALSE);
+    
+    char *path_str = fm_path_to_str (file_info->path);
+    //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", path_str);
+    
+    // That's the only way I found to know if it's a file or a directory...
+    gboolean is_a_file = g_str_has_suffix (path_str, ".desktop");
+    
+    // needs a function for this...
+    // Strip "menu://"
+    char *p = path_str + 5;
+    while (*p == '/')
+        ++p;
+    
+    char *menu_name = p-1;
+    
+    JOB_DEBUG ("\nJOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", menu_name);
+    MenuCacheDir *menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, menu_name);
+    g_return_val_if_fail (menu_cache_dir != NULL, FALSE);
+    
+    //~ if (g_strcmp0 (menu_cache_item_get_file_dirname (found_item), menu_cache_item_get_file_path (found_item)) == 0)
+        //~ JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: DIRECTORY !!!!\n\n");
+    
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_dirname = %s\n",
+               menu_cache_item_get_file_dirname (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_path = %s\n",
+               menu_cache_item_get_file_path (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_basename = %s\n",
+               menu_cache_item_get_file_basename (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_name = %s\n",
+               menu_cache_item_get_name (menu_cache_dir));
+    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_id = %s\n\n",
+               menu_cache_item_get_id (menu_cache_dir));
+    
+        
+    MenuCacheItem *found_item = NULL;
+    
+    if (is_a_file)
+    {
+        GList* l;
+        for (l = (GList*) menu_cache_dir_get_children (menu_cache_dir); l; l = l->next)
+        {
+            MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
+            
+            char *item_path = menu_cache_item_get_id (item);
+            JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item_path = %s\n", item_path);
+            
+            //~ //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_info->path->name = %s\n", file_info->path->name);
+            if (g_strcmp0 (file_info->path->name, item_path) == 0)
+            {
+                JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item found = %s\n\n", item_path);
+                found_item = item;
+                break;
+            }
+        }
+    }
+    else
+    {
+        found_item = menu_cache_dir;
+    }
+    
+    g_free (path_str);
+    g_return_val_if_fail (found_item != NULL, FALSE);
+    
+    
+    file_info->disp_name = g_strdup (menu_cache_item_get_name (found_item));
+    
+    // 8<---------------------------------------------------------------------------------------
+    
+    /*******************************************************************************************
+     * 
+     * Duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
+     * that's also in fm-app-menu-view.c, in add_menu_items ()...
+     * 
+     **/
+    const char *icon_name = menu_cache_item_get_icon (found_item);
+    if (icon_name)
+    {
+        char *tmp_name = NULL;
+        if (icon_name[0] != '/') // this is a icon name, not a full path to icon file.
+        {
+            char *dot = strrchr (icon_name, '.');
+            // remove file extension, this is a hack to fix non-standard desktop entry files
+            if (G_UNLIKELY (dot))
+            {
+                ++dot;
+                if (strcmp (dot, "png") == 0 ||
+                   strcmp (dot, "svg") == 0 ||
+                   strcmp (dot, "xpm") == 0)
+                {
+                    tmp_name = g_strndup (icon_name, dot - icon_name - 1);
+                    icon_name = tmp_name;
+                }
+            }
+        }
+        
+        file_info->fm_icon = fm_icon_from_name (icon_name);
+        
+        if (G_UNLIKELY (tmp_name))
+            g_free (tmp_name);
+    }
+    // 8<---------------------------------------------------------------------------------------
+    
+    if (menu_cache_item_get_type (found_item) == MENU_CACHE_TYPE_DIR)
+    {
+        file_info->mode |= S_IFDIR;
+    }
+    else if (menu_cache_item_get_type (found_item) == MENU_CACHE_TYPE_APP)
+    {
+        file_info->mode |= S_IFREG;
+        file_info->target = menu_cache_item_get_file_path (found_item);
+    }
+    
+    file_info->mime_type = fm_mime_type_ref (shortcut_type);
+    
+    return TRUE;
+}
 
-
-
-/*********************************************************************
- *  ...
- * 
- * 
- ********************************************************************/
-static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gfile_info)
+static gboolean fm_file_info_query_gio (FmFileInfo *file_info, GFileInfo *gfile_info)
 {
     const char *tmp;
     GIcon *gicon;
@@ -580,8 +519,6 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
 
     g_return_if_fail (file_info->path);
 
-    //DEBUG ("DEBUG: fm_file_info_set_for_gfileinfo: replace with fm_file_info_set_for_gfileinfo () !!!\n");
-    
     // if display name is the same as its name, just use it.
     tmp = g_file_info_get_display_name (gfile_info);
     
@@ -644,10 +581,6 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
         #endif
         }
     }
-
-
-
-
     
     if (!fm_file_info_init_icon_for_crappy_code (file_info))
     {
@@ -662,10 +595,6 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
             file_info->fm_icon = fm_icon_ref (file_info->mime_type->icon);
         }
     }
-    
-    
-    
-    
     
     if (gfile_type == G_FILE_TYPE_MOUNTABLE || G_FILE_TYPE_SHORTCUT)
     {
@@ -699,230 +628,155 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
 
     file_info->mtime = g_file_info_get_attribute_uint64 (gfile_info, G_FILE_ATTRIBUTE_TIME_MODIFIED);
     file_info->atime = g_file_info_get_attribute_uint64 (gfile_info, G_FILE_ATTRIBUTE_TIME_ACCESS);
-}
-
-
-
-
-
-
-
-
-
-
-
-/*********************************************************************
- *  ...
- * 
- * 
- ********************************************************************/
-
-
-
-
-
-
-
-
-
-
-
-// only file info job and dir list job use it, it's not in the vapi file...
-
-
-
-
-
-
-
-
-
-
-
-
-
-static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
-{
-    g_return_val_if_fail (global_menu_cache != NULL, FALSE);
-    
-    // needs a function for this...
-    char *path_str = fm_path_to_str (file_info->path);
-    //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", path_str);
-    
-    gboolean is_a_file = g_str_has_suffix (path_str, ".desktop");
-    
-    // Strip "menu://"
-    char *p = path_str + 5;
-    while (*p == '/')
-        ++p;
-    
-    char *menu_name = p-1;
-    
-    JOB_DEBUG ("\nJOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", menu_name);
-    MenuCacheDir *menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, menu_name);
-    g_return_val_if_fail (menu_cache_dir != NULL, FALSE);
-    
-    //~ if (g_strcmp0 (menu_cache_item_get_file_dirname (found_item), menu_cache_item_get_file_path (found_item)) == 0)
-        //~ JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: DIRECTORY !!!!\n\n");
-    
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_dirname = %s\n",
-               menu_cache_item_get_file_dirname (menu_cache_dir));
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_path = %s\n",
-               menu_cache_item_get_file_path (menu_cache_dir));
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_basename = %s\n",
-               menu_cache_item_get_file_basename (menu_cache_dir));
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_name = %s\n",
-               menu_cache_item_get_name (menu_cache_dir));
-    JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_id = %s\n\n",
-               menu_cache_item_get_id (menu_cache_dir));
-    
-        
-    MenuCacheItem *found_item = NULL;
-    
-    if (is_a_file)
-    {
-        GList* l;
-        for (l = (GList*) menu_cache_dir_get_children (menu_cache_dir); l; l = l->next)
-        {
-            MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
-            
-            char *item_path = menu_cache_item_get_id (item);
-            JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item_path = %s\n", item_path);
-            
-            //~ //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_info->path->name = %s\n", file_info->path->name);
-            if (g_strcmp0 (file_info->path->name, item_path) == 0)
-            {
-                JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item found = %s\n\n", item_path);
-                found_item = item;
-                break;
-            }
-        }
-    }
-    else
-    {
-        found_item = menu_cache_dir;
-    }
-    
-    g_free (path_str);
-    g_return_val_if_fail (found_item != NULL, FALSE);
-    
-    
-    file_info->disp_name = g_strdup (menu_cache_item_get_name (found_item));
-    
-    
-    
-    
-    
-    // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
-    // that's also in fm-app-menu-view.c, in add_menu_items ()
-    
-    
-    const char *icon_name = menu_cache_item_get_icon (found_item);
-    if (icon_name)
-    {
-        char *tmp_name = NULL;
-        if (icon_name[0] != '/') // this is a icon name, not a full path to icon file.
-        {
-            char *dot = strrchr (icon_name, '.');
-            // remove file extension, this is a hack to fix non-standard desktop entry files
-            if (G_UNLIKELY (dot))
-            {
-                ++dot;
-                if (strcmp (dot, "png") == 0 ||
-                   strcmp (dot, "svg") == 0 ||
-                   strcmp (dot, "xpm") == 0)
-                {
-                    tmp_name = g_strndup (icon_name, dot - icon_name - 1);
-                    icon_name = tmp_name;
-                }
-            }
-        }
-        
-        file_info->fm_icon = fm_icon_from_name (icon_name);
-        
-        if (G_UNLIKELY (tmp_name))
-            g_free (tmp_name);
-    }
-    
-    
-    
-    
-    
-    
-    if (menu_cache_item_get_type (found_item) == MENU_CACHE_TYPE_DIR)
-    {
-        file_info->mode |= S_IFDIR;
-    }
-    else if (menu_cache_item_get_type (found_item) == MENU_CACHE_TYPE_APP)
-    {
-        file_info->mode |= S_IFREG;
-        file_info->target = menu_cache_item_get_file_path (found_item);
-    }
-    
-    file_info->mime_type = fm_mime_type_ref (shortcut_type);
     
     return TRUE;
 }
 
-
-
-
-/**
-void fm_file_info_set_for_menu_cache_item (FmFileInfo *file_info, MenuCacheItem *item)
+static gboolean fm_file_info_query_posix (FmFileInfo *file_info/*, GError **err*/)
 {
-    const char *icon_name = menu_cache_item_get_icon (item);
+	char *path_str = fm_path_to_str (file_info->path);
     
-    file_info->disp_name = g_strdup (menu_cache_item_get_name (item));
+    struct stat st;
     
-    
-    
-    
-    
-    // duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
-    // that's also in fm-app-menu-view.c, in add_menu_items ()
-    if (icon_name)
+    _retry:
+	
+    if (lstat (path_str, &st) != 0)
     {
-        char *tmp_name = NULL;
-        if (icon_name[0] != '/') // this is a icon name, not a full path to icon file.
+        // Some reading errors occurs with temporary files, it may not be critical...
+        //g_set_error (err, G_IO_ERROR, g_io_error_from_errno (errno), "%s", g_strerror (errno));
+		DEBUG ("DEBUG: fm_file_info_query_posix: error reading file %s\n", path_str);
+        return FALSE;
+    }
+	
+    char *type;
+    
+    file_info->disp_name = file_info->path->name;
+    file_info->mode = st.st_mode;
+    file_info->mtime = st.st_mtime;
+    file_info->atime = st.st_atime;
+    file_info->size = st.st_size;
+    file_info->dev = st.st_dev;
+    file_info->uid = st.st_uid;
+    file_info->gid = st.st_gid;
+
+    //~ if (fm_job_is_cancelled (FM_JOB (job)))
+        //~ return TRUE;
+        
+    // Get Link Target...
+    if (S_ISLNK (st.st_mode))
+    {
+        stat (path_str, &st);
+        file_info->target = g_file_read_link (path_str, NULL);
+    }
+
+    FmMimeType *mime_type = fm_mime_type_get_for_native_file (path_str, file_info->disp_name, &st);
+    
+    g_return_val_if_fail (mime_type, FALSE);
+    
+    file_info->mime_type = mime_type;
+    
+    if (fm_file_info_is_desktop_entry (file_info))
+    {
+        // Set name and icon from a desktop entry...
+        fm_file_info_query_desktop_entry (file_info);
+        return TRUE;
+    }
+    
+    if (!fm_file_info_init_icon_for_crappy_code (file_info))
+        file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
+    
+    return TRUE;
+}
+
+static void fm_file_info_query_desktop_entry (FmFileInfo *file_info)
+{
+    // Special handling for desktop entries...
+    char *fpath = fm_path_to_str (file_info->path);
+    GKeyFile *kf = g_key_file_new ();
+    
+    FmIcon *icon = NULL;
+    if (g_key_file_load_from_file (kf, fpath, 0, NULL))
+    {
+        char *title = g_key_file_get_locale_string (kf, "Desktop Entry", "Name", NULL, NULL);
+        char *icon_name = g_key_file_get_locale_string (kf, "Desktop Entry", "Icon", NULL, NULL);
+        
+        // 8<---------------------------------------------------------------------------------------
+        
+        /*******************************************************************************************
+         * 
+         * Duplicated code... include that crap in a function and maybe in fm_icon_from_name ()...
+         * that's also in fm-app-menu-view.c, in add_menu_items ()...
+         * 
+         **/
+        if (icon_name)
         {
-            char *dot = strrchr (icon_name, '.');
-            // remove file extension, this is a hack to fix non-standard desktop entry files
-            if (G_UNLIKELY (dot))
+            // This is an icon name, not a full path to icon file.
+            if (icon_name[0] != '/')
             {
-                ++dot;
-                if (strcmp (dot, "png") == 0 ||
-                   strcmp (dot, "svg") == 0 ||
-                   strcmp (dot, "xpm") == 0)
+                // remove file extension
+                char *dot = strrchr (icon_name, '.');
+                if (dot)
                 {
-                    tmp_name = g_strndup (icon_name, dot - icon_name - 1);
-                    icon_name = tmp_name;
+                    ++dot;
+                    if (strcmp (dot, "png") == 0
+                        || strcmp (dot, "svg") == 0
+                        || strcmp (dot, "xpm") == 0)
+                    {
+                        *(dot-1) = '\0';
+                    }
                 }
             }
+            
+            icon = fm_icon_from_name (icon_name);
+            g_free (icon_name);
+            
         }
+        // 8<---------------------------------------------------------------------------------------
         
-        file_info->fm_icon = fm_icon_from_name (icon_name);
+        if (title)
+            file_info->disp_name = title;
+    }
+    
+    if (icon)
+        file_info->fm_icon = icon;
+    else
+        file_info->fm_icon = file_info->mime_type ? fm_icon_ref (file_info->mime_type->icon) : NULL;
+}
+
+static gboolean fm_file_info_init_icon_for_crappy_code (FmFileInfo *file_info)
+{
+    if (fm_path_is_root (file_info->path) && fm_path_is_trash (file_info->path))
+    {
+        guint32 num_items = fm_trash_get_num_items ();
         
-        if (G_UNLIKELY (tmp_name))
-            g_free (tmp_name);
+        if (num_items)
+            file_info->fm_icon = fm_icon_from_name ("user-trash-full");
+        else
+            file_info->fm_icon = fm_icon_from_name ("user-trash");
     }
-    
-    
-    
-    
-    
-    
-    if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_DIR)
+    else if (fm_path_is_root (file_info->path) && fm_path_is_computer (file_info->path))
     {
-        file_info->mode |= S_IFDIR;
+        file_info->fm_icon = fm_icon_from_name ("computer");
     }
-    else if (menu_cache_item_get_type (item) == MENU_CACHE_TYPE_APP)
+    else if (fm_path_is_xdg_menu (file_info->path))
     {
-        file_info->mode |= S_IFREG;
-        file_info->target = menu_cache_item_get_file_path (item);
+        file_info->fm_icon = fm_icon_from_name ("system-software-installer");
+    }
+    else if (fm_path_get_desktop () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("user-desktop");
+    }
+    else if (fm_path_get_root () == file_info->path)
+    {
+        file_info->fm_icon = fm_icon_from_name ("drive-harddisk");
+    }
+    else
+    {
+        return FALSE;
     }
     
-    file_info->mime_type = fm_mime_type_ref (shortcut_type);
-}**/
+    return TRUE;
+}
 
 
 /*********************************************************************
@@ -1028,21 +882,26 @@ const char *fm_file_info_get_target (FmFileInfo *file_info)
  ********************************************************************/
 const char *fm_file_info_get_collate_key (FmFileInfo *file_info)
 {
-    if (G_UNLIKELY (!file_info->collate_key))
+    if (G_LIKELY (file_info->collate_key))
+        return file_info->collate_key;
+    
+    char *casefold = g_utf8_casefold (file_info->disp_name, -1);
+    
+    // disp_name won't be set if the FmFileInfo is invalid...
+    g_return_val_if_fail (casefold != NULL, NULL);
+    
+    char *collate = g_utf8_collate_key_for_filename (casefold, -1);
+    g_free (casefold);
+    
+    g_return_val_if_fail (collate != NULL, NULL);
+    if (strcmp (collate, file_info->disp_name))
     {
-        char *casefold = g_utf8_casefold (file_info->disp_name, -1);
-        char *collate = g_utf8_collate_key_for_filename (casefold, -1);
-        g_free (casefold);
-        
-        if (strcmp (collate, file_info->disp_name))
-        {
-            file_info->collate_key = collate;
-        }
-        else
-        {
-            file_info->collate_key = file_info->disp_name;
-            g_free (collate);
-        }
+        file_info->collate_key = collate;
+    }
+    else
+    {
+        file_info->collate_key = file_info->disp_name;
+        g_free (collate);
     }
     
     return file_info->collate_key;

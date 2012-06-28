@@ -1,3 +1,32 @@
+fm-dir-tree-model.c
+
+// Currently Unused...
+#if 0
+static void item_show_hidden_children (FmDirTreeModel* dir_tree_model, GList* item_l, gboolean show_hidden)
+{
+    FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
+//    GList* child_l;
+    // TODO_axl: show hidden items
+    if (show_hidden)
+    {
+        while (item->hidden_children)
+        {
+
+        }
+    }
+    else
+    {
+        while (item->children)
+        {
+
+        }
+    }
+}
+#endif
+
+
+
+
 fm-file-info-job.c
 
 
