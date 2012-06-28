@@ -68,6 +68,7 @@ static gboolean fm_file_info_init_icon_for_crappy_code  (FmFileInfo *file_info);
 
 static void     fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
 
+static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info);
 
 
 
@@ -527,7 +528,7 @@ gboolean fm_file_info_query (FmFileInfo *file_info, GCancellable *cancellable, G
         g_io_scheduler_job_send_to_mainloop (FM_JOB(job)->job, (GSourceFunc) list_menu_items_new, job, NULL);    
         **/
     
-        // fm_file_info_set_for_menu_cache_item
+        fm_file_info_query_cache_item (file_info);
     
     
     
@@ -740,7 +741,7 @@ static void fm_file_info_set_for_gfileinfo (FmFileInfo *file_info, GFileInfo *gf
 
 
 
-gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
+static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
 {
     g_return_val_if_fail (global_menu_cache != NULL, FALSE);
     

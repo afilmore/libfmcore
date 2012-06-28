@@ -213,13 +213,103 @@ static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_mode
  ****************************************************************************************/
 void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
 {
-    FmFileInfoJob *file_info_job = fm_file_info_job_new (NULL, FM_FILE_INFO_JOB_NONE);
-    
     // Desktop...
-    fm_file_info_job_add (file_info_job, fm_path_get_desktop ());
+    FmPath *path = fm_path_get_desktop ();
+    FmFileInfo *file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     
     // Computer...
-    FmPath *path = fm_path_new_for_uri ("computer:///");
+    path = fm_path_new_for_uri ("computer:///");
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    // Documents...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    // Trash Can...
+    path = fm_path_get_trash ();
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    
+    /**
+     *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
+     *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
+     *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
+     *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
+     *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
+     *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+     **/
+    
+    // Download...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    // Music...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    // Pictures...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    // Videos...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    // Root FileSystem...
+    path = fm_path_get_root ();
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    
+    
+    
+    // Administration Programs...
+    path = fm_path_new_for_uri ("menu://Applications/DesktopSettings");
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    path = fm_path_new_for_uri ("menu://Applications/System");
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    
+    /**
+    FmFileInfoJob *file_info_job = fm_file_info_job_new (NULL, FM_FILE_INFO_JOB_NONE);
+    
+    
+    
+    fm_file_info_job_add (file_info_job, fm_path_get_desktop ());
+    
+    
+    
+    
+    // Computer...
+    path = fm_path_new_for_uri ("computer:///");
     fm_file_info_job_add (file_info_job, path);
     fm_path_unref (path);
     
@@ -231,14 +321,14 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     // Trash Can...
     fm_file_info_job_add (file_info_job, fm_path_get_trash ());
     
-    /**
+    
      *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
      *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
      *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
      *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
      *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
      *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
-     **/
+     
     
     // Download...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
@@ -267,7 +357,11 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     
     
     // Administration Programs...
-    path = fm_path_new_for_uri ("menu://Applications/DesktopSettings/Administration");
+    path = fm_path_new_for_uri ("menu://Applications/DesktopSettings");
+    fm_file_info_job_add (file_info_job, path);
+    fm_path_unref (path);
+    
+    path = fm_path_new_for_uri ("menu://Applications/System");
     fm_file_info_job_add (file_info_job, path);
     fm_path_unref (path);
     
@@ -296,7 +390,8 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     }
     
     g_object_unref (file_info_job);
-
+    **/
+    
     // what's the purpose of weak pointers ??? :-P
     
     g_object_add_weak_pointer (dir_tree_model, &dir_tree_model);

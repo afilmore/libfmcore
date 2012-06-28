@@ -535,7 +535,8 @@ static gboolean list_menu_items (gpointer user_data /*FmJob *fmjob*/)
         
         JOB_DEBUG ("JOB_DEBUG: list_menu_items_new: query infos for %s\n", menu_cache_item_get_id (item));
         
-        if (!fm_file_info_query_cache_item (file_info))
+        //~ if (!fm_file_info_query_cache_item (file_info))
+        if (!fm_file_info_query (file_info, NULL, NULL))
         {
             JOB_DEBUG ("JOB_DEBUG: list_menu_items_new: ERROR\n");
             fm_path_unref (item_path);

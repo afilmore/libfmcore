@@ -167,7 +167,8 @@ gboolean fm_file_info_job_run (FmJob *fmjob)
         // This is a xdg menu
         if (fm_path_is_xdg_menu (file_info->path))
         {
-            if (!fm_file_info_query_cache_item (file_info))
+            //~ if (!fm_file_info_query_cache_item (file_info))
+            if (!fm_file_info_query (file_info, NULL, &gerror))
             {
                 next = l->next;
                 fm_list_delete_link (file_info_job->file_info_list, l); // Also calls unref...
