@@ -257,8 +257,6 @@ namespace Fm {
 		public unowned Fm.Path      get_path            ();
         
         public bool                 query               (GLib.Cancellable? cancellable = null) throws GLib.Error;
-//~         public bool                 query_native_file   ();
-//~         public void                 set_for_gfileinfo   (GLib.FileInfo inf);
 		
         [CCode (has_construct_function = false)]
 		public FileInfo.computer                        ();
@@ -327,7 +325,7 @@ namespace Fm {
 	[CCode (cheader_filename = "fm-folder.h")]
 	public class Folder : GLib.Object {
 		
-		public weak Fm.FileInfo         dir_fi;     /* FIXME_axl: avoid direct member access... */
+//		public weak Fm.FileInfo         dir_fi;     /* FIXME_axl: avoid direct member access... */
 
         [CCode (has_construct_function = false)]
 		protected Folder                                        ();
@@ -342,27 +340,41 @@ namespace Fm {
         public static unowned Fm.Folder get_for_uri             (string uri);
 		
         
+        public unowned Fm.FileInfo      get_directory_info      ();
+        
         public unowned Fm.FileInfo      get_file_by_name        (string name);
-		public unowned Fm.FileInfoList  get_files               ();
-		public bool                     get_filesystem_info     (uint64 total_size, uint64 free_size);
-		public static unowned Fm.Folder get_for_gfile           (GLib.File gf);
+		
+        public unowned Fm.FileInfoList  get_files               ();
+		
+        public bool                     get_filesystem_info     (uint64 total_size, uint64 free_size);
+		
+        public static unowned Fm.Folder get_for_gfile           (GLib.File gf);
 		
         
         public bool                     get_is_loaded           ();
-		public void                     query_filesystem_info   ();
-		public void                     reload ();
+		
+        public void                     query_filesystem_info   ();
+		
+        public void                     reload ();
 		
         
-        public virtual signal void      changed                 ();
 		public virtual signal void      content_changed         ();
-		public virtual signal int       error                   (void *err, int severity);
-		public virtual signal void      files_added             (void *files);
+        
+        public virtual signal void      changed                 ();
+		
+        public virtual signal int       error                   (void *err, int severity);
+		
+        public virtual signal void      files_added             (void *files);
 		public virtual signal void      files_changed           (void *files);
 		public virtual signal void      files_removed           (void *files);
-		public virtual signal void      fs_info                 ();
-		public virtual signal void      loaded                  ();
-		public virtual signal void      removed                 ();
-		public virtual signal void      unmount                 ();
+		
+        public virtual signal void      fs_info                 ();
+		
+        public virtual signal void      loaded                  ();
+		
+        public virtual signal void      removed                 ();
+		
+        public virtual signal void      unmount                 ();
 	}
     
     

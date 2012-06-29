@@ -22,10 +22,12 @@
  * 
  **********************************************************************************************************************/
 #include "fm-folder.h"
+
 #include "fm-monitor.h"
 #include "fm-marshal.h"
 
 #include <string.h>
+
 
 enum {
     FILES_ADDED,
@@ -46,6 +48,10 @@ static guint signals [N_SIGNALS];
 G_DEFINE_TYPE (FmFolder, fm_folder, G_TYPE_OBJECT);
 
 
+// Should this be guarded with a mutex ?
+static GHashTable      *folder_hash = NULL;
+
+
 // Forward declarations...
 static void             fm_folder_content_changed           (FmFolder *folder);
 
@@ -57,17 +63,21 @@ static FmFolder         *fm_folder_get_internal             (FmPath *path, GFile
 static GList            *_fm_folder_get_file_by_name        (FmFolder *folder, const char *name);
 
 static void             on_query_filesystem_info_finished   (GObject *src, GAsyncResult *res, FmFolder *folder);
-static void             on_file_info_finished               (FmFileInfoJob *file_info_job, FmFolder *folder);
-static gboolean         on_idle                             (FmFolder *folder);
-static void             on_folder_changed                   (GFileMonitor *file_monitor, GFile *gfile, GFile *other,
-                                                             GFileMonitorEvent evt, FmFolder *folder);
+
+// FmDirListJob handlers...
 static void             on_job_finished                     (FmDirListJob *dir_list_job, FmFolder *folder);
-static FmErrorAction on_job_err                          (FmDirListJob *dir_list_job, GError *err,
+
+static FmErrorAction    on_job_err                          (FmDirListJob *dir_list_job, GError *err,
                                                              FmSeverity severity, FmFolder *folder);
 
+// FmFileInfoJob handlers...
+static void             on_file_info_finished               (FmFileInfoJob *file_info_job, FmFolder *folder);
 
-// FIXME_pcm: should this be guarded with a mutex ?
-static GHashTable *hash = NULL;
+// GFileMonitor handlers...
+static void             on_folder_changed                   (GFileMonitor *file_monitor, GFile *gfile, GFile *other,
+                                                             GFileMonitorEvent evt, FmFolder *folder);
+static gboolean         on_folder_changed_idle              (FmFolder *folder);
+
 
 
 /*****************************************************************************************
@@ -82,9 +92,10 @@ static void fm_folder_init (FmFolder *folder)
 
 static void fm_folder_class_init (FmFolderClass *klass)
 {
-    GObjectClass *g_object_class;
-    FmFolderClass *folder_class;
+    GObjectClass    *g_object_class;
+    FmFolderClass   *folder_class;
     g_object_class = G_OBJECT_CLASS (klass);
+    
     g_object_class->finalize = fm_folder_finalize;
     fm_folder_parent_class = (GObjectClass*) g_type_class_peek (G_TYPE_OBJECT);
 
@@ -93,8 +104,8 @@ static void fm_folder_class_init (FmFolderClass *klass)
 
     
     /*************************************************************************************
-     * files-added is emitted when there is a new file created in the directory.
-     * The param is a GList* of the newly added file.
+     * The "files-added" signal is emitted when there is a new file created in the
+     * directory. The param is a GList* of the newly added file.
      * 
      ************************************************************************************/
     signals [FILES_ADDED] = g_signal_new ("files-added",
@@ -225,19 +236,20 @@ static void fm_folder_finalize (GObject *object)
         {
             FmJob *job = FM_JOB (l->data);
             g_signal_handlers_disconnect_by_func (job, on_job_finished, folder);
+            
             fm_job_cancel (job);
             g_object_unref (job);
         }
     }
 
     // remove from hash table
-    g_hash_table_remove (hash, folder->dir_path);
+    g_hash_table_remove (folder_hash, folder->dir_path);
     
     if (folder->dir_path)
         fm_path_unref (folder->dir_path);
 
-    if (folder->dir_fi)
-        fm_file_info_unref (folder->dir_fi);
+    if (folder->dir_file_info)
+        fm_file_info_unref (folder->dir_file_info);
 
     if (folder->gfile)
         g_object_unref (folder->gfile);
@@ -320,13 +332,13 @@ static FmFolder *fm_folder_get_internal (FmPath *path, GFile *gfile)
      * 
      **/
     
-    if (G_LIKELY (hash))
+    if (G_LIKELY (folder_hash))
     {
-        folder = (FmFolder*) g_hash_table_lookup (hash, path);
+        folder = (FmFolder*) g_hash_table_lookup (folder_hash, path);
     }
     else
     {
-        hash = g_hash_table_new ((GHashFunc)fm_path_hash, (GEqualFunc) fm_path_equal);
+        folder_hash = g_hash_table_new ((GHashFunc)fm_path_hash, (GEqualFunc) fm_path_equal);
         folder = NULL;
     }
 
@@ -342,7 +354,7 @@ static FmFolder *fm_folder_get_internal (FmPath *path, GFile *gfile)
         if (_gf)
             g_object_unref (_gf);
         
-        g_hash_table_insert (hash, folder->dir_path, folder);
+        g_hash_table_insert (folder_hash, folder->dir_path, folder);
     }
     else
     {
@@ -392,6 +404,11 @@ FmFolder *fm_folder_get_for_uri (const char *uri)
 gboolean fm_folder_get_is_loaded (FmFolder *folder)
 {
     return (folder->dir_list_job == NULL);
+}
+
+FmFileInfo *fm_folder_get_directory_info (FmFolder *folder)
+{
+    return folder->dir_file_info;
 }
 
 FmFileInfoList *fm_folder_get_files (FmFolder *folder)
@@ -521,7 +538,7 @@ static void on_job_finished (FmDirListJob *dir_list_job, FmFolder *folder)
     FmFileInfo *directory_info = fm_dir_dist_job_get_directory_info (dir_list_job);
     
     if (directory_info)
-        folder->dir_fi = fm_file_info_ref (directory_info);
+        folder->dir_file_info = fm_file_info_ref (directory_info);
 
     // ?????
     g_object_unref (folder->dir_list_job);
@@ -696,7 +713,7 @@ static void on_folder_changed (GFileMonitor *file_monitor, GFile *gfile, GFile *
     }
     
     if (!folder->idle_handler)
-        folder->idle_handler = g_idle_add_full (G_PRIORITY_LOW, (GSourceFunc) on_idle, folder, NULL);
+        folder->idle_handler = g_idle_add_full (G_PRIORITY_LOW, (GSourceFunc) on_folder_changed_idle, folder, NULL);
 }
 
 
@@ -705,7 +722,7 @@ static void on_folder_changed (GFileMonitor *file_monitor, GFile *gfile, GFile *
  * 
  *
  ****************************************************************************************/
-static gboolean on_idle (FmFolder *folder)
+static gboolean on_folder_changed_idle (FmFolder *folder)
 {
     GSList          *l;
     FmFileInfoJob   *file_info_job = NULL;

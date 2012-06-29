@@ -759,7 +759,10 @@ FmPath *fm_folder_view_get_cwd (FmFolderView *folder_view)
 FmFileInfo *fm_folder_view_get_cwd_info (FmFolderView *folder_view)
 {
     // TODO_axl: use an accessor function...
-    return FM_FOLDER_MODEL (folder_view->model)->directory->dir_fi;
+    
+    FmFolder *folder = FM_FOLDER_MODEL (folder_view->model)->directory;
+
+    return fm_folder_get_directory_info (folder);
 }
 
 
@@ -1161,9 +1164,8 @@ static gboolean on_drag_motion (GtkWidget *dest_widget,
             // FIXME_pcm: prevent direct access to data members.
             FmFolderModel *model =  (FmFolderModel*)folder_view->model;
             
-            // TODO_axl: use an accessor function...
-//            FmPath *dir_path =  model->directory->dir_path;
-            fm_dnd_dest_set_dest_file (folder_view->dnd_dest, model->directory->dir_fi);
+            FmFolder *folder = model->directory;
+            fm_dnd_dest_set_dest_file (folder_view->dnd_dest, fm_folder_get_directory_info (folder));
         }
         action = fm_dnd_dest_get_default_action (folder_view->dnd_dest, drag_context, target);
         ret = action != 0;
