@@ -1256,6 +1256,7 @@ static void on_folder_loaded (FmFolder *folder, FmFolderView *folder_view)
     guint icon_size = 0;
 
     model = fm_folder_model_new (folder, folder_view->show_hidden);
+    
     gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (model), folder_view->sort_by, folder_view->sort_type);
     g_signal_connect (model, "sort-column-changed", G_CALLBACK (on_sort_col_changed), folder_view);
 

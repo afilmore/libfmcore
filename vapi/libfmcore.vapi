@@ -355,7 +355,7 @@ namespace Fm {
 		
         public void                     query_filesystem_info   ();
 		
-        public void                     reload ();
+        public void                     query ();
 		
         
 		public virtual signal void      content_changed         ();

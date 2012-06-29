@@ -51,6 +51,7 @@ struct _FmFolder
 {
     GObject         parent;
 
+    // Directory informations...
     GFile          *gfile;
     
     FmPath         *dir_path;
@@ -58,6 +59,13 @@ struct _FmFolder
     
     GFileMonitor   *file_monitor;
 
+    // Job to query files/folders into that directory...
+    FmDirListJob   *dir_list_job;
+    FmFileInfoList *files;
+    gboolean        is_loaded : 1;
+    
+    
+    
     // For the file monitor...
     guint           idle_handler;
     GSList         *files_to_add;
@@ -66,10 +74,6 @@ struct _FmFolder
     
     GSList         *pending_jobs;
     
-    FmDirListJob   *dir_list_job;
-    
-    FmFileInfoList *files;
-
     // Filesystem infos...
     guint64         fs_total_size;
     guint64         fs_free_size;
@@ -114,7 +118,7 @@ FmFileInfo      *fm_folder_get_file_by_name     (FmFolder *folder, const char *n
 
 gboolean        fm_folder_get_is_loaded         (FmFolder *folder);
 
-void            fm_folder_reload                (FmFolder *folder);
+void            fm_folder_query                 (FmFolder *folder);
 
 gboolean        fm_folder_get_filesystem_info   (FmFolder *folder, guint64 *total_size, guint64 *free_size);
 void            fm_folder_query_filesystem_info (FmFolder *folder);

@@ -42,17 +42,18 @@
  * 
  * 
  ****************************************************************************************/
-static FmPath *root_path = NULL;
-static FmPath *home_path = NULL;
-static FmPath *desktop_path = NULL;
-static FmPath *trash_root_path = NULL;
-static FmPath *apps_root_path = NULL;
+static FmPath *root_path =          NULL;
+static FmPath *home_path =          NULL;
+static FmPath *desktop_path =       NULL;
+static FmPath *trash_root_path =    NULL;
+static FmPath *apps_root_path =     NULL;
 
 
 // Forward Declarations...
-static inline FmPath    *_fm_path_new_internal          (FmPath *parent, const char *name, int name_len, int flags);
-static FmPath           *_fm_path_new_for_uri_internal  (const char *uri, gboolean need_unescape);
-static gchar            *fm_path_to_str_internal        (FmPath *path, gchar **ret, gint str_len);
+static inline FmPath    *_fm_path_new_internal_for_string   (const char *path_str, uint flags);
+static inline FmPath    *_fm_path_new_internal              (FmPath *parent, const char *name, int name_len, int flags);
+static FmPath           *_fm_path_new_for_uri_internal      (const char *uri, gboolean need_unescape);
+static gchar            *fm_path_to_str_internal            (FmPath *path, gchar **ret, gint str_len);
 
 
 /*****************************************************************************************
@@ -62,15 +63,23 @@ static gchar            *fm_path_to_str_internal        (FmPath *path, gchar **r
  ****************************************************************************************/
 void _fm_path_init ()
 {
+    // Root Path...
+    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    
+    // Home Path...
+    home_path = _fm_path_new_internal_for_string (g_get_home_dir (),
+                                                  FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    // Desktop Path...
+    desktop_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
+                                                     FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+
+    /** duplicated code, create a function for that crap...
     const char *name;
     const char *sep;
     
     FmPath *tmp;
     FmPath *parent;
 
-    // Root Path...
-    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
-    
     
     // Home Path...
     char *home_dir = (char*) g_get_home_dir ();
@@ -86,8 +95,8 @@ void _fm_path_init ()
         int len = (sep - name);
         if (len > 0)
         {
-            /** ref counting is not a problem here since this path component
-             * will exist till the termination of the program. So mem leak is ok. **/
+            // ref counting is not a problem here since this path component
+            // will exist till the termination of the program. So mem leak is ok.
             tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
@@ -110,15 +119,16 @@ void _fm_path_init ()
         int len = (sep - name);
         if (len > 0)
         {
-            /** ref counting is not a problem here since this path component
-             * will exist till the termination of the program. So mem leak is ok. **/
+            // ref counting is not a problem here since this path component
+            // will exist till the termination of the program. So mem leak is ok.
             tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
             parent = tmp;
         }
         name = sep + 1;
     }
     desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
-
+    **/
+    
     
     // Trash Can Root...
     trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH
@@ -170,11 +180,58 @@ static FmPath *_fm_path_alloc (FmPath *parent, int name_len, int flags)
     return path;
 }
 
+static inline FmPath *_fm_path_new_internal_for_string (const char *path_str, uint flags)
+{
+    /**
+     * Create the required numbre of FmPath for the given path string.
+     * 
+     * Input example "/usr/share/vala/"
+     * 
+     */
+    
+    // Skip trailing slashes...
+    int path_len = strlen (path_str);
+    while (path_str [path_len - 1] == '/')
+        --path_len;
+
+    // Skip leading slash...
+    const char *name = path_str + 1;
+    
+    // Name is now "usr/share/vala/" and the lenght is path_len - 1 to remove the last slash...
+
+    // Create a FmPath for any path component, in our example, this will create three paths,
+    // "usr", "share" and "vala".
+    FmPath *tmp_path;
+    FmPath *parent = root_path;
+    const char *sep;
+    while (sep = strchr (name, '/'))
+    {
+        int len = (sep - name);
+        if (len > 0)
+        {
+            /**
+             * Ref counting is not a problem here since this path component will exist
+             * untill the program terminates, so mem leak might be ok.
+             */
+            
+            tmp_path = _fm_path_new_internal (parent, name, len, flags);
+            parent = tmp_path;
+        }
+        
+        // Search next part of the path...
+        name = sep + 1;
+    }
+    
+    return _fm_path_new_internal (parent, name, strlen (name), flags);
+}
+
 static inline FmPath *_fm_path_new_internal (FmPath *parent, const char *name, int name_len, int flags)
 {
     FmPath *path = _fm_path_alloc (parent, name_len, flags);
+    
     memcpy (path->name, name, name_len);
     path->name [name_len] = '\0';
+    
     return path;
 }
 
