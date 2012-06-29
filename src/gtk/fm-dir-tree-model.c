@@ -570,6 +570,10 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
         if (G_UNLIKELY (!dir_tree_item->file_info))
             continue;
         
+        // doesn't work...
+        if (new_item->file_info->sorting_index >= dir_tree_item->file_info->sorting_index)
+            break;
+        
         key = fm_file_info_get_collate_key (dir_tree_item->file_info);
         
         if (strcmp (new_key, key) <= 0)

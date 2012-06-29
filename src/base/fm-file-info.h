@@ -71,6 +71,7 @@ struct _FmFileInfo
      * 
      ****************************************************************/
     FmPath          *path;
+    int             sorting_index;  // To sort special items such as My Computer...
     
     char            *disp_name;     // UTF-8 Displayed Name
     char            *collate_key;   // Used to sort files by name

@@ -102,6 +102,7 @@ static FmFileInfo *fm_file_info_new ()
 {
     FmFileInfo *file_info = g_slice_new0 (FmFileInfo);
     file_info->n_ref = 1;
+    file_info->sorting_index = -1;
     return file_info;
 }
 
@@ -231,6 +232,12 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
 {
     FmFileInfo *file_info = fm_file_info_new ();
 	file_info->path = fm_path_ref (path);
+    
+    // Set a sorting index for special items...
+    if (fm_path_is_computer (path))
+    {
+        file_info->sorting_index = 0;
+    }
     
     return file_info;
 }
