@@ -92,9 +92,11 @@ struct _FmFolderClass
 };
 
 GType           fm_folder_get_type              (void);
+
 FmFolder        *fm_folder_get                  (FmPath *path);
-FmFolder        *fm_folder_get_for_gfile        (GFile *gfile);
+
 FmFolder        *fm_folder_get_for_path_name    (const char *path);
+FmFolder        *fm_folder_get_for_gfile        (GFile *gfile);
 FmFolder        *fm_folder_get_for_uri          (const char *uri);
 
 FmFileInfoList  *fm_folder_get_files            (FmFolder *folder);

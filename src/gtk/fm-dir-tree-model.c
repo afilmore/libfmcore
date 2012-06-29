@@ -219,7 +219,7 @@ static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_mode
  * 
  * 
  ****************************************************************************************/
-void fm_dir_tree_model_load_new (FmDirTreeModel *dir_tree_model)
+void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
 {
     
     FmPath *path;
@@ -229,19 +229,96 @@ void fm_dir_tree_model_load_new (FmDirTreeModel *dir_tree_model)
     // Desktop...
     path = fm_path_get_desktop ();
     file_info = fm_file_info_new_for_path (path);
-    dir_tree_item = fm_dir_tree_item_new (dir_tree_model, NULL, file_info);
     fm_file_info_query (file_info, NULL, NULL);
-    
-    GList *item_node = fm_dir_tree_model_add_root_full (dir_tree_model, dir_tree_item, NULL, NULL, TRUE);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+
 
     // Computer...
     path = fm_path_new_for_uri ("computer:///");
     file_info = fm_file_info_new_for_path (path);
-    dir_tree_item = fm_dir_tree_item_new (dir_tree_model, item_node, file_info);
+    fm_path_unref (path);
     fm_file_info_query (file_info, NULL, NULL);
-    fm_dir_tree_model_add_root_full (dir_tree_model, dir_tree_item, item_node, NULL, TRUE);
+    
+    GtkTreePath *tree_path = gtk_tree_path_new_first ();
+    GList *node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
+    gtk_tree_path_free (tree_path);
+    
+    
+    // Documents...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    
+    tree_path = gtk_tree_path_new_first ();
+    node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
+    gtk_tree_path_free (tree_path);
+    
+    
+    // Trash Can...
+    path = fm_path_get_trash ();
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    
+    tree_path = gtk_tree_path_new_first ();
+    node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
+    gtk_tree_path_free (tree_path);
+    
+    
+    // Download...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
     
+    
+    // Music...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    
+    // Pictures...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    
+    // Videos...
+    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS));
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    fm_path_unref (path);
+    
+    
+    // Root FileSystem...
+    path = fm_path_get_root ();
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
+    
+    
+    // Settings...
+    path = fm_path_new_for_uri ("menu://Applications/DesktopSettings");
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, FALSE);
+    fm_path_unref (path);
+    
+    // System...
+    path = fm_path_new_for_uri ("menu://Applications/System");
+    file_info = fm_file_info_new_for_path (path);
+    fm_file_info_query (file_info, NULL, NULL);
+    fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, FALSE);
+    fm_path_unref (path);
+    
+    // what's the purpose of weak pointers ??? :-P
+    g_object_add_weak_pointer (dir_tree_model, &dir_tree_model);
     return;
 }
     
@@ -460,6 +537,11 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList
         item_list = fm_dir_tree_model_insert_item (dir_tree_model, parent_node, tree_path, dir_tree_item);
     }
     
+    char *tmp_path = gtk_tree_path_to_string (tree_path);
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_file_info: \t file = %s\t path = %s\n",
+                    fm_file_info_get_name (file_info), tmp_path);
+    g_free (tmp_path);
+    
     return item_list;
 }
 
@@ -468,10 +550,17 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
 {
     FmDirTreeItem *parent_item = (FmDirTreeItem*) parent_node->data;
     
-    GList *item_list;
-    GList *last_l = NULL;
+    // Get a collate key for the new item, it's used to find the correct insertion position...
     const char *new_key = fm_file_info_get_collate_key (new_item->file_info);
+    
+    
+    /*****************************************************************
+     * Parse the list of items and insert at the correct position,
+     * This loop is critical for TreeView sorting performance...
+     **/
+    GList *item_list;
     int n = 0;
+    GList *last_l = NULL;
     for (item_list = parent_item->children; item_list; item_list=item_list->next, ++n)
     {
         FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
@@ -493,28 +582,35 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
     // the new item becomes the last item of the list 
     GList *new_item_list;
     if (!item_list)
+    {
         new_item_list = last_l ? last_l->next : parent_item->children;
+    }
     
     // the new item is just previous item of its sibling. 
     else
+    {
         new_item_list = item_list->prev;
-
-    g_assert (new_item->file_info != NULL);
-    g_assert (new_item == new_item_list->data);
-    g_assert (((FmDirTreeItem*) new_item_list->data)->file_info != NULL);
-
+    }
     
+    //~ g_assert (new_item->file_info != NULL);
+    //~ g_assert (new_item == new_item_list->data);
+    //~ g_assert (((FmDirTreeItem*) new_item_list->data)->file_info != NULL);
+
+    g_return_val_if_fail (new_item->file_info != NULL, NULL);
+    g_return_val_if_fail (((FmDirTreeItem*) new_item_list->data)->file_info != NULL, NULL);
+    g_return_val_if_fail (new_item == new_item_list->data, NULL);
+
+    // Signal the view that we inserted a new item...
     GtkTreeIter it;
-    
-    // emit row-inserted signal for the new item 
     fm_dir_tree_model_item_to_tree_iter (dir_tree_model, new_item_list, &it);
     gtk_tree_path_append_index (tree_path, n);
     gtk_tree_model_row_inserted ((GtkTreeModel*) dir_tree_model, tree_path, &it);
 
+    // Add a place holder...
     fm_dir_tree_model_add_place_holder_child_item (dir_tree_model, new_item_list, tree_path, TRUE);
     gtk_tree_path_up (tree_path);
 
-    // Check Subdirectories: check if the dir has subdirs and make it expandable if needed. 
+    // Check if the directory has subdirs and make it expandable if needed. 
     if (dir_tree_model->check_subdir)
         fm_dir_tree_model_item_queue_subdir_check (dir_tree_model, new_item_list);
     

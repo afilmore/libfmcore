@@ -894,6 +894,8 @@ const char *fm_file_info_get_collate_key (FmFileInfo *file_info)
     g_free (casefold);
     
     g_return_val_if_fail (collate != NULL, NULL);
+    
+    // ???
     if (strcmp (collate, file_info->disp_name))
     {
         file_info->collate_key = collate;

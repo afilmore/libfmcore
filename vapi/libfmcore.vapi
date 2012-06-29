@@ -493,8 +493,10 @@ namespace Fm {
 		public DirTreeModel         ();
 		
         public void load            ();
-        public void add_root        (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
+        public void load_testing        (); // < for testing...
 		
+        public void add_root        (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
+        
         public void collapse_row    (Gtk.TreeIter it, Gtk.TreePath tp);
 		public void expand_row      (Gtk.TreeIter it, Gtk.TreePath tp);
 		
