@@ -45,6 +45,7 @@
 static FmPath *root_path =          NULL;
 static FmPath *home_path =          NULL;
 static FmPath *desktop_path =       NULL;
+static FmPath *documents_path =       NULL;
 static FmPath *trash_root_path =    NULL;
 static FmPath *apps_root_path =     NULL;
 
@@ -64,80 +65,41 @@ static gchar            *fm_path_to_str_internal            (FmPath *path, gchar
 void _fm_path_init ()
 {
     // Root Path...
-    root_path = _fm_path_new_internal (NULL, "/", 1, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    root_path = _fm_path_new_internal (NULL, "/", 1,
+                                       FM_PATH_IS_NATIVE
+                                       | FM_PATH_IS_LOCAL);
     
     // Home Path...
     home_path = _fm_path_new_internal_for_string (g_get_home_dir (),
-                                                  FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+                                                  FM_PATH_IS_NATIVE
+                                                  | FM_PATH_IS_LOCAL);
     // Desktop Path...
     desktop_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP),
-                                                     FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+                                                     FM_PATH_IS_ROOT
+                                                     | FM_PATH_IS_SPECIAL
+                                                     | FM_PATH_IS_DESKTOP
+                                                     | FM_PATH_IS_NATIVE
+                                                     | FM_PATH_IS_LOCAL);
 
-    /** duplicated code, create a function for that crap...
-    const char *name;
-    const char *sep;
-    
-    FmPath *tmp;
-    FmPath *parent;
+    // User Documents...
+    documents_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
+                                                       FM_PATH_IS_ROOT
+                                                       | FM_PATH_IS_SPECIAL
+                                                       | FM_PATH_IS_DOCUMENTS
+                                                       | FM_PATH_IS_NATIVE
+                                                       | FM_PATH_IS_LOCAL);
 
-    
-    // Home Path...
-    char *home_dir = (char*) g_get_home_dir ();
-    int home_len = strlen (home_dir);
-    while (home_dir [home_len - 1] == '/')
-        --home_len;
-
-    // skip leading /
-    name = home_dir + 1;
-    parent = root_path;
-    while (sep = strchr (name, '/'))
-    {
-        int len = (sep - name);
-        if (len > 0)
-        {
-            // ref counting is not a problem here since this path component
-            // will exist till the termination of the program. So mem leak is ok.
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
-            parent = tmp;
-        }
-        name = sep + 1;
-    }
-    home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
-
-
-    // Desktop Path...
-    char *desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
-    int desktop_len = strlen (desktop_dir);
-    while (desktop_dir [desktop_len - 1] == '/')
-        --desktop_len;
-
-    // skip home_path dir part /
-    name = desktop_dir + home_len + 1;
-    parent = home_path;
-    while (sep = strchr (name, '/'))
-    {
-        int len = (sep - name);
-        if (len > 0)
-        {
-            // ref counting is not a problem here since this path component
-            // will exist till the termination of the program. So mem leak is ok.
-            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
-            parent = tmp;
-        }
-        name = sep + 1;
-    }
-    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
-    **/
-    
-    
     // Trash Can Root...
-    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9, FM_PATH_IS_TRASH
-                                                                   | FM_PATH_IS_VIRTUAL
-                                                                   | FM_PATH_IS_LOCAL);
+    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9,
+                                             FM_PATH_IS_TRASH
+                                             | FM_PATH_IS_SPECIAL
+                                             | FM_PATH_IS_VIRTUAL
+                                             | FM_PATH_IS_LOCAL);
     
     // Applications Root...
-    apps_root_path = _fm_path_new_internal (NULL, "menu://Applications/", 20, FM_PATH_IS_XDG_MENU
-                                                                              | FM_PATH_IS_VIRTUAL);
+    apps_root_path = _fm_path_new_internal (NULL, "menu://Applications/", 20,
+                                            FM_PATH_IS_XDG_MENU
+                                            | FM_PATH_IS_VIRTUAL);
 }
 
 
@@ -852,6 +814,11 @@ FmPath *fm_path_get_home ()
 FmPath *fm_path_get_desktop ()
 {
     return desktop_path;
+}
+
+FmPath *fm_path_get_documents ()
+{
+    return documents_path;
 }
 
 FmPath *fm_path_get_trash ()

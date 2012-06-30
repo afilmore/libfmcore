@@ -86,11 +86,11 @@ inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
         g_list_free (dir_tree_item->children);
     }
     
-    //~ if (dir_tree_item->hidden_children)
-    //~ {
-        //~ g_list_foreach (dir_tree_item->hidden_children, (GFunc) fm_dir_tree_item_free, NULL);
-        //~ g_list_free (dir_tree_item->hidden_children);
-    //~ }
+    if (dir_tree_item->hidden_children)
+    {
+        g_list_foreach (dir_tree_item->hidden_children, (GFunc) fm_dir_tree_item_free, NULL);
+        g_list_free (dir_tree_item->hidden_children);
+    }
     
     g_slice_free (FmDirTreeItem, dir_tree_item);
 }

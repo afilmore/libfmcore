@@ -102,7 +102,7 @@ static FmFileInfo *fm_file_info_new ()
 {
     FmFileInfo *file_info = g_slice_new0 (FmFileInfo);
     file_info->n_ref = 1;
-    file_info->sorting_index = -1;
+    file_info->sorting_index = 666;
     return file_info;
 }
 
@@ -234,11 +234,21 @@ FmFileInfo *fm_file_info_new_for_path (FmPath *path)
 	file_info->path = fm_path_ref (path);
     
     // Set a sorting index for special items...
-    if (fm_path_is_computer (path))
+    if (fm_path_is_special (path))
     {
-        file_info->sorting_index = 0;
+        if (fm_path_is_computer (path))
+        {
+            file_info->sorting_index = 0;
+        }
+        else if (fm_path_is_root (path) && fm_path_is_trash (path))
+        {
+            file_info->sorting_index = 1;
+        }
+        else if (fm_path_is_documents (path))
+        {
+            file_info->sorting_index = 2;
+        }
     }
-    
     return file_info;
 }
 

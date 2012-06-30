@@ -123,8 +123,6 @@ FmDirTreeModel *fm_dir_tree_model_new ()
 {
     FmDirTreeModel *dir_tree_model = (FmDirTreeModel*) g_object_new (FM_TYPE_DIR_TREE_MODEL, NULL);
     
-    //dir_tree_model->show_hidden = show_hidden;
-    
     return dir_tree_model;
 }
 
@@ -167,7 +165,10 @@ static void fm_dir_tree_model_init (FmDirTreeModel *dir_tree_model)
 {
     dir_tree_model->stamp = g_random_int ();
     
+    // Set default values...
     dir_tree_model->icon_size = 16;
+    dir_tree_model->show_hidden = FALSE;
+    dir_tree_model->show_symlinks = FALSE;
     
     // Check Subdirectories...
     dir_tree_model->check_subdir = TRUE;
@@ -233,6 +234,7 @@ void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
 
 
+    /*
     // Computer...
     path = fm_path_new_for_uri ("computer:///");
     file_info = fm_file_info_new_for_path (path);
@@ -262,7 +264,7 @@ void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
     tree_path = gtk_tree_path_new_first ();
     node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
     gtk_tree_path_free (tree_path);
-    
+    */
     
     // Download...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
@@ -345,7 +347,8 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     
     
     // Documents...
-    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS));
+    //~ path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS));
+    path = fm_path_get_documents ();
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
@@ -490,8 +493,17 @@ void fm_dir_tree_model_add_root (FmDirTreeModel *dir_tree_model, FmFileInfo *roo
 static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *dir_tree_model, GList *parent_node,
                                                            GtkTreePath *tree_path, gboolean emit_signal)
 {
-    
     FmDirTreeItem *parent_item = (FmDirTreeItem*) parent_node->data;
+    
+    // Check if the parent node can expand...
+    FmFileInfo *file_info = parent_item->file_info;
+    FmPath *path = fm_file_info_get_path (file_info);
+    
+    
+    // don't expand the trash can...
+    // TODO_axl: add a can_expand flag into the file_info
+    if (fm_path_is_trash (path) && fm_path_is_root (path))
+        return;
     
     FmDirTreeItem *dir_tree_item = fm_dir_tree_item_new (dir_tree_model, parent_node, NULL);
     
@@ -518,8 +530,6 @@ static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *dir_t
 GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList *parent_node,
                                            GtkTreePath *tree_path, FmFileInfo *file_info)
 {
-    GList *item_list;
-    
     FmDirTreeItem *parent_item = (FmDirTreeItem*) parent_node->data;
     
     FmDirTreeItem *dir_tree_item = fm_dir_tree_item_new (dir_tree_model, parent_node, file_info);
@@ -527,19 +537,22 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList
     // Don't show hidden files...
     if (!dir_tree_model->show_hidden && file_info->path->name[0] == '.')
     {
-        //~ parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
-        //~ item_list = parent_item->hidden_children;
+        parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
+        return parent_item->hidden_children;
     }
     
-    // Show hidden files...
-    else
+    // Don't show links...
+    if (!dir_tree_model->show_symlinks && fm_file_info_is_symlink (file_info))
     {
-        item_list = fm_dir_tree_model_insert_item (dir_tree_model, parent_node, tree_path, dir_tree_item);
+        parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
+        return parent_item->hidden_children;
     }
+    
+    GList *item_list = fm_dir_tree_model_insert_item (dir_tree_model, parent_node, tree_path, dir_tree_item);
     
     char *tmp_path = gtk_tree_path_to_string (tree_path);
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_file_info: \t file = %s\t path = %s\n",
-                    fm_file_info_get_name (file_info), tmp_path);
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_file_info: file = %s\t index = %d\n",
+                    fm_file_info_get_name (file_info), file_info->sorting_index);
     g_free (tmp_path);
     
     return item_list;
@@ -570,14 +583,29 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
         if (G_UNLIKELY (!dir_tree_item->file_info))
             continue;
         
+        if (!dir_tree_model->show_hidden && dir_tree_item->file_info->path->name[0] == '.')
+            continue;
+        
+        if (!dir_tree_model->show_symlinks && fm_file_info_is_symlink (dir_tree_item->file_info))
+            continue;
+        
+        
+        
+        //sleep (5);
+        
         // doesn't work...
-        if (new_item->file_info->sorting_index >= dir_tree_item->file_info->sorting_index)
-            break;
-        
-        key = fm_file_info_get_collate_key (dir_tree_item->file_info);
-        
-        if (strcmp (new_key, key) <= 0)
-            break;
+        if (fm_path_is_special (new_item->file_info->path))
+        {
+            if (new_item->file_info->sorting_index <= dir_tree_item->file_info->sorting_index)
+                break;
+        }
+        else
+        {
+            key = fm_file_info_get_collate_key (dir_tree_item->file_info);
+            
+            if (strcmp (new_key, key) <= 0)
+                break;
+        }
     }
 
     parent_item->children = g_list_insert_before (parent_item->children, item_list, new_item);
@@ -596,10 +624,6 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
         new_item_list = item_list->prev;
     }
     
-    //~ g_assert (new_item->file_info != NULL);
-    //~ g_assert (new_item == new_item_list->data);
-    //~ g_assert (((FmDirTreeItem*) new_item_list->data)->file_info != NULL);
-
     g_return_val_if_fail (new_item->file_info != NULL, NULL);
     g_return_val_if_fail (((FmDirTreeItem*) new_item_list->data)->file_info != NULL, NULL);
     g_return_val_if_fail (new_item == new_item_list->data, NULL);
@@ -767,12 +791,12 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_mode
         // first item, so there is no need to update tree_path.
     }
 
-    //~ if (dir_tree_item->hidden_children)
-    //~ {
-        //~ g_list_foreach (dir_tree_item->hidden_children, (GFunc)fm_dir_tree_item_free, NULL);
-        //~ g_list_free (dir_tree_item->hidden_children);
-        //~ dir_tree_item->hidden_children = NULL;
-    //~ }
+    if (dir_tree_item->hidden_children)
+    {
+        g_list_foreach (dir_tree_item->hidden_children, (GFunc)fm_dir_tree_item_free, NULL);
+        g_list_free (dir_tree_item->hidden_children);
+        dir_tree_item->hidden_children = NULL;
+    }
     
     gtk_tree_path_up (tree_path);
     
@@ -781,9 +805,6 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_mode
     
     //~ gtk_tree_model_row_changed ((GtkTreeModel*) dir_tree_model, tree_path, &it);
 }
-
-
-
 
 
 /*****************************************************************************************
@@ -812,32 +833,25 @@ guint fm_dir_tree_get_icon_size (FmDirTreeModel *dir_tree_model)
     return dir_tree_model->icon_size;
 }
 
-
-
-
-/*****************************************************************************************
- *  ...
- * 
- * 
- ****************************************************************************************/
 void fm_dir_tree_model_set_show_hidden (FmDirTreeModel *dir_tree_model, gboolean show_hidden)
 {
     g_return_if_fail (dir_tree_model);
     
     dir_tree_model->show_hidden = show_hidden;
+    
     return;
     
     if (show_hidden != dir_tree_model->show_hidden)
     {
         // Filter the model to hide hidden folders...
-        if (dir_tree_model->show_hidden)
-        {
-
-        }
-        else
-        {
-
-        }
+        //~ if (dir_tree_model->show_hidden)
+        //~ {
+//~ 
+        //~ }
+        //~ else
+        //~ {
+//~ 
+        //~ }
     }
 }
 
@@ -846,8 +860,17 @@ gboolean fm_dir_tree_model_get_show_hidden (FmDirTreeModel *dir_tree_model)
     return dir_tree_model->show_hidden;
 }
 
+void fm_dir_tree_model_set_show_symlinks (FmDirTreeModel *dir_tree_model, gboolean show_symlinks)
+{
+    g_return_if_fail (dir_tree_model);
+    
+    dir_tree_model->show_symlinks = show_symlinks;
+}
 
-
+gboolean fm_dir_tree_model_get_show_symlinks (FmDirTreeModel *dir_tree_model)
+{
+    return dir_tree_model->show_symlinks;
+}
 
 
 /*****************************************************************************************
@@ -888,15 +911,15 @@ static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *dir_tree_model, 
         gtk_tree_path_up (tree_path);
     }
 
-    //~ for (l = dir_tree_item->hidden_children; l; l=l->next)
-    //~ {
-        //~ child = (FmDirTreeItem*) l->data;
-        //~ if (child->fm_icon)
-        //~ {
-            //~ fm_icon_unref (child->fm_icon);
-            //~ child->fm_icon = NULL;
-        //~ }
-    //~ }
+    for (l = dir_tree_item->hidden_children; l; l=l->next)
+    {
+        child = (FmDirTreeItem*) l->data;
+        if (child->fm_icon)
+        {
+            fm_icon_unref (child->fm_icon);
+            child->fm_icon = NULL;
+        }
+    }
 }
 
 

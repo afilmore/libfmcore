@@ -66,6 +66,7 @@ struct _FmDirTreeModel
     
     int             icon_size;
     gboolean        show_hidden;
+    gboolean        show_symlinks;
     
     // Subdirectory Check Job, this permits to expend only folders which have subfolders...
     gboolean        check_subdir;
@@ -107,6 +108,9 @@ guint               fm_dir_tree_get_icon_size                   (FmDirTreeModel 
 
 void                fm_dir_tree_model_set_show_hidden           (FmDirTreeModel *dir_tree_model, gboolean show_hidden);
 gboolean            fm_dir_tree_model_get_show_hidden           (FmDirTreeModel *dir_tree_model);
+
+void                fm_dir_tree_model_set_show_symlinks         (FmDirTreeModel *dir_tree_model, gboolean show_symlinks);
+gboolean            fm_dir_tree_model_get_show_symlinks         (FmDirTreeModel *dir_tree_model);
 
 
 void                fm_dir_tree_model_remove_item               (FmDirTreeModel *dir_tree_model, GList *item_list);

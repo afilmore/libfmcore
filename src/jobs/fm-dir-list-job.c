@@ -3,7 +3,8 @@
  *      fm-dir-list-job.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
- *
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ * 
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
@@ -138,10 +139,45 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
 {
 	g_return_val_if_fail (dir_list_job != NULL, NULL);
     
-    // gio is really slower, also there's a problem with symlinks, the panel launcher no longer works...
-    //~ gboolean use_gio = TRUE;
+    
+    /**
+     * It's possible to use GIO only instead of posix, then we see that GIO
+     * is really slower.
+     * 
+     * Note: With this flag set, there's a problem with symlinks,
+     * the panel launcher no longer works for example...
+     * gboolean use_gio = TRUE;
+     * 
+     **/
     
     gboolean use_gio = FALSE;
+    
+    FmPath *directory = dir_list_job->directory;
+    
+    // We need to create special items on the desktop, such as "My Computer", "My Documents" etc...
+    if (fm_path_is_root (directory) && fm_path_is_desktop (directory))
+    {
+        FmPath *path = fm_path_new_for_uri ("computer:///");
+        path->flags |= FM_PATH_IS_SPECIAL;
+        FmFileInfo *file_info = fm_file_info_new_for_path (path);
+        fm_path_unref (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+        
+        // Documents...
+        path = fm_path_get_documents ();
+        file_info = fm_file_info_new_for_path (path);
+        fm_path_unref (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+        
+        // Trash Can...
+        path = fm_path_get_trash ();
+        file_info = fm_file_info_new_for_path (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+    
+    }
     
     // A native file on the real file system...
     if (!use_gio && fm_path_is_native (dir_list_job->directory))

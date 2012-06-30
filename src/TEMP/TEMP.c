@@ -1,3 +1,64 @@
+fm-path.c
+
+    /** duplicated code, create a function for that crap...
+    const char *name;
+    const char *sep;
+    
+    FmPath *tmp;
+    FmPath *parent;
+
+    
+    // Home Path...
+    char *home_dir = (char*) g_get_home_dir ();
+    int home_len = strlen (home_dir);
+    while (home_dir [home_len - 1] == '/')
+        --home_len;
+
+    // skip leading /
+    name = home_dir + 1;
+    parent = root_path;
+    while (sep = strchr (name, '/'))
+    {
+        int len = (sep - name);
+        if (len > 0)
+        {
+            // ref counting is not a problem here since this path component
+            // will exist till the termination of the program. So mem leak is ok.
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+            parent = tmp;
+        }
+        name = sep + 1;
+    }
+    home_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+
+
+    // Desktop Path...
+    char *desktop_dir = (char*) g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP);
+    int desktop_len = strlen (desktop_dir);
+    while (desktop_dir [desktop_len - 1] == '/')
+        --desktop_len;
+
+    // skip home_path dir part /
+    name = desktop_dir + home_len + 1;
+    parent = home_path;
+    while (sep = strchr (name, '/'))
+    {
+        int len = (sep - name);
+        if (len > 0)
+        {
+            // ref counting is not a problem here since this path component
+            // will exist till the termination of the program. So mem leak is ok.
+            tmp = _fm_path_new_internal (parent, name, len, FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+            parent = tmp;
+        }
+        name = sep + 1;
+    }
+    desktop_path = _fm_path_new_internal (parent, name, strlen (name), FM_PATH_IS_DESKTOP | FM_PATH_IS_NATIVE | FM_PATH_IS_LOCAL);
+    **/
+    
+    
+
+
 fm-dir-tree-model.c
 
 // Currently Unused...
