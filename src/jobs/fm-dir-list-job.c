@@ -190,15 +190,11 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
     {
         g_return_val_if_fail (global_menu_cache != NULL, FALSE);
         
-        // Calling libmenu-cache is only allowed in main thread.
-        //~ g_io_scheduler_job_send_to_mainloop (FM_JOB(dir_list_job)->dir_list_job,
-                                             //~ (GSourceFunc) list_menu_items, dir_list_job, NULL);    
-        
         g_io_scheduler_job_send_to_mainloop (FM_JOB(dir_list_job),
                                              (GSourceFunc) list_menu_items, dir_list_job, NULL);    
-        
         return TRUE;
     }
+    
     // A virtual path or remote file system path...
     else
     {

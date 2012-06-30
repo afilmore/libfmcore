@@ -41,6 +41,10 @@
 G_BEGIN_DECLS
 
 
+// The File Attributs To Query...
+const char *gfile_info_query_attribs;
+
+
 /*********************************************************************
  *  Intialize the file info system...
  * 
@@ -48,10 +52,6 @@ G_BEGIN_DECLS
  ********************************************************************/
 void _fm_file_info_init ();
 void _fm_file_info_finalize ();
-
-
-// The File Attributs To Query...
-const char *gfile_info_query_attribs;
 
 
 /*********************************************************************
@@ -65,6 +65,7 @@ typedef struct _FmFileInfo FmFileInfo;
 
 struct _FmFileInfo
 {
+    
     /*****************************************************************
      *  File Path, that's the most important field of the FileInfo,
      *  other ones are set from this path...
@@ -121,27 +122,13 @@ void        fm_file_info_copy                   (FmFileInfo *file_info, FmFileIn
  * 
  * 
  ********************************************************************/
-FmFileInfo *fm_file_info_new_for_path               (FmPath *path);
-void        fm_file_info_set_path                   (FmFileInfo *file_info, FmPath *path);
-FmPath     *fm_file_info_get_path                   (FmFileInfo *file_info);
+FmFileInfo *fm_file_info_new_for_path           (FmPath *path);
+void        fm_file_info_set_path               (FmFileInfo *file_info, FmPath *path);
+FmPath     *fm_file_info_get_path               (FmFileInfo *file_info);
 
 
 
-gboolean    fm_file_info_query                      (FmFileInfo *file_info, GCancellable *cancellable, GError **err);
-
-// TODO_axl: should be moved inside the query function and called internally...
-// used in dir list job and file info job and the vala search result view...
-//~ gboolean    fm_file_info_query_native_file        (FmFileInfo *file_info/*, GError **err*/);
-
-// is now static...
-//void        fm_file_info_set_for_gfileinfo          (FmFileInfo *file_info, GFileInfo *gfile_info);
-
-// only file info job and dir list job use it, it's not in the vapi file...
-
-
-//~ void        fm_file_info_set_for_menu_cache_item    (FmFileInfo *file_info, MenuCacheItem *item);
-
-
+gboolean    fm_file_info_query                  (FmFileInfo *file_info, GCancellable *cancellable, GError **err);
 
 
 /*********************************************************************
@@ -151,9 +138,9 @@ gboolean    fm_file_info_query                      (FmFileInfo *file_info, GCan
  * 
  * 
  ********************************************************************/
-FmFileInfo  *fm_file_info_new_computer              ();
-FmFileInfo  *fm_file_info_new_trash_can             ();
-FmFileInfo  *fm_file_info_new_user_special_dir      (GUserDirectory directory);
+//~ FmFileInfo  *fm_file_info_new_computer          ();
+//~ FmFileInfo  *fm_file_info_new_trash_can         ();
+FmFileInfo  *fm_file_info_new_user_special_dir  (GUserDirectory directory);
 
 
 /*********************************************************************

@@ -45,7 +45,7 @@
 static FmPath *root_path =          NULL;
 static FmPath *home_path =          NULL;
 static FmPath *desktop_path =       NULL;
-static FmPath *documents_path =       NULL;
+static FmPath *documents_path =     NULL;
 static FmPath *trash_root_path =    NULL;
 static FmPath *apps_root_path =     NULL;
 

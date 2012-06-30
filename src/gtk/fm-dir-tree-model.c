@@ -59,15 +59,11 @@ G_DEFINE_TYPE_WITH_CODE (FmDirTreeModel,
 static void fm_dir_tree_model_finalize                      (GObject *object);
 static void on_theme_changed                                (GtkIconTheme *theme, FmDirTreeModel *dir_tree_model);
 
-GList *fm_dir_tree_model_add_root_full (FmDirTreeModel *dir_tree_model,
-                                      FmDirTreeItem *dir_tree_item,
-                                      GList *parent_node, GtkTreeIter *iter, gboolean can_expand);
-
 static void fm_dir_tree_model_add_place_holder_child_item   (FmDirTreeModel *dir_tree_model, GList *parent_node,
                                                              GtkTreePath *tree_path, gboolean emit_signal);
                                                              
-static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GList *parent_node,
-                                             GtkTreePath *tree_path, FmDirTreeItem *new_item);
+static GList *fm_dir_tree_model_insert_item                 (FmDirTreeModel *dir_tree_model, GList *parent_node,
+                                                             GtkTreePath *tree_path, FmDirTreeItem *new_item);
 
 
 
@@ -108,10 +104,6 @@ static gboolean fm_dir_tree_model_iter_parent               (GtkTreeModel *tree_
 
 static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_model, GList *item_list,
                                                    GtkTreePath *tree_path);
-
-
-
-
 
 
 /*****************************************************************************************
@@ -169,10 +161,9 @@ static void fm_dir_tree_model_init (FmDirTreeModel *dir_tree_model)
     dir_tree_model->icon_size = 16;
     dir_tree_model->show_hidden = FALSE;
     dir_tree_model->show_symlinks = FALSE;
-    
-    // Check Subdirectories...
     dir_tree_model->check_subdir = TRUE;
     
+    // Check Subdirectories job...
     g_queue_init (&dir_tree_model->subdir_checks);
     dir_tree_model->subdir_checks_mutex = g_mutex_new ();
     dir_tree_model->subdir_cancellable = g_cancellable_new ();
@@ -192,9 +183,7 @@ static void fm_dir_tree_model_finalize (GObject *object)
     fm_foreach (dir_tree_model->root_list, (GFunc) fm_dir_tree_item_free_l, NULL);
     g_list_free (dir_tree_model->root_list);
 
-    
-    
-    // Check Subdirectories...
+    // Check Subdirectories job...
     g_object_unref (dir_tree_model->subdir_cancellable); 
     
     g_signal_handlers_disconnect_by_func (gtk_icon_theme_get_default (), on_theme_changed, dir_tree_model);
@@ -206,7 +195,8 @@ static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_mode
 {
     GList *l;
     GtkTreePath *tree_path = gtk_tree_path_new_first ();
-    for (l = dir_tree_model->root_list; l; l=l->next)
+    
+    for (l = dir_tree_model->root_list; l; l = l->next)
     {
         fm_dir_tree_model_item_reload_icon (dir_tree_model, l->data, tree_path);
         gtk_tree_path_next (tree_path);
@@ -216,16 +206,16 @@ static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_mode
 
 
 /*****************************************************************************************
- *  ...
+ *  Create Direct Root Items...
  * 
  * 
  ****************************************************************************************/
 void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
 {
-    
     FmPath *path;
     FmFileInfo *file_info;
     FmDirTreeItem *dir_tree_item;
+    
     
     // Desktop...
     path = fm_path_get_desktop ();
@@ -234,38 +224,6 @@ void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
 
 
-    /*
-    // Computer...
-    path = fm_path_new_for_uri ("computer:///");
-    file_info = fm_file_info_new_for_path (path);
-    fm_path_unref (path);
-    fm_file_info_query (file_info, NULL, NULL);
-    
-    GtkTreePath *tree_path = gtk_tree_path_new_first ();
-    GList *node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
-    gtk_tree_path_free (tree_path);
-    
-    
-    // Documents...
-    path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS));
-    file_info = fm_file_info_new_for_path (path);
-    fm_file_info_query (file_info, NULL, NULL);
-    
-    tree_path = gtk_tree_path_new_first ();
-    node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
-    gtk_tree_path_free (tree_path);
-    
-    
-    // Trash Can...
-    path = fm_path_get_trash ();
-    file_info = fm_file_info_new_for_path (path);
-    fm_file_info_query (file_info, NULL, NULL);
-    
-    tree_path = gtk_tree_path_new_first ();
-    node = fm_dir_tree_model_insert_file_info (dir_tree_model, dir_tree_model->root_list, tree_path, file_info);
-    gtk_tree_path_free (tree_path);
-    */
-    
     // Download...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
     file_info = fm_file_info_new_for_path (path);
@@ -319,12 +277,15 @@ void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, FALSE);
     fm_path_unref (path);
     
-    // what's the purpose of weak pointers ??? :-P
+    // What's the purpose of weak pointers ??? :-P
     g_object_add_weak_pointer (dir_tree_model, &dir_tree_model);
     return;
 }
-    
-    
+
+
+
+
+// remove..............
 void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
 {
     FmPath *path;
@@ -429,40 +390,10 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     g_object_add_weak_pointer (dir_tree_model, &dir_tree_model);
 }
 
-GList *fm_dir_tree_model_add_root_full (FmDirTreeModel *dir_tree_model,
-                                      FmDirTreeItem *dir_tree_item,
-                                      GList *parent_node, GtkTreeIter *iter, gboolean can_expand)
-{
-    
-    //GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, parent_node);
-    
-    if (!parent_node)
-        parent_node = dir_tree_model->root_list;
-    
-    dir_tree_model->root_list = g_list_append (dir_tree_model->root_list, dir_tree_item);
-    GList *item_list = g_list_last (dir_tree_model->root_list);
-    //~ dir_tree_item->parent = parent_node;
-    
-    if (can_expand)
-        fm_dir_tree_model_add_place_holder_child_item (dir_tree_model, item_list, NULL, FALSE);
 
-    
-    // Convert the new item to an iterator...
-    GtkTreeIter it;
-    fm_dir_tree_model_item_to_tree_iter (dir_tree_model, item_list, &it);
-    GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, item_list);
-    
-    // Emit row-inserted signal for the new root item...
-    gtk_tree_model_row_inserted (GTK_TREE_MODEL (dir_tree_model), tree_path, &it);
 
-    // Output the iterator...
-    if (iter)
-        *iter = it;
-    
-    gtk_tree_path_free (tree_path);
-    
-    return item_list;
-}
+
+
 
 void fm_dir_tree_model_add_root (FmDirTreeModel *dir_tree_model, FmFileInfo *root, GtkTreeIter *iter, gboolean can_expand)
 {
@@ -583,16 +514,20 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
         if (G_UNLIKELY (!dir_tree_item->file_info))
             continue;
         
-        if (!dir_tree_model->show_hidden && dir_tree_item->file_info->path->name[0] == '.')
-            continue;
-        
-        if (!dir_tree_model->show_symlinks && fm_file_info_is_symlink (dir_tree_item->file_info))
-            continue;
-        
+        //~ if (!dir_tree_model->show_hidden && dir_tree_item->file_info->path->name[0] == '.')
+            //~ continue;
+        //~ 
+        //~ if (!dir_tree_model->show_symlinks && fm_file_info_is_symlink (dir_tree_item->file_info))
+            //~ continue;
+        //~ 
         
         
         //sleep (5);
         
+        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_item: comparing %s and %s\n",
+                    fm_file_info_get_name (new_item->file_info), fm_file_info_get_name (dir_tree_item->file_info));
+
+
         // doesn't work...
         if (fm_path_is_special (new_item->file_info->path))
         {

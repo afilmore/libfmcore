@@ -77,14 +77,14 @@ void _fm_file_info_init ()
 {
     fm_mime_type_init ();
     
-    desktop_entry_type = fm_mime_type_get_for_type ("application/x-desktop");
+    desktop_entry_type =            fm_mime_type_get_for_type ("application/x-desktop");
 
     // fake mime-types for mountable and shortcuts
-    shortcut_type = fm_mime_type_get_for_type ("inode/x-shortcut");
-    shortcut_type->description = g_strdup (_("Shortcuts"));
+    shortcut_type =                 fm_mime_type_get_for_type ("inode/x-shortcut");
+    shortcut_type->description =    g_strdup (_("Shortcuts"));
 
-    mountable_type = fm_mime_type_get_for_type ("inode/x-mountable");
-    mountable_type->description = g_strdup (_("Mount Point"));
+    mountable_type =                fm_mime_type_get_for_type ("inode/x-mountable");
+    mountable_type->description =   g_strdup (_("Mount Point"));
 }
 
 void _fm_file_info_finalize ()
@@ -116,6 +116,7 @@ FmFileInfo *fm_file_info_ref (FmFileInfo *file_info)
 void fm_file_info_unref (FmFileInfo *file_info)
 {
     // g_debug ("unref file info: %d", file_info->n_ref);
+    
     if (g_atomic_int_dec_and_test (&file_info->n_ref))
     {
         fm_file_info_clear (file_info);
@@ -180,14 +181,16 @@ static void fm_file_info_clear (FmFileInfo *file_info)
 
 void fm_file_info_copy (FmFileInfo *file_info, FmFileInfo *src)
 {
+    /**
+     * NOTE: we need to ref source first. Otherwise,
+     * if path, mime_type, and icon are identical in src
+     * and file_info, calling fm_file_info_clear () first
+     * on file_info might unref that.
+     **/
+    
     FmPath *tmp_path = fm_path_ref (src->path);
     FmMimeType *tmp_type = fm_mime_type_ref (src->mime_type);
     FmIcon *tmp_icon = fm_icon_ref (src->fm_icon);
-    
-    /* NOTE: we need to ref source first. Otherwise,
-     * if path, mime_type, and icon are identical in src
-     * and file_info, calling fm_file_info_clear () first on file_info
-     * might unref that. */
     
     fm_file_info_clear (file_info);
     file_info->path = tmp_path;
@@ -270,7 +273,9 @@ void fm_file_info_set_path (FmFileInfo *file_info, FmPath *path)
         file_info->disp_name = file_info->path->name;
     }
     else
+    {
         file_info->path = NULL;
+    }
 }
 
 FmPath *fm_file_info_get_path (FmFileInfo *file_info)
@@ -279,74 +284,42 @@ FmPath *fm_file_info_get_path (FmFileInfo *file_info)
 }
 
 
-/*********************************************************************
+// remove.....
+/* ********************************************************************
  *  These Are Specific To The Desktop View...
  * 
  *  Not sure if it's a good method...
  * 
  * 
  ********************************************************************/
-FmFileInfo *fm_file_info_new_computer ()
-{
-    FmFileInfo *file_info = fm_file_info_new ();
-    
-    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
-    
-    fm_file_info_set_path (file_info, path);
-    
-    fm_path_unref (path);
-    
-    return file_info;
-}
-
-FmFileInfo *fm_file_info_new_trash_can ()
-{
-    FmFileInfo *file_info = fm_file_info_new ();
-    
-    FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
-    
-    fm_file_info_set_path (file_info, path);
-
-    fm_path_unref (path);
-    
-    return file_info;
-}
-
-FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
-{
-    //~ const gchar *path_name = g_get_user_special_dir (directory);
-    
-    //~ GFile *file = g_file_new_for_path (path_name);
-    //~ if (!file)
-        //~ return NULL;
+//~ FmFileInfo *fm_file_info_new_computer ()
+//~ {
+    //~ FmFileInfo *file_info = fm_file_info_new ();
     //~ 
-    //~ GFileInfo *ginfo = g_file_query_info (file,
-                                          //~ "standard::*,unix::*,time::*,access::*,id::filesystem",
-                                          //~ G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
-                                          //~ NULL,
-                                          //~ NULL);
-//~ 
-    //~ FmPath *path = fm_path_new_for_path (path_name);
+    //~ FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
     //~ 
-    //~ FmFileInfo *file_info = fm_file_info_new_for_path (path);
-    //~ fm_file_info_query_gio (file_info, ginfo);
+    //~ fm_file_info_set_path (file_info, path);
     //~ 
     //~ fm_path_unref (path);
-    //~ g_object_unref (ginfo);
-    //~ g_object_unref (file);
     //~ 
-    
-    
-    //~ GFile *file = g_file_new_for_path (path_name);
-    //~ if (!file)
-        //~ return NULL;
+    //~ return file_info;
+//~ }
+//~ 
+//~ FmFileInfo *fm_file_info_new_trash_can ()
+//~ {
+    //~ FmFileInfo *file_info = fm_file_info_new ();
     //~ 
-    //~ GFileInfo *ginfo = g_file_query_info (file,
-                                          //~ "standard::*,unix::*,time::*,access::*,id::filesystem",
-                                          //~ G_FILE_QUERY_INFO_NONE, // G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS ???
-                                          //~ NULL,
-                                          //~ NULL);
-
+    //~ FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
+    //~ 
+    //~ fm_file_info_set_path (file_info, path);
+//~ 
+    //~ fm_path_unref (path);
+    //~ 
+    //~ return file_info;
+//~ }
+//~ 
+FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
+{
     FmPath *path = fm_path_new_for_path (g_get_user_special_dir (directory));
     
     FmFileInfo *file_info = fm_file_info_new_for_path (path);

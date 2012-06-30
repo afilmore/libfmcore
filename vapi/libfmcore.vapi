@@ -258,12 +258,12 @@ namespace Fm {
         
         public bool                 query               (GLib.Cancellable? cancellable = null) throws GLib.Error;
 		
-        [CCode (has_construct_function = false)]
-		public FileInfo.computer                        ();
-		
-        [CCode (has_construct_function = false)]
-		public FileInfo.trash_can                       ();
-		
+//~         [CCode (has_construct_function = false)]
+//~ 		public FileInfo.computer                        ();
+//~ 		
+//~         [CCode (has_construct_function = false)]
+//~ 		public FileInfo.trash_can                       ();
+//~ 		
         [CCode (has_construct_function = false)]
 		public FileInfo.user_special_dir                (GLib.UserDirectory directory);
 		
@@ -325,8 +325,6 @@ namespace Fm {
 	[CCode (cheader_filename = "fm-folder.h")]
 	public class Folder : GLib.Object {
 		
-//		public weak Fm.FileInfo         dir_fi;     /* FIXME_axl: avoid direct member access... */
-
         [CCode (has_construct_function = false)]
 		protected Folder                                        ();
 		

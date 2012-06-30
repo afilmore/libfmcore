@@ -60,17 +60,21 @@ struct _FmDirTreeModel
 {
     GObject         parent;
     
-    GList           *root_list;                 // A list containing root items (FmDirTreeItem)...
+    GList           *root_list;     // A list containing root items (FmDirTreeItem)...
     
-    gint            stamp;
+    gint            stamp;          // For tree iterators...
     
+    // Tree Model options...
     int             icon_size;
     gboolean        show_hidden;
     gboolean        show_symlinks;
-    
-    // Subdirectory Check Job, this permits to expend only folders which have subfolders...
     gboolean        check_subdir;
     
+    /*****************************************************************
+     * Subdirectory Check Job,
+     * this permits to expand only folders which have subfolders...
+     * 
+     **/
     gboolean        job_running;
     
     GQueue          subdir_checks;
@@ -89,7 +93,7 @@ struct _FmDirTreeModelClass
 FmDirTreeModel     *fm_dir_tree_model_new                       ();
 GType               fm_dir_tree_model_get_type                  ();
 
-                    // For FmDirTreeView, called in fm_dir_tree_view_select_function ()... 
+// For FmDirTreeView, called in fm_dir_tree_view_select_function ()... 
 gboolean            fm_dir_tree_model_get_iter                  (GtkTreeModel *tree_model,
                                                                  GtkTreeIter *iter, GtkTreePath *path);
 
