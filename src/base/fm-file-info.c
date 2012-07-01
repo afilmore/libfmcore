@@ -283,41 +283,6 @@ FmPath *fm_file_info_get_path (FmFileInfo *file_info)
     return file_info->path;
 }
 
-
-// remove.....
-/* ********************************************************************
- *  These Are Specific To The Desktop View...
- * 
- *  Not sure if it's a good method...
- * 
- * 
- ********************************************************************/
-//~ FmFileInfo *fm_file_info_new_computer ()
-//~ {
-    //~ FmFileInfo *file_info = fm_file_info_new ();
-    //~ 
-    //~ FmPath *path = fm_path_new_for_uri (FM_PATH_URI_COMPUTER);
-    //~ 
-    //~ fm_file_info_set_path (file_info, path);
-    //~ 
-    //~ fm_path_unref (path);
-    //~ 
-    //~ return file_info;
-//~ }
-//~ 
-//~ FmFileInfo *fm_file_info_new_trash_can ()
-//~ {
-    //~ FmFileInfo *file_info = fm_file_info_new ();
-    //~ 
-    //~ FmPath *path = fm_path_new_for_uri (FM_PATH_URI_TRASH_CAN);
-    //~ 
-    //~ fm_file_info_set_path (file_info, path);
-//~ 
-    //~ fm_path_unref (path);
-    //~ 
-    //~ return file_info;
-//~ }
-//~ 
 FmFileInfo *fm_file_info_new_user_special_dir (GUserDirectory directory)
 {
     FmPath *path = fm_path_new_for_path (g_get_user_special_dir (directory));
@@ -875,7 +840,12 @@ const char *fm_file_info_get_collate_key (FmFileInfo *file_info)
     if (G_LIKELY (file_info->collate_key))
         return file_info->collate_key;
     
-    char *casefold = g_utf8_casefold (file_info->disp_name, -1);
+    g_return_val_if_fail (file_info->disp_name != NULL, NULL);
+    
+    char *tmp_str = g_strdup_printf (".%d-%s", file_info->sorting_index, file_info->disp_name);
+    char *casefold = g_utf8_casefold (tmp_str, -1);
+    //~ DEBUG ("DEBUG: fm_file_info_get_collate_key: %s\n", tmp_str);
+    g_free (tmp_str);
     
     // disp_name won't be set if the FmFileInfo is invalid...
     g_return_val_if_fail (casefold != NULL, NULL);
@@ -885,16 +855,19 @@ const char *fm_file_info_get_collate_key (FmFileInfo *file_info)
     
     g_return_val_if_fail (collate != NULL, NULL);
     
-    // ???
-    if (strcmp (collate, file_info->disp_name))
+    // What's the purpose of this ???
+    if (strcmp (collate, file_info->disp_name) == 0)
     {
-        file_info->collate_key = collate;
-    }
-    else
-    {
+        DEBUG ("DEBUG: fm_file_info_get_collate_key: %s\t Display name and collate key are the same...",
+               file_info->disp_name);
+        
         file_info->collate_key = file_info->disp_name;
         g_free (collate);
+        
+        return file_info->collate_key;
     }
+    
+    file_info->collate_key = collate;
     
     return file_info->collate_key;
 }

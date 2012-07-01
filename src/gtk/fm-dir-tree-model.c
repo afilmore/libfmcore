@@ -62,7 +62,7 @@ static void on_theme_changed                                (GtkIconTheme *theme
 static void fm_dir_tree_model_add_place_holder_child_item   (FmDirTreeModel *dir_tree_model, GList *parent_node,
                                                              GtkTreePath *tree_path, gboolean emit_signal);
                                                              
-static GList *fm_dir_tree_model_insert_item                 (FmDirTreeModel *dir_tree_model, GList *parent_node,
+static GList *fm_dir_tree_model_insert_sorted                 (FmDirTreeModel *dir_tree_model, GList *parent_node,
                                                              GtkTreePath *tree_path, FmDirTreeItem *new_item);
 
 
@@ -479,7 +479,7 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList
         return parent_item->hidden_children;
     }
     
-    GList *item_list = fm_dir_tree_model_insert_item (dir_tree_model, parent_node, tree_path, dir_tree_item);
+    GList *item_list = fm_dir_tree_model_insert_sorted (dir_tree_model, parent_node, tree_path, dir_tree_item);
     
     char *tmp_path = gtk_tree_path_to_string (tree_path);
     TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_file_info: file = %s\t index = %d\n",
@@ -489,7 +489,7 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList
     return item_list;
 }
 
-static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GList *parent_node,
+static GList *fm_dir_tree_model_insert_sorted (FmDirTreeModel *dir_tree_model, GList *parent_node,
                                              GtkTreePath *tree_path, FmDirTreeItem *new_item)
 {
     FmDirTreeItem *parent_item = (FmDirTreeItem*) parent_node->data;
@@ -514,33 +514,23 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *dir_tree_model, GLi
         if (G_UNLIKELY (!dir_tree_item->file_info))
             continue;
         
-        //~ if (!dir_tree_model->show_hidden && dir_tree_item->file_info->path->name[0] == '.')
-            //~ continue;
-        //~ 
-        //~ if (!dir_tree_model->show_symlinks && fm_file_info_is_symlink (dir_tree_item->file_info))
-            //~ continue;
-        //~ 
-        
-        
-        //sleep (5);
-        
-        TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_item: comparing %s and %s\n",
-                    fm_file_info_get_name (new_item->file_info), fm_file_info_get_name (dir_tree_item->file_info));
+        //~ TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_sorted: comparing %s and %s\n",
+                    //~ fm_file_info_get_name (new_item->file_info), fm_file_info_get_name (dir_tree_item->file_info));
 
 
         // doesn't work...
-        if (fm_path_is_special (new_item->file_info->path))
-        {
-            if (new_item->file_info->sorting_index <= dir_tree_item->file_info->sorting_index)
-                break;
-        }
-        else
-        {
+        //~ if (fm_path_is_special (new_item->file_info->path))
+        //~ {
+            //~ if (new_item->file_info->sorting_index <= dir_tree_item->file_info->sorting_index)
+                //~ break;
+        //~ }
+        //~ else
+        //~ {
             key = fm_file_info_get_collate_key (dir_tree_item->file_info);
             
             if (strcmp (new_key, key) <= 0)
                 break;
-        }
+        //~ }
     }
 
     parent_item->children = g_list_insert_before (parent_item->children, item_list, new_item);

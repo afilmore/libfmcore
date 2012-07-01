@@ -252,9 +252,16 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
         // Ensure that the file is not yet in our model
         GList *new_item_list = fm_dir_tree_model_children_by_name (model, dir_tree_item->children, file_info->path->name, NULL);
         
-        if (!new_item_list)
-            new_item_list = fm_dir_tree_model_insert_file_info (model, item_list, tp, file_info);
         
+        if (new_item_list)
+        {
+            TREEVIEW_DEBUG ("TREEVIEW_DEBUG: on_folder_files_added: %s already in the model !!!\n",
+                            file_info->path->name);
+        }
+        else
+        {
+            new_item_list = fm_dir_tree_model_insert_file_info (model, item_list, tp, file_info);
+        }
     }
     
     gtk_tree_path_free (tp);
