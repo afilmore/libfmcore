@@ -65,7 +65,6 @@ typedef struct _FmFileInfo FmFileInfo;
 
 struct _FmFileInfo
 {
-    
     /*****************************************************************
      *  File Path, that's the most important field of the FileInfo,
      *  other ones are set from this path...

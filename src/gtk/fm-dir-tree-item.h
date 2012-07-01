@@ -80,13 +80,17 @@ void                    fm_dir_tree_item_free_l             (GList *item_l);
  ********************************************************************/
 GdkPixbuf               *fm_dir_tree_item_get_pixbuf        (FmDirTreeItem *dir_tree_item, int icon_size);
 
+
 /*********************************************************************
  *  FmFolder...
  * 
  * 
  ********************************************************************/
 FmFolder                *fm_dir_tree_item_set_folder        (GList *item_l);
+void                    fm_dir_tree_item_load_folder        (FmFolder *folder, GSList *files, GList *item_list,
+                                                             gboolean check_exits);
 void                    fm_dir_tree_item_on_folder_loaded   (FmDirTreeItem *dir_tree_item);
+
 
 
 G_END_DECLS

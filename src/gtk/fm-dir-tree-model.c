@@ -601,18 +601,28 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
             FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
             
             // ???
-            FmDirTreeModel *dir_tree_model = dir_tree_item->model;
+            //FmDirTreeModel *dir_tree_model = dir_tree_item->model;
             
+            GSList *files = fm_list_peek_head_link (folder->files);
+            
+            fm_dir_tree_item_load_folder (folder, files, item_list, FALSE);
+            
+            /* 8<-------------------------------------------------------------------------------------------
+            //  Duplicated code again :(
+            //
+            //  *   fm_dir_tree_model_expand_row
+            //  *   on_folder_files_added
+            // 8<-------------------------------------------------------------------------------------------
             GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, item_list);
             
             GList *file_l;
-            for (file_l = fm_list_peek_head_link (folder->files); file_l; file_l = file_l->next)
+            for (file_l = files; file_l; file_l = file_l->next)
             {
                 FmFileInfo *file_info = file_l->data;
                 
                 // Load only directories...
                 FmPath *path = fm_file_info_get_path (file_info);
-                if (!fm_file_info_is_dir (file_info))
+                if (!fm_file_info_is_dir (file_info) && !fm_path_is_virtual (path))
                 {
                     //TREEVIEW_DEBUG ("%s\n", fm_path_get_basename (path));
                     //&& !fm_path_is_virtual (path))
@@ -624,6 +634,8 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
             }
             
             gtk_tree_path_free (tree_path);
+            // 8<-------------------------------------------------------------------------------------------
+            */
             
             fm_dir_tree_item_on_folder_loaded (dir_tree_item);
         }
