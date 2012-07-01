@@ -925,13 +925,17 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     {
         while (!g_cancellable_is_cancelled (cancellable))
         {
-            GFileInfo *file_info = g_file_enumerator_next_file (enumerator, cancellable, NULL);
-            if (G_LIKELY (file_info))
+            GFileInfo *gfile_info = g_file_enumerator_next_file (enumerator, cancellable, NULL);
+            if (G_LIKELY (gfile_info))
             {
-                GFileType g_file_type = g_file_info_get_file_type (file_info);
-                gboolean is_hidden = g_file_info_get_is_hidden (file_info);
-                g_object_unref (file_info);
-
+                GFileType g_file_type = g_file_info_get_file_type (gfile_info);
+                gboolean is_hidden = g_file_info_get_is_hidden (gfile_info);
+                
+                TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_job: GFileInfo for %s = %d\n\n",
+                                g_file_info_get_name (gfile_info), g_file_type);
+                
+                g_object_unref (gfile_info);
+                
                 if (g_file_type == G_FILE_TYPE_DIRECTORY || g_file_type == G_FILE_TYPE_MOUNTABLE)
                 {
                     if (dir_tree_model->show_hidden || !is_hidden)
@@ -966,6 +970,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
 static gboolean subdir_check_remove_place_holder (FmDirTreeModel *dir_tree_model)
 {
     GList *item_list = dir_tree_model->current_subdir_check;
+    
     if (!g_cancellable_is_cancelled (dir_tree_model->subdir_cancellable) && item_list)
     {
         FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
@@ -985,6 +990,7 @@ static gboolean subdir_check_remove_place_holder (FmDirTreeModel *dir_tree_model
             
         }
     }
+    
     return subdir_check_finish (dir_tree_model);
 }
 

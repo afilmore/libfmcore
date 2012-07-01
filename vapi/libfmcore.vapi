@@ -500,20 +500,21 @@ namespace Fm {
 	public class DirTreeModel : GLib.Object, Gtk.TreeModel {
 		
         [CCode (has_construct_function = false)]
-		public DirTreeModel         ();
+		public DirTreeModel             ();
 		
-        public void load            ();
+        public void load                ();
         public void load_testing        (); // < for testing...
 		
-        public void add_root        (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
+        public void add_root            (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
         
-        public void collapse_row    (Gtk.TreeIter it, Gtk.TreePath tp);
-		public void expand_row      (Gtk.TreeIter it, Gtk.TreePath tp);
+        public void collapse_row        (Gtk.TreeIter it, Gtk.TreePath tp);
+		public void expand_row          (Gtk.TreeIter it, Gtk.TreePath tp);
 		
-        public void set_show_hidden (bool show_hidden);
-		public bool get_show_hidden ();
+        public void set_show_symlinks   (bool show_hidden);
+        public void set_show_hidden     (bool show_hidden);
+		public bool get_show_hidden     ();
 		
-        public void set_icon_size   (uint icon_size);
+        public void set_icon_size       (uint icon_size);
 	}
 	
     

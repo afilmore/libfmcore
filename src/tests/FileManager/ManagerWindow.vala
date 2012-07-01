@@ -103,8 +103,8 @@ namespace Manager {
             // Fill The TreeView Model...
             _dir_tree_model = new Fm.DirTreeModel ();
             
-//~             _dir_tree_model.set_show_hidden (true);
-//~             _dir_tree_model.set_show_symlinks (true);
+            _dir_tree_model.set_show_hidden (true);
+            _dir_tree_model.set_show_symlinks (true);
             
 //~             _dir_tree_model.load ();
             

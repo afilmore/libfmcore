@@ -505,9 +505,9 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *dir_list_job)
         
         if (gfile_info)
         {
+            // TODO_axl: handle other types... symlinks etc...
             if (G_UNLIKELY (dir_list_job->dir_only))
             {
-                // FIXME_pcm: handle symlinks
                 if (g_file_info_get_file_type (gfile_info) != G_FILE_TYPE_DIRECTORY)
                 {
                     g_object_unref (gfile_info);
