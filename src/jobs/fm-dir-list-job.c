@@ -516,7 +516,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *dir_list_job)
             }
 
             // Insert a child item...
-            JOB_DEBUG ("fm_dir_list_job_run_gio: file name = %s\n", g_file_info_get_name (gfile_info));
+            DEBUG ("fm_dir_list_job_run_gio: file name = %s\n", g_file_info_get_name (gfile_info));
             
             FmPath *child = fm_path_new_child (dir_list_job->directory, g_file_info_get_name (gfile_info));
             FmFileInfo *file_info = fm_file_info_new_for_path (child);

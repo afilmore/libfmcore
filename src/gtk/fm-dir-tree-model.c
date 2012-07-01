@@ -417,11 +417,16 @@ static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *dir_t
     FmFileInfo *file_info = parent_item->file_info;
     FmPath *path = fm_file_info_get_path (file_info);
     
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_add_place_holder_child_item: file = %s\t emit_signal = %d\n",
+                    fm_file_info_get_name (file_info), emit_signal);
+    
     
     // don't expand the trash can...
     // TODO_axl: add a can_expand flag into the file_info
     if (fm_path_is_trash (path) && fm_path_is_root (path))
         return;
+    
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_add_place_holder_child_item: create place holder\n\n");
     
     FmDirTreeItem *dir_tree_item = fm_dir_tree_item_new (dir_tree_model, parent_node, NULL);
     
@@ -469,7 +474,7 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *dir_tree_model, GList
     GList *item_list = fm_dir_tree_model_insert_sorted (dir_tree_model, parent_node, tree_path, dir_tree_item);
     
     char *tmp_path = gtk_tree_path_to_string (tree_path);
-    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_file_info: file = %s\t index = %d\n",
+    TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_insert_file_info: file = %s\t index = %d\n\n",
                     fm_file_info_get_name (file_info), file_info->sorting_index);
     g_free (tmp_path);
     
@@ -898,7 +903,6 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     GList *item_list;
     FmDirTreeItem *dir_tree_item;
     GFile *gf;
-    GFileEnumerator *enu;
     gboolean has_subdir = FALSE;
 
     g_mutex_lock (dir_tree_model->subdir_checks_mutex);
@@ -912,23 +916,23 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     
     // NO_DEBUG ("check subdir for: %s\n", g_file_get_parse_name (gf));
     
-    enu = g_file_enumerate_children (gf,
+    GFileEnumerator *enumerator = g_file_enumerate_children (gf,
                             G_FILE_ATTRIBUTE_STANDARD_NAME","
                             G_FILE_ATTRIBUTE_STANDARD_TYPE","
                             G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
                             0, cancellable, NULL);
-    if (enu)
+    if (enumerator)
     {
         while (!g_cancellable_is_cancelled (cancellable))
         {
-            GFileInfo *file_info = g_file_enumerator_next_file (enu, cancellable, NULL);
+            GFileInfo *file_info = g_file_enumerator_next_file (enumerator, cancellable, NULL);
             if (G_LIKELY (file_info))
             {
-                GFileType type = g_file_info_get_file_type (file_info);
+                GFileType g_file_type = g_file_info_get_file_type (file_info);
                 gboolean is_hidden = g_file_info_get_is_hidden (file_info);
                 g_object_unref (file_info);
 
-                if (type == G_FILE_TYPE_DIRECTORY)
+                if (g_file_type == G_FILE_TYPE_DIRECTORY || g_file_type == G_FILE_TYPE_MOUNTABLE)
                 {
                     if (dir_tree_model->show_hidden || !is_hidden)
                     {
@@ -944,8 +948,8 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
         }
         
         GError *error = NULL;
-        g_file_enumerator_close (enu, cancellable, &error);
-        g_object_unref (enu);
+        g_file_enumerator_close (enumerator, cancellable, &error);
+        g_object_unref (enumerator);
     }
     
     // NO_DEBUG ("check result - %s has_dir: %d\n", g_file_get_parse_name (gf), has_subdir);
@@ -970,8 +974,8 @@ static gboolean subdir_check_remove_place_holder (FmDirTreeModel *dir_tree_model
         {
             
             // Remove the place holder...
-            //~ TREEVIEW_DEBUG ("TREEVIEW_DEBUG: remove place holder for %s\n",
-                            //~ fm_file_info_get_disp_name (dir_tree_item->file_info));
+            TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_remove_place_holder: remove place holder for %s\n\n",
+                            fm_file_info_get_disp_name (dir_tree_item->file_info));
             
             GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, item_list);
             fm_dir_tree_model_remove_all_children (dir_tree_model, item_list, tree_path);
