@@ -19,7 +19,22 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- *
+ * 
+ *      
+ *      Purpose: Directory Parsing Job.
+ *      
+ *      A FmDirListJob takes a directory path in input and parses that directory,
+ *      the result is a FmFileInfoList containing a file info object for any file,
+ *      folder, virtual item in that directory.
+ * 
+ *      The job also queries the file information of the parsed directory,
+ *      it's possible to get it with fm_dir_dist_job_get_directory_info ().
+ * 
+ *      There is a "dir_only" option to parse only directories, this option is
+ *      currently unused in the library, that's a bit confusing and I don't know
+ *      if it's really usefull.
+ * 
+ * 
  * 
  **********************************************************************************************************************/
 #ifdef HAVE_CONFIG_H
@@ -53,7 +68,9 @@ static gboolean fm_dir_list_job_run_gio         (FmDirListJob *dir_list_job);
 
 
 /*********************************************************************
- *  ...
+ *  Create a new DirList job...
+ * 
+ *  Note: The "dir_only" option is currently unused and untested...
  * 
  * 
  ********************************************************************/
@@ -61,8 +78,9 @@ FmJob *fm_dir_list_job_new (FmPath *path, gboolean dir_only)
 {
 	FmDirListJob *dir_list_job = (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	
-    dir_list_job->directory =   fm_path_ref (path);
     dir_list_job->dir_only =    dir_only;
+    
+    dir_list_job->directory =   fm_path_ref (path);
 	dir_list_job->files =       fm_file_info_list_new ();
 	
     return (FmJob*) dir_list_job;
@@ -107,7 +125,8 @@ static void fm_dir_list_job_finalize (GObject *object)
 
 
 /*********************************************************************
- *  ...
+ *  Accessor funtions, get the result directory info and a
+ *  file info list...
  * 
  * 
  ********************************************************************/
@@ -131,22 +150,21 @@ FmFileInfoList *fm_dir_dist_job_get_files (FmDirListJob *dir_list_job)
 
 
 /*********************************************************************
- *  ...
- * 
+ *  Execute the job, it will create special items if needed and will
+ *  use posix, libmenu-cache or GIO depending of the given input
+ *  directory...
  * 
  ********************************************************************/
 static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
 {
 	g_return_val_if_fail (dir_list_job != NULL, NULL);
     
-    
     /**
      * It's possible to use GIO only instead of posix, then we see that GIO
      * is really slower.
      * 
-     * Note: With this flag set, there's a problem with symlinks,
-     * the panel launcher no longer works for example...
-     * gboolean use_gio = TRUE;
+     * Note: With this flag set, there's a problem with symlinks, the panel
+     * launcher no longer works for example...
      * 
      **/
     
@@ -154,9 +172,14 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
     
     FmPath *directory = dir_list_job->directory;
     
-    // We need to create special items on the desktop, such as "My Computer", "My Documents" etc...
+    /**
+     * Parse the Desktop directory, we need to create special items on the desktop,
+     * such as "My Computer", "Trash Can", "My Documents".
+     * 
+     **/
     if (fm_path_is_root (directory) && fm_path_is_desktop (directory))
     {
+        // Computer...
         FmPath *path = fm_path_get_computer ();
         FmFileInfo *file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
@@ -176,35 +199,47 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
         fm_list_push_tail_noref (dir_list_job->files, file_info);
     
     }
+    
+    /**
+     * Add predefined user directories such as "Music", "Pictures" etc...
+     * into "My Documents".
+     * 
+     **/
     else if (fm_path_is_root (directory) && fm_path_is_documents (directory))
     {
+        // Download...
         FmPath *path = fm_path_get_download ();
         FmFileInfo *file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
         fm_list_push_tail_noref (dir_list_job->files, file_info);
         
+        // Music...
         path = fm_path_get_music ();
         file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
         fm_list_push_tail_noref (dir_list_job->files, file_info);
         
+        // Pictures...
         path = fm_path_get_pictures ();
         file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
         fm_list_push_tail_noref (dir_list_job->files, file_info);
         
+        // Por... euh no Videos sorry... :-D
         path = fm_path_get_videos ();
         file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
         fm_list_push_tail_noref (dir_list_job->files, file_info);
     }
     
-    // A native file on the real file system...
+    
+    // Parse a native directory, on the real file system...
     if (!use_gio && fm_path_is_native (dir_list_job->directory))
     {
         return fm_dir_list_job_run_posix (dir_list_job);
 	
-    // A Menu Cache directory...
+    
+    // Parse a Menu Cache directory...
     }
     else if (fm_path_is_xdg_menu (dir_list_job->directory))
     {
@@ -215,7 +250,8 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
         return TRUE;
     }
     
-    // A virtual path or remote file system path...
+    
+    // Parse a virtual or remote directory...
     else
     {
         return fm_dir_list_job_run_gio (dir_list_job);
@@ -270,6 +306,7 @@ static gboolean list_menu_items (gpointer user_data)
             && !menu_cache_app_get_is_visible (MENU_CACHE_APP (item), desktop_flag))
             continue;
 
+        // The "dir_only" option is currently unused and untested...
         if (G_UNLIKELY (dir_list_job->dir_only) && menu_cache_item_get_type (item) != MENU_CACHE_TYPE_DIR)
             continue;
         
@@ -358,7 +395,7 @@ static gboolean fm_dir_list_job_run_posix (FmDirListJob *dir_list_job)
             g_string_truncate (fpath, dir_len);
             g_string_append (fpath, name);
 
-            // if we only want directories
+            // The "dir_only" option is currently unused and untested...
             if (dir_list_job->dir_only)
             {
                 struct stat st;
@@ -457,13 +494,16 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *dir_list_job)
         g_object_unref (gfile_info);
         return FALSE;
     }
-
+    
+    
+    // Query the directory informations...
     dir_list_job->dir_info = fm_file_info_new_for_path (dir_list_job->directory);
     fm_file_info_query (dir_list_job->dir_info, NULL, NULL);
     g_object_unref (gfile_info);
     
+    
+    // The "dir_only" option is currently unused and untested...
     const char *query;
-
     if (G_UNLIKELY (dir_list_job->dir_only))
     {
         query = G_FILE_ATTRIBUTE_STANDARD_TYPE","G_FILE_ATTRIBUTE_STANDARD_NAME","
@@ -496,7 +536,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *dir_list_job)
         
         if (gfile_info)
         {
-            // TODO_axl: handle other types... symlinks etc...
+            // The "dir_only" option is currently unused and untested...
             if (G_UNLIKELY (dir_list_job->dir_only))
             {
                 if (g_file_info_get_file_type (gfile_info) != G_FILE_TYPE_DIRECTORY)
@@ -541,8 +581,6 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *dir_list_job)
 
     return TRUE;
 }
-
-
 
 
 

@@ -19,7 +19,22 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- *
+ * 
+ *      
+ *      Purpose: Directory Parsing Job.
+ *      
+ *      A FmDirListJob takes a directory path in input and parses that directory,
+ *      the result is a FmFileInfoList containing a file info object for any file,
+ *      folder, virtual item in that directory.
+ * 
+ *      The job also queries the file information of the parsed directory,
+ *      it's possible to get it with fm_dir_dist_job_get_directory_info ().
+ * 
+ *      There is a "dir_only" option to parse only directories, this option is
+ *      currently unused in the library, that's a bit confusing and I don't know
+ *      if it's really usefull.
+ * 
+ * 
  * 
  **********************************************************************************************************************/
 #ifndef __FM_DIR_LIST_JOB_H__
@@ -45,7 +60,8 @@ struct _FmDirListJob
 {
 	FmJob           parent;
 	
-    gboolean        dir_only;
+    gboolean        dir_only;       // The "dir_only" option is currently unused and untested...
+    
     FmPath         *directory;
     FmFileInfo     *dir_info;
 	
