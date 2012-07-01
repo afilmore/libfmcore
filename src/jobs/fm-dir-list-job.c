@@ -157,10 +157,17 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
     // We need to create special items on the desktop, such as "My Computer", "My Documents" etc...
     if (fm_path_is_root (directory) && fm_path_is_desktop (directory))
     {
+        /**
         FmPath *path = fm_path_new_for_uri ("computer:///");
         path->flags |= FM_PATH_IS_SPECIAL;
         FmFileInfo *file_info = fm_file_info_new_for_path (path);
         fm_path_unref (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+        **/
+        
+        FmPath *path = fm_path_get_computer ();
+        FmFileInfo *file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
         fm_list_push_tail_noref (dir_list_job->files, file_info);
         
@@ -177,6 +184,28 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
         fm_file_info_query (file_info, NULL, NULL);
         fm_list_push_tail_noref (dir_list_job->files, file_info);
     
+    }
+    else if (fm_path_is_root (directory) && fm_path_is_documents (directory))
+    {
+        FmPath *path = fm_path_get_download ();
+        FmFileInfo *file_info = fm_file_info_new_for_path (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+        
+        path = fm_path_get_music ();
+        file_info = fm_file_info_new_for_path (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+        
+        path = fm_path_get_pictures ();
+        file_info = fm_file_info_new_for_path (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
+        
+        path = fm_path_get_videos ();
+        file_info = fm_file_info_new_for_path (path);
+        fm_file_info_query (file_info, NULL, NULL);
+        fm_list_push_tail_noref (dir_list_job->files, file_info);
     }
     
     // A native file on the real file system...

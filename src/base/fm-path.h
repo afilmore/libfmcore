@@ -73,11 +73,15 @@ enum _FmPathFlags
     FM_PATH_IS_LOCAL        = 1 << 2,       // 4    a file on the local filesystem...
     FM_PATH_IS_ROOT         = 1 << 3,       // 8    A predefines path root, trash can, menu:// etc...
     FM_PATH_IS_SPECIAL      = 1 << 4,       // 16
-    FM_PATH_IS_COMPUTER     = 1 << 5,       // 16
-    FM_PATH_IS_TRASH        = 1 << 6,       // 32   Trash Can file or root path (trash:/// or trash:///file)...
-    FM_PATH_IS_DESKTOP      = 1 << 7,       // 
-    FM_PATH_IS_DOCUMENTS    = 1 << 8,       // 
-    FM_PATH_IS_XDG_MENU     = 1 << 9        //      This path is under menu:///
+    FM_PATH_IS_DESKTOP      = 1 << 5,       // 32
+    FM_PATH_IS_COMPUTER     = 1 << 6,       // 64
+    FM_PATH_IS_TRASH        = 1 << 7,       // 128  Trash Can file or root path (trash:/// or trash:///file)...
+    FM_PATH_IS_DOCUMENTS    = 1 << 8,       // 256
+    FM_PATH_IS_DOWNLOAD     = 1 << 9,       // 512
+    FM_PATH_IS_MUSIC        = 1 << 10,      // 1024
+    FM_PATH_IS_PICTURES     = 1 << 11,      // 2048
+    FM_PATH_IS_VIDEOS       = 1 << 12,      // 4096
+    FM_PATH_IS_XDG_MENU     = 1 << 13       // 8192 This path is under menu:///
 };
 typedef enum _FmPathFlags FmPathFlags;
 
@@ -114,24 +118,34 @@ FmPath *fm_path_new_relative            (FmPath *parent, const char *relative_pa
 
 
 // Get Predefined Paths...
-FmPath *fm_path_get_root                (); // /
-FmPath *fm_path_get_home                (); // home directory
-FmPath *fm_path_get_desktop             (); // $HOME/Desktop
-FmPath *fm_path_get_documents             (); // $HOME/Desktop
-FmPath *fm_path_get_trash               (); // trash:///
-FmPath *fm_path_get_apps_menu           (); // menu://applications.menu/
+FmPath *fm_path_get_root                (); // "/"
+FmPath *fm_path_get_home                ();
+FmPath *fm_path_get_desktop             ();
+FmPath *fm_path_get_computer            ();
+FmPath *fm_path_get_trash               (); // "trash:///"
+FmPath *fm_path_get_documents           ();
+FmPath *fm_path_get_download            ();
+FmPath *fm_path_get_music               ();
+FmPath *fm_path_get_pictures            ();
+FmPath *fm_path_get_videos              ();
+FmPath *fm_path_get_apps_menu           (); //
 
 
 // Path Flags Testing...
 #define fm_path_is_native(path)         (fm_path_get_flags(path) & FM_PATH_IS_NATIVE)
 #define fm_path_is_virtual(path)        (fm_path_get_flags(path) & FM_PATH_IS_VIRTUAL)
 #define fm_path_is_local(path)          (fm_path_get_flags(path) & FM_PATH_IS_LOCAL)
+
 #define fm_path_is_root(path)           (fm_path_get_flags(path) & FM_PATH_IS_ROOT)
 #define fm_path_is_special(path)        (fm_path_get_flags(path) & FM_PATH_IS_SPECIAL)
-#define fm_path_is_computer(path)       (fm_path_get_flags(path) & FM_PATH_IS_COMPUTER)
 #define fm_path_is_desktop(path)        (fm_path_get_flags(path) & FM_PATH_IS_DESKTOP)
-#define fm_path_is_documents(path)      (fm_path_get_flags(path) & FM_PATH_IS_DOCUMENTS)
+#define fm_path_is_computer(path)       (fm_path_get_flags(path) & FM_PATH_IS_COMPUTER)
 #define fm_path_is_trash(path)          (path == fm_path_get_trash())
+#define fm_path_is_documents(path)      (fm_path_get_flags(path) & FM_PATH_IS_DOCUMENTS)
+#define fm_path_is_download(path)       (fm_path_get_flags(path) & FM_PATH_IS_DOWNLOAD)
+#define fm_path_is_music(path)          (fm_path_get_flags(path) & FM_PATH_IS_MUSIC)
+#define fm_path_is_pictures(path)       (fm_path_get_flags(path) & FM_PATH_IS_PICTURES)
+#define fm_path_is_videos(path)         (fm_path_get_flags(path) & FM_PATH_IS_VIDEOS)
 #define fm_path_is_xdg_menu(path)       (fm_path_get_flags(path) & FM_PATH_IS_XDG_MENU)
 
 

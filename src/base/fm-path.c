@@ -45,8 +45,13 @@
 static FmPath *root_path =          NULL;
 static FmPath *home_path =          NULL;
 static FmPath *desktop_path =       NULL;
+static FmPath *computer_path =      NULL;
+static FmPath *trash_path =         NULL;
 static FmPath *documents_path =     NULL;
-static FmPath *trash_root_path =    NULL;
+static FmPath *download_path =      NULL;
+static FmPath *music_path =         NULL;
+static FmPath *pictures_path =      NULL;
+static FmPath *videos_path =        NULL;
 static FmPath *apps_root_path =     NULL;
 
 
@@ -81,6 +86,20 @@ void _fm_path_init ()
                                                      | FM_PATH_IS_NATIVE
                                                      | FM_PATH_IS_LOCAL);
 
+    // Trash Can Root...
+    computer_path = _fm_path_new_internal (NULL, "computer:///", 12,
+                                             FM_PATH_IS_COMPUTER
+                                             | FM_PATH_IS_SPECIAL
+                                             | FM_PATH_IS_VIRTUAL
+                                             | FM_PATH_IS_LOCAL);
+    
+    // Trash Can Root...
+    trash_path = _fm_path_new_internal (NULL, "trash:///", 9,
+                                             FM_PATH_IS_TRASH
+                                             | FM_PATH_IS_SPECIAL
+                                             | FM_PATH_IS_VIRTUAL
+                                             | FM_PATH_IS_LOCAL);
+    
     // User Documents...
     documents_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
                                                        FM_PATH_IS_ROOT
@@ -89,17 +108,103 @@ void _fm_path_init ()
                                                        | FM_PATH_IS_NATIVE
                                                        | FM_PATH_IS_LOCAL);
 
-    // Trash Can Root...
-    trash_root_path = _fm_path_new_internal (NULL, "trash:///", 9,
-                                             FM_PATH_IS_TRASH
-                                             | FM_PATH_IS_SPECIAL
-                                             | FM_PATH_IS_VIRTUAL
-                                             | FM_PATH_IS_LOCAL);
-    
+    // User Download...
+    download_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
+                                                       FM_PATH_IS_ROOT
+                                                       | FM_PATH_IS_SPECIAL
+                                                       | FM_PATH_IS_DOWNLOAD
+                                                       | FM_PATH_IS_NATIVE
+                                                       | FM_PATH_IS_LOCAL);
+
+    // User Music...
+    music_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
+                                                       FM_PATH_IS_ROOT
+                                                       | FM_PATH_IS_SPECIAL
+                                                       | FM_PATH_IS_MUSIC
+                                                       | FM_PATH_IS_NATIVE
+                                                       | FM_PATH_IS_LOCAL);
+
+    // User Pictures...
+    pictures_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
+                                                       FM_PATH_IS_ROOT
+                                                       | FM_PATH_IS_SPECIAL
+                                                       | FM_PATH_IS_PICTURES
+                                                       | FM_PATH_IS_NATIVE
+                                                       | FM_PATH_IS_LOCAL);
+
+    // User Videos...
+    videos_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
+                                                       FM_PATH_IS_ROOT
+                                                       | FM_PATH_IS_SPECIAL
+                                                       | FM_PATH_IS_VIDEOS
+                                                       | FM_PATH_IS_NATIVE
+                                                       | FM_PATH_IS_LOCAL);
+
     // Applications Root...
     apps_root_path = _fm_path_new_internal (NULL, "menu://Applications/", 20,
                                             FM_PATH_IS_XDG_MENU
                                             | FM_PATH_IS_VIRTUAL);
+}
+
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
+FmPath *fm_path_get_root ()
+{
+    return root_path;
+}
+
+FmPath *fm_path_get_home ()
+{
+    return home_path;
+}
+
+FmPath *fm_path_get_computer ()
+{
+    return computer_path;
+}
+
+FmPath *fm_path_get_desktop ()
+{
+    return desktop_path;
+}
+
+FmPath *fm_path_get_trash ()
+{
+    return trash_path;
+}
+
+FmPath *fm_path_get_documents ()
+{
+    return documents_path;
+}
+
+FmPath *fm_path_get_download ()
+{
+    return download_path;
+}
+
+FmPath *fm_path_get_music ()
+{
+    return music_path;
+}
+
+FmPath *fm_path_get_pictures ()
+{
+    return pictures_path;
+}
+
+FmPath *fm_path_get_videos ()
+{
+    return videos_path;
+}
+
+FmPath *fm_path_get_apps_menu ()
+{
+    return apps_root_path;
 }
 
 
@@ -278,7 +383,7 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
         if (remaining)
             *remaining = host;
         
-        return fm_path_ref (trash_root_path);
+        return fm_path_ref (trash_path);
     }
     
     
@@ -792,44 +897,6 @@ FmPath *fm_path_new_relative (FmPath *parent, const char *rel)
     return path;
 }
 
-
-
-
-/*****************************************************************************************
- * 
- * 
- * 
- ****************************************************************************************/
-
-FmPath *fm_path_get_root ()
-{
-    return root_path;
-}
-
-FmPath *fm_path_get_home ()
-{
-    return home_path;
-}
-
-FmPath *fm_path_get_desktop ()
-{
-    return desktop_path;
-}
-
-FmPath *fm_path_get_documents ()
-{
-    return documents_path;
-}
-
-FmPath *fm_path_get_trash ()
-{
-    return trash_root_path;
-}
-
-FmPath *fm_path_get_apps_menu ()
-{
-    return apps_root_path;
-}
 
 
 

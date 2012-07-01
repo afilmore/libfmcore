@@ -191,20 +191,6 @@ static void fm_dir_tree_model_finalize (GObject *object)
     G_OBJECT_CLASS (fm_dir_tree_model_parent_class)->finalize (object);
 }
 
-static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_model)
-{
-    GList *l;
-    GtkTreePath *tree_path = gtk_tree_path_new_first ();
-    
-    for (l = dir_tree_model->root_list; l; l = l->next)
-    {
-        fm_dir_tree_model_item_reload_icon (dir_tree_model, l->data, tree_path);
-        gtk_tree_path_next (tree_path);
-    }
-    gtk_tree_path_free (tree_path);
-}
-
-
 /*****************************************************************************************
  *  Create Direct Root Items...
  * 
@@ -224,7 +210,8 @@ void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
 
 
-    // Download...
+    /**
+    Download...
     path = fm_path_new_for_str (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
@@ -254,7 +241,7 @@ void fm_dir_tree_model_load_testing (FmDirTreeModel *dir_tree_model)
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
     fm_path_unref (path);
-    
+    **/
     
     // Root FileSystem...
     path = fm_path_get_root ();
@@ -580,7 +567,6 @@ static GList *fm_dir_tree_model_insert_sorted (FmDirTreeModel *dir_tree_model, G
  ****************************************************************************************/
 void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *it, GtkTreePath *tree_path)
 {
-    
     //TREEVIEW_DEBUG ("TREEVIEW_DEBUG: fm_dir_tree_model_expand_row\n");
     
     GList *item_list = (GList*) it->user_data;
@@ -645,7 +631,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *
         }
     }
     
-    ++dir_tree_item->n_expand;
+    dir_tree_item->n_expand++;
 }
 
 void fm_dir_tree_model_collapse_row (FmDirTreeModel *dir_tree_model, GtkTreeIter *it, GtkTreePath *tree_path)
@@ -653,7 +639,6 @@ void fm_dir_tree_model_collapse_row (FmDirTreeModel *dir_tree_model, GtkTreeIter
     return;
     
     GList *item_list = (GList*) it->user_data;
-    
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     g_return_if_fail (dir_tree_item);
     
@@ -672,9 +657,6 @@ void fm_dir_tree_model_collapse_row (FmDirTreeModel *dir_tree_model, GtkTreeIter
         fm_dir_tree_model_add_place_holder_child_item (dir_tree_model, item_list, tree_path, TRUE);
     }
 }
-
-
-
 
 
 /*****************************************************************************************
@@ -751,18 +733,21 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *dir_tree_mode
  ****************************************************************************************/
 void fm_dir_tree_model_set_icon_size (FmDirTreeModel *dir_tree_model, guint icon_size)
 {
-    if (dir_tree_model->icon_size != icon_size)
-    {
-        // Reload existing icons...
-        GtkTreePath *tree_path = gtk_tree_path_new_first ();
-        GList *l;
-        for (l = dir_tree_model->root_list; l; l=l->next)
-        {
-            fm_dir_tree_model_item_reload_icon (dir_tree_model, (FmDirTreeItem*) l, tree_path);
-            gtk_tree_path_next (tree_path);
-        }
-        gtk_tree_path_free (tree_path);
-    }
+    if (dir_tree_model->icon_size == icon_size)
+        return;
+    
+    on_theme_changed (NULL, dir_tree_model);
+    
+    // duplicated code again :(
+    // Reload existing icons...
+    //~ GtkTreePath *tree_path = gtk_tree_path_new_first ();
+    //~ GList *l;
+    //~ for (l = dir_tree_model->root_list; l; l=l->next)
+    //~ {
+        //~ fm_dir_tree_model_item_reload_icon (dir_tree_model, (FmDirTreeItem*) l->data, tree_path);
+        //~ gtk_tree_path_next (tree_path);
+    //~ }
+    //~ gtk_tree_path_free (tree_path);
 }
 
 guint fm_dir_tree_get_icon_size (FmDirTreeModel *dir_tree_model)
@@ -770,6 +755,69 @@ guint fm_dir_tree_get_icon_size (FmDirTreeModel *dir_tree_model)
     return dir_tree_model->icon_size;
 }
 
+static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *dir_tree_model)
+{
+    GtkTreePath *tree_path = gtk_tree_path_new_first ();
+    
+    GList *l;
+    for (l = dir_tree_model->root_list; l; l = l->next)
+    {
+        fm_dir_tree_model_item_reload_icon (dir_tree_model, (FmDirTreeItem*) l->data, tree_path);
+        gtk_tree_path_next (tree_path);
+    }
+    gtk_tree_path_free (tree_path);
+}
+
+static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *dir_tree_model, FmDirTreeItem *dir_tree_item,
+                                                GtkTreePath *tree_path)
+{
+    g_return_if_fail (dir_tree_item != NULL);
+    
+    GtkTreeIter it;
+    GList *l;
+
+    //~ if (dir_tree_item->icon)
+    //~ {
+        //~ g_object_unref (dir_tree_item->icon);
+        //~ dir_tree_item->icon = NULL;
+        //~ gtk_tree_model_row_changed (GTK_TREE_MODEL (dir_tree_model), tree_path, &it);
+    //~ }
+
+    if (dir_tree_item->fm_icon)
+    {
+        fm_icon_unref (dir_tree_item->fm_icon);
+        dir_tree_item->fm_icon = NULL;
+        gtk_tree_model_row_changed (GTK_TREE_MODEL (dir_tree_model), tree_path, &it);
+    }
+
+    if (dir_tree_item->children)
+    {
+        gtk_tree_path_append_index (tree_path, 0);
+        for (l = dir_tree_item->children; l; l=l->next)
+        {
+            fm_dir_tree_model_item_reload_icon (dir_tree_model, (FmDirTreeItem*) l->data, tree_path);
+            gtk_tree_path_next (tree_path);
+        }
+        gtk_tree_path_up (tree_path);
+    }
+
+    for (l = dir_tree_item->hidden_children; l; l=l->next)
+    {
+        FmDirTreeItem *child = (FmDirTreeItem*) l->data;
+        if (child && child->fm_icon)
+        {
+            fm_icon_unref (child->fm_icon);
+            child->fm_icon = NULL;
+        }
+    }
+}
+
+
+/*****************************************************************************************
+ *  ...
+ * 
+ * 
+ ****************************************************************************************/
 void fm_dir_tree_model_set_show_hidden (FmDirTreeModel *dir_tree_model, gboolean show_hidden)
 {
     g_return_if_fail (dir_tree_model);
@@ -808,59 +856,6 @@ gboolean fm_dir_tree_model_get_show_symlinks (FmDirTreeModel *dir_tree_model)
 {
     return dir_tree_model->show_symlinks;
 }
-
-
-/*****************************************************************************************
- *  ...
- * 
- * 
- ****************************************************************************************/
-static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *dir_tree_model, FmDirTreeItem *dir_tree_item,
-                                                GtkTreePath *tree_path)
-{
-    GtkTreeIter it;
-    GList *l;
-    FmDirTreeItem *child;
-
-    //~ if (dir_tree_item->icon)
-    //~ {
-        //~ g_object_unref (dir_tree_item->icon);
-        //~ dir_tree_item->icon = NULL;
-        //~ gtk_tree_model_row_changed (GTK_TREE_MODEL (dir_tree_model), tree_path, &it);
-    //~ }
-//~ 
-    if (dir_tree_item->fm_icon)
-    {
-        fm_icon_unref (dir_tree_item->fm_icon);
-        dir_tree_item->fm_icon = NULL;
-        gtk_tree_model_row_changed (GTK_TREE_MODEL (dir_tree_model), tree_path, &it);
-    }
-
-    if (dir_tree_item->children)
-    {
-        gtk_tree_path_append_index (tree_path, 0);
-        for (l = dir_tree_item->children; l; l=l->next)
-        {
-            child = (FmDirTreeItem*) l->data;
-            fm_dir_tree_model_item_reload_icon (dir_tree_model, child, tree_path);
-            gtk_tree_path_next (tree_path);
-        }
-        gtk_tree_path_up (tree_path);
-    }
-
-    for (l = dir_tree_item->hidden_children; l; l=l->next)
-    {
-        child = (FmDirTreeItem*) l->data;
-        if (child->fm_icon)
-        {
-            fm_icon_unref (child->fm_icon);
-            child->fm_icon = NULL;
-        }
-    }
-}
-
-
-
 
 
 /*****************************************************************************************
@@ -1007,10 +1002,6 @@ static gboolean subdir_check_finish (FmDirTreeModel *dir_tree_model)
 }
 
 
-
-
-
-
 /*****************************************************************************************
  *  ...
  * 
@@ -1053,9 +1044,6 @@ GList *fm_dir_tree_model_children_by_name (FmDirTreeModel *dir_tree_model, GList
     }
     return NULL;
 }
-
-
-
 
 
 /*****************************************************************************************
@@ -1110,6 +1098,7 @@ gboolean fm_dir_tree_model_get_iter (GtkTreeModel *tree_model, GtkTreeIter *iter
     }
     
     fm_dir_tree_model_item_to_tree_iter (dir_tree_model, child, iter);
+    
     return TRUE;
 }
 
@@ -1275,6 +1264,7 @@ static gboolean fm_dir_tree_model_iter_children (GtkTreeModel *tree_model, GtkTr
 
     // Set iter to first item in model 
     fm_dir_tree_model_item_to_tree_iter (dir_tree_model, first_child, iter);
+    
     return TRUE;
 }
 
@@ -1359,10 +1349,5 @@ static gboolean fm_dir_tree_model_iter_parent (GtkTreeModel *tree_model, GtkTree
     }
     return FALSE;
 }
-
-
-
-
-
 
 
