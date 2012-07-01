@@ -3,6 +3,7 @@
  *      fm-path.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -44,14 +45,17 @@
  ****************************************************************************************/
 static FmPath *root_path =          NULL;
 static FmPath *home_path =          NULL;
+
 static FmPath *desktop_path =       NULL;
 static FmPath *computer_path =      NULL;
 static FmPath *trash_path =         NULL;
 static FmPath *documents_path =     NULL;
+
 static FmPath *download_path =      NULL;
 static FmPath *music_path =         NULL;
 static FmPath *pictures_path =      NULL;
 static FmPath *videos_path =        NULL;
+
 static FmPath *apps_root_path =     NULL;
 
 
@@ -88,17 +92,17 @@ void _fm_path_init ()
 
     // Trash Can Root...
     computer_path = _fm_path_new_internal (NULL, "computer:///", 12,
-                                             FM_PATH_IS_COMPUTER
-                                             | FM_PATH_IS_SPECIAL
-                                             | FM_PATH_IS_VIRTUAL
-                                             | FM_PATH_IS_LOCAL);
+                                           FM_PATH_IS_COMPUTER
+                                           | FM_PATH_IS_SPECIAL
+                                           | FM_PATH_IS_VIRTUAL
+                                           | FM_PATH_IS_LOCAL);
     
     // Trash Can Root...
     trash_path = _fm_path_new_internal (NULL, "trash:///", 9,
-                                             FM_PATH_IS_TRASH
-                                             | FM_PATH_IS_SPECIAL
-                                             | FM_PATH_IS_VIRTUAL
-                                             | FM_PATH_IS_LOCAL);
+                                        FM_PATH_IS_TRASH
+                                        | FM_PATH_IS_SPECIAL
+                                        | FM_PATH_IS_VIRTUAL
+                                        | FM_PATH_IS_LOCAL);
     
     // User Documents...
     documents_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DOCUMENTS),
@@ -110,35 +114,35 @@ void _fm_path_init ()
 
     // User Download...
     download_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD),
-                                                       FM_PATH_IS_ROOT
-                                                       | FM_PATH_IS_SPECIAL
-                                                       | FM_PATH_IS_DOWNLOAD
-                                                       | FM_PATH_IS_NATIVE
-                                                       | FM_PATH_IS_LOCAL);
+                                                      FM_PATH_IS_ROOT
+                                                      | FM_PATH_IS_SPECIAL
+                                                      | FM_PATH_IS_DOWNLOAD
+                                                      | FM_PATH_IS_NATIVE
+                                                      | FM_PATH_IS_LOCAL);
 
     // User Music...
     music_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_MUSIC),
-                                                       FM_PATH_IS_ROOT
-                                                       | FM_PATH_IS_SPECIAL
-                                                       | FM_PATH_IS_MUSIC
-                                                       | FM_PATH_IS_NATIVE
-                                                       | FM_PATH_IS_LOCAL);
+                                                   FM_PATH_IS_ROOT
+                                                   | FM_PATH_IS_SPECIAL
+                                                   | FM_PATH_IS_MUSIC
+                                                   | FM_PATH_IS_NATIVE
+                                                   | FM_PATH_IS_LOCAL);
 
     // User Pictures...
     pictures_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_PICTURES),
-                                                       FM_PATH_IS_ROOT
-                                                       | FM_PATH_IS_SPECIAL
-                                                       | FM_PATH_IS_PICTURES
-                                                       | FM_PATH_IS_NATIVE
-                                                       | FM_PATH_IS_LOCAL);
+                                                      FM_PATH_IS_ROOT
+                                                      | FM_PATH_IS_SPECIAL
+                                                      | FM_PATH_IS_PICTURES
+                                                      | FM_PATH_IS_NATIVE
+                                                      | FM_PATH_IS_LOCAL);
 
     // User Videos...
     videos_path = _fm_path_new_internal_for_string (g_get_user_special_dir (G_USER_DIRECTORY_VIDEOS),
-                                                       FM_PATH_IS_ROOT
-                                                       | FM_PATH_IS_SPECIAL
-                                                       | FM_PATH_IS_VIDEOS
-                                                       | FM_PATH_IS_NATIVE
-                                                       | FM_PATH_IS_LOCAL);
+                                                    FM_PATH_IS_ROOT
+                                                    | FM_PATH_IS_SPECIAL
+                                                    | FM_PATH_IS_VIDEOS
+                                                    | FM_PATH_IS_NATIVE
+                                                    | FM_PATH_IS_LOCAL);
 
     // Applications Root...
     apps_root_path = _fm_path_new_internal (NULL, "menu://Applications/", 20,
@@ -162,14 +166,14 @@ FmPath *fm_path_get_home ()
     return home_path;
 }
 
-FmPath *fm_path_get_computer ()
-{
-    return computer_path;
-}
-
 FmPath *fm_path_get_desktop ()
 {
     return desktop_path;
+}
+
+FmPath *fm_path_get_computer ()
+{
+    return computer_path;
 }
 
 FmPath *fm_path_get_trash ()
@@ -501,8 +505,6 @@ static FmPath *_fm_path_new_uri_root (const char *uri, int len, const char **rem
     
     return fm_path_ref (root_path);
 }
-
-
 
 
 /*****************************************************************************************

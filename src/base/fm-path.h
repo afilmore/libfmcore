@@ -120,14 +120,17 @@ FmPath *fm_path_new_relative            (FmPath *parent, const char *relative_pa
 // Get Predefined Paths...
 FmPath *fm_path_get_root                (); // "/"
 FmPath *fm_path_get_home                ();
+
 FmPath *fm_path_get_desktop             ();
 FmPath *fm_path_get_computer            ();
 FmPath *fm_path_get_trash               (); // "trash:///"
 FmPath *fm_path_get_documents           ();
+
 FmPath *fm_path_get_download            ();
 FmPath *fm_path_get_music               ();
 FmPath *fm_path_get_pictures            ();
 FmPath *fm_path_get_videos              ();
+
 FmPath *fm_path_get_apps_menu           (); //
 
 
@@ -138,14 +141,17 @@ FmPath *fm_path_get_apps_menu           (); //
 
 #define fm_path_is_root(path)           (fm_path_get_flags(path) & FM_PATH_IS_ROOT)
 #define fm_path_is_special(path)        (fm_path_get_flags(path) & FM_PATH_IS_SPECIAL)
+
 #define fm_path_is_desktop(path)        (fm_path_get_flags(path) & FM_PATH_IS_DESKTOP)
 #define fm_path_is_computer(path)       (fm_path_get_flags(path) & FM_PATH_IS_COMPUTER)
 #define fm_path_is_trash(path)          (path == fm_path_get_trash())
 #define fm_path_is_documents(path)      (fm_path_get_flags(path) & FM_PATH_IS_DOCUMENTS)
+
 #define fm_path_is_download(path)       (fm_path_get_flags(path) & FM_PATH_IS_DOWNLOAD)
 #define fm_path_is_music(path)          (fm_path_get_flags(path) & FM_PATH_IS_MUSIC)
 #define fm_path_is_pictures(path)       (fm_path_get_flags(path) & FM_PATH_IS_PICTURES)
 #define fm_path_is_videos(path)         (fm_path_get_flags(path) & FM_PATH_IS_VIDEOS)
+
 #define fm_path_is_xdg_menu(path)       (fm_path_get_flags(path) & FM_PATH_IS_XDG_MENU)
 
 

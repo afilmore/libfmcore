@@ -105,10 +105,7 @@ namespace Manager {
             
             _dir_tree_model.set_show_hidden (true);
             _dir_tree_model.set_show_symlinks (true);
-            
-//~             _dir_tree_model.load ();
-            
-            _dir_tree_model.load_testing ();
+            _dir_tree_model.load ();
             
             
             // The model is loaded, attach a view to it and connect signals...

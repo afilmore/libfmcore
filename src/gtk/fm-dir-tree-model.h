@@ -98,7 +98,6 @@ gboolean            fm_dir_tree_model_get_iter                  (GtkTreeModel *t
                                                                  GtkTreeIter *iter, GtkTreePath *path);
 
 void                fm_dir_tree_model_load                      (FmDirTreeModel *dir_tree_model);
-void                fm_dir_tree_model_load_testing                      (FmDirTreeModel *dir_tree_model);
 void                fm_dir_tree_model_add_root                  (FmDirTreeModel *dir_tree_model, FmFileInfo *root,
                                                                  GtkTreeIter *it, gboolean can_expand);
 

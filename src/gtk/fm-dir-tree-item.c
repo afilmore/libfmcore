@@ -230,56 +230,6 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
     FmDirTreeModel *model = dir_tree_item->model;
     
     fm_dir_tree_item_load_folder (folder, files, item_list, TRUE);
-    
-    /*
-    
-    // 8<-------------------------------------------------------------------------------------------
-    //  Duplicated code again :(
-    //
-    //  *   fm_dir_tree_model_expand_row
-    //  *   on_folder_files_added
-    // 8<-------------------------------------------------------------------------------------------
-    GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
-    
-    GSList *l;
-    for (l = files; l; l = l->next)
-    {
-        FmFileInfo *file_info = FM_FILE_INFO (l->data);
-        
-         ***
-         * Should FmFolder generate "files-added" signal on its first-time loading ?
-         * Isn't "loaded" signal enough ?
-         ***
-        
-        FmPath *path = fm_file_info_get_path (file_info);
-        if (!fm_file_info_is_dir (file_info) && !fm_path_is_virtual (path))
-        {
-            // NO_DEBUG ("%s\n", fm_path_get_basename (path));
-            continue;
-        }
-        
-        // Ensure that the file is not yet in our model
-        GList *new_item_list = fm_dir_tree_model_children_by_name (model,
-                                                                   dir_tree_item->children,
-                                                                   file_info->path->name,
-                                                                   NULL);
-        
-        
-        if (new_item_list)
-        {
-            TREEVIEW_DEBUG ("TREEVIEW_DEBUG: CRITICAL: on_folder_files_added: %s already in the model !!!\n",
-                            file_info->path->name);
-        }
-        //~ else
-        //~ {
-            new_item_list = fm_dir_tree_model_insert_file_info (model, item_list, tp, file_info);
-        //~ }
-    }
-    
-    gtk_tree_path_free (tp);
-    // 8<-------------------------------------------------------------------------------------------
-     
-    **/
 }
 
 void fm_dir_tree_item_load_folder (FmFolder *folder, GSList *files, GList *item_list, gboolean check_exits)

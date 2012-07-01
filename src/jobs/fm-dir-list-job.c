@@ -61,9 +61,9 @@ FmJob *fm_dir_list_job_new (FmPath *path, gboolean dir_only)
 {
 	FmDirListJob *dir_list_job = (FmDirListJob*) g_object_new (FM_TYPE_DIR_LIST_JOB, NULL);
 	
-    dir_list_job->directory = fm_path_ref (path);
-    dir_list_job->dir_only = dir_only;
-	dir_list_job->files = fm_file_info_list_new ();
+    dir_list_job->directory =   fm_path_ref (path);
+    dir_list_job->dir_only =    dir_only;
+	dir_list_job->files =       fm_file_info_list_new ();
 	
     return (FmJob*) dir_list_job;
 }
@@ -157,15 +157,6 @@ static gboolean fm_dir_list_job_run (FmDirListJob *dir_list_job)
     // We need to create special items on the desktop, such as "My Computer", "My Documents" etc...
     if (fm_path_is_root (directory) && fm_path_is_desktop (directory))
     {
-        /**
-        FmPath *path = fm_path_new_for_uri ("computer:///");
-        path->flags |= FM_PATH_IS_SPECIAL;
-        FmFileInfo *file_info = fm_file_info_new_for_path (path);
-        fm_path_unref (path);
-        fm_file_info_query (file_info, NULL, NULL);
-        fm_list_push_tail_noref (dir_list_job->files, file_info);
-        **/
-        
         FmPath *path = fm_path_get_computer ();
         FmFileInfo *file_info = fm_file_info_new_for_path (path);
         fm_file_info_query (file_info, NULL, NULL);
