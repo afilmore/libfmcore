@@ -707,21 +707,26 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     g_mutex_lock (dir_tree_model->subdir_checks_mutex);
     
     GList *item_list = (GList*) g_queue_pop_head (&dir_tree_model->subdir_checks);
+    
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     dir_tree_model->current_subdir_check = item_list;
     
-    GFile *gfile = fm_path_to_gfile (fm_file_info_get_path (dir_tree_item->file_info));
     
-    //gboolean is_mountable = fm_file_info_is_mountable (dir_tree_item->file_info);
+    // If the directory is a Drive, get it's target directory...
     //gboolean is_drive = fm_file_info_is_drive (dir_tree_item->file_info);
+    GFile *gfile;
+    gboolean is_mountable = fm_file_info_is_mountable (dir_tree_item->file_info);
+    if (is_mountable)
+    {
+        gfile = g_file_new_for_path (fm_file_info_get_target (dir_tree_item->file_info));
+    }
+    else
+    {
+        gfile = fm_path_to_gfile (fm_file_info_get_path (dir_tree_item->file_info));
+    }
     
     g_mutex_unlock (dir_tree_model->subdir_checks_mutex);
     // Unlock --------------------------------------------------------------------------------------
-    
-	//~ if (is_mountable)
-    //~ {
-        //~ TREEVIEW_DEBUG ("JOB_DEBUG: subdir_check_job: %s is mountable type !!!\n\n", directory);
-    //~ }
     
     //~ GError *gerror = NULL;
     //~ gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, fm_job_get_cancellable (fmjob), &gerror);
@@ -731,7 +736,14 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
      * 
      */
     char *directory = fm_file_info_get_name (dir_tree_item->file_info);
+    JOB_DEBUG ("\n----------------------------------------------------------------------------------------------\n");
     JOB_DEBUG ("JOB_DEBUG: subdir_check_job: check \"%s\"\n", directory);
+    JOB_DEBUG ("----------------------------------------------------------------------------------------------\n");
+	if (is_mountable)
+    {
+        JOB_DEBUG ("JOB_DEBUG: subdir_check_job: %s is mountable type !!!\n\n", directory);
+    }
+    
     
     GFileEnumerator *enumerator = g_file_enumerate_children (gfile,
                                                              G_FILE_ATTRIBUTE_STANDARD_NAME","
