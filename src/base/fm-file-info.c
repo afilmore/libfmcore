@@ -364,13 +364,15 @@ static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
     
     char *menu_name = p-1;
     
-    JOB_DEBUG ("\nJOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", menu_name);
+    //JOB_DEBUG ("\nJOB_DEBUG: fm_file_info_query_cache_item: path_str = %s\n", menu_name);
+    
     MenuCacheDir *menu_cache_dir = menu_cache_get_dir_from_path (global_menu_cache, menu_name);
     g_return_val_if_fail (menu_cache_dir != NULL, FALSE);
     
     //~ if (g_strcmp0 (menu_cache_item_get_file_dirname (found_item), menu_cache_item_get_file_path (found_item)) == 0)
         //~ JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: DIRECTORY !!!!\n\n");
     
+    /**
     JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_dirname = %s\n",
                menu_cache_item_get_file_dirname (menu_cache_dir));
     JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_file_path = %s\n",
@@ -381,7 +383,7 @@ static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
                menu_cache_item_get_name (menu_cache_dir));
     JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: get_id = %s\n\n",
                menu_cache_item_get_id (menu_cache_dir));
-    
+    **/
         
     MenuCacheItem *found_item = NULL;
     
@@ -393,7 +395,7 @@ static gboolean fm_file_info_query_cache_item (FmFileInfo *file_info)
             MenuCacheItem *item = MENU_CACHE_ITEM (l->data);
             
             char *item_path = menu_cache_item_get_id (item);
-            JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item_path = %s\n", item_path);
+            //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: item_path = %s\n", item_path);
             
             //JOB_DEBUG ("JOB_DEBUG: fm_file_info_query_cache_item: file_info->path->name = %s\n", file_info->path->name);
             if (g_strcmp0 (file_info->path->name, item_path) == 0)
