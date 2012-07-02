@@ -701,27 +701,30 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *dir_tree_model, 
 static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellable, gpointer user_data)
 {
     FmDirTreeModel *dir_tree_model = FM_DIR_TREE_MODEL (user_data);
-    GList *item_list;
-    FmDirTreeItem *dir_tree_item;
-    GFile *gf;
-    gboolean has_subdir = FALSE;
 
+    // Lock ----------------------------------------------------------------------------------------
     g_mutex_lock (dir_tree_model->subdir_checks_mutex);
-    item_list = (GList*) g_queue_pop_head (&dir_tree_model->subdir_checks);
-    dir_tree_item = (FmDirTreeItem*) item_list->data;
+    
+    GList *item_list = (GList*) g_queue_pop_head (&dir_tree_model->subdir_checks);
+    FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     dir_tree_model->current_subdir_check = item_list;
     
-    // check if this item has subdir 
-    gf = fm_path_to_gfile (fm_file_info_get_path (dir_tree_item->file_info));
+    GFile *gfile = fm_path_to_gfile (fm_file_info_get_path (dir_tree_item->file_info));
+    
     g_mutex_unlock (dir_tree_model->subdir_checks_mutex);
+    // Unlock --------------------------------------------------------------------------------------
     
-    // NO_DEBUG ("check subdir for: %s\n", g_file_get_parse_name (gf));
+    // Parse input directory...
+    char *directory = fm_file_info_get_disp_name (dir_tree_item->file_info);
+    TREEVIEW_DEBUG ("JOB_DEBUG: subdir_check_job: check %s\n", directory);
     
-    GFileEnumerator *enumerator = g_file_enumerate_children (gf,
-                            G_FILE_ATTRIBUTE_STANDARD_NAME","
-                            G_FILE_ATTRIBUTE_STANDARD_TYPE","
-                            G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
-                            0, cancellable, NULL);
+    GFileEnumerator *enumerator = g_file_enumerate_children (gfile,
+                                                             G_FILE_ATTRIBUTE_STANDARD_NAME","
+                                                             G_FILE_ATTRIBUTE_STANDARD_TYPE","
+                                                             G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN,
+                                                             0, cancellable, NULL);
+    
+    gboolean has_subdir = FALSE;
     if (enumerator)
     {
         while (!g_cancellable_is_cancelled (cancellable))
@@ -732,8 +735,8 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
                 GFileType g_file_type = g_file_info_get_file_type (gfile_info);
                 gboolean is_hidden = g_file_info_get_is_hidden (gfile_info);
                 
-                TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_job: GFileInfo for %s = %d\n\n",
-                                g_file_info_get_name (gfile_info), g_file_type);
+                //~ TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_job: GFileInfo for %s = %d\n",
+                                //~ g_file_info_get_name (gfile_info), g_file_type);
                 
                 g_object_unref (gfile_info);
                 
@@ -741,6 +744,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
                 {
                     if (dir_tree_model->show_hidden || !is_hidden)
                     {
+                        JOB_DEBUG ("JOB_DEBUG: subdir_check_job: A directory found in \"%s\" !!!\n\n", directory);
                         has_subdir = TRUE;
                         break;
                     }
@@ -756,14 +760,24 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
         g_file_enumerator_close (enumerator, cancellable, &error);
         g_object_unref (enumerator);
     }
+    else
+    {
+        JOB_DEBUG ("JOB_DEBUG: subdir_check_job: Error: can't read \"%s\"...\n", directory);
+    }
     
-    // NO_DEBUG ("check result - %s has_dir: %d\n", g_file_get_parse_name (gf), has_subdir);
-    g_object_unref (gf);
+    // NO_DEBUG ("check result - %s has_dir: %d\n", g_file_get_parse_name (gfile), has_subdir);
+    g_object_unref (gfile);
     
     if (!has_subdir)
-        return g_io_scheduler_job_send_to_mainloop (job, (GSourceFunc) subdir_check_remove_place_holder,
-                                                    dir_tree_model, NULL);
+    {
+        JOB_DEBUG ("JOB_DEBUG: subdir_check_job: No directory found in \"%s\"\n\t\t\t  > Remove place holder\n\n",
+                   directory);
         
+        return g_io_scheduler_job_send_to_mainloop (job,
+                                                    (GSourceFunc) subdir_check_remove_place_holder,
+                                                    dir_tree_model, NULL);
+    }
+    
     return subdir_check_finish (dir_tree_model);
 }
 
@@ -780,8 +794,8 @@ static gboolean subdir_check_remove_place_holder (FmDirTreeModel *dir_tree_model
         if (dir_tree_item->children)
         {
             // Remove the place holder...
-            TREEVIEW_DEBUG ("TREEVIEW_DEBUG: subdir_check_remove_place_holder: remove place holder for %s\n\n",
-                            fm_file_info_get_disp_name (dir_tree_item->file_info));
+            JOB_DEBUG ("JOB_DEBUG: subdir_check_remove_place_holder: remove place holder for %s\n\n",
+                       fm_file_info_get_disp_name (dir_tree_item->file_info));
             
             GtkTreePath *tree_path = fm_dir_tree_model_item_to_tree_path (dir_tree_model, item_list);
             fm_dir_tree_model_remove_all_children (dir_tree_model, item_list, tree_path);
