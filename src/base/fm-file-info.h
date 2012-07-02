@@ -125,8 +125,6 @@ FmFileInfo *fm_file_info_new_for_path           (FmPath *path);
 void        fm_file_info_set_path               (FmFileInfo *file_info, FmPath *path);
 FmPath     *fm_file_info_get_path               (FmFileInfo *file_info);
 
-
-
 gboolean    fm_file_info_query                  (FmFileInfo *file_info, GCancellable *cancellable, GError **err);
 
 
@@ -137,8 +135,6 @@ gboolean    fm_file_info_query                  (FmFileInfo *file_info, GCancell
  * 
  * 
  ********************************************************************/
-//~ FmFileInfo  *fm_file_info_new_computer          ();
-//~ FmFileInfo  *fm_file_info_new_trash_can         ();
 FmFileInfo  *fm_file_info_new_user_special_dir  (GUserDirectory directory);
 
 

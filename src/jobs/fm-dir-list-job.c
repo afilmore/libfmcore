@@ -522,7 +522,7 @@ static gboolean fm_dir_list_job_run_gio (FmDirListJob *dir_list_job)
     }
     
     // List children files...
-    enumerator = g_file_enumerate_children  (gfile, query, 0, fm_job_get_cancellable (fmjob), &gerror);
+    enumerator = g_file_enumerate_children (gfile, query, 0, fm_job_get_cancellable (fmjob), &gerror);
     
     g_object_unref (gfile);
     if (!enumerator)

@@ -702,6 +702,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
 {
     FmDirTreeModel *dir_tree_model = FM_DIR_TREE_MODEL (user_data);
 
+    
     // Lock ----------------------------------------------------------------------------------------
     g_mutex_lock (dir_tree_model->subdir_checks_mutex);
     
@@ -711,12 +712,26 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     
     GFile *gfile = fm_path_to_gfile (fm_file_info_get_path (dir_tree_item->file_info));
     
+    //gboolean is_mountable = fm_file_info_is_mountable (dir_tree_item->file_info);
+    //gboolean is_drive = fm_file_info_is_drive (dir_tree_item->file_info);
+    
     g_mutex_unlock (dir_tree_model->subdir_checks_mutex);
     // Unlock --------------------------------------------------------------------------------------
     
-    // Parse input directory...
-    char *directory = fm_file_info_get_disp_name (dir_tree_item->file_info);
-    TREEVIEW_DEBUG ("JOB_DEBUG: subdir_check_job: check %s\n", directory);
+	//~ if (is_mountable)
+    //~ {
+        //~ TREEVIEW_DEBUG ("JOB_DEBUG: subdir_check_job: %s is mountable type !!!\n\n", directory);
+    //~ }
+    
+    //~ GError *gerror = NULL;
+    //~ gfile_info = g_file_query_info (gfile, gfile_info_query_attribs, 0, fm_job_get_cancellable (fmjob), &gerror);
+    
+    /**
+     * Parse input directory...
+     * 
+     */
+    char *directory = fm_file_info_get_name (dir_tree_item->file_info);
+    JOB_DEBUG ("JOB_DEBUG: subdir_check_job: check \"%s\"\n", directory);
     
     GFileEnumerator *enumerator = g_file_enumerate_children (gfile,
                                                              G_FILE_ATTRIBUTE_STANDARD_NAME","
