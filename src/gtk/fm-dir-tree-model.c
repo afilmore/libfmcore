@@ -211,12 +211,12 @@ void fm_dir_tree_model_load (FmDirTreeModel *dir_tree_model)
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
 
 
-    // Root FileSystem...
+    /* Root FileSystem...
     path = fm_path_get_root ();
     file_info = fm_file_info_new_for_path (path);
     fm_file_info_query (file_info, NULL, NULL);
     fm_dir_tree_model_add_root (dir_tree_model, file_info, NULL, TRUE);
-    
+    */
     
     // Settings...
     path = fm_path_new_for_uri ("menu://Applications/DesktopSettings");

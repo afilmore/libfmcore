@@ -133,7 +133,21 @@ FmFolder *fm_dir_tree_item_set_folder (GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     
-    FmFolder *folder = fm_folder_get (dir_tree_item->file_info->path);
+    FmPath *path;
+    if (fm_file_info_is_mountable (dir_tree_item->file_info))
+    {
+        path = fm_path_new_for_str (fm_file_info_get_target (dir_tree_item->file_info));
+    }
+    else
+    {
+        path = fm_path_ref (fm_file_info_get_path (dir_tree_item->file_info));
+    }
+    
+    g_return_val_if_fail (path != NULL, NULL);
+    
+    FmFolder *folder = fm_folder_get (path);
+    fm_path_unref (path);
+    
     dir_tree_item->folder = folder;
 
     // Associate the data with loaded handler...
@@ -244,17 +258,18 @@ void fm_dir_tree_item_load_folder (FmFolder *folder, GSList *files, GList *item_
     {
         FmFileInfo *file_info = FM_FILE_INFO (l->data);
         
+        // Check if we have a directory, a drive or a virtual item...
         FmPath *path = fm_file_info_get_path (file_info);
-        if (!fm_file_info_is_dir (file_info) && !fm_path_is_virtual (path))
+        if (!fm_file_info_is_dir (file_info) && !fm_file_info_is_mountable (file_info) && !fm_path_is_virtual (path))
         {
-            // NO_DEBUG ("%s\n", fm_path_get_basename (path));
+            DEBUG ("%s\n", fm_path_get_basename (path));
             continue;
         }
         
+        // Ensure that the file is not yet in our model
         GList *new_item_list = NULL;
         if (check_exits)
         {
-            // Ensure that the file is not yet in our model
             new_item_list = fm_dir_tree_model_children_by_name (model, dir_tree_item->children,
                                                                 file_info->path->name, NULL);
         }
